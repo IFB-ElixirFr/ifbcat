@@ -38,7 +38,7 @@ class UserProfileManager(BaseUserManager):
 
     # Function for creating super-users
     # NB. all superusers must have a password, hence no "password=Nane"
-    def create_superuser(self, email, firstname, lastname):
+    def create_superuser(self, email, firstname, lastname, password):
         """Create a new superuser profile"""
         user = self.create_user(email, firstname, lastname, password)
 
