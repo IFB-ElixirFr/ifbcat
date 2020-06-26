@@ -1,1 +1,5 @@
 1. Update to latest versions of Django and Django REST framework, see https://pypi.org/. Update requirements.txt.
+2. Implement validation for UserProfile model (regex for orcid, email validation etc.)
+   See https://docs.djangoproject.com/en/3.0/ref/validators/ and https://docs.djangoproject.com/en/3.0/ref/models/instances/#validating-objects
+   From above links it appears do-able from the model class itself, but in bio.tools is done in serializer code,
+   see e.g. https://github.com/bio-tools/biotoolsRegistry/blob/master/backend/elixir/serialization/resource_serialization/credit.py

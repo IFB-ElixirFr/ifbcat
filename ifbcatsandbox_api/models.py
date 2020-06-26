@@ -53,6 +53,9 @@ class UserProfileManager(BaseUserManager):
 #
 # User profiles are set by default to be active (is_active = ...) and are not staff (is_staff = ...)
 # NB. staff users have access to Django admin etc.
+# NB. The model is registered with Django admin in admin.py.  Django will use the class name (UserProfile)
+# to create a name ("User Profiles") for the model used in the admin interface, e.g. http://127.0.0.1:8000/admin/
+# Thus it's best practice to name the class "UserProfile" and not "UserProfiles"
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for users in the system."""
     email = models.EmailField(max_length=255, unique=True)
