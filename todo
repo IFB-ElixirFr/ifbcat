@@ -3,3 +3,6 @@
    See https://docs.djangoproject.com/en/3.0/ref/validators/ and https://docs.djangoproject.com/en/3.0/ref/models/instances/#validating-objects
    From above links it appears do-able from the model class itself, but in bio.tools is done in serializer code,
    see e.g. https://github.com/bio-tools/biotoolsRegistry/blob/master/backend/elixir/serialization/resource_serialization/credit.py
+3. Clean up / remove APIView code added for testing purposes only:
+  ChangelogView in views.py
+  ChangelogSerializer from serializers.py
