@@ -26,8 +26,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             {
                 'write_only': True,
                 'style': {'input_type': 'password'}
-            },
-            'orcidid':{'allow_blank': True}
+            }
         }
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
