@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework import viewsets
 
 from ifbcatsandbox_api import serializers
+from ifbcatsandbox_api import models
 
 # ChangelogView is just a test API View, done in case APIView(s) are needed in the ifbcatsandbox API
 class ChangelogView(APIView):
@@ -117,3 +118,15 @@ class TestViewSet(viewsets.ViewSet):
     def destroy(self, request, pk=None):
         """Dummy "destroy" function (to delete an object)"""
         return Response({'http_method:': 'DELETE'})
+
+
+
+# Model ViewSet (which are bundled with functionality for managing models through the API)
+# They're wired to a serializer class, and a query set is provided so it knows which objects
+# in the DB are managed through this ViewSet
+# Django REST takes care of create, list, update etc. functions on the ViewSet
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating user profiles."""
+
+    serializer_class = serializers.UserProfileSerializer
+    queryset = models.UserProfile.objects.all()

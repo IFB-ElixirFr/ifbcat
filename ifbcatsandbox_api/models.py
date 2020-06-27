@@ -15,18 +15,18 @@ class UserProfileManager(BaseUserManager):
     # Function that Django CLI will use when creating users
     # password=None means that if a password is not set it wil default to None,
     # preventing authentication with the user until a password is set.
-    def create_user(self, email, firstname, lastname, password=None):
+    def create_user(self, firstname, lastname, email, orcidid, homepage, password=None):
         """Create a new user profile"""
+        if not firstname:
+            raise ValueError('Users must have a first (given) name.')
+        if not lastname:
+            raise ValueError('Users must have a last (family) name.')
         if not email:
             raise ValueError('Users must have an email address.')
-        if not firstname:
-            raise ValueError('Users must have a first name.')
-        if not lastname:
-            raise ValueError('Users must have a last name.')
 
-        # Normalize the email address (makes the 2nd part of the addrss all lowercase)
+        # Normalize the email address (makes the 2nd part of the address all lowercase)
         email = self.normalize_email(email)
-        user = self.model(email=email, firstname=firstname, lastname=lastname)
+        user = self.model(firstname=firstname, lastname=lastname, email=email, orcidid=orcidid, homepage=homepage)
 
         # Set password will encrypt the provided password - good practice to do so!
         # Even thoough there's only one database, it's good practice to name the databaes anyway, using:
@@ -38,9 +38,10 @@ class UserProfileManager(BaseUserManager):
 
     # Function for creating super-users
     # NB. all superusers must have a password, hence no "password=Nane"
-    def create_superuser(self, email, firstname, lastname, password):
+    def create_superuser(self, firstname, lastname, email, orcidid, homepage, password):
         """Create a new superuser profile"""
-        user = self.create_user(email, firstname, lastname, password)
+
+        user = self.create_user(password, firstname, lastname, email, orcid, homepage)
 
         # .is_superuser and is_staff come from PermissionsMixin
         user.is_superuser = True
@@ -56,11 +57,15 @@ class UserProfileManager(BaseUserManager):
 # NB. The model is registered with Django admin in admin.py.  Django will use the class name (UserProfile)
 # to create a name ("User Profiles") for the model used in the admin interface, e.g. http://127.0.0.1:8000/admin/
 # Thus it's best practice to name the class "UserProfile" and not "UserProfiles"
+# NB. For a list of attributes of the fields see https://docs.djangoproject.com/en/3.0/ref/models/fields/
+# NB. we cannot have "unique=True" for orcidid, because these are not mandatory ()
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for users in the system."""
-    email = models.EmailField(max_length=255, unique=True)
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
+    orcidid = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(max_length=255, unique=True)
+    homepage = models.URLField(max_length=255, null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
