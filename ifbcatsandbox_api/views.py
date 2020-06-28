@@ -4,12 +4,16 @@
 # "status" object holds HTTP status codes - used when returning responses from the API
 # TokenAuthentication is used to users to authenticate themselves with the API
 # "filters" is for filtering the ViewSets
+# "ObtainAuthToken" is a view used to generate an auth token
+# "api_settings" is used when configuring the custom ObtainAuthToken view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.settings import api_settings
 
 from ifbcatsandbox_api import serializers
 from ifbcatsandbox_api import models
@@ -26,10 +30,13 @@ class ChangelogView(APIView):
         """Returns the ifbcatsandbox API changelog."""
         changelog = [
         'ifbcatsandbox API changelog.',
-        '1. UserProfile model: customises default user model (to use email rather than username).',
-        '   Supports creation of normal and super-users.',
-        '2. Djano Admin is configured and tested (available at /admin endpoint).',
-        '3. /api/changelog endpoint: returns the implementation changelog of the API',
+        '1. /admin endpoint (Djano Admin is configured and tested).',
+        '2. /api/changelog endpoint: returns the implementation changelog of the API',
+        '3. /api/userprofile endpoint: user profiles (UserProfile model)',
+        '3.1 custom user model (uses email rather than username).',
+        '3.3 fields: firstname, lastname, email, orcidid, homepage'
+        '3.2 supports creation of normal and super-users.',
+        '3.4 supprts search/filtering (by firstname, lastname, email, orcidid)'
         ]
 
         return Response({'message': changelog})
@@ -150,3 +157,11 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     # search_fields specifies which fields are searchable by this filter.
     filter_backends = (filters.SearchFilter,)
     search_fields = ('firstname', 'lastname', 'email', 'orcidid',)
+
+
+# Class for handling user authentication.
+# ObtainAuthToken has to be customised so that is enabled in the Django admin site
+# (this is not not enabled by default)
+class UserLoginApiView(ObtainAuthToken):
+    """Handle creating user authentication tokens."""
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES

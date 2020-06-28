@@ -19,5 +19,6 @@ router.register('userprofile', views.UserProfileViewSet)
 # It figures out the URLs for all the functions ("list" etc.) defined in views.py for the ViewSet - hence the blank string as 1st arg.
 urlpatterns = [
 path('changelog/', views.ChangelogView.as_view()),
+path('login/', views.UserLoginApiView.as_view()),
 path('', include(router.urls))
 ]
