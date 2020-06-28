@@ -10,7 +10,7 @@ class ChangelogSerializer(serializers.Serializer):
 
 # Model serializer
 class UserProfileSerializer(serializers.ModelSerializer):
-    """Serializes a user profile (UserProfile) object."""
+    """Serializes a user profile (UserProfile object)."""
 
     # Metaclass is used to configure the serializer to point to a specific object
     # and setup a list of fields in the model to manage with the serializer.
@@ -58,3 +58,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.set_password(password)
 
         return super().update(instance, validated_data)
+
+
+# News item serializer
+class NewsItemSerializer(serializers.ModelSerializer):
+    """Serializes a news item (NewsItem object)."""
+
+    class Meta:
+        model = models.NewsItem
+        # By default, Django adds a primary key ID ('id') to all models that are created.
+        # It's read-only and gets an integer value that's incremented from the corresponding database table.
+        # The other fields come from NewsItem.
+        # NB. "created_on" is also auto-created (and thus read-only)
+        fields = ('id', 'user_profile', 'news_text', 'created_on')
+
+        # Don't want users to be able to set the user profile when creating a news item!
+        # It must be set to the autheticated user.  Thus it's read-only.
+        extra_kwargs = {'user_profile': {'read_only': True}}

@@ -6,6 +6,7 @@
 # "filters" is for filtering the ViewSets
 # "ObtainAuthToken" is a view used to generate an auth token
 # "api_settings" is used when configuring the custom ObtainAuthToken view
+# "IsAuthenticatedOrReadOnly" is used to ensure that a ViewSet is read-only if the user is not autheticated.
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,6 +15,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcatsandbox_api import serializers
 from ifbcatsandbox_api import models
@@ -33,10 +35,11 @@ class ChangelogView(APIView):
         '1. /admin endpoint (Djano Admin is configured and tested).',
         '2. /api/changelog endpoint: returns the implementation changelog of the API',
         '3. /api/userprofile endpoint: user profiles (UserProfile model)',
-        '3.1 custom user model (uses email rather than username).',
+        '3.1 custom user model (uses email for authentication rather than username).',
         '3.3 fields: firstname, lastname, email, orcidid, homepage'
         '3.2 supports creation of normal and super-users.',
         '3.4 supprts search/filtering (by firstname, lastname, email, orcidid)'
+        '4. /login endpoint: for user login (Token authentication)'
         ]
 
         return Response({'message': changelog})
@@ -134,7 +137,8 @@ class TestViewSet(viewsets.ViewSet):
 
 
 
-# Model ViewSet (which are bundled with functionality for managing models through the API)
+# UserProfile ViewSet
+# This is a ModelViewSet (which are bundled with functionality for managing models through the API)
 # They're wired to a serializer class, and a query set is provided so it knows which objects
 # in the DB are managed through this ViewSet
 # Django REST takes care of create, list, update etc. functions on the ViewSet
@@ -165,3 +169,35 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 class UserLoginApiView(ObtainAuthToken):
     """Handle creating user authentication tokens."""
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+# ViewSet for news item
+class NewsItemViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating news items."""
+
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.NewsItemSerializer
+    queryset = models.NewsItem.objects.all()
+
+    #  This ensures users can only create news items when the user profile is assigned to them.
+    # i.e. they cannot update news items of other users in the system.
+    # "IsAuthenticatedOrReadOnly" (imported above) permission ensures users must be autheticated to perform any request that is not a read request
+    # i.e. they cannot create new feed items when they're not autheticated.
+    permission_classes = (
+        permissions.UpdateOwnNewsItems,
+        IsAuthenticatedOrReadOnly
+    )
+
+    # Set the user_profile to read-only
+    # "perform_create" is a convenience function for customising object creation through a model ViewSet.
+    # When a request is made to the ViewSet, it gets passed to the serializer, is validated, then the
+    # (because it's a ModelSerializer) a serializer.save function is called, which saves the content of
+    # the serializer to an object in the database.
+    #
+    # "serializer.save" is called manually below, and we pass in user_profile
+    # "request" object is passed into all ViewSets whenever a request is made.
+    # Because we added TokenAuthentication to the ViewSet, if the user has autheticated, then the request
+    # will have a user associatd with it.
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)

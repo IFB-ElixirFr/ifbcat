@@ -2,10 +2,12 @@
 # AbstractBaseUser and PermissionsMixin are the base classes used when customising the Django user model
 # BaseUserManager is the default user manager that comes with Django
 # see https://docs.djangoproject.com/en/1.11/topics/auth/customizing/#auth-custom-user
+# "settings" is for retrieving settings from settings.py file (project file)
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from django.conf import settings
 
 
 # Manager for custom user profile model
@@ -91,3 +93,34 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """Return string representation of our user."""
         return self.email
+
+
+
+# News item model
+# Users can create News items; a NewsItem object is associated with the user who created it.
+class NewsItem(models.Model):
+    """NewsItem model: a news item created by a user."""
+
+    # Foreign key is used to associate this model to the UserProfile model.
+    # This sets up a foreign key relationship in the backend database, ensuring integrity
+    # (so a news item cannot be created for user profile that doesn't exist)
+    #
+    # NB. "settings.AUTH_USER_MODEL" is used to retrieve the auth user model from settings.py
+    # Could instead have hardcoded UserProfile but that wouldn't be good practice
+    #  (e.g. in case in future we wanted to revert back to using the default Django model)
+    #
+    # NB. "on_delete=models.CASCADE," means that if the user profile is removed,
+    # then the associated news items are also deleted.
+    # Could set the field to NULL instead (if we wanted to preserve the news items)
+    user_profile = models.ForeignKey(
+    settings.AUTH_USER_MODEL,
+    on_delete=models.CASCADE
+    )
+
+    # "auto_now_add=True" means that the date/time stamp gets added automatically when the item is created.
+    news_text = models.CharField(max_length=255)
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Return the NewsItem model as a string."""
+        return self.news_text
