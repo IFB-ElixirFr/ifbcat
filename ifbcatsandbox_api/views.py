@@ -7,6 +7,7 @@
 # "ObtainAuthToken" is a view used to generate an auth token
 # "api_settings" is used when configuring the custom ObtainAuthToken view
 # "IsAuthenticatedOrReadOnly" is used to ensure that a ViewSet is read-only if the user is not autheticated.
+# "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,6 +17,7 @@ from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 from ifbcatsandbox_api import serializers
 from ifbcatsandbox_api import models
@@ -32,14 +34,17 @@ class ChangelogView(APIView):
         """Returns the ifbcatsandbox API changelog."""
         changelog = [
         'ifbcatsandbox API changelog.',
-        '1. /admin endpoint (Djano Admin is configured and tested).',
-        '2. /api/changelog endpoint: returns the implementation changelog of the API',
-        '3. /api/userprofile endpoint: user profiles (UserProfile model)',
+        '1.  /admin endpoint (Djano Admin is configured and tested).',
+        '2.  /api/changelog endpoint: returns the implementation changelog of the API',
+        '3.  /api/userprofile endpoint: user profiles (UserProfile model)',
         '3.1 custom user model (uses email for authentication rather than username).',
         '3.3 fields: firstname, lastname, email, orcidid, homepage'
         '3.2 supports creation of normal and super-users.',
         '3.4 supprts search/filtering (by firstname, lastname, email, orcidid)'
-        '4. /login endpoint: for user login (Token authentication)'
+        '4.  /login endpoint: for user login (Token authentication)'
+        '5.  /news endpoint for user news items (NewItem model)',
+        '5.1 fields: user profile(id), news_text, created_on',
+        '5.2 supports authentication ensuring users can only update/delete their own news items.'
         ]
 
         return Response({'message': changelog})
@@ -183,6 +188,7 @@ class NewsItemViewSet(viewsets.ModelViewSet):
     # i.e. they cannot update news items of other users in the system.
     # "IsAuthenticatedOrReadOnly" (imported above) permission ensures users must be autheticated to perform any request that is not a read request
     # i.e. they cannot create new feed items when they're not autheticated.
+    # NB. Could instead use "IsAuthenticated" to restrict access of the entire endpoint to autheticated users.
     permission_classes = (
         permissions.UpdateOwnNewsItems,
         IsAuthenticatedOrReadOnly
