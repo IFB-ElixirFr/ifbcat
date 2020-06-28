@@ -11,4 +11,4 @@
   TestViewSet in views.py
   urls.py (endpoints)
 5. Add validations for UserProfile model (in serializers.py)
-6. Add expertise field to UserProfile model (models.py, serializers.py)
+6. Add expertise field to UserProfile model (models.py, serializers.py, and search_fields in views.py)

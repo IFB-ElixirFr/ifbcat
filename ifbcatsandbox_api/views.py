@@ -1,12 +1,15 @@
 # Imports
+#
 # "Response" is used to return responses from APIView
 # "status" object holds HTTP status codes - used when returning responses from the API
 # TokenAuthentication is used to users to authenticate themselves with the API
+# "filters" is for filtering the ViewSets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework import filters
 
 from ifbcatsandbox_api import serializers
 from ifbcatsandbox_api import models
@@ -142,3 +145,8 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
     # permission_classes set how user has gets permission to do certain things.
     permission_classes = (permissions.UpdateOwnProfile,)
+
+    # filter_backends adds ability to search profiles by name or email (via filtering)
+    # search_fields specifies which fields are searchable by this filter.
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('firstname', 'lastname', 'email', 'orcidid',)
