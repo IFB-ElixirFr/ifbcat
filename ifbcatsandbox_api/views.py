@@ -1,13 +1,16 @@
 # Imports
 # "Response" is used to return responses from APIView
 # "status" object holds HTTP status codes - used when returning responses from the API
+# TokenAuthentication is used to users to authenticate themselves with the API
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
 
 from ifbcatsandbox_api import serializers
 from ifbcatsandbox_api import models
+from ifbcatsandbox_api import permissions
 
 # ChangelogView is just a test API View, done in case APIView(s) are needed in the ifbcatsandbox API
 class ChangelogView(APIView):
@@ -130,3 +133,12 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.UserProfileSerializer
     queryset = models.UserProfile.objects.all()
+
+    # authentication_classes sets how user is authenticated.
+    # Token authentication works by generating a random token when the user logs in,
+    # which is passed to every request that needs to be authenticated.
+    # authentication_classes is created as tuple below - more than one type of authentication can be added.
+    authentication_classes = (TokenAuthentication,)
+
+    # permission_classes set how user has gets permission to do certain things.
+    permission_classes = (permissions.UpdateOwnProfile,)
