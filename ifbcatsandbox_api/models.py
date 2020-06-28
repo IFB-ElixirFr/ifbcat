@@ -62,12 +62,14 @@ class UserProfileManager(BaseUserManager):
 # NB. For a list of attributes of the fields see https://docs.djangoproject.com/en/3.0/ref/models/fields/
 # NB. we cannot have "unique=True" for orcidid, because these are not mandatory ()
 class UserProfile(AbstractBaseUser, PermissionsMixin):
-    """Database model for users in the system."""
+    """UserProfile model: a user in the system."""
+
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
     orcidid = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(max_length=255, unique=True)
     homepage = models.URLField(max_length=255, null=True, blank=True)
+    # expertise = ... TO_DO
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -124,3 +126,37 @@ class NewsItem(models.Model):
     def __str__(self):
         """Return the NewsItem model as a string."""
         return self.news_text
+
+
+# Event model
+class Event(models.Model):
+    """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
+
+    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
+    name = models.CharField(max_length=255)
+    shortName = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField()
+    homepage = models.URLField(max_length=255)
+    # type = ... TO_DO
+    # dates = ... TO_DO
+    venue = models.TextField(null=True, blank=True)
+    city = models.CharField(max_length=255, null=True, blank=True)
+    country = models.CharField(max_length=255, null=True, blank=True)
+    onlineOnly = models.BooleanField(null=True, blank=True)
+    # cost = ... TO_DO
+    # topic = ... TO_DO
+    # keyword = ... TO_DO
+    # prerequisite = ... TO_DO
+    # accessibility = ... TO_DO
+    accessibilityNote = models.CharField(max_length=255, null=True, blank=True)
+    maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True)
+    contactName = models.CharField(max_length=255)
+    contactEmail = models.EmailField()
+    # contactId = ... TO_DO
+    market = models.CharField(max_length=255, null=True, blank=True)
+    # elixirPlatform = ... TO_DO
+    # community = ... TO_DO
+    # hostedBy = ... TO_DO
+    # organisedBy = ... TO_DO
+    # sponsoredBy = ... TO_DO
+    # logo = ... TO_DO
