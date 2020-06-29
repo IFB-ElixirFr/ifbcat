@@ -28,7 +28,7 @@ class UpdateOwnNewsItems(permissions.BasePermission):
     """Allow users to update their own news items."""
 
     def has_object_permission(self, request, view, obj):
-        """Check the user is trying to update their own status."""
+        """Check the user is trying to update their own news item."""
 
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -36,4 +36,19 @@ class UpdateOwnNewsItems(permissions.BasePermission):
         # Check that the user owns the news item, i.e. the user profile associated
         # with the news item is assigned to the user making the request.
         # (returns True if the object being updated etc. has a user profile id that matches the request)
+        return obj.user_profile.id == request.user.id
+
+
+# Custom permissions class for updating events
+# NB. code is identical to UpdateOwnNewsItems above, so if this really turns
+# out to be generic, will need to refactor (to use single function only)!
+class UpdateOwnEvents(permissions.BasePermission):
+    """Allow users to update their own news items."""
+
+    def has_object_permission(self, request, view, obj):
+        """Check the user is trying to update their own event."""
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
         return obj.user_profile.id == request.user.id

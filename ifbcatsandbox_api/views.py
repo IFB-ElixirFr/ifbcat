@@ -37,14 +37,15 @@ class ChangelogView(APIView):
         '1.  /admin endpoint (Djano Admin is configured and tested).',
         '2.  /api/changelog endpoint: returns the implementation changelog of the API',
         '3.  /api/userprofile endpoint: user profiles (UserProfile model)',
-        '3.1 custom user model (uses email for authentication rather than username).',
-        '3.3 fields: firstname, lastname, email, orcidid, homepage'
-        '3.2 supports creation of normal and super-users.',
-        '3.4 supprts search/filtering (by firstname, lastname, email, orcidid)'
+        '3.1   custom user model (uses email for authentication rather than username).',
+        '3.2   fields: firstname, lastname, email, orcidid, homepage'
+        '3.3   custom validation on orcidid',
+        '3.4   supports creation of normal and super-users.',
+        '3.5   supprts search/filtering (by firstname, lastname, email, orcidid)'
         '4.  /login endpoint: for user login (Token authentication)'
         '5.  /news endpoint for user news items (NewItem model)',
-        '5.1 fields: user profile(id), news_text, created_on',
-        '5.2 supports authentication ensuring users can only update/delete their own news items.'
+        '5.1   fields: user profile(id), news_text, created_on',
+        '5.2   supports authentication ensuring users can only update/delete their own news items.'
         ]
 
         return Response({'message': changelog})
@@ -204,6 +205,24 @@ class NewsItemViewSet(viewsets.ModelViewSet):
     # "request" object is passed into all ViewSets whenever a request is made.
     # Because we added TokenAuthentication to the ViewSet, if the user has autheticated, then the request
     # will have a user associatd with it.
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
+
+# ViewSet for events
+class EventViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating events."""
+
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.EventSerializer
+    queryset = models.Event.objects.all()
+
+    permission_classes = (
+        permissions.UpdateOwnEvents,
+        IsAuthenticatedOrReadOnly
+    )
+
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)

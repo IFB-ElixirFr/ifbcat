@@ -11,13 +11,20 @@ class ChangelogSerializer(serializers.Serializer):
     testinput = serializers.CharField(max_length=10)
 
 
-# Model serializer
+# Model serializer for user profile
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
+    # Validation isn't specified for fields where basic validation defined in models.py is adequate
     # "allow_blank=False" means am empty string is considered invalid and will raise a validation error.
-    # "required=False" means the field is not required to be present during (de)serialization.
-    orcidid = serializers.CharField(allow_blank=False, required=False)
+    # "required=False" means the field is not required to be present during (de)serialization (it defaults to True)
+    # firstname, lastname and email are mandatory
+
+    # firstname (no further validation needed)
+    # lastname (no further validation needed)
+    # email (no further validation needed)
+    orcidid = serializers.CharField(allow_blank=False, allow_null=True, required=False)
+    homepage = serializers.URLField(allow_blank=False, allow_null=True, required=False)
 
     # Metaclass is used to configure the serializer to point to a specific object
     # and setup a list of fields in the model to manage with the serializer.
@@ -39,6 +46,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     # Validation logic
     def validate_orcidid(self, orcidid):
         """Validate supplied orcidid."""
+
+        # orcidid is not mandatory - catch that
+        if orcidid is None:
+            return orcidid
+
         p = re.compile('^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$', re.IGNORECASE | re.UNICODE)
         if not p.search(orcidid):
             raise serializers.ValidationError('This field can only contain a valid ORCID ID.  Syntax: ^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$')
@@ -79,6 +91,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class NewsItemSerializer(serializers.ModelSerializer):
     """Serializes a news item (NewsItem object)."""
 
+    # news_text and created_on are mandatory
+
+    # news_text (no further validation needed)
+    # created_on (no further validation needed)
+
     class Meta:
         model = models.NewsItem
         # By default, Django adds a primary key ID ('id') to all models that are created.
@@ -90,3 +107,56 @@ class NewsItemSerializer(serializers.ModelSerializer):
         # Don't want users to be able to set the user profile when creating a news item!
         # It must be set to the autheticated user.  Thus it's read-only.
         extra_kwargs = {'user_profile': {'read_only': True}}
+
+
+
+# Model serializer for user profile
+class EventSerializer(serializers.ModelSerializer):
+    """Serializes an event (Event object)."""
+
+    # CharField in ModelSerializer corresponds to both CharField and TextField in Django models
+    # IntegerField in ModelSerializer corresponds to PositiveSmallIntegerField etc. in Django models
+    # For BooleanField, if an input value is omitted in HTML-encoded form, it
+    # is treated as setting the value to False. However, the default of "required=True"
+    # is not set for them, and "allow_blank" is not supported.
+    # See https://www.django-rest-framework.org/api-guide/fields/#booleanfield
+
+
+    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
+
+    # name (no further validation needed)
+    shortName = serializers.CharField(allow_blank=False, required=False)
+    description = serializers.CharField(allow_blank=False, required=False)
+    # homepage (no further validation needed)
+    # type = ... TO_DO
+    # dates = ... TO_DO
+    venue = serializers.CharField(allow_blank=False, required=False)
+    city = serializers.CharField(allow_blank=False, required=False)
+    country = serializers.CharField(allow_blank=False, required=False)
+    onlineOnly = serializers.BooleanField(required=False)
+    # cost = ... TO_DO
+    # topic = ... TO_DO
+    # keyword = ... TO_DO
+    # prerequisite = ... TO_DO
+    # accessibility = ... TO_DO
+    accessibilityNote = serializers.CharField(allow_blank=False, required=False)
+    maxParticipants = serializers.IntegerField(min_value=1, required=False)
+    # contactName (no further validation needed)
+    # contactEmail (no further validation needed)
+    # contactId = ... TO_DO
+    market = serializers.CharField(allow_blank=False, required=False)
+    # elixirPlatform = ... TO_DO
+    # community = ... TO_DO
+    # hostedBy = ... TO_DO
+    # organisedBy = ... TO_DO
+    # sponsoredBy = ... TO_DO
+    # logo = ... TO_DO
+
+
+    # To-add to "fields" below:  'type', 'dates', 'cost', 'topic', 'keyword', 'prerequisite', 'accessibility', 'contactName', 'contactEmail', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    class Meta:
+        model = models.Event
+
+        fields = ('id', 'name', 'shortName', 'description', 'homepage',
+        'venue', 'city', 'country', 'onlineOnly', 'accessibilityNote',
+        'maxParticipants', 'market')

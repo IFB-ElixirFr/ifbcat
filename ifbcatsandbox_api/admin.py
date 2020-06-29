@@ -5,3 +5,4 @@ from ifbcatsandbox_api import models
 # Enable Django admin for user profile and news item models - i.e. make them accessible through admin interface
 admin.site.register(models.UserProfile)
 admin.site.register(models.NewsItem)
+admin.site.register(models.Event)

@@ -60,13 +60,16 @@ class UserProfileManager(BaseUserManager):
 # to create a name ("User Profiles") for the model used in the admin interface, e.g. http://127.0.0.1:8000/admin/
 # Thus it's best practice to name the class "UserProfile" and not "UserProfiles"
 # NB. For a list of attributes of the fields see https://docs.djangoproject.com/en/3.0/ref/models/fields/
+# NB. Both "blank=True" and "unique=True" are set for orcidid to avoid unique constraint violations when saving multiple objects with blank values.
+# Normally only "blank=True" is set ... see https://docs.djangoproject.com/en/3.0/ref/models/fields/#null
 # NB. we cannot have "unique=True" for orcidid, because these are not mandatory ()
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """UserProfile model: a user in the system."""
 
+    # firstname, lastname and email are mandatory
     firstname = models.CharField(max_length=255)
     lastname = models.CharField(max_length=255)
-    orcidid = models.CharField(max_length=255, null=True, blank=True)
+    orcidid = models.CharField(max_length=255, null=True, blank=True, unique=True)
     email = models.EmailField(max_length=255, unique=True)
     homepage = models.URLField(max_length=255, null=True, blank=True)
     # expertise = ... TO_DO
@@ -119,6 +122,7 @@ class NewsItem(models.Model):
     on_delete=models.CASCADE
     )
 
+    # news_text and created_on are mandatory
     # "auto_now_add=True" means that the date/time stamp gets added automatically when the item is created.
     news_text = models.CharField(max_length=255)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -134,26 +138,26 @@ class Event(models.Model):
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(max_length=255)
-    shortName = models.CharField(max_length=255, null=True, blank=True)
+    shortName = models.CharField(max_length=255, blank=True)
     description = models.TextField()
-    homepage = models.URLField(max_length=255)
+    homepage = models.URLField(max_length=255, null=True, blank=True)
     # type = ... TO_DO
     # dates = ... TO_DO
-    venue = models.TextField(null=True, blank=True)
-    city = models.CharField(max_length=255, null=True, blank=True)
-    country = models.CharField(max_length=255, null=True, blank=True)
+    venue = models.TextField(blank=True)
+    city = models.CharField(max_length=255, blank=True)
+    country = models.CharField(max_length=255,blank=True)
     onlineOnly = models.BooleanField(null=True, blank=True)
     # cost = ... TO_DO
     # topic = ... TO_DO
     # keyword = ... TO_DO
     # prerequisite = ... TO_DO
     # accessibility = ... TO_DO
-    accessibilityNote = models.CharField(max_length=255, null=True, blank=True)
+    accessibilityNote = models.CharField(max_length=255, blank=True)
     maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True)
     contactName = models.CharField(max_length=255)
     contactEmail = models.EmailField()
     # contactId = ... TO_DO
-    market = models.CharField(max_length=255, null=True, blank=True)
+    market = models.CharField(max_length=255, blank=True)
     # elixirPlatform = ... TO_DO
     # community = ... TO_DO
     # hostedBy = ... TO_DO
