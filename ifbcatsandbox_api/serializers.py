@@ -1,6 +1,9 @@
 # Imports
+# "re" is regular expression library
+import re
 from rest_framework import serializers
 from ifbcatsandbox_api import models
+
 
 # This is just for testing serialization
 class ChangelogSerializer(serializers.Serializer):
@@ -11,6 +14,10 @@ class ChangelogSerializer(serializers.Serializer):
 # Model serializer
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile (UserProfile object)."""
+
+    # "allow_blank=False" means am empty string is considered invalid and will raise a validation error.
+    # "required=False" means the field is not required to be present during (de)serialization.
+    orcidid = serializers.CharField(allow_blank=False, required=False)
 
     # Metaclass is used to configure the serializer to point to a specific object
     # and setup a list of fields in the model to manage with the serializer.
@@ -28,6 +35,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
                 'style': {'input_type': 'password'}
             }
         }
+
+    # Validation logic
+    def validate_orcidid(self, orcidid):
+        """Validate supplied orcidid."""
+        p = re.compile('^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$', re.IGNORECASE | re.UNICODE)
+        if not p.search(orcidid):
+            raise serializers.ValidationError('This field can only contain a valid ORCID ID.  Syntax: ^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$')
+        return orcidid
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
     # This will ensure the password gets created as a hash, rather than clear text
