@@ -11,7 +11,7 @@ from ifbcatsandbox_api import views
 # "base_name" is used if/wehn URLs are retrieved using URL-retrieving function provided by Django
 # NB. don't need to specify base_name for userprofile (Model ViewSet) - it includes the queryset object (so Django can figure out the name)
 router = DefaultRouter()
-router.register('testviewset', views.TestViewSet, base_name='testviewset')
+router.register('testviewset', views.TestViewSet, basename='testviewset')
 router.register('userprofile', views.UserProfileViewSet)
 router.register('news', views.NewsItemViewSet)
 router.register('event', views.EventViewSet)

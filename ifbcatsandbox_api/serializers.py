@@ -17,6 +17,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
     # "allow_blank=False" means am empty string is considered invalid and will raise a validation error.
+    # "allow_null" means None is considered a valid value (it defauls to False)
     # "required=False" means the field is not required to be present during (de)serialization (it defaults to True)
     # firstname, lastname and email are mandatory
 
@@ -128,7 +129,7 @@ class EventSerializer(serializers.ModelSerializer):
     shortName = serializers.CharField(allow_blank=False, required=False)
     description = serializers.CharField(allow_blank=False, required=False)
     # homepage (no further validation needed)
-    # type = ... TO_DO
+    type = serializers.CharField(allow_blank=False, required=False) 
     # dates = ... TO_DO
     venue = serializers.CharField(allow_blank=False, required=False)
     city = serializers.CharField(allow_blank=False, required=False)

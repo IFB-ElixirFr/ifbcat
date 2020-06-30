@@ -3,12 +3,20 @@
 # BaseUserManager is the default user manager that comes with Django
 # see https://docs.djangoproject.com/en/1.11/topics/auth/customizing/#auth-custom-user
 # "settings" is for retrieving settings from settings.py file (project file)
+#
+# "gettext_lazy" is used to mark text (specically terms from controlled vocabularies) to support internatonalization.
+# "gettext_lazy as _" defines '_()' as an alias for '_gettext_lazy()' - it's just a shorthand convention.
+# see https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
+# This "lazy" version of gettext() holds a reference to the translation string instead of the actual translated text,
+# so the translation occurs when the value is accessed rather than when they’re called.  We need this behaviour so
+# users will see the right language in their UI - see https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
+# See https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
-
+from django.utils.translation import gettext_lazy as _
 
 # Manager for custom user profile model
 class UserProfileManager(BaseUserManager):
@@ -60,9 +68,13 @@ class UserProfileManager(BaseUserManager):
 # to create a name ("User Profiles") for the model used in the admin interface, e.g. http://127.0.0.1:8000/admin/
 # Thus it's best practice to name the class "UserProfile" and not "UserProfiles"
 # NB. For a list of attributes of the fields see https://docs.djangoproject.com/en/3.0/ref/models/fields/
+#
+# "blank=true" allows empty fields in data entry forms
+# "null=true" means emptry values will be stored as NULL in the database
 # NB. Both "blank=True" and "unique=True" are set for orcidid to avoid unique constraint violations when saving multiple objects with blank values.
-# Normally only "blank=True" is set ... see https://docs.djangoproject.com/en/3.0/ref/models/fields/#null
-# NB. we cannot have "unique=True" for orcidid, because these are not mandatory ()
+# null is used because two null values ARE considered unique when compared (in contrast to two blank values, which are considered non-unique)
+# Normally only "blank=True" is set for string-based fields (CharField, TextField)... see https://docs.djangoproject.com/en/3.0/ref/models/fields/#null
+
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """UserProfile model: a user in the system."""
 
@@ -136,12 +148,30 @@ class NewsItem(models.Model):
 class Event(models.Model):
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
 
+    # Controlled vocabularies
+    # See https://docs.djangoproject.com/en/dev/ref/models/fields/#enumeration-types
+    # The enums support internatonalization (using the '_' shorthand convention for gettext_lazy() function)
+    # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
+
+    # EventType: Controlled vocabulary of types of events.
+    class EventType(models.TextChoices):
+        WORKSHOP = 'WO', _('Workshop')
+        TRAINING_COURSE = 'TR', _('Training course')
+        MEETING = 'ME', _('Meeting')
+        CONFERENCE = 'CO', _('Conference')
+
+
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(max_length=255)
     shortName = models.CharField(max_length=255, blank=True)
     description = models.TextField()
     homepage = models.URLField(max_length=255, null=True, blank=True)
-    # type = ... TO_DO
+    type = models.CharField(
+        max_length=2,
+        choices=EventType.choices,
+        blank = True
+    )
+
     # dates = ... TO_DO
     venue = models.TextField(blank=True)
     city = models.CharField(max_length=255, blank=True)
