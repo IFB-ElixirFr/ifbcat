@@ -33,19 +33,35 @@ class ChangelogView(APIView):
     def get(self, request, format=None):
         """Returns the ifbcatsandbox API changelog."""
         changelog = [
-        'ifbcatsandbox API changelog.',
-        '1.  /admin endpoint (Djano Admin is configured and tested).',
-        '2.  /api/changelog endpoint: returns the implementation changelog of the API',
-        '3.  /api/userprofile endpoint: user profiles (UserProfile model)',
-        '3.1   custom user model (uses email for authentication rather than username).',
-        '3.2   fields: firstname, lastname, email, orcidid, homepage'
-        '3.3   custom validation on orcidid',
-        '3.4   supports creation of normal and super-users.',
-        '3.5   supprts search/filtering (by firstname, lastname, email, orcidid)'
-        '4.  /login endpoint: for user login (Token authentication)'
-        '5.  /news endpoint for user news items (NewItem model)',
-        '5.1   fields: user profile(id), news_text, created_on',
-        '5.2   supports authentication ensuring users can only update/delete their own news items.'
+        "ifbcatsandbox API changelog.",
+        "",
+        "1.  /admin endpoint (Djano Admin is configured and tested).",
+        "",
+        "2.  /api/changelog endpoint: returns string describing implementation status of the API",
+        "",
+        "3.  /login endpoint: user login (Token authentication)",
+        "",
+        "4.  ALL model endpoints",
+        "4.1   authentication: only users can create/update new database objects."
+        "4.2   all fields are documented (with 'help_text')",
+        "",
+        "5.  /api/userprofile endpoint: user profiles (UserProfile model)",
+        "5.1   custom user model (uses email for authentication rather than username).",
+        "5.2   fields: firstname, lastname, email, orcidid, homepage",
+        "5.3   email validation: uniqueness",
+        "5.4   orcidid validation: syntax, uniqueness",
+        "5.5   supports creation of normal and super-users.",
+        "5.6   supprts search/filtering (by firstname, lastname, email, orcidid)",
+        "",
+        "6.  /news endpoint: user news items (NewsItem model)",
+        "6.1   fields: user profile (id), news_text, created_on",
+        "6.2   authentication: users can only update/delete their own news items.",
+        "6.3   a user's news items are deleted if their profile is deleted.",
+        "",
+        "7.  /event endpoint: events (Event model)",
+        "7.1   fields: user profile (id), ...",
+        "7.2   a users's events are preserved if their profile is deleted."
+        ""
         ]
 
         return Response({'message': changelog})
@@ -177,7 +193,7 @@ class UserLoginApiView(ObtainAuthToken):
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
-# ViewSet for news item
+# Model ViewSet for news item
 class NewsItemViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating news items."""
 
@@ -210,7 +226,7 @@ class NewsItemViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
-# ViewSet for events
+# Model ViewSet for events
 class EventViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 

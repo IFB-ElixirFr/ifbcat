@@ -1,15 +1,15 @@
-1. Update to latest versions of Django and Django REST framework, see https://pypi.org/. Update requirements.txt.
-2. Implement validation for UserProfile model (regex for orcid, email validation etc.)
-   See https://docs.djangoproject.com/en/3.0/ref/validators/ and https://docs.djangoproject.com/en/3.0/ref/models/instances/#validating-objects
-   From above links it appears do-able from the model class itself, but in bio.tools is done in serializer code,
-   see e.g. https://github.com/bio-tools/biotoolsRegistry/blob/master/backend/elixir/serialization/resource_serialization/credit.py
-3. Clean up / remove APIView code added for testing purposes only:
+1. Clean up or remove /changelog endpoint (APIView code added primarily for testing purposes only):
   ChangelogView in views.py
   ChangelogSerializer from serializers.py
   urls.py (endpoints)
-4. Clean up / remove API ViewSet code added for testing purposes only:
+2. Make non-functional (but retain) API ViewSet code added for testing purposes only:
   TestViewSet in views.py
   urls.py (endpoints)
-5. Add validations for UserProfile model (in serializers.py)
-6. Add expertise field to UserProfile model (models.py, serializers.py, and search_fields in views.py)
-7. Consolidate UpdateOwnNewsItems and UpdateOwnEvent into single function (if this turns out to really be generic)
+3. Add expertise field to UserProfile model (models.py, serializers.py, and search_fields in views.py)
+4. Consolidate UpdateOwnNewsItems and UpdateOwnEvent into single function (if this turns out to really be generic)
+5. Prevent UI allowing negative values to be picked for maxParticipantsin Event (in "HTML form")
+- even though validation is OK and complains if a negative value is specified.
+- NB django admin interface does NOT let negative values be picked
+6. Look into what "is_staff" implies, and update the "help_text" (or remove this feature, if not needed)
+7. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
+8. Fix resizable data entry fields in browsable API (Event->Description, Event->Venue) - or remove such styling if we don't go down this route for the front end

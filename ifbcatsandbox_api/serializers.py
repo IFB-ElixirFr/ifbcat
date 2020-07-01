@@ -2,6 +2,7 @@
 # "re" is regular expression library
 import re
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from ifbcatsandbox_api import models
 
 
@@ -16,15 +17,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
-    # "allow_blank=False" means am empty string is considered invalid and will raise a validation error.
     # "allow_null" means None is considered a valid value (it defauls to False)
     # "required=False" means the field is not required to be present during (de)serialization (it defaults to True)
     # firstname, lastname and email are mandatory
+    # NB. "allow_blank=False" means am empty string is considered invalid and will raise a validation error
+    # (it is False by default, so no need to set it)
 
     # firstname (no further validation needed)
     # lastname (no further validation needed)
     # email (no further validation needed)
-    orcidid = serializers.CharField(allow_blank=False, allow_null=True, required=False)
+    orcidid = serializers.CharField(
+        allow_blank=False,
+        allow_null=True,
+        required=False,
+        validators=[UniqueValidator(queryset = models.UserProfile.objects.all())])
     homepage = serializers.URLField(allow_blank=False, allow_null=True, required=False)
 
     # Metaclass is used to configure the serializer to point to a specific object
@@ -121,17 +127,22 @@ class EventSerializer(serializers.ModelSerializer):
     # is treated as setting the value to False. However, the default of "required=True"
     # is not set for them, and "allow_blank" is not supported.
     # See https://www.django-rest-framework.org/api-guide/fields/#booleanfield
-
-
+    #
+    # max_value of maxParticipants set to 32767 corresponding to PositiveSmallIntegerField defined in models.py
+    # See https://www.geeksforgeeks.org/positivesmallintegerfield-django-models/
+    #
+    # "style={'base_template': 'textarea.html'}" sets the field style to an HTML textarea
+    # See https://www.django-rest-framework.org/topics/html-and-forms/#field-styles
+    #
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
-    # name (no further validation needed)
+    name = serializers.CharField()
     shortName = serializers.CharField(allow_blank=False, required=False)
-    description = serializers.CharField(allow_blank=False, required=False)
-    # homepage (no further validation needed)
-    type = serializers.CharField(allow_blank=False, required=False) 
+    description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
+    homepage = serializers.URLField()
+    type = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'select.html'})
     # dates = ... TO_DO
-    venue = serializers.CharField(allow_blank=False, required=False)
+    venue = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
     city = serializers.CharField(allow_blank=False, required=False)
     country = serializers.CharField(allow_blank=False, required=False)
     onlineOnly = serializers.BooleanField(required=False)
@@ -141,9 +152,9 @@ class EventSerializer(serializers.ModelSerializer):
     # prerequisite = ... TO_DO
     # accessibility = ... TO_DO
     accessibilityNote = serializers.CharField(allow_blank=False, required=False)
-    maxParticipants = serializers.IntegerField(min_value=1, required=False)
-    # contactName (no further validation needed)
-    # contactEmail (no further validation needed)
+    maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, required=False)
+    contactName = serializers.CharField()
+    contactEmail = serializers.EmailField()
     # contactId = ... TO_DO
     market = serializers.CharField(allow_blank=False, required=False)
     # elixirPlatform = ... TO_DO
@@ -154,10 +165,12 @@ class EventSerializer(serializers.ModelSerializer):
     # logo = ... TO_DO
 
 
-    # To-add to "fields" below:  'type', 'dates', 'cost', 'topic', 'keyword', 'prerequisite', 'accessibility', 'contactName', 'contactEmail', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # To-add to "fields" below:  dates', 'cost', 'topic', 'keyword', 'prerequisite', 'accessibility', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
     class Meta:
         model = models.Event
 
-        fields = ('id', 'name', 'shortName', 'description', 'homepage',
+        fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type',
         'venue', 'city', 'country', 'onlineOnly', 'accessibilityNote',
-        'maxParticipants', 'market')
+        'maxParticipants', 'contactName', 'contactEmail', 'market')
+
+        extra_kwargs = {'user_profile': {'read_only': True}}

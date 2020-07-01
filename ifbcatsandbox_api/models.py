@@ -16,6 +16,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
+# from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 # Manager for custom user profile model
@@ -79,15 +80,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     """UserProfile model: a user in the system."""
 
     # firstname, lastname and email are mandatory
-    firstname = models.CharField(max_length=255)
-    lastname = models.CharField(max_length=255)
-    orcidid = models.CharField(max_length=255, null=True, blank=True, unique=True)
-    email = models.EmailField(max_length=255, unique=True)
-    homepage = models.URLField(max_length=255, null=True, blank=True)
+    firstname = models.CharField(max_length=255, help_text="First (or given) name of a person (IFB catalogue user).")
+    lastname = models.CharField(max_length=255, help_text="Last (or family) name of a person (IFB catalogue user).")
+    orcidid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="ORCID ID of a person (IFB catalogue user).")
+    email = models.EmailField(max_length=255, unique=True, help_text="Email address of a person (IFB catalogue user).")
+    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of a person (IFB catalogue user).")
     # expertise = ... TO_DO
 
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True, help_text="Whether a user account is active.")
+    is_staff = models.BooleanField(default=False, help_text="Whether a user has staff status.")
 
     # Model manager to setup our custom user model for use with Django CLI (for user creation etc.)
     objects = UserProfileManager()
@@ -128,7 +129,7 @@ class NewsItem(models.Model):
     #
     # NB. "on_delete=models.CASCADE," means that if the user profile is removed,
     # then the associated news items are also deleted.
-    # Could set the field to NULL instead (if we wanted to preserve the news items)
+    # Could set the field to SET_NULL instead (if we wanted to preserve the news items) - then "null=True" must also be set
     user_profile = models.ForeignKey(
     settings.AUTH_USER_MODEL,
     on_delete=models.CASCADE
@@ -136,7 +137,7 @@ class NewsItem(models.Model):
 
     # news_text and created_on are mandatory
     # "auto_now_add=True" means that the date/time stamp gets added automatically when the item is created.
-    news_text = models.CharField(max_length=255)
+    news_text = models.CharField(max_length=255, help_text="Some news provided by a user.")
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -147,6 +148,13 @@ class NewsItem(models.Model):
 # Event model
 class Event(models.Model):
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
+
+    # "on_delete=models.NULL" means that the Event is not deleted if the user profile is deleted.
+    user_profile = models.ForeignKey(
+    settings.AUTH_USER_MODEL,
+    on_delete=models.SET_NULL,
+    null=True
+    )
 
     # Controlled vocabularies
     # See https://docs.djangoproject.com/en/dev/ref/models/fields/#enumeration-types
@@ -162,32 +170,34 @@ class Event(models.Model):
 
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
-    name = models.CharField(max_length=255)
-    shortName = models.CharField(max_length=255, blank=True)
-    description = models.TextField()
-    homepage = models.URLField(max_length=255, null=True, blank=True)
+    name = models.CharField(max_length=255, help_text="Full name / title of the event.")
+    shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
+    description = models.TextField(help_text="Description of the event.")
+    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="URL of event homepage.")
     type = models.CharField(
         max_length=2,
         choices=EventType.choices,
-        blank = True
+        blank = True,
+        help_text="The type of event e.g. 'Training course'."
     )
 
     # dates = ... TO_DO
-    venue = models.TextField(blank=True)
-    city = models.CharField(max_length=255, blank=True)
-    country = models.CharField(max_length=255,blank=True)
-    onlineOnly = models.BooleanField(null=True, blank=True)
+    venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
+    city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
+    country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
+    onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     # cost = ... TO_DO
     # topic = ... TO_DO
     # keyword = ... TO_DO
     # prerequisite = ... TO_DO
     # accessibility = ... TO_DO
-    accessibilityNote = models.CharField(max_length=255, blank=True)
-    maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True)
-    contactName = models.CharField(max_length=255)
-    contactEmail = models.EmailField()
+    accessibilityNote = models.CharField(max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for.")
+    maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, help_text="Maximum number of participants to the event.")
+    #     maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
+    contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
+    contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
     # contactId = ... TO_DO
-    market = models.CharField(max_length=255, blank=True)
+    market = models.CharField(max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts.")
     # elixirPlatform = ... TO_DO
     # community = ... TO_DO
     # hostedBy = ... TO_DO
