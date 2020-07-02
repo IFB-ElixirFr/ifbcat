@@ -15,6 +15,7 @@ router.register('testviewset', views.TestViewSet, basename='testviewset')
 router.register('userprofile', views.UserProfileViewSet)
 router.register('news', views.NewsItemViewSet)
 router.register('event', views.EventViewSet)
+router.register('eventkeyword', views.EventKeywordViewSet)
 
 # APIView ("changelog" below) endpoints are registered differently than API ViewSet
 # "include" function is used to include a list of URLS into the URL pattern

@@ -13,3 +13,5 @@
 6. Look into what "is_staff" implies, and update the "help_text" (or remove this feature, if not needed)
 7. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
 8. Fix resizable data entry fields in browsable API (Event->Description, Event->Venue) - or remove such styling if we don't go down this route for the front end
+9. Check 'id': {'read_only': True},  (set in EventSerializer and NewsItemSerializer) works as expected (i.e. id is not writeable) ... and look to replace the multiple "read only" definitions using a single "read_only_fields" line in extra_kwargs
+10. See if we really need to be (de)serialising 'id' on EventKeyword (I seriously doubt it!) - if so update serializers.py

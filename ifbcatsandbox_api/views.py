@@ -242,3 +242,22 @@ class EventViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
+
+
+
+# Model ViewSet for event keywords
+class EventKeywordViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating event keywords."""
+
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.EventKeywordSerializer
+    queryset = models.EventKeyword.objects.all()
+
+    permission_classes = (
+        permissions.UpdateOwnEvents,
+        IsAuthenticatedOrReadOnly
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)

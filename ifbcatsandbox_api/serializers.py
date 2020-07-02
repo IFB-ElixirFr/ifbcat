@@ -113,8 +113,22 @@ class NewsItemSerializer(serializers.ModelSerializer):
 
         # Don't want users to be able to set the user profile when creating a news item!
         # It must be set to the autheticated user.  Thus it's read-only.
-        extra_kwargs = {'user_profile': {'read_only': True}}
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'user_profile': {'read_only': True}}
 
+
+# Model serializer for event keyword
+class EventKeywordSerializer(serializers.ModelSerializer):
+    """Serializes an event keyword (EventKeyword object)."""
+
+    keyword = serializers.CharField(allow_blank=False, required=False)
+
+    class Meta:
+        model = models.EventKeyword
+        fields = ('id', 'keyword')
+        extra_kwargs = {'id': {'read_only': True}}
+        # fields = ('keyword')
 
 
 # Model serializer for user profile
@@ -134,23 +148,39 @@ class EventSerializer(serializers.ModelSerializer):
     # "style={'base_template': 'textarea.html'}" sets the field style to an HTML textarea
     # See https://www.django-rest-framework.org/topics/html-and-forms/#field-styles
     #
+    # "many=True" for keyword etc. instantiates a ListSerializer, see https://www.django-rest-framework.org/api-guide/serializers/#listserializer
+    # "allow_empty=False" disallows empty lists as valid input.
+
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
     name = serializers.CharField()
     shortName = serializers.CharField(allow_blank=False, required=False)
     description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
     homepage = serializers.URLField()
-    type = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'select.html'})
+
+    type = serializers.ChoiceField(
+        choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
+        allow_blank=True)
+
     # dates = ... TO_DO
     venue = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
     city = serializers.CharField(allow_blank=False, required=False)
     country = serializers.CharField(allow_blank=False, required=False)
     onlineOnly = serializers.BooleanField(required=False)
-    # cost = ... TO_DO
+    cost = serializers.ChoiceField(
+        choices = ('Free', 'Free to academics', 'Concessions available'),
+        allow_blank=True)
     # topic = ... TO_DO
-    # keyword = ... TO_DO
+    # keyword = EventKeywordSerializer(many=True, allow_empty=False, required=False)
+    keywords = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="keyword",
+        queryset=models.EventKeyword.objects.all())
     # prerequisite = ... TO_DO
-    # accessibility = ... TO_DO
+    accessibility = serializers.ChoiceField(
+        choices = ('Public', 'Private'),
+        allow_blank=True)
     accessibilityNote = serializers.CharField(allow_blank=False, required=False)
     maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, required=False)
     contactName = serializers.CharField()
@@ -165,12 +195,14 @@ class EventSerializer(serializers.ModelSerializer):
     # logo = ... TO_DO
 
 
-    # To-add to "fields" below:  dates', 'cost', 'topic', 'keyword', 'prerequisite', 'accessibility', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # To-add to "fields" below:  dates', 'topic', 'prerequisite', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
     class Meta:
         model = models.Event
 
         fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type',
-        'venue', 'city', 'country', 'onlineOnly', 'accessibilityNote',
+        'venue', 'city', 'country', 'onlineOnly', 'cost', 'keywords', 'accessibility', 'accessibilityNote',
         'maxParticipants', 'contactName', 'contactEmail', 'market')
 
-        extra_kwargs = {'user_profile': {'read_only': True}}
+        extra_kwargs = {
+            'id': {'read_only': True},
+            'user_profile': {'read_only': True}}

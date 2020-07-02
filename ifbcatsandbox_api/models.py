@@ -145,11 +145,14 @@ class NewsItem(models.Model):
         return self.news_text
 
 
+
+
 # Event model
 class Event(models.Model):
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
 
     # "on_delete=models.NULL" means that the Event is not deleted if the user profile is deleted.
+    # "null=True" is required in case a user profile IS deleted.
     user_profile = models.ForeignKey(
     settings.AUTH_USER_MODEL,
     on_delete=models.SET_NULL,
@@ -169,6 +172,17 @@ class Event(models.Model):
         CONFERENCE = 'CO', _('Conference')
 
 
+    # CostType: Controlled vocabulary of monetary costs to attend an event.
+    class CostType(models.TextChoices):
+        FREE = 'FR', _('Free')
+        FREE_TO_ACADEMICS = 'FA', _('Free to academics')
+        CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
+
+    # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
+    class EventAccessibilityType(models.TextChoices):
+        PUBLIC = 'PU', _('Public')
+        PRIVATE = 'PR', _('Private')
+
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(max_length=255, help_text="Full name / title of the event.")
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
@@ -177,7 +191,7 @@ class Event(models.Model):
     type = models.CharField(
         max_length=2,
         choices=EventType.choices,
-        blank = True,
+        blank=True,
         help_text="The type of event e.g. 'Training course'."
     )
 
@@ -186,11 +200,21 @@ class Event(models.Model):
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
-    # cost = ... TO_DO
+    cost = models.CharField(
+        max_length=2,
+        choices=CostType.choices,
+        blank=True,
+        help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
+    )
     # topic = ... TO_DO
-    # keyword = ... TO_DO
+    # keywords :  handled by one-to-many foreign key relationship (EventKeyword::Event)
     # prerequisite = ... TO_DO
-    # accessibility = ... TO_DO
+    accessibility = models.CharField(
+        max_length=2,
+        choices=EventAccessibilityType.choices,
+        blank=True,
+        help_text="Whether the event is public or private."
+    )
     accessibilityNote = models.CharField(max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for.")
     maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, help_text="Maximum number of participants to the event.")
     #     maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
@@ -204,3 +228,30 @@ class Event(models.Model):
     # organisedBy = ... TO_DO
     # sponsoredBy = ... TO_DO
     # logo = ... TO_DO
+
+    def __str__(self):
+        """Return the Event model as a string."""
+        return self.name
+
+
+
+# Event keyword model
+# Keywords have a many:one relationship to Event
+class EventKeyword(models.Model):
+    """Event keyword model: A keyword (beyond EDAM ontology scope) describing the event."""
+
+    # "on_delete=models.NULL" means that the EventKeyword is not deleted if the user profile is deleted.
+    # "null=True" is required in case a user profile IS deleted.
+    user_profile = models.ForeignKey(
+    settings.AUTH_USER_MODEL,
+    on_delete=models.SET_NULL,
+    null=True
+    )
+
+    # keyword is mandatory
+    event = models.ForeignKey(Event, related_name='keywords', null=True, on_delete=models.CASCADE)
+    keyword = models.CharField(max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event.")
+
+    def __str__(self):
+        """Return the EventKeyword model as a string."""
+        return self.keyword

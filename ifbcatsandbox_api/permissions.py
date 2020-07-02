@@ -39,7 +39,7 @@ class UpdateOwnNewsItems(permissions.BasePermission):
         return obj.user_profile.id == request.user.id
 
 
-# Custom permissions class for updating events
+# Custom permissions class for updating events & event keywords
 # NB. code is identical to UpdateOwnNewsItems above, so if this really turns
 # out to be generic, will need to refactor (to use single function only)!
 class UpdateOwnEvents(permissions.BasePermission):
