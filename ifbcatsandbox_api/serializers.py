@@ -156,7 +156,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     name = serializers.CharField()
     shortName = serializers.CharField(allow_blank=False, required=False)
-    description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html')
+    description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
     homepage = serializers.URLField()
 
     type = serializers.ChoiceField(
