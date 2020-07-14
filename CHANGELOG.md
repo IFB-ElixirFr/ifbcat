@@ -29,6 +29,7 @@ The project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - fields: event, keyword
   - the endpoint allows registration of keywords independent of an event
   - (useful for pre-population of common keywords)
+  - keywords must be unique
   - a user's keywords are preserved if their profile is deleted.
   - an event's keywords are deleted if the event is deleted.
 
