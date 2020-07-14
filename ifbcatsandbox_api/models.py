@@ -248,7 +248,10 @@ class EventKeyword(models.Model):
     )
 
     # keyword is mandatory
-    event = models.ForeignKey(Event, related_name='keywords', null=True, on_delete=models.CASCADE)
+    # For "event":
+    #    "null=True" is required in case an event is deleted.
+    #    "blank=True" is required to allow registration of keywords independent of events.
+    event = models.ForeignKey(Event, related_name='keywords', blank=True, null=True, on_delete=models.CASCADE)
     keyword = models.CharField(max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event.")
 
     def __str__(self):

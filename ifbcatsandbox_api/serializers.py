@@ -133,7 +133,7 @@ class EventKeywordSerializer(serializers.ModelSerializer):
         # fields = ('keyword')
 
 
-# Code adapted from https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
+# See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """Custom SlugRelatedField that creates the new object when one doesn't exist."""
 

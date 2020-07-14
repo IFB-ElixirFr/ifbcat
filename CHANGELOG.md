@@ -25,6 +25,12 @@ The project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 - **/event** endpoint: events (Event model)
   - fields: user profile (id), ...
   - a user's events are preserved if their profile is deleted.
+- **/eventkeyword** endpoint: event keywords (EventKeyword model)
+  - fields: event, keyword
+  - the endpoint allows registration of keywords independent of an event
+  - (useful for pre-population of common keywords)
+  - a user's keywords are preserved if their profile is deleted.
+  - an event's keywords are deleted if the event is deleted.
 
 ### Added
 ### Changed

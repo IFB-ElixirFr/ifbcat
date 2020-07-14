@@ -6,3 +6,4 @@ from ifbcatsandbox_api import models
 admin.site.register(models.UserProfile)
 admin.site.register(models.NewsItem)
 admin.site.register(models.Event)
+admin.site.register(models.EventKeyword)
