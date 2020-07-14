@@ -4,6 +4,7 @@ import re
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from ifbcatsandbox_api import models
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # This is just for testing serialization
@@ -17,7 +18,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
-    # "allow_null" means None is considered a valid value (it defauls to False)
+    # "allow_null" means None is considered a val'id' value (it defauls to False)
     # "required=False" means the field is not required to be present during (de)serialization (it defaults to True)
     # firstname, lastname and email are mandatory
     # NB. "allow_blank=False" means am empty string is considered invalid and will raise a validation error
@@ -128,8 +129,21 @@ class EventKeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EventKeyword
         fields = ('id', 'keyword')
-        extra_kwargs = {'id': {'read_only': True}}
+        # extra_kwargs = {'id': {'read_only': True}}
         # fields = ('keyword')
+
+
+# Code adapted from https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
+class CreatableSlugRelatedField(serializers.SlugRelatedField):
+    """Custom SlugRelatedField that creates the new object when one doesn't exist."""
+
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except ObjectDoesNotExist:
+            return self.get_queryset().create(**{self.slug_field: data})  # to create the object
+        except (TypeError, ValueError):
+            self.fail('invalid')
 
 
 # Model serializer for user profile
@@ -173,7 +187,7 @@ class EventSerializer(serializers.ModelSerializer):
         allow_blank=True)
     # topic = ... TO_DO
     # keyword = EventKeywordSerializer(many=True, allow_empty=False, required=False)
-    keywords = serializers.SlugRelatedField(
+    keywords = CreatableSlugRelatedField(
         many=True,
         read_only=False,
         slug_field="keyword",
@@ -205,5 +219,5 @@ class EventSerializer(serializers.ModelSerializer):
         'maxParticipants', 'contactName', 'contactEmail', 'market')
 
         extra_kwargs = {
-            'id': {'read_only': True},
+            # 'id': {'read_only': True},
             'user_profile': {'read_only': True}}
