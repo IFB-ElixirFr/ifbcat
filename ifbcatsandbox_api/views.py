@@ -23,48 +23,20 @@ from ifbcatsandbox_api import serializers
 from ifbcatsandbox_api import models
 from ifbcatsandbox_api import permissions
 
-# ChangelogView is just a test API View, done in case APIView(s) are needed in the ifbcatsandbox API
-class ChangelogView(APIView):
-    """Test API View.  Currently just returns the ifbcatsandbox API changelog."""
+# TestApiView is just a test API View, done in case APIView(s) are needed in the ifbcatsandbox API
+class TestApiView(APIView):
+    """Test API View.  Currently just returns a test message."""
 
-    serializer_class = serializers.ChangelogSerializer
+    serializer_class = serializers.TestApiViewSerializer
 
     # format=None can be updated if support for other formats is required in future.
     def get(self, request, format=None):
-        """Returns the ifbcatsandbox API changelog."""
-        changelog = [
-        "ifbcatsandbox API changelog.",
-        "",
-        "1.  /admin endpoint (Djano Admin is configured and tested).",
-        "",
-        "2.  /api/changelog endpoint: returns string describing implementation status of the API",
-        "",
-        "3.  /login endpoint: user login (Token authentication)",
-        "",
-        "4.  ALL model endpoints",
-        "4.1   authentication: only users can create/update new database objects."
-        "4.2   all fields are documented (with 'help_text')",
-        "",
-        "5.  /api/userprofile endpoint: user profiles (UserProfile model)",
-        "5.1   custom user model (uses email for authentication rather than username).",
-        "5.2   fields: firstname, lastname, email, orcidid, homepage",
-        "5.3   email validation: uniqueness",
-        "5.4   orcidid validation: syntax, uniqueness",
-        "5.5   supports creation of normal and super-users.",
-        "5.6   supprts search/filtering (by firstname, lastname, email, orcidid)",
-        "",
-        "6.  /news endpoint: user news items (NewsItem model)",
-        "6.1   fields: user profile (id), news_text, created_on",
-        "6.2   authentication: users can only update/delete their own news items.",
-        "6.3   a user's news items are deleted if their profile is deleted.",
-        "",
-        "7.  /event endpoint: events (Event model)",
-        "7.1   fields: user profile (id), ...",
-        "7.2   a users's events are preserved if their profile is deleted."
-        ""
+        """Returns a test message."""
+        msg = [
+        "Test message."
         ]
 
-        return Response({'message': changelog})
+        return Response({'message': msg})
 
     def post(self, request):
         """Creates a test message."""
@@ -103,10 +75,10 @@ class ChangelogView(APIView):
 
 # TestViewSet is just a test API ViewSet
 class TestViewSet(viewsets.ViewSet):
-    """Test API ViewSet.  Currently just returns the ifbcatsandbox API changelog."""
+    """Test API ViewSet.  Currently just returns a test message."""
 
-    # Note - reusing the serializer that was used for the "Changelog" APIView - this is OK!
-    serializer_class = serializers.ChangelogSerializer
+    # Note - reusing the serializer that was used for the "TestApiView" APIView - this is OK!
+    serializer_class = serializers.TestApiViewSerializer
 
     # "list" method returns list of objects.  The list request corresponds to the root of the API.
     def list(self, request):

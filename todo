@@ -1,17 +1,13 @@
-1. Clean up or remove /changelog endpoint (APIView code added primarily for testing purposes only):
-  ChangelogView in views.py
-  ChangelogSerializer from serializers.py
+1. Make non-functional (but retain) APIView and ViewSet code added for testing purposes only:
+  TestApiView and TestViewSet in views.py
+  TestApiViewSerializer from serializers.py (used for both APIView & ViewSet code)
   urls.py (endpoints)
-2. Make non-functional (but retain) API ViewSet code added for testing purposes only:
-  TestViewSet in views.py
-  urls.py (endpoints)
-3. Add expertise field to UserProfile model (models.py, serializers.py, and search_fields in views.py)
-4. Consolidate UpdateOwnNewsItems and UpdateOwnEvent into single function (if this turns out to really be generic)
-5. Prevent UI allowing negative values to be picked for maxParticipantsin Event (in "HTML form")
+2. Add expertise field to UserProfile model (models.py, serializers.py, and search_fields in views.py)
+3. Consolidate UpdateOwnNewsItems and UpdateOwnEvent into single function (if this turns out to really be generic)
+4. Prevent UI allowing negative values to be picked for maxParticipantsin Event (in "HTML form")
 - even though validation is OK and complains if a negative value is specified.
 - NB django admin interface does NOT let negative values be picked
-6. Look into what "is_staff" implies, and update the "help_text" (or remove this feature, if not needed)
-7. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
-8. Fix resizable data entry fields in browsable API (Event->Description, Event->Venue) - or remove such styling if we don't go down this route for the front end
-9. Check 'id': {'read_only': True},  (set in EventSerializer and NewsItemSerializer) works as expected (i.e. id is not writeable) ... and look to replace the multiple "read only" definitions using a single "read_only_fields" line in extra_kwargs
-10. See if we really need to be (de)serialising 'id' on EventKeyword (I seriously doubt it!) - if so update serializers.py
+5. Look into what "is_staff" implies, and update the "help_text" (or remove this feature, if not needed)
+6. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
+7. See if textarea fields in browsable API (Event->Description, Event->Venue) should be non-resizable - or remove such styling if we don't go down this route for the front end
+8. See if 'id' on Event, EventKeyword etc. need to be (de)serialised  - if not update serializers.py

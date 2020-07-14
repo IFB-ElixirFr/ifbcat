@@ -146,7 +146,6 @@ class NewsItem(models.Model):
 
 
 
-
 # Event model
 class Event(models.Model):
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""

@@ -7,7 +7,7 @@ from ifbcatsandbox_api import models
 
 
 # This is just for testing serialization
-class ChangelogSerializer(serializers.Serializer):
+class TestApiViewSerializer(serializers.Serializer):
     """Serializes a test input field."""
     testinput = serializers.CharField(max_length=10)
 
@@ -106,16 +106,17 @@ class NewsItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.NewsItem
         # By default, Django adds a primary key ID ('id') to all models that are created.
-        # It's read-only and gets an integer value that's incremented from the corresponding database table.
+        # It's read-only by default and gets an integer value that's incremented from the corresponding database table.
         # The other fields come from NewsItem.
         # NB. "created_on" is also auto-created (and thus read-only)
-        fields = ('id', 'user_profile', 'news_text', 'created_on')
-
         # Don't want users to be able to set the user profile when creating a news item!
         # It must be set to the autheticated user.  Thus it's read-only.
-        extra_kwargs = {
-            'id': {'read_only': True},
-            'user_profile': {'read_only': True}}
+        # Set read-only fields using the shortcut "read_only_fields" rather than extra_kwargs:
+        #   extra_kwargs = {
+        #      'user_profile': {'read_only': True}}
+
+        fields = ('id', 'user_profile', 'news_text', 'created_on')
+        read_only_fields = ['user_profile']
 
 
 # Model serializer for event keyword
@@ -155,7 +156,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     name = serializers.CharField()
     shortName = serializers.CharField(allow_blank=False, required=False)
-    description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
+    description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html')
     homepage = serializers.URLField()
 
     type = serializers.ChoiceField(
