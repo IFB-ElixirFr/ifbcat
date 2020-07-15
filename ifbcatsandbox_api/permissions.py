@@ -38,3 +38,16 @@ class PubliclyReadableEditableByOwner(permissions.BasePermission):
         # with the object is assigned to the user making the request.
         # (returns True if the object being updated etc. has a user profile id that matches the request)
         return obj.user_profile.id == request.user.id
+
+
+# Custom permissions class for updating object
+class PubliclyReadableByUsers(permissions.BasePermission):
+    """Allow everyone to see, but no one to update/delete."""
+
+    def has_object_permission(self, request, view, obj):
+        """Check the user is trying to update their own object."""
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return False

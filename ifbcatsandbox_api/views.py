@@ -217,13 +217,14 @@ class EventKeywordViewSet(viewsets.ModelViewSet):
     queryset = models.EventKeyword.objects.all()
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableByUsers,
         IsAuthenticatedOrReadOnly
     )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
+        # serializer.save(user_profile=self.request.user)
+        serializer.save()
 
 
 
@@ -236,10 +237,11 @@ class EventPrerequisiteViewSet(viewsets.ModelViewSet):
     queryset = models.EventPrerequisite.objects.all()
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableByUsers,
         IsAuthenticatedOrReadOnly
     )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
+        # serializer.save(user_profile=self.request.user)
+        serializer.save()

@@ -124,7 +124,10 @@ class NewsItemSerializer(serializers.ModelSerializer):
 class EventKeywordSerializer(serializers.ModelSerializer):
     """Serializes an event keyword (EventKeyword object)."""
 
-    keyword = serializers.CharField(allow_blank=False, required=False)
+    keyword = serializers.CharField(
+        allow_blank=False,
+        required=False,
+        validators=[UniqueValidator(queryset = models.EventKeyword.objects.all())])
 
     class Meta:
         model = models.EventKeyword
@@ -144,6 +147,33 @@ class EventPrerequisiteSerializer(serializers.ModelSerializer):
         model = models.EventPrerequisite
         fields = ('id', 'prerequisite')
 
+
+# Model serializer for event prerequisite
+class EventTopicSerializer(serializers.ModelSerializer):
+    """Serializes an event topic (EventTopic object)."""
+
+    topic = serializers.CharField(
+        allow_blank=False,
+        required=False)
+
+    class Meta:
+        model = models.EventTopic
+        fields = ('id', 'topic')
+
+    # Validation logic
+    def validate_topic(self, topic):
+        """Validate supplied EDAM topic URI."""
+
+        raise serializers.ValidationError('STOP HERE')
+
+        # topic is not mandatory - catch that
+        if topic is None:
+            return topic
+
+        p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
+        if not p.search(topic):
+            raise serializers.ValidationError('This field can only contain a valid EDAM Topic URI.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$')
+        return topic
 
 
 # See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
@@ -200,7 +230,11 @@ class EventSerializer(serializers.ModelSerializer):
         choices = ('Free', 'Free to academics', 'Concessions available'),
         allow_blank=True,
         required=False)
-    # topic = ... TO_DO
+    topics = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="topic",
+        queryset=models.EventTopic.objects.all())
     # keyword = EventKeywordSerializer(many=True, allow_empty=False, required=False)
     keywords = CreatableSlugRelatedField(
         many=True,
@@ -216,7 +250,7 @@ class EventSerializer(serializers.ModelSerializer):
         choices = ('Public', 'Private'),
         allow_blank=True,
         required=False)
-    accessibilityNote = serializers.CharField(allow_blank=False, required=False)
+    accessibilityNote = serializers.CharField(allow_blank=True, required=False)
     maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
     contactName = serializers.CharField()
     contactEmail = serializers.EmailField()
@@ -230,12 +264,12 @@ class EventSerializer(serializers.ModelSerializer):
     # logo = ... TO_DO
 
 
-    # To-add to "fields" below:  dates', 'topic', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # To-add to "fields" below:  dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
     class Meta:
         model = models.Event
 
         fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type',
-        'venue', 'city', 'country', 'onlineOnly', 'cost', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
+        'venue', 'city', 'country', 'onlineOnly', 'cost', 'topics', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
         'maxParticipants', 'contactName', 'contactEmail', 'market')
 
         extra_kwargs = {

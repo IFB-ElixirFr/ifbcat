@@ -18,7 +18,6 @@ from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
 # from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
-from django import forms
 
 
 # Manager for custom user profile model
@@ -29,7 +28,7 @@ class UserProfileManager(BaseUserManager):
     # Function that Django CLI will use when creating users
     # password=None means that if a password is not set it wil default to None,
     # preventing authentication with the user until a password is set.
-    def create_user(self, firstname, lastname, email, password=None, **extra_fields):
+    def create_user(self, firstname, lastname, email, orcidid=None, homepage=None, password=None):
         """Create a new user profile"""
         if not firstname:
             raise ValueError('Users must have a first (given) name.')
@@ -40,7 +39,7 @@ class UserProfileManager(BaseUserManager):
 
         # Normalize the email address (makes the 2nd part of the address all lowercase)
         email = self.normalize_email(email)
-        user = self.model(firstname=firstname, lastname=lastname, email=email, **extra_fields)
+        user = self.model(firstname=firstname, lastname=lastname, email=email, orcidid=orcidid, homepage=homepage)
 
         # Set password will encrypt the provided password - good practice to do so!
         # Even thoough there's only one database, it's good practice to name the databaes anyway, using:
@@ -51,24 +50,25 @@ class UserProfileManager(BaseUserManager):
         return user
 
     # Function for creating super-users
-    # NB. all superusers must have a password, hence no "password=None"
-    def create_superuser(self, firstname, lastname, email, password, **extra_fields):
+    # NB. all superusers must have a password, hence no "password=Nane"
+    def create_superuser(self, firstname, lastname, email, password, orcidid=None, homepage=None):
         """Create a new superuser profile"""
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(
+        user = self.create_user(
             password=password,
             firstname=firstname,
             lastname=lastname,
             email=email,
-            **extra_fields
+            orcidid=orcidid,
+            homepage=homepage,
         )
+
+        # .is_superuser and is_staff come from PermissionsMixin
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using=self._db)
+
+        return user
 
 # Custom user profile model
 #
@@ -154,6 +154,68 @@ class NewsItem(models.Model):
         return self.news_text
 
 
+# Event keyword model
+# Keywords have a many:one relationship to Event
+class EventKeyword(models.Model):
+    """Event keyword model: A keyword (beyond EDAM ontology scope) describing the event."""
+
+    # "on_delete=models.NULL" means that the EventKeyword is not deleted if the user profile is deleted.
+    # "null=True" is required in case a user profile IS deleted.
+
+    #user_profile = models.ForeignKey(
+    #settings.AUTH_USER_MODEL,
+    #on_delete=models.SET_NULL,
+    #null=True
+    #)
+
+    # keyword is mandatory
+    # For "event":
+    #    "null=True" is required in case an event is deleted.
+    #    "blank=True" is required to allow registration of keywords independent of events.
+    # event = models.ForeignKey(Event, related_name='keywords', blank=True, null=True, on_delete=models.CASCADE)
+    keyword = models.CharField(max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event.")
+
+    def __str__(self):
+        """Return the EventKeyword model as a string."""
+        return self.keyword
+
+
+
+# Event prerequisite model
+# Prerequisites have a many:one relationship to Event
+# Same code as for EventKeyword
+class EventPrerequisite(models.Model):
+    """Event prerequisite model: A skill which the audience should (ideally) possess to get the most out of the event, e.g. "Python"."""
+
+    #user_profile = models.ForeignKey(
+    #settings.AUTH_USER_MODEL,
+    #on_delete=models.SET_NULL,
+    #null=True
+    #)
+
+    # prerequisite is mandatory
+    # event = models.ForeignKey(Event, related_name='prerequisites', blank=True, null=True, on_delete=models.CASCADE)
+    prerequisite = models.CharField(max_length=255, unique=True, help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
+
+    def __str__(self):
+        """Return the EventPrerequisite model as a string."""
+        return self.prerequisite
+
+
+# Event topic model
+# Event topic has a many:many relationship to Event
+class EventTopic(models.Model):
+    """Event topic model: URI of EDAM Topic term describing the scope of the event."""
+
+    # topic is mandatory
+    topic = models.CharField(max_length=255, unique=True, help_text="URI of EDAM Topic term describing the scope of the event.")
+
+    def __str__(self):
+        """Return the EventTopic model as a string."""
+        return self.topic
+
+
+
 
 # Event model
 class Event(models.Model):
@@ -214,10 +276,12 @@ class Event(models.Model):
         blank=True,
         help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
     )
-    # topic = ... TO_DO
-
+    topics = models.ManyToManyField(EventTopic, related_name='events', help_text="URI of EDAM Topic term describing the scope of the event.")
+    keywords = models.ManyToManyField(EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event.")
+    prerequisites = models.ManyToManyField(EventPrerequisite, related_name='events', help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
     # keywords :  handled by a foreign key relationship (many-to-one EventKeyword::Event)
     # prerequisites handled by foreign key relationship (many-to-one EventPrerequisite::Event)
+
     accessibility = models.CharField(
         max_length=2,
         choices=EventAccessibilityType.choices,
@@ -244,51 +308,3 @@ class Event(models.Model):
     def __str__(self):
         """Return the Event model as a string."""
         return self.name
-
-
-
-# Event keyword model
-# Keywords have a many:one relationship to Event
-class EventKeyword(models.Model):
-    """Event keyword model: A keyword (beyond EDAM ontology scope) describing the event."""
-
-    # "on_delete=models.NULL" means that the EventKeyword is not deleted if the user profile is deleted.
-    # "null=True" is required in case a user profile IS deleted.
-    user_profile = models.ForeignKey(
-    settings.AUTH_USER_MODEL,
-    on_delete=models.SET_NULL,
-    null=True
-    )
-
-    # keyword is mandatory
-    # For "event":
-    #    "null=True" is required in case an event is deleted.
-    #    "blank=True" is required to allow registration of keywords independent of events.
-    event = models.ForeignKey(Event, related_name='keywords', blank=True, null=True, on_delete=models.CASCADE)
-    keyword = models.CharField(max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event.")
-
-    def __str__(self):
-        """Return the EventKeyword model as a string."""
-        return self.keyword
-
-
-
-# Event prerequisite model
-# Prerequisites have a many:one relationship to Event
-# Same code as for EventKeyword
-class EventPrerequisite(models.Model):
-    """Event prerequisite model: A skill which the audience should (ideally) possess to get the most out of the event, e.g. "Python"."""
-
-    user_profile = models.ForeignKey(
-    settings.AUTH_USER_MODEL,
-    on_delete=models.SET_NULL,
-    null=True
-    )
-
-    # prerequisite is mandatory
-    event = models.ForeignKey(Event, related_name='prerequisites', blank=True, null=True, on_delete=models.CASCADE)
-    prerequisite = models.CharField(max_length=255, unique=True, help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
-
-    def __str__(self):
-        """Return the EventPrerequisite model as a string."""
-        return self.prerequisite
