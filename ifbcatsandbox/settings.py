@@ -135,6 +135,7 @@ REST_FRAMEWORK = {
     # Token authentication works by generating a random token when the user logs in,
     # which is passed to every request that needs to be authenticated.
     # authentication_classes is created as tuple below - more than one type of authentication can be added.
+    # For more info, seee https://security.stackexchange.com/questions/81756/session-authentication-vs-token-authentication
    'DEFAULT_AUTHENTICATION_CLASSES': (
        'rest_framework.authentication.SessionAuthentication',#allows to put used within the browser
        'rest_framework.authentication.TokenAuthentication',
