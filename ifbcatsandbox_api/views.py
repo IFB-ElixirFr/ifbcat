@@ -172,7 +172,7 @@ class NewsItemViewSet(viewsets.ModelViewSet):
     # i.e. they cannot create new feed items when they're not autheticated.
     # NB. Could instead use "IsAuthenticated" to restrict access of the entire endpoint to autheticated users.
     permission_classes = (
-        permissions.UpdateOwnNewsItems,
+        permissions.PubliclyReadableEditableByOwner,
         IsAuthenticatedOrReadOnly
     )
 
@@ -199,7 +199,7 @@ class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Event.objects.all()
 
     permission_classes = (
-        permissions.UpdateOwnEvents,
+        permissions.PubliclyReadableEditableByOwner,
         IsAuthenticatedOrReadOnly
     )
 
@@ -217,7 +217,7 @@ class EventKeywordViewSet(viewsets.ModelViewSet):
     queryset = models.EventKeyword.objects.all()
 
     permission_classes = (
-        permissions.UpdateOwnEvents,
+        permissions.PubliclyReadableEditableByOwner,
         IsAuthenticatedOrReadOnly
     )
 
@@ -236,7 +236,7 @@ class EventPrerequisiteViewSet(viewsets.ModelViewSet):
     queryset = models.EventPrerequisite.objects.all()
 
     permission_classes = (
-        permissions.UpdateOwnEvents,
+        permissions.PubliclyReadableEditableByOwner,
         IsAuthenticatedOrReadOnly
     )
 
