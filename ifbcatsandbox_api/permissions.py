@@ -23,33 +23,18 @@ class UpdateOwnProfile(permissions.BasePermission):
          # i.e. will return True if they're trying to update their own profile.
         return obj.id == request.user.id
 
-# Custom permissions class for updating news items
-class UpdateOwnNewsItems(permissions.BasePermission):
-    """Allow users to update their own news items."""
+
+# Custom permissions class for updating object
+class PubliclyReadableEditableByOwner(permissions.BasePermission):
+    """Allow everyone to see, but only owner to update/delete."""
 
     def has_object_permission(self, request, view, obj):
-        """Check the user is trying to update their own news item."""
+        """Check the user is trying to update their own object."""
 
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Check that the user owns the news item, i.e. the user profile associated
-        # with the news item is assigned to the user making the request.
+        # Check that the user owns the object, i.e. the user_profile associated
+        # with the object is assigned to the user making the request.
         # (returns True if the object being updated etc. has a user profile id that matches the request)
-        return obj.user_profile.id == request.user.id
-
-
-
-# Custom permissions class for updating events & event keywords
-# NB. code is identical to UpdateOwnNewsItems above, so if this really turns
-# out to be generic, will need to refactor (to use single function only)!
-class UpdateOwnEvents(permissions.BasePermission):
-    """Allow users to update their own news items."""
-
-    def has_object_permission(self, request, view, obj):
-        """Check the user is trying to update their own event."""
-
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
         return obj.user_profile.id == request.user.id

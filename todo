@@ -11,5 +11,5 @@
 6. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
 7. See if textarea fields in browsable API (Event->Description, Event->Venue) should be non-resizable - or remove such styling if we don't go down this route for the front end
 8. See if 'id' on Event, EventKeyword etc. need to be (de)serialised  - if not update serializers.py
-9. Consolidate UpdateOwnNewsItems & UpdateOwnEvents (in permissions.py) into single function if possible / desirable
+
 10. Set "None" default values to orcidid and homepage in create_user (see https://github.com/joncison/ifbcat-sandbox/pull/2) as needed.
