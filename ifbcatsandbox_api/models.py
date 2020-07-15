@@ -206,8 +206,8 @@ class Event(models.Model):
         help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
     )
     # topic = ... TO_DO
-    # keywords :  handled by one-to-many foreign key relationship (EventKeyword::Event)
-    # prerequisite = ... TO_DO
+    # keywords :  handled by a foreign key relationship (many-to-one EventKeyword::Event)
+    # prerequisites handled by foreign key relationship (many-to-one EventPrerequisite::Event)
     accessibility = models.CharField(
         max_length=2,
         choices=EventAccessibilityType.choices,
@@ -257,3 +257,25 @@ class EventKeyword(models.Model):
     def __str__(self):
         """Return the EventKeyword model as a string."""
         return self.keyword
+
+
+
+# Event prerequisite model
+# Prerequisites have a many:one relationship to Event
+# Same code as for EventKeyword
+class EventPrerequisite(models.Model):
+    """Event prerequisite model: A skill which the audience should (ideally) possess to get the most out of the event, e.g. "Python"."""
+
+    user_profile = models.ForeignKey(
+    settings.AUTH_USER_MODEL,
+    on_delete=models.SET_NULL,
+    null=True
+    )
+
+    # prerequisite is mandatory
+    event = models.ForeignKey(Event, related_name='prerequisites', blank=True, null=True, on_delete=models.CASCADE)
+    prerequisite = models.CharField(max_length=255, unique=True, help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
+
+    def __str__(self):
+        """Return the EventPrerequisite model as a string."""
+        return self.prerequisite

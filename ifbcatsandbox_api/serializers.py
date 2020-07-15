@@ -133,6 +133,19 @@ class EventKeywordSerializer(serializers.ModelSerializer):
         # fields = ('keyword')
 
 
+
+# Model serializer for event prerequisite
+class EventPrerequisiteSerializer(serializers.ModelSerializer):
+    """Serializes an event prerequisite (EventPrerequisite object)."""
+
+    prerequisite = serializers.CharField(allow_blank=False, required=False)
+
+    class Meta:
+        model = models.EventPrerequisite
+        fields = ('id', 'prerequisite')
+
+
+
 # See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
     """Custom SlugRelatedField that creates the new object when one doesn't exist."""
@@ -175,16 +188,18 @@ class EventSerializer(serializers.ModelSerializer):
 
     type = serializers.ChoiceField(
         choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
-        allow_blank=True)
+        allow_blank=True,
+        required=False)
 
     # dates = ... TO_DO
-    venue = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
-    city = serializers.CharField(allow_blank=False, required=False)
-    country = serializers.CharField(allow_blank=False, required=False)
+    venue = serializers.CharField(allow_blank=True, required=False, style={'base_template': 'textarea.html'})
+    city = serializers.CharField(allow_blank=True, required=False)
+    country = serializers.CharField(allow_blank=True, required=False)
     onlineOnly = serializers.BooleanField(required=False)
     cost = serializers.ChoiceField(
         choices = ('Free', 'Free to academics', 'Concessions available'),
-        allow_blank=True)
+        allow_blank=True,
+        required=False)
     # topic = ... TO_DO
     # keyword = EventKeywordSerializer(many=True, allow_empty=False, required=False)
     keywords = CreatableSlugRelatedField(
@@ -192,16 +207,21 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="keyword",
         queryset=models.EventKeyword.objects.all())
-    # prerequisite = ... TO_DO
+    prerequisites = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="prerequisite",
+        queryset=models.EventPrerequisite.objects.all())
     accessibility = serializers.ChoiceField(
         choices = ('Public', 'Private'),
-        allow_blank=True)
+        allow_blank=True,
+        required=False)
     accessibilityNote = serializers.CharField(allow_blank=False, required=False)
-    maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, required=False)
+    maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
     contactName = serializers.CharField()
     contactEmail = serializers.EmailField()
     # contactId = ... TO_DO
-    market = serializers.CharField(allow_blank=False, required=False)
+    market = serializers.CharField(allow_blank=True, required=False)
     # elixirPlatform = ... TO_DO
     # community = ... TO_DO
     # hostedBy = ... TO_DO
@@ -210,12 +230,12 @@ class EventSerializer(serializers.ModelSerializer):
     # logo = ... TO_DO
 
 
-    # To-add to "fields" below:  dates', 'topic', 'prerequisite', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # To-add to "fields" below:  dates', 'topic', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
     class Meta:
         model = models.Event
 
         fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type',
-        'venue', 'city', 'country', 'onlineOnly', 'cost', 'keywords', 'accessibility', 'accessibilityNote',
+        'venue', 'city', 'country', 'onlineOnly', 'cost', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
         'maxParticipants', 'contactName', 'contactEmail', 'market')
 
         extra_kwargs = {

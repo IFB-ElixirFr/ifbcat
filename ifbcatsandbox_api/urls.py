@@ -16,12 +16,13 @@ router.register('userprofile', views.UserProfileViewSet)
 router.register('news', views.NewsItemViewSet)
 router.register('event', views.EventViewSet)
 router.register('eventkeyword', views.EventKeywordViewSet)
+router.register('eventprerequisite', views.EventPrerequisiteViewSet)
 
-# APIView ("changelog" below) endpoints are registered differently than API ViewSet
+# APIView ("testapiview" below) endpoints are registered differently than API ViewSet
 # "include" function is used to include a list of URLS into the URL pattern
 # It figures out the URLs for all the functions ("list" etc.) defined in views.py for the ViewSet - hence the blank string as 1st arg.
 urlpatterns = [
-path('testapiview/', views.TestApiView.as_view()),
+# path('testapiview/', views.TestApiView.as_view()),
 path('login/', views.UserLoginApiView.as_view()),
 path('', include(router.urls))
 ]
