@@ -141,7 +141,10 @@ class EventKeywordSerializer(serializers.ModelSerializer):
 class EventPrerequisiteSerializer(serializers.ModelSerializer):
     """Serializes an event prerequisite (EventPrerequisite object)."""
 
-    prerequisite = serializers.CharField(allow_blank=False, required=False)
+    prerequisite = serializers.CharField(
+        allow_blank=False,
+        required=False,
+        validators=[UniqueValidator(queryset = models.EventPrerequisite.objects.all())])
 
     class Meta:
         model = models.EventPrerequisite
@@ -154,7 +157,8 @@ class EventTopicSerializer(serializers.ModelSerializer):
 
     topic = serializers.CharField(
         allow_blank=False,
-        required=False)
+        required=False,
+        validators=[UniqueValidator(queryset = models.EventTopic.objects.all())])
 
     class Meta:
         model = models.EventTopic

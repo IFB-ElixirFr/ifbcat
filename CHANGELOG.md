@@ -18,6 +18,7 @@ The project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - orcidid validation: syntax, uniqueness
   - supports creation of normal and super-users.
   - supports search/filtering (by firstname, lastname, email, orcidid)
+  - topic validation:  TO DOCUMENT
 - **/news** endpoint: user news items (NewsItem model)
   - fields: user profile (id), news_text, created_on
   - authentication: users can only update/delete their own news items.
@@ -30,9 +31,8 @@ The project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html
   - fields: event, keyword|prerequisite
   - the endpoint allows registration of keywords|prerequisites independent of an event
   - (useful for pre-population of common keywords|prerequisites)
+  - any user can create a keyword|prerequisite, but only superuser can update or delete
   - keywords|prerequisites must be unique
-  - a user's keywords|prerequisites are preserved if their profile is deleted.
-  - an event's keywords|prerequisites are deleted if the event is deleted.
 
 ### Added
 ### Changed
