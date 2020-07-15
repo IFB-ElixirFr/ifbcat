@@ -142,12 +142,6 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserProfileSerializer
     queryset = models.UserProfile.objects.all()
 
-    # authentication_classes sets how user is authenticated.
-    # Token authentication works by generating a random token when the user logs in,
-    # which is passed to every request that needs to be authenticated.
-    # authentication_classes is created as tuple below - more than one type of authentication can be added.
-    authentication_classes = (TokenAuthentication,)
-
     # permission_classes set how user has gets permission to do certain things.
     permission_classes = (permissions.UpdateOwnProfile,)
 
@@ -169,7 +163,6 @@ class UserLoginApiView(ObtainAuthToken):
 class NewsItemViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating news items."""
 
-    authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.NewsItemSerializer
     queryset = models.NewsItem.objects.all()
 
@@ -202,7 +195,6 @@ class NewsItemViewSet(viewsets.ModelViewSet):
 class EventViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
-    authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
 
@@ -221,7 +213,6 @@ class EventViewSet(viewsets.ModelViewSet):
 class EventKeywordViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating event keywords."""
 
-    authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.EventKeywordSerializer
     queryset = models.EventKeyword.objects.all()
 

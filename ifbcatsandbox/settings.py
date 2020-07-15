@@ -129,3 +129,14 @@ STATIC_URL = '/static/'
 
 # Configure Django to use our custom user model for authentication and user registration
 AUTH_USER_MODEL = 'ifbcatsandbox_api.UserProfile'
+
+REST_FRAMEWORK = {
+    # authentication_classes sets how user is authenticated.
+    # Token authentication works by generating a random token when the user logs in,
+    # which is passed to every request that needs to be authenticated.
+    # authentication_classes is created as tuple below - more than one type of authentication can be added.
+   'DEFAULT_AUTHENTICATION_CLASSES': (
+       'rest_framework.authentication.SessionAuthentication',#allows to put used within the browser
+       'rest_framework.authentication.TokenAuthentication',
+   ),
+}
