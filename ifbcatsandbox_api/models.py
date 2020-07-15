@@ -49,10 +49,17 @@ class UserProfileManager(BaseUserManager):
 
     # Function for creating super-users
     # NB. all superusers must have a password, hence no "password=Nane"
-    def create_superuser(self, firstname, lastname, email, orcidid, homepage, password):
+    def create_superuser(self, firstname, lastname, email, password, orcidid=None, homepage=None):
         """Create a new superuser profile"""
 
-        user = self.create_user(password, firstname, lastname, email, orcid, homepage)
+        user = self.create_user(
+            password=password,
+            firstname=firstname,
+            lastname=lastname,
+            email=email,
+            orcidid=orcidid,
+            homepage=homepage,
+        )
 
         # .is_superuser and is_staff come from PermissionsMixin
         user.is_superuser = True
