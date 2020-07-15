@@ -29,7 +29,7 @@ class UserProfileManager(BaseUserManager):
     # Function that Django CLI will use when creating users
     # password=None means that if a password is not set it wil default to None,
     # preventing authentication with the user until a password is set.
-    def create_user(self, firstname, lastname, email, orcidid=None, homepage=None, password=None):
+    def create_user(self, firstname, lastname, email, password=None, **extra_fields):
         """Create a new user profile"""
         if not firstname:
             raise ValueError('Users must have a first (given) name.')
@@ -40,7 +40,7 @@ class UserProfileManager(BaseUserManager):
 
         # Normalize the email address (makes the 2nd part of the address all lowercase)
         email = self.normalize_email(email)
-        user = self.model(firstname=firstname, lastname=lastname, email=email, orcidid=orcidid, homepage=homepage)
+        user = self.model(firstname=firstname, lastname=lastname, email=email, **extra_fields)
 
         # Set password will encrypt the provided password - good practice to do so!
         # Even thoough there's only one database, it's good practice to name the databaes anyway, using:
@@ -51,25 +51,24 @@ class UserProfileManager(BaseUserManager):
         return user
 
     # Function for creating super-users
-    # NB. all superusers must have a password, hence no "password=Nane"
-    def create_superuser(self, firstname, lastname, email, password, orcidid=None, homepage=None):
+    # NB. all superusers must have a password, hence no "password=None"
+    def create_superuser(self, firstname, lastname, email, password, **extra_fields):
         """Create a new superuser profile"""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
 
-        user = self.create_user(
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(
             password=password,
             firstname=firstname,
             lastname=lastname,
             email=email,
-            orcidid=orcidid,
-            homepage=homepage,
+            **extra_fields
         )
-
-        # .is_superuser and is_staff come from PermissionsMixin
-        user.is_superuser = True
-        user.is_staff = True
-        user.save(using=self._db)
-
-        return user
 
 # Custom user profile model
 #
