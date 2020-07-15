@@ -26,7 +26,7 @@ class UserProfileManager(BaseUserManager):
     # Function that Django CLI will use when creating users
     # password=None means that if a password is not set it wil default to None,
     # preventing authentication with the user until a password is set.
-    def create_user(self, firstname, lastname, email, orcidid, homepage, password=None):
+    def create_user(self, firstname, lastname, email, orcidid=None, homepage=None, password=None):
         """Create a new user profile"""
         if not firstname:
             raise ValueError('Users must have a first (given) name.')
