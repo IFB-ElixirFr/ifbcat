@@ -18,6 +18,7 @@ from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
 # from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator
 
 
 # Manager for custom user profile model
@@ -303,6 +304,7 @@ class Event(models.Model):
         help_text="Whether the event is public or private."
     )
     accessibilityNote = models.CharField(max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for.")
+    # maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1)], help_text="Maximum number of participants to the event.")
     maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, help_text="Maximum number of participants to the event.")
 
 
