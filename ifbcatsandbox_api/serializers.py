@@ -27,12 +27,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     # firstname (no further validation needed)
     # lastname (no further validation needed)
     # email (no further validation needed)
-    orcidid = serializers.CharField(
-        allow_blank=False,
-        allow_null=True,
-        required=False,
-        validators=[UniqueValidator(queryset = models.UserProfile.objects.all())])
-    homepage = serializers.URLField(allow_blank=False, allow_null=True, required=False)
+    # orcidid = serializers.CharField(
+    #     allow_blank=False,
+    #     allow_null=True,
+    #     required=False,
+    #     validators=[UniqueValidator(queryset = models.UserProfile.objects.all())])
+    # homepage = serializers.URLField(allow_blank=False, allow_null=True, required=False)
 
     # Metaclass is used to configure the serializer to point to a specific object
     # and setup a list of fields in the model to manage with the serializer.
@@ -124,10 +124,10 @@ class NewsItemSerializer(serializers.ModelSerializer):
 class EventKeywordSerializer(serializers.ModelSerializer):
     """Serializes an event keyword (EventKeyword object)."""
 
-    keyword = serializers.CharField(
-        allow_blank=False,
-        required=False,
-        validators=[UniqueValidator(queryset = models.EventKeyword.objects.all())])
+    # keyword = serializers.CharField(
+    #     allow_blank=False,
+    #     required=False,
+    #     validators=[UniqueValidator(queryset = models.EventKeyword.objects.all())])
 
     class Meta:
         model = models.EventKeyword
@@ -141,10 +141,10 @@ class EventKeywordSerializer(serializers.ModelSerializer):
 class EventPrerequisiteSerializer(serializers.ModelSerializer):
     """Serializes an event prerequisite (EventPrerequisite object)."""
 
-    prerequisite = serializers.CharField(
-        allow_blank=False,
-        required=False,
-        validators=[UniqueValidator(queryset = models.EventPrerequisite.objects.all())])
+    # prerequisite = serializers.CharField(
+    #     allow_blank=False,
+    #     required=False,
+    #     validators=[UniqueValidator(queryset = models.EventPrerequisite.objects.all())])
 
     class Meta:
         model = models.EventPrerequisite
@@ -155,10 +155,10 @@ class EventPrerequisiteSerializer(serializers.ModelSerializer):
 class EventTopicSerializer(serializers.ModelSerializer):
     """Serializes an event topic (EventTopic object)."""
 
-    topic = serializers.CharField(
-        allow_blank=False,
-        required=False,
-        validators=[UniqueValidator(queryset = models.EventTopic.objects.all())])
+    # topic = serializers.CharField(
+    #     allow_blank=False,
+    #     required=False,
+    #     validators=[UniqueValidator(queryset = models.EventTopic.objects.all())])
 
     class Meta:
         model = models.EventTopic
@@ -215,25 +215,25 @@ class EventSerializer(serializers.ModelSerializer):
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
-    name = serializers.CharField()
-    shortName = serializers.CharField(allow_blank=False, required=False)
-    description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
-    homepage = serializers.URLField()
+    # name = serializers.CharField()
+    # shortName = serializers.CharField(allow_blank=False, required=False)
+    # description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
+    # homepage = serializers.URLField()
 
-    type = serializers.ChoiceField(
-        choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
-        allow_blank=True,
-        required=False)
+    # type = serializers.ChoiceField(
+    #     choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
+    #     allow_blank=True,
+    #     required=False)
 
     # dates = ... TO_DO
-    venue = serializers.CharField(allow_blank=True, required=False, style={'base_template': 'textarea.html'})
-    city = serializers.CharField(allow_blank=True, required=False)
-    country = serializers.CharField(allow_blank=True, required=False)
-    onlineOnly = serializers.BooleanField(required=False)
-    cost = serializers.ChoiceField(
-        choices = ('Free', 'Free to academics', 'Concessions available'),
-        allow_blank=True,
-        required=False)
+    # venue = serializers.CharField(allow_blank=True, required=False, style={'base_template': 'textarea.html'})
+    # city = serializers.CharField(allow_blank=True, required=False)
+    # country = serializers.CharField(allow_blank=True, required=False)
+    # onlineOnly = serializers.BooleanField(required=False)
+    # cost = serializers.ChoiceField(
+    #     choices = ('Free', 'Free to academics', 'Concessions available'),
+    #     allow_blank=True,
+    #     required=False)
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
@@ -250,16 +250,16 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="prerequisite",
         queryset=models.EventPrerequisite.objects.all())
-    accessibility = serializers.ChoiceField(
-        choices = ('Public', 'Private'),
-        allow_blank=True,
-        required=False)
-    accessibilityNote = serializers.CharField(allow_blank=True, required=False)
-    maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
-    contactName = serializers.CharField()
-    contactEmail = serializers.EmailField()
+    # accessibility = serializers.ChoiceField(
+    #     choices = ('Public', 'Private'),
+    #     allow_blank=True,
+    #     required=False)
+    # accessibilityNote = serializers.CharField(allow_blank=True, required=False)
+    # maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
+    # contactName = serializers.CharField()
+    # contactEmail = serializers.EmailField()
     # contactId = ... TO_DO
-    market = serializers.CharField(allow_blank=True, required=False)
+    # market = serializers.CharField(allow_blank=True, required=False)
     # elixirPlatform = ... TO_DO
     # community = ... TO_DO
     # hostedBy = ... TO_DO
