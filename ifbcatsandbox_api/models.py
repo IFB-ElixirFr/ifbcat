@@ -235,31 +235,45 @@ class Event(models.Model):
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
 
     # EventType: Controlled vocabulary of types of events.
+    # Not using both short-form names and human-readable labels, because of issues
+    # see https://github.com/joncison/ifbcat-sandbox/pull/9
     class EventType(models.TextChoices):
-        WORKSHOP = 'WO', _('Workshop')
-        TRAINING_COURSE = 'TR', _('Training course')
-        MEETING = 'ME', _('Meeting')
-        CONFERENCE = 'CO', _('Conference')
+        # WORKSHOP = 'WO', _('Workshop')
+        # TRAINING_COURSE = 'TR', _('Training course')
+        # MEETING = 'ME', _('Meeting')
+        # CONFERENCE = 'CO', _('Conference')
+        WORKSHOP = 'Workshop'
+        TRAINING_COURSE = 'Training course'
+        MEETING = 'Meeting'
+        CONFERENCE = 'Conference'
 
 
     # CostType: Controlled vocabulary of monetary costs to attend an event.
     class CostType(models.TextChoices):
-        FREE = 'FR', _('Free')
-        FREE_TO_ACADEMICS = 'FA', _('Free to academics')
-        CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
+        # FREE = 'FR', _('Free')
+        # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
+        # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
+        FREE = 'Free'
+        FREE_TO_ACADEMICS = 'Free to academics'
+        CONCESSIONS_AVAILABLE = 'Concessions available'
+
 
     # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
     class EventAccessibilityType(models.TextChoices):
-        PUBLIC = 'PU', _('Public')
-        PRIVATE = 'PR', _('Private')
+        # PUBLIC = 'PU', _('Public')
+        # PRIVATE = 'PR', _('Private')
+        PUBLIC = 'Public'
+        PRIVATE = 'Private'
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(max_length=255, help_text="Full name / title of the event.")
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
     homepage = models.URLField(max_length=255, null=True, blank=True, help_text="URL of event homepage.")
+
+    # NB: max_length is mandatory, but is ignored by sqlite3, see https://github.com/joncison/ifbcat-sandbox/pull/9
     type = models.CharField(
-        max_length=2,
+        max_length=255,
         choices=EventType.choices,
         blank=True,
         help_text="The type of event e.g. 'Training course'."
@@ -271,7 +285,7 @@ class Event(models.Model):
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     cost = models.CharField(
-        max_length=2,
+        max_length=255,
         choices=CostType.choices,
         blank=True,
         help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
@@ -283,7 +297,7 @@ class Event(models.Model):
     # prerequisites handled by foreign key relationship (many-to-one EventPrerequisite::Event)
 
     accessibility = models.CharField(
-        max_length=2,
+        max_length=255,
         choices=EventAccessibilityType.choices,
         blank=True,
         help_text="Whether the event is public or private."
