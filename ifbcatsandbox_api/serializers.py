@@ -220,20 +220,20 @@ class EventSerializer(serializers.ModelSerializer):
     # description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
     # homepage = serializers.URLField()
 
-    # type = serializers.ChoiceField(
-    #     choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
-    #     allow_blank=True,
-    #     required=False)
+    type = serializers.ChoiceField(
+        choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
+        allow_blank=True,
+        required=False)
 
     # dates = ... TO_DO
     # venue = serializers.CharField(allow_blank=True, required=False, style={'base_template': 'textarea.html'})
     # city = serializers.CharField(allow_blank=True, required=False)
     # country = serializers.CharField(allow_blank=True, required=False)
     # onlineOnly = serializers.BooleanField(required=False)
-    # cost = serializers.ChoiceField(
-    #     choices = ('Free', 'Free to academics', 'Concessions available'),
-    #     allow_blank=True,
-    #     required=False)
+    cost = serializers.ChoiceField(
+         choices = ('Free', 'Free to academics', 'Concessions available'),
+         allow_blank=True,
+         required=False)
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
@@ -250,10 +250,10 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="prerequisite",
         queryset=models.EventPrerequisite.objects.all())
-    # accessibility = serializers.ChoiceField(
-    #     choices = ('Public', 'Private'),
-    #     allow_blank=True,
-    #     required=False)
+    accessibility = serializers.ChoiceField(
+         choices = ('Public', 'Private'),
+         allow_blank=True,
+         required=False)
     # accessibilityNote = serializers.CharField(allow_blank=True, required=False)
     # maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
     # contactName = serializers.CharField()

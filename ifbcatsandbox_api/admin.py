@@ -34,9 +34,13 @@ class ViewInApiModelAdmin(admin.ModelAdmin):
 admin.site.register(models.UserProfile)
 admin.site.register(models.NewsItem)
 
-
+# "search_fields" defines the searchable fields
+# "list_filter" adds fields to Django admin filter box
+# "filter_horizontal" adds widgets for item selection from lists
 @admin.register(models.Event)
 class EventAdmin(ViewInApiModelAdmin):
+    """Enables search, filtering and widgets in Django admin interface."""
+
     search_fields = (
         'name',
         'shortName',
@@ -61,6 +65,7 @@ class EventAdmin(ViewInApiModelAdmin):
         'onlineOnly',
         'accessibility',
     )
+    #
     filter_horizontal = (
         'topics',
         'keywords',

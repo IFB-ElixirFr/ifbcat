@@ -13,3 +13,4 @@
 8. See if 'id' on Event, EventKeyword etc. need to be (de)serialised  - if not update serializers.py
 9. Set "None" default values to orcidid and homepage in create_user (see https://github.com/joncison/ifbcat-sandbox/pull/2) as needed.
 10. Refactor "cost" field in Event model to allow multiple selections (one only currently)
+11. Refactor to remvove duplication of controlled vocabularies (e.g. Event->Cost, Event->Accessibility etc.) in serializers.py and models.py
