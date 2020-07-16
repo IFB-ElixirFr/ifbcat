@@ -232,7 +232,6 @@ class EventKeywordViewSet(viewsets.ModelViewSet):
 class EventPrerequisiteViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating event prerequisites."""
 
-    authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.EventPrerequisiteSerializer
     queryset = models.EventPrerequisite.objects.all()
 
