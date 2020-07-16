@@ -207,6 +207,11 @@ class EventSerializer(serializers.ModelSerializer):
 #         choices = ('Free', 'Free to academics', 'Concessions available'),
 #         allow_blank=True,
 #         required=False)
+    costs = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="cost",
+        queryset=models.EventCost.objects.all())
 
     topics = CreatableSlugRelatedField(
         many=True,
@@ -252,7 +257,7 @@ class EventSerializer(serializers.ModelSerializer):
         model = models.Event
 
         fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type',
-        'venue', 'city', 'country', 'onlineOnly', 'cost', 'topics', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
+        'venue', 'city', 'country', 'onlineOnly', 'costs', 'topics', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
         'maxParticipants', 'contactName', 'contactEmail', 'market')
 
         extra_kwargs = {
@@ -263,7 +268,7 @@ class EventSerializer(serializers.ModelSerializer):
     def validate_topics(self, topics):
         """Validate supplied EDAM topic URIs."""
 
-        # topic is not mandatory - catch that
+        # topics is not mandatory - catch that
         if topics is None:
             return topics
 
@@ -272,3 +277,21 @@ class EventSerializer(serializers.ModelSerializer):
             if not p.search(topic.__str__()):
                 raise serializers.ValidationError('This field can only contain valid EDAM Topic URIs.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$')
         return topics
+
+
+    # Validation logic
+    def validate_costs(self, costs):
+        """Validate supplied event costs."""
+
+        if costs is None:
+            return costs
+
+        print("CostType.choices:", models.EventCost.CostType.choices)
+        print("CostType.labels:", models.EventCost.CostType.labels)
+
+
+        for cost in costs:
+            if cost.__str__() not in models.EventCost.CostType.labels:
+                msg = 'This field can only contain valid cost strings: ' + ','.join(models.EventCost.CostType.labels)
+                raise serializers.ValidationError(msg)
+        return costs

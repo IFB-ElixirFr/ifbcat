@@ -216,6 +216,34 @@ class EventTopic(models.Model):
         return self.topic
 
 
+# Event cost model
+# Event cost has a many:many relationship to Event
+class EventCost(models.Model):
+    """Event cost model: Monetary cost to attend the event, e.g. 'Free to academics'."""
+
+    # CostType: Controlled vocabulary of monetary costs to attend an event.
+    class CostType(models.TextChoices):
+        # FREE = 'FR', _('Free')
+        # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
+        # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
+        FREE = 'Free'
+        FREE_TO_ACADEMICS = 'Free to academics'
+        PRICED = 'Priced'
+        CONCESSIONS_AVAILABLE = 'Concessions available'
+
+
+    # cost is mandatory
+    cost = models.CharField(
+        max_length=255,
+        choices=CostType.choices,
+        unique=True,
+        help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
+
+    def __str__(self):
+        """Return the EventCost model as a string."""
+        return self.cost
+
+
 
 
 # Event model
@@ -249,16 +277,6 @@ class Event(models.Model):
         CONFERENCE = 'Conference'
 
 
-    # CostType: Controlled vocabulary of monetary costs to attend an event.
-    class CostType(models.TextChoices):
-        # FREE = 'FR', _('Free')
-        # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
-        # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
-        FREE = 'Free'
-        FREE_TO_ACADEMICS = 'Free to academics'
-        CONCESSIONS_AVAILABLE = 'Concessions available'
-
-
     # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
     class EventAccessibilityType(models.TextChoices):
         # PUBLIC = 'PU', _('Public')
@@ -285,12 +303,14 @@ class Event(models.Model):
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
-    cost = models.CharField(
-        max_length=255,
-        choices=CostType.choices,
-        blank=True,
-        help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
-    )
+    #cost = models.CharField(
+    #    max_length=255,
+    #    choices=CostType.choices,
+    #    blank=True,
+    #    help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
+    #)
+
+    costs = models.ManyToManyField(EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
     topics = models.ManyToManyField(EventTopic, related_name='events', help_text="URI of EDAM Topic term describing the scope of the event.")
     keywords = models.ManyToManyField(EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event.")
     prerequisites = models.ManyToManyField(EventPrerequisite, related_name='events', help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")

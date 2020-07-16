@@ -11,8 +11,7 @@
 6. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
 7. See if textarea fields in browsable API (Event->Description, Event->Venue) should be non-resizable - or remove such styling if we don't go down this route for the front end
 8. See if 'id' on Event, EventKeyword etc. need to be (de)serialised  - if not update serializers.py
-9. Set "None" default values to orcidid and homepage in create_user (see https://github.com/joncison/ifbcat-sandbox/pull/2) as needed.
-10. Refactor "cost" field in Event model to allow multiple selections (one only currently)
-11. Refactor to remove duplication of controlled vocabularies (e.g. Event->Cost, Event->Accessibility etc.) in serializers.py and models.py
-13. Enable filtering for 'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy' in EventViewSet  ("search_fields") - once these are added
-14. Enable filtering over 'topics', 'keywords', 'prerequisites' (all ManyToManyField) in EventViewSet
+9. Refactor "cost" field in Event model to allow multiple selections (one only currently)
+10. Refactor to remove duplication of controlled vocabularies (e.g. Event->Cost, Event->Accessibility etc.) in serializers.py and models.py
+11. Enable filtering for 'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy' in EventViewSet  ("search_fields") - once these are added
+12. Enable filtering over 'costs', 'topics', 'keywords', 'prerequisites' (all ManyToManyField) in EventViewSet
