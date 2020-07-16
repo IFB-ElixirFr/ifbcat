@@ -33,6 +33,51 @@ class ViewInApiModelAdmin(admin.ModelAdmin):
 # Enable Django admin for user profile and news item models - i.e. make them accessible through admin interface
 admin.site.register(models.UserProfile)
 admin.site.register(models.NewsItem)
-admin.site.register(models.Event)
+
+
+@admin.register(models.Event)
+class DataSourceAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'shortName',
+        'description',
+        'homepage',
+        'venue',
+        'city',
+        'country',
+        'topics__topic',
+        'keywords__keyword',
+        'prerequisites__prerequisite',
+        'contactName',
+        'market',
+    )
+    list_display = (
+        'short_name_or_name',
+        'contactName'
+    )
+    list_filter = (
+        'type',
+        'cost',
+        'onlineOnly',
+        'accessibility',
+    )
+    filter_horizontal = (
+        'topics',
+        'keywords',
+        'prerequisites',
+    )
+
+    # date_hierarchy = 'dates'
+
+    def short_name_or_name(self, obj):
+        if obj.shortName is None or obj.shortName == "":
+            if len(obj.name) <= 35:
+                return obj.name
+            return "%.32s..." % obj.name
+        return obj.shortName
+
+    short_name_or_name.short_description = "Name"
+
+
 admin.site.register(models.EventKeyword)
 admin.site.register(models.EventPrerequisite)
