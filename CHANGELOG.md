@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 The project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-- **/admin** endpoint (Djano Admin is configured and tested)
+- **/admin** endpoint
+  - Django Admin interface is configured and tested
+  - supports filtering, "View in API" & term-selection widgets
 - **/login** endpoint: user login (Token authentication)
 - ALL model endpoints
   - authentication: only users can create/update new database objects.
