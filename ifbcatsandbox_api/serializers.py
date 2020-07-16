@@ -151,34 +151,6 @@ class EventPrerequisiteSerializer(serializers.ModelSerializer):
         fields = ('id', 'prerequisite')
 
 
-# Model serializer for event prerequisite
-class EventTopicSerializer(serializers.ModelSerializer):
-    """Serializes an event topic (EventTopic object)."""
-
-    # topic = serializers.CharField(
-    #     allow_blank=False,
-    #     required=False,
-    #     validators=[UniqueValidator(queryset = models.EventTopic.objects.all())])
-
-    class Meta:
-        model = models.EventTopic
-        fields = ('id', 'topic')
-
-    # Validation logic
-    def validate_topic(self, topic):
-        """Validate supplied EDAM topic URI."""
-
-        raise serializers.ValidationError('STOP HERE')
-
-        # topic is not mandatory - catch that
-        if topic is None:
-            return topic
-
-        p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
-        if not p.search(topic):
-            raise serializers.ValidationError('This field can only contain a valid EDAM Topic URI.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$')
-        return topic
-
 
 # See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
@@ -284,3 +256,17 @@ class EventSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             # 'id': {'read_only': True},
             'user_profile': {'read_only': True}}
+
+    # Validation logic
+    def validate_topics(self, topics):
+        """Validate supplied EDAM topic URIs."""
+
+        # topic is not mandatory - catch that
+        if topics is None:
+            return topics
+
+        p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
+        for topic in topics:
+            if not p.search(topic.__str__()):
+                raise serializers.ValidationError('This field can only contain valid EDAM Topic URIs.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$')
+        return topics
