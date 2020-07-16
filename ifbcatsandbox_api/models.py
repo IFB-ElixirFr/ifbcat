@@ -144,14 +144,14 @@ class NewsItem(models.Model):
     on_delete=models.CASCADE
     )
 
-    # news_text and created_on are mandatory
+    # news and created_on are mandatory
     # "auto_now_add=True" means that the date/time stamp gets added automatically when the item is created.
-    news_text = models.CharField(max_length=255, help_text="Some news provided by a user.")
+    news = models.CharField(max_length=255, help_text="Some news provided by a user.")
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         """Return the NewsItem model as a string."""
-        return self.news_text
+        return self.news
 
 
 # Event keyword model

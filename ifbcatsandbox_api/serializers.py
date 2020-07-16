@@ -99,9 +99,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class NewsItemSerializer(serializers.ModelSerializer):
     """Serializes a news item (NewsItem object)."""
 
-    # news_text and created_on are mandatory
+    # news and created_on are mandatory
 
-    # news_text (no further validation needed)
+    # news (no further validation needed)
     # created_on (no further validation needed)
 
     class Meta:
@@ -116,7 +116,7 @@ class NewsItemSerializer(serializers.ModelSerializer):
         #   extra_kwargs = {
         #      'user_profile': {'read_only': True}}
 
-        fields = ('id', 'user_profile', 'news_text', 'created_on')
+        fields = ('id', 'user_profile', 'news', 'created_on')
         read_only_fields = ['user_profile']
 
 
