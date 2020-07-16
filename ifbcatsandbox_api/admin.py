@@ -36,7 +36,7 @@ admin.site.register(models.NewsItem)
 
 
 @admin.register(models.Event)
-class DataSourceAdmin(ViewInApiModelAdmin):
+class EventAdmin(ViewInApiModelAdmin):
     search_fields = (
         'name',
         'shortName',
