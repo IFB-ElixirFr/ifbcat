@@ -190,6 +190,9 @@ class NewsItemViewSet(viewsets.ModelViewSet):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
 
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('news',)
+
 
 # Model ViewSet for events
 class EventViewSet(viewsets.ModelViewSet):
@@ -226,7 +229,8 @@ class EventKeywordViewSet(viewsets.ModelViewSet):
         # serializer.save(user_profile=self.request.user)
         serializer.save()
 
-
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('keyword',)
 
 # Model ViewSet for event prerequisites
 class EventPrerequisiteViewSet(viewsets.ModelViewSet):
@@ -244,3 +248,6 @@ class EventPrerequisiteViewSet(viewsets.ModelViewSet):
         """Sets the user profile to the logged-in user."""
         # serializer.save(user_profile=self.request.user)
         serializer.save()
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('prerequisite',)
