@@ -262,7 +262,10 @@ class EventSerializer(serializers.ModelSerializer):
 
         extra_kwargs = {
             # 'id': {'read_only': True},
-            'user_profile': {'read_only': True}}
+            'user_profile': {'read_only': True},
+            'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'venue': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+        }
 
     # Validation logic
     def validate_topics(self, topics):
