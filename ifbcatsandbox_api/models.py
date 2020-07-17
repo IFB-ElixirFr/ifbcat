@@ -11,7 +11,6 @@
 # so the translation occurs when the value is accessed rather than when they’re called.  We need this behaviour so
 # users will see the right language in their UI - see https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
 # See https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
