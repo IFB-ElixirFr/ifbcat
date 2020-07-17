@@ -88,3 +88,4 @@ class EventAdmin(ViewInApiModelAdmin):
 admin.site.register(models.EventKeyword)
 admin.site.register(models.EventPrerequisite)
 admin.site.register(models.EventTopic)
+admin.site.register(models.EventCost)
