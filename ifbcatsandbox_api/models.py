@@ -226,10 +226,10 @@ class EventCost(models.Model):
         # FREE = 'FR', _('Free')
         # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
         # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
-        FREE = 'Free'
-        FREE_TO_ACADEMICS = 'Free to academics'
-        PRICED = 'Priced'
-        CONCESSIONS_AVAILABLE = 'Concessions available'
+        FREE = 'Free', _('Free')
+        FREE_TO_ACADEMICS = 'Free to academics', _('Free to academics')
+        PRICED = 'Priced', _('Priced')
+        CONCESSIONS_AVAILABLE = 'Concessions available', _('Concessions available')
 
 
     # cost is mandatory
@@ -264,25 +264,25 @@ class Event(models.Model):
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
 
     # EventType: Controlled vocabulary of types of events.
-    # Not using both short-form names and human-readable labels, because of issues
+    # Not using both short-form names and human-readable labels, because of issue:
     # see https://github.com/joncison/ifbcat-sandbox/pull/9
     class EventType(models.TextChoices):
         # WORKSHOP = 'WO', _('Workshop')
         # TRAINING_COURSE = 'TR', _('Training course')
         # MEETING = 'ME', _('Meeting')
         # CONFERENCE = 'CO', _('Conference')
-        WORKSHOP = 'Workshop'
-        TRAINING_COURSE = 'Training course'
-        MEETING = 'Meeting'
-        CONFERENCE = 'Conference'
+        WORKSHOP = 'Workshop', _('Workshop')
+        TRAINING_COURSE = 'Training course', _('Training course')
+        MEETING = 'Meeting', _('Meeting')
+        CONFERENCE = 'Conference', _('Conference')
 
 
     # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
     class EventAccessibilityType(models.TextChoices):
         # PUBLIC = 'PU', _('Public')
         # PRIVATE = 'PR', _('Private')
-        PUBLIC = 'Public'
-        PRIVATE = 'Private'
+        PUBLIC = 'Public', _('Public')
+        PRIVATE = 'Private', _('Private')
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(max_length=255, help_text="Full name / title of the event.")
@@ -303,20 +303,10 @@ class Event(models.Model):
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
-    #cost = models.CharField(
-    #    max_length=255,
-    #    choices=CostType.choices,
-    #    blank=True,
-    #    help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
-    #)
-
     costs = models.ManyToManyField(EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
     topics = models.ManyToManyField(EventTopic, related_name='events', help_text="URI of EDAM Topic term describing the scope of the event.")
     keywords = models.ManyToManyField(EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event.")
     prerequisites = models.ManyToManyField(EventPrerequisite, related_name='events', help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
-    # keywords :  handled by a foreign key relationship (many-to-one EventKeyword::Event)
-    # prerequisites handled by foreign key relationship (many-to-one EventPrerequisite::Event)
-
     accessibility = models.CharField(
         max_length=255,
         choices=EventAccessibilityType.choices,
@@ -330,10 +320,6 @@ class Event(models.Model):
         help_text="Maximum number of participants to the event.",
         validators=[MinValueValidator(1),],
     )
-
-
-
-    #     maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
     contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
     # contactId = ... TO_DO
