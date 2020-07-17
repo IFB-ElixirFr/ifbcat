@@ -4,15 +4,9 @@
   urls.py (endpoints)
 2. Add expertise field to UserProfile model (models.py, serializers.py, and search_fields in views.py)
 3. Consolidate UpdateOwnNewsItems and UpdateOwnEvent into single function (if this turns out to really be generic)
-4. Prevent UI allowing negative values to be picked for maxParticipantsin Event (in "HTML form")
-- even though validation is OK and complains if a negative value is specified.
-- NB django admin interface does NOT let negative values be picked
-5. Look into what "is_staff" implies, and update the "help_text" (or remove this feature, if not needed)
-6. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
-7. See if textarea fields in browsable API (Event->Description, Event->Venue) should be non-resizable - or remove such styling if we don't go down this route for the front end
-8. See if 'id' on Event, EventKeyword etc. need to be (de)serialised  - if not update serializers.py
-9. Refactor "cost" field in Event model to allow multiple selections (one only currently)
-10. Refactor to remove duplication of controlled vocabularies (e.g. Event->Cost, Event->Accessibility etc.) in serializers.py and models.py
-11. Enable filtering for 'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy' in EventViewSet  ("search_fields") - once these are added
-12. Enable filtering over 'costs', 'topics', 'keywords', 'prerequisites' (all ManyToManyField) in EventViewSet
-13. Test latest code for Event cost, including validation, filtering in Django admin, clean-up of old (bad) values etc.
+4. Look into what "is_staff" implies, and update the "help_text" (or remove this feature, if not needed)
+5. Support generation of OpenAPI docs, see https://www.django-rest-framework.org/api-guide/schemas/
+6. See if 'id' on Event, EventKeyword etc. need to be (de)serialised  - if not update serializers.py
+7. Refactor to remove duplication of controlled vocabularies (e.g. Event->Cost, Event->Accessibility etc.) in serializers.py and models.py
+8. Enable filtering for 'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy' in EventViewSet  ("search_fields") - once these are added
+9. Enable filtering over 'costs', 'topics', 'keywords', 'prerequisites' (all ManyToManyField) in EventViewSet
