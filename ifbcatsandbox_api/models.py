@@ -216,6 +216,7 @@ class EventTopic(models.Model):
         return self.topic
 
 
+
 # Event cost model
 # Event cost has a many:many relationship to Event
 class EventCost(models.Model):
@@ -298,7 +299,7 @@ class Event(models.Model):
         help_text="The type of event e.g. 'Training course'."
     )
 
-    # dates = ... TO_DO
+    # dates: handled by a ForeignKey relationship defined in EventDate (many:one EventDate:Event)
     venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
@@ -334,3 +335,22 @@ class Event(models.Model):
     def __str__(self):
         """Return the Event model as a string."""
         return self.name
+
+
+
+# Event date model
+# Event date has a many:one relationship to Event
+class EventDate(models.Model):
+    """Event date model: Start and end date and time of an event."""
+
+    # dateStart is mandatory (other fields optional)
+    dateStart = models.DateField(help_text="The start date of the event.")
+    dateEnd = models.DateField(blank=True, help_text="The end date of the event.")
+    timeStart = models.TimeField(blank=True, help_text="The start time of the event.")
+    timeEnd = models.TimeField(blank=True, help_text="The end time of the event.")
+
+    event = models.ForeignKey(Event, related_name='dates', on_delete=models.CASCADE)
+
+    def __str__(self):
+        """Return the EventDate model as a string."""
+        return self.dateStart.__str__()

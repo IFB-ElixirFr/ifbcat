@@ -256,7 +256,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Event
 
-        fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type',
+        fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type', 'dates',
         'venue', 'city', 'country', 'onlineOnly', 'costs', 'topics', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
         'maxParticipants', 'contactName', 'contactEmail', 'market')
 
