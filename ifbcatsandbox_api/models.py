@@ -324,8 +324,12 @@ class Event(models.Model):
         help_text="Whether the event is public or private."
     )
     accessibilityNote = models.CharField(max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for.")
-    # maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1)], help_text="Maximum number of participants to the event.")
-    maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, help_text="Maximum number of participants to the event.")
+    maxParticipants = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Maximum number of participants to the event.",
+        validators=[MinValueValidator(1),],
+    )
 
 
 

@@ -238,7 +238,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     # accessibilityNote = serializers.CharField(allow_blank=True, required=False)
     # maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
-    maxParticipants = serializers.IntegerField(max_value=32767, min_value=1)
+    # maxParticipants = serializers.IntegerField(max_value=32767, min_value=1)
 
     # contactName = serializers.CharField()
     # contactEmail = serializers.EmailField()
