@@ -11,6 +11,7 @@
 # so the translation occurs when the value is accessed rather than when they’re called.  We need this behaviour so
 # users will see the right language in their UI - see https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
 # See https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
@@ -289,7 +290,12 @@ class Event(models.Model):
         help_text="Whether the event is public or private."
     )
     accessibilityNote = models.CharField(max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for.")
-    maxParticipants = models.PositiveSmallIntegerField(null=True, blank=True, help_text="Maximum number of participants to the event.")
+    maxParticipants = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Maximum number of participants to the event.",
+        validators=[MinValueValidator(1),],
+    )
 
 
 
