@@ -190,6 +190,9 @@ class NewsItemViewSet(viewsets.ModelViewSet):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
 
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('news',)
+
 
 # Model ViewSet for events
 class EventViewSet(viewsets.ModelViewSet):
@@ -206,6 +209,13 @@ class EventViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
+
+    filter_backends = (filters.SearchFilter,)
+    # TODO: : add to "search_fields" below:  'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # TODO: : add 'costs', 'topics', 'keywords', 'prerequisites' (which are ManyToManyField)
+    search_fields = ('name', 'shortName', 'description', 'homepage', 'type',
+        'venue', 'city', 'country', 'onlineOnly', 'accessibility', 'accessibilityNote','maxParticipants',
+        'contactName', 'contactEmail', 'market',)
 
 
 
@@ -226,7 +236,8 @@ class EventKeywordViewSet(viewsets.ModelViewSet):
         # serializer.save(user_profile=self.request.user)
         serializer.save()
 
-
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('keyword',)
 
 # Model ViewSet for event prerequisites
 class EventPrerequisiteViewSet(viewsets.ModelViewSet):
@@ -244,3 +255,6 @@ class EventPrerequisiteViewSet(viewsets.ModelViewSet):
         """Sets the user profile to the logged-in user."""
         # serializer.save(user_profile=self.request.user)
         serializer.save()
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('prerequisite',)

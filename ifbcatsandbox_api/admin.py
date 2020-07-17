@@ -61,12 +61,13 @@ class EventAdmin(ViewInApiModelAdmin):
     )
     list_filter = (
         'type',
-        'cost',
+        'costs',
         'onlineOnly',
         'accessibility',
     )
     #
     filter_horizontal = (
+        'costs',
         'topics',
         'keywords',
         'prerequisites',

@@ -19,6 +19,7 @@ from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
 # from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator
 
 
 # Manager for custom user profile model
@@ -145,14 +146,14 @@ class NewsItem(models.Model):
     on_delete=models.CASCADE
     )
 
-    # news_text and created_on are mandatory
+    # news and created_on are mandatory
     # "auto_now_add=True" means that the date/time stamp gets added automatically when the item is created.
-    news_text = models.CharField(max_length=255, help_text="Some news provided by a user.")
+    news = models.CharField(max_length=255, help_text="Some news provided by a user.")
     created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         """Return the NewsItem model as a string."""
-        return self.news_text
+        return self.news
 
 
 # Event keyword model
@@ -216,6 +217,34 @@ class EventTopic(models.Model):
         return self.topic
 
 
+# Event cost model
+# Event cost has a many:many relationship to Event
+class EventCost(models.Model):
+    """Event cost model: Monetary cost to attend the event, e.g. 'Free to academics'."""
+
+    # CostType: Controlled vocabulary of monetary costs to attend an event.
+    class CostType(models.TextChoices):
+        # FREE = 'FR', _('Free')
+        # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
+        # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
+        FREE = 'Free'
+        FREE_TO_ACADEMICS = 'Free to academics'
+        PRICED = 'Priced'
+        CONCESSIONS_AVAILABLE = 'Concessions available'
+
+
+    # cost is mandatory
+    cost = models.CharField(
+        max_length=255,
+        choices=CostType.choices,
+        unique=True,
+        help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
+
+    def __str__(self):
+        """Return the EventCost model as a string."""
+        return self.cost
+
+
 
 
 # Event model
@@ -236,31 +265,35 @@ class Event(models.Model):
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
 
     # EventType: Controlled vocabulary of types of events.
+    # Not using both short-form names and human-readable labels, because of issues
+    # see https://github.com/joncison/ifbcat-sandbox/pull/9
     class EventType(models.TextChoices):
-        WORKSHOP = 'WO', _('Workshop')
-        TRAINING_COURSE = 'TR', _('Training course')
-        MEETING = 'ME', _('Meeting')
-        CONFERENCE = 'CO', _('Conference')
+        # WORKSHOP = 'WO', _('Workshop')
+        # TRAINING_COURSE = 'TR', _('Training course')
+        # MEETING = 'ME', _('Meeting')
+        # CONFERENCE = 'CO', _('Conference')
+        WORKSHOP = 'Workshop'
+        TRAINING_COURSE = 'Training course'
+        MEETING = 'Meeting'
+        CONFERENCE = 'Conference'
 
-
-    # CostType: Controlled vocabulary of monetary costs to attend an event.
-    class CostType(models.TextChoices):
-        FREE = 'FR', _('Free')
-        FREE_TO_ACADEMICS = 'FA', _('Free to academics')
-        CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
 
     # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
     class EventAccessibilityType(models.TextChoices):
-        PUBLIC = 'PU', _('Public')
-        PRIVATE = 'PR', _('Private')
+        # PUBLIC = 'PU', _('Public')
+        # PRIVATE = 'PR', _('Private')
+        PUBLIC = 'Public'
+        PRIVATE = 'Private'
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(max_length=255, help_text="Full name / title of the event.")
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
     homepage = models.URLField(max_length=255, null=True, blank=True, help_text="URL of event homepage.")
+
+    # NB: max_length is mandatory, but is ignored by sqlite3, see https://github.com/joncison/ifbcat-sandbox/pull/9
     type = models.CharField(
-        max_length=2,
+        max_length=255,
         choices=EventType.choices,
         blank=True,
         help_text="The type of event e.g. 'Training course'."
@@ -271,12 +304,14 @@ class Event(models.Model):
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
-    cost = models.CharField(
-        max_length=2,
-        choices=CostType.choices,
-        blank=True,
-        help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
-    )
+    #cost = models.CharField(
+    #    max_length=255,
+    #    choices=CostType.choices,
+    #    blank=True,
+    #    help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
+    #)
+
+    costs = models.ManyToManyField(EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
     topics = models.ManyToManyField(EventTopic, related_name='events', help_text="URI of EDAM Topic term describing the scope of the event.")
     keywords = models.ManyToManyField(EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event.")
     prerequisites = models.ManyToManyField(EventPrerequisite, related_name='events', help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
@@ -284,7 +319,7 @@ class Event(models.Model):
     # prerequisites handled by foreign key relationship (many-to-one EventPrerequisite::Event)
 
     accessibility = models.CharField(
-        max_length=2,
+        max_length=255,
         choices=EventAccessibilityType.choices,
         blank=True,
         help_text="Whether the event is public or private."
