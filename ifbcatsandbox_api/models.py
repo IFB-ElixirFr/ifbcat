@@ -359,6 +359,34 @@ class EventDate(models.Model):
         return self.dateStart.__str__()
 
 
+# Organisation model
+class Organisation(models.Model):
+    """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
+
+    # OrganisationFieldNames: Controlled vocabulary of application areas of organisations and bioinformatics teams.
+    class OrganisationFieldName(models.TextChoices):
+        """Controlled vocabulary of application areas of organisations and bioinformatics teams."""
+        COMPUTER_SCIENCE = 'Computer science', _('Computer science')
+        BIOTECHNOLOGY = 'Biotechnology', _('Biotechnology')
+        ENVIRONMENTAL_SCIENCE = 'Environmental science', _('Environmental science')
+        AGRICULTURAL_SCIENCE = 'Agricultural science', _('Agricultural science')
+        BIOMEDICAL_SCIENCE = 'Biomedical science', _('Biomedical science')
+        BIOLOGY = 'Biology', _('Biology')
+
+    # name, description & homepage are mandatory
+    orgid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.")
+    name = models.CharField(max_length=255, help_text="Name of the organisation.")
+    description = models.TextField(help_text="Short description of the organisation.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
+    field = models.CharField(
+        max_length=255,
+        choices=OrganisationFieldName.choices,
+        unique=True,
+        help_text="Controlled vocabulary of application areas of organisations and bioinformatics teams.")
+    name = models.CharField(max_length=255, blank=True, help_text="Name of the organisation.")
+    city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
+    # logo ... TO_DO
+
 
 # ELIXIR Platform model
 class ElixirPlatform(models.Model):
