@@ -165,6 +165,18 @@ class CreatableSlugRelatedField(serializers.SlugRelatedField):
             self.fail('invalid')
 
 
+class EventDateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EventDate
+        exclude = ('id',)
+        extra_kwargs = dict(
+            dateStart= dict(format="%Y-%m-%d"),
+            dateEnd= dict(format="%Y-%m-%d"),
+            timeStart = dict(format="%H:%M"),
+            timeEnd = dict(format="%H:%M"),
+        )
+
+
 # Model serializer for user profile
 class EventSerializer(serializers.ModelSerializer):
     """Serializes an event (Event object)."""
@@ -229,6 +241,10 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="prerequisite",
         queryset=models.EventPrerequisite.objects.all())
+    dates=EventDateSerializer(
+        many=True,
+        read_only=False,
+    )
 
 #    accessibility = serializers.ChoiceField(
 #         choices = ('Public', 'Private'),
@@ -298,3 +314,26 @@ class EventSerializer(serializers.ModelSerializer):
                 msg = 'This field can only contain valid cost strings: ' + ','.join(models.EventCost.CostType.values)
                 raise serializers.ValidationError(msg)
         return costs
+
+    def update(self, instance, validated_data):
+        sub_instances = dict()
+        for nested_field in [
+            'dates',
+        ]:
+            # get the serializer, then the model, then the model manager
+            qs = self.fields[nested_field].child.Meta.model.objects
+            sub_instances_for_this_field = sub_instances.setdefault(nested_field, [])
+            # iterate over each values (json dict) provided for the field, also remove them from validated_data
+            for serialized_sub_instance in validated_data.pop(nested_field):
+                # get or create it
+                sub_instance, _ = qs.get_or_create(**serialized_sub_instance)
+                # append the instance the new new list of sub_instance the instance will be associated with
+                sub_instances_for_this_field.append(sub_instance)
+        # update this object minus the nested field(s)
+        super().update(instance=instance, validated_data=validated_data)
+        # for each fields, set the new sub instances list
+        for k, v in sub_instances.items():
+            getattr(instance, k).set(v)
+        if len(sub_instances) > 0:
+            instance.save()
+        return instance
