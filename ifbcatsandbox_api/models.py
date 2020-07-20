@@ -303,7 +303,7 @@ class Event(models.Model):
     )
 
     # dates: handled by a ForeignKey relationship defined in EventDate (many:one EventDate:Event)
-    dates = models.ManyToManyField("EventDate", related_name='dates', help_text="Dates or periodes on which the event takes place")
+    dates = models.ManyToManyField("EventDate", related_name='dates', help_text="Date(s) and optional time periods on which the event takes place.")
     venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
