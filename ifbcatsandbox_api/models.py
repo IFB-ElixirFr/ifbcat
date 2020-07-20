@@ -246,6 +246,111 @@ class EventCost(models.Model):
         return self.cost
 
 
+# ELIXIR Platform model
+class ElixirPlatform(models.Model):
+    """ELIXIR Platform model: An official ELIXIR Platform, bringing together experts to define the strategy and provide services in a particular area."""
+
+    # EventType: Controlled vocabulary of types of events.
+    class ElixirPlatformName(models.TextChoices):
+        """Controlled vocabulary of names of ELIXIR Platforms."""
+        DATA = 'Data', _('Data')
+        TOOLS = 'Tools', _('Tools')
+        COMPUTE = 'Compute', _('Compute')
+        INTEROPERABILITY = 'Interoperability', _('Interoperability')
+        TRAINING = 'Training', _('Training')
+
+    # name, description, homepage & coordinator are mandatory
+    # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
+    name = models.CharField(
+        max_length=255,
+        choices=ElixirPlatformName.choices,
+        unique=True,
+        help_text="Name of the ELIXIR Platform, e.g. 'Tools'.")
+
+    description = models.TextField(help_text="Short description of the ELIXIR Platform.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the ELIXR Platform.")
+    coordinator = models.ForeignKey(UserProfile, related_name='elixirPlatformCoordinator', null=True, on_delete=models.SET_NULL, help_text="Coordinator of the ELIXIR Platform activities in France.")
+    deputies = models.ManyToManyField(UserProfile, related_name='elixirPlatformDeputies', blank=True, help_text="Deputy coordinator of the ELIXIR Platform activities in France.")
+
+
+    def __str__(self):
+        """Return the ElixirPlatform model as a string."""
+        return self.name
+
+
+
+# Organisation model
+class Organisation(models.Model):
+    """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
+
+    # OrganisationFieldNames: Controlled vocabulary of application areas of organisations and bioinformatics teams.
+    class OrganisationFieldName(models.TextChoices):
+        """Controlled vocabulary of application areas of organisations and bioinformatics teams."""
+        COMPUTER_SCIENCE = 'Computer science', _('Computer science')
+        BIOTECHNOLOGY = 'Biotechnology', _('Biotechnology')
+        ENVIRONMENTAL_SCIENCE = 'Environmental science', _('Environmental science')
+        AGRICULTURAL_SCIENCE = 'Agricultural science', _('Agricultural science')
+        BIOMEDICAL_SCIENCE = 'Biomedical science', _('Biomedical science')
+        BIOLOGY = 'Biology', _('Biology')
+
+    # name, description & homepage are mandatory
+    name = models.CharField(max_length=255, help_text="Name of the organisation.")
+    description = models.TextField(help_text="Short description of the organisation.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
+    orgid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.")
+    field = models.CharField(
+        max_length=255,
+        choices=OrganisationFieldName.choices,
+        unique=True,
+        blank=True,
+        help_text="Controlled vocabulary of application areas of organisations and bioinformatics teams.")
+    city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
+    # logo ... TO_DO
+
+
+    def __str__(self):
+        """Return the Organisation model as a string."""
+        return self.name
+
+
+# Community model
+class Community(models.Model):
+    """Community model: A group of people collaborating on a common scientific or technical topic, including formal ELIXIR  Communities, emerging ELIXIR communities, ELXIR focus groups, IFB communities, and others."""
+
+    # EventType: Controlled vocabulary of types of events.
+    class CommunityName(models.TextChoices):
+        """Controlled vocabulary of names of communities."""
+        # NB: Note "BIOINFO not 3D-BIOINFO" because of Python variable name restrictions.
+        BIOINFO = '3D-BioInfo', _('3D-BioInfo')
+        GALAXY = 'Galaxy', _('Galaxy')
+        INTRINSICALLY_DISORDERED_PROTEINS = 'Intrinsically Disordered Proteins', _('Intrinsically Disordered Proteins')
+        MARINE_METAGENOMICS = 'Marine Metagenomics', _('Marine Metagenomics')
+        METABOLOMICS = 'Metabolomics', _('Metabolomics')
+        MICROBIAL_BIOTECHNOLOGY = 'Microbial Biotechnology', _('Microbial Biotechnology')
+        PLANT_SCIENCES = 'Plant Sciences', _('Plant Sciences')
+        PROTEOMICS = 'Proteomics', _('Proteomics')
+        FEDERATED_HUMAN_DATA = 'Federated Human Data', _('Federated Human Data')
+        HUMAN_COPY_NUMBER_VARIATION = 'Human Copy Number Variation', _('Human Copy Number Variation')
+        RARE_DISEASES = 'Rare Diseases', _('Rare Diseases')
+
+
+    # name, description & homepage are mandatory
+    # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
+    name = models.CharField(
+        max_length=255,
+        choices=CommunityName.choices,
+        unique=True,
+        help_text="Name of the community, e.g. 'Galaxy'.")
+
+    description = models.TextField(help_text="Short description of the community.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the community.")
+    organisations = models.ManyToManyField(Organisation, blank=True, related_name='communities', help_text="An organisation to which the community is affiliated.")
+
+
+    def __str__(self):
+        """Return the Community model as a string."""
+        return self.name
+
 
 
 # Event model
@@ -302,8 +407,7 @@ class Event(models.Model):
         help_text="The type of event e.g. 'Training course'."
     )
 
-    # dates: handled by a ForeignKey relationship defined in EventDate (many:one EventDate:Event)
-    dates = models.ManyToManyField("EventDate", related_name='dates', help_text="Date(s) and optional time periods on which the event takes place.")
+    dates = models.ManyToManyField("EventDate", related_name='events', help_text="Date(s) and optional time periods on which the event takes place.")
     venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
@@ -329,9 +433,10 @@ class Event(models.Model):
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
     # contactId = ... TO_DO
     market = models.CharField(max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts.")
-    # elixirPlatform = ... TO_DO
-    # community = ... TO_DO
-    # hostedBy = ... TO_DO
+    elixirPlatforms = models.ManyToManyField(ElixirPlatform, related_name='events', help_text="ELIXIR Platform to which the event is relevant.")
+    communities = models.ManyToManyField(Community, related_name='events', help_text="Community for which the event is relevant.")
+    hostedBy = models.ManyToManyField(Organisation, related_name='events', help_text="Organisation which is hosting the event.")
+
     # organisedBy = ... TO_DO
     # sponsoredBy = ... TO_DO
     # logo = ... TO_DO
@@ -356,103 +461,3 @@ class EventDate(models.Model):
     def __str__(self):
         """Return the EventDate model as a string."""
         return self.dateStart.__str__()
-
-
-# Organisation model
-class Organisation(models.Model):
-    """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
-
-    # OrganisationFieldNames: Controlled vocabulary of application areas of organisations and bioinformatics teams.
-    class OrganisationFieldName(models.TextChoices):
-        """Controlled vocabulary of application areas of organisations and bioinformatics teams."""
-        COMPUTER_SCIENCE = 'Computer science', _('Computer science')
-        BIOTECHNOLOGY = 'Biotechnology', _('Biotechnology')
-        ENVIRONMENTAL_SCIENCE = 'Environmental science', _('Environmental science')
-        AGRICULTURAL_SCIENCE = 'Agricultural science', _('Agricultural science')
-        BIOMEDICAL_SCIENCE = 'Biomedical science', _('Biomedical science')
-        BIOLOGY = 'Biology', _('Biology')
-
-    # name, description & homepage are mandatory
-    orgid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.")
-    name = models.CharField(max_length=255, help_text="Name of the organisation.")
-    description = models.TextField(help_text="Short description of the organisation.")
-    homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
-    field = models.CharField(
-        max_length=255,
-        choices=OrganisationFieldName.choices,
-        unique=True,
-        help_text="Controlled vocabulary of application areas of organisations and bioinformatics teams.")
-    name = models.CharField(max_length=255, blank=True, help_text="Name of the organisation.")
-    city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
-    # logo ... TO_DO
-
-
-# ELIXIR Platform model
-class ElixirPlatform(models.Model):
-    """ELIXIR Platform model: An official ELIXIR Platform, bringing together experts to define the strategy and provide services in a particular area."""
-
-    # EventType: Controlled vocabulary of types of events.
-    class ElixirPlatformName(models.TextChoices):
-        """Controlled vocabulary of names of ELIXIR Platforms."""
-        DATA = 'Data', _('Data')
-        TOOLS = 'Tools', _('Tools')
-        COMPUTE = 'Compute', _('Compute')
-        INTEROPERABILITY = 'Interoperability', _('Interoperability')
-        TRAINING = 'Training', _('Training')
-
-    # name, description, homepage & coordinator are mandatory
-    # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
-    name = models.CharField(
-        max_length=255,
-        choices=ElixirPlatformName.choices,
-        unique=True,
-        help_text="Name of the ELIXIR Platform, e.g. 'Tools'.")
-
-    description = models.TextField(help_text="Short description of the ELIXIR Platform.")
-    homepage = models.URLField(max_length=255, help_text="Homepage of the ELIXR Platform.")
-    coordinator = models.OneToOneField(UserProfile, related_name='elixirPlatformCoordinator', null=True, on_delete=models.SET_NULL, help_text="Coordinator of the ELIXIR Platform activities in France.")
-    deputies = models.ManyToManyField(UserProfile, related_name='elixirPlatformDeputies', help_text="Deputy coordinator of the ELIXIR Platform activities in France.")
-
-
-    def __str__(self):
-        """Return the ElixirPlatform model as a string."""
-        return self.name
-
-
-# ELIXIR Platform model
-class Community(models.Model):
-    """Community model: A group of people collaborating on a common scientific or technical topic, including formal ELIXIR  Communities, emerging ELIXIR communities, ELXIR focus groups, IFB communities, and others."""
-
-    # EventType: Controlled vocabulary of types of events.
-    class CommunityName(models.TextChoices):
-        """Controlled vocabulary of names of communities."""
-        # NB: Note "BIOINFO not 3D-BIOINFO" because of Python variable name restrictions.
-        BIOINFO = '3D-BioInfo', _('3D-BioInfo')
-        GALAXY = 'Galaxy', _('Galaxy')
-        INTRINSICALLY_DISORDERED_PROTEINS = 'Intrinsically Disordered Proteins', _('Intrinsically Disordered Proteins')
-        MARINE_METAGENOMICS = 'Marine Metagenomics', _('Marine Metagenomics')
-        METABOLOMICS = 'Metabolomics', _('Metabolomics')
-        MICROBIAL_BIOTECHNOLOGY = 'Microbial Biotechnology', _('Microbial Biotechnology')
-        PLANT_SCIENCES = 'Plant Sciences', _('Plant Sciences')
-        PROTEOMICS = 'Proteomics', _('Proteomics')
-        FEDERATED_HUMAN_DATA = 'Federated Human Data', _('Federated Human Data')
-        HUMAN_COPY_NUMBER_VARIATION = 'Human Copy Number Variation', _('Human Copy Number Variation')
-        RARE_DISEASES = 'Rare Diseases', _('Rare Diseases')
-
-
-    # name, description & homepage are mandatory
-    # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
-    name = models.CharField(
-        max_length=255,
-        choices=CommunityName.choices,
-        unique=True,
-        help_text="Name of the community, e.g. 'Galaxy'.")
-
-    description = models.TextField(help_text="Short description of the community.")
-    homepage = models.URLField(max_length=255, help_text="Homepage of the community.")
-    organisations = models.ManyToManyField(Organisation, related_name='communities', help_text="An organisation to which the community is affiliated.")
-
-
-    def __str__(self):
-        """Return the Community model as a string."""
-        return self.name

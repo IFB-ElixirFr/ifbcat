@@ -268,13 +268,13 @@ class EventSerializer(serializers.ModelSerializer):
     # logo = ... TO_DO
 
 
-    # To-add to "fields" below:  dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # To-add to "fields" below:  dates', 'contactId', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
     class Meta:
         model = models.Event
 
         fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type', 'dates',
         'venue', 'city', 'country', 'onlineOnly', 'costs', 'topics', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
-        'maxParticipants', 'contactName', 'contactEmail', 'market')
+        'maxParticipants', 'contactName', 'contactEmail', 'market', 'elixirPlatforms', 'communities', 'hostedBy')
 
         extra_kwargs = {
             # 'id': {'read_only': True},
