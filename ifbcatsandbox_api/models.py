@@ -303,6 +303,7 @@ class Event(models.Model):
     )
 
     # dates: handled by a ForeignKey relationship defined in EventDate (many:one EventDate:Event)
+    dates = models.ManyToManyField("EventDate", related_name='dates', help_text="Dates or periodes on which the event takes place")
     venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
     country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
@@ -348,11 +349,9 @@ class EventDate(models.Model):
 
     # dateStart is mandatory (other fields optional)
     dateStart = models.DateField(help_text="The start date of the event.")
-    dateEnd = models.DateField(blank=True, help_text="The end date of the event.")
-    timeStart = models.TimeField(blank=True, help_text="The start time of the event.")
-    timeEnd = models.TimeField(blank=True, help_text="The end time of the event.")
-
-    event = models.ForeignKey(Event, related_name='dates', on_delete=models.CASCADE)
+    dateEnd = models.DateField(blank=True, null=True, help_text="The end date of the event.")
+    timeStart = models.TimeField(blank=True, null=True, help_text="The start time of the event.")
+    timeEnd = models.TimeField(blank=True, null=True, help_text="The end time of the event.")
 
     def __str__(self):
         """Return the EventDate model as a string."""
