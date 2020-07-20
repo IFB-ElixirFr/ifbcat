@@ -9,5 +9,5 @@
 6. See if 'id' on Event, EventKeyword etc. need to be (de)serialised  - if not update serializers.py
 7. Refactor to remove duplication of controlled vocabularies (e.g. Event->Cost, Event->Accessibility etc.) in serializers.py and models.py
 8. Enable filtering for 'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy' in EventViewSet  ("search_fields") - once these are added
-9. Enable filtering over 'costs', 'topics', 'keywords', 'prerequisites' (all ManyToManyField) in EventViewSet
+9. Enable filtering over 'dates', 'costs', 'topics', 'keywords', 'prerequisites' (all ManyToManyField) in EventViewSet
 10. null=True, blank=True are set on Event model for homepage but this is mandatory (so these fields aren't needed?)

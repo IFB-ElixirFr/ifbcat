@@ -347,6 +347,9 @@ class Community(models.Model):
     organisations = models.ManyToManyField(Organisation, blank=True, related_name='communities', help_text="An organisation to which the community is affiliated.")
 
 
+    class Meta:
+        verbose_name_plural = "Communities"
+
     def __str__(self):
         """Return the Community model as a string."""
         return self.name

@@ -211,7 +211,7 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    # TODO: : add to "search_fields" below:  'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # TODO: : add to "search_fields" below:   'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
     # TODO: : add 'costs', 'topics', 'keywords', 'prerequisites' (which are ManyToManyField)
     search_fields = ('name', 'shortName', 'description', 'homepage', 'type',
         'venue', 'city', 'country', 'onlineOnly', 'accessibility', 'accessibilityNote','maxParticipants',
