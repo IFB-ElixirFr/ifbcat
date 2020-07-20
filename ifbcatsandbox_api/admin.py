@@ -64,6 +64,9 @@ class EventAdmin(ViewInApiModelAdmin):
         'costs',
         'onlineOnly',
         'accessibility',
+        'elixirPlatforms',
+        'communities',
+        'hostedBy',
     )
     #
     filter_horizontal = (

@@ -348,6 +348,7 @@ class Community(models.Model):
 
 
     class Meta:
+        # To overide simply an 's' being appended to "Community" (== "Communitys") in Django admin interface
         verbose_name_plural = "Communities"
 
     def __str__(self):
