@@ -377,3 +377,19 @@ class OrganisationSerializer(serializers.ModelSerializer):
         # logo ... TO_DO
         fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city')
         read_only_fields = ['user_profile']
+
+
+    # Validation logic
+    def validate_orgid(self, orgid):
+        """Validate supplied organisation ID (GRID or ROR ID)."""
+
+        # orcidid is not mandatory - catch that
+        if orgid is None:
+            return orcidid
+
+        p1 = re.compile('^grid.[0-9]{4,}.[a-f0-9]{1,2}$', re.IGNORECASE | re.UNICODE)
+        p2 = re.compile('^0[0-9a-zA-Z]{6}[0-9]{2}$', re.IGNORECASE | re.UNICODE)
+        if not p1.search(orgid):
+            if not p2.search(orgid):
+                raise serializers.ValidationError('This field can only contain a valid GRID or ROR ID.   GRID ID Syntax: grid.[0-9]{4,}.[a-f0-9]{1,2}   ROR ID Syntax: ^0[0-9a-zA-Z]{6}[0-9]{2}')
+        return orgid
