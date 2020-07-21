@@ -298,7 +298,7 @@ class Organisation(models.Model):
         settings.AUTH_USER_MODEL,
         null=True,
         on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, help_text="Name of the organisation.")
+    name = models.CharField(max_length=255, unique=True, help_text="Name of the organisation.")
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
     orgid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.")

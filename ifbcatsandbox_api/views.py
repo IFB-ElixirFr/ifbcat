@@ -265,6 +265,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.OrganisationSerializer
     queryset = models.Organisation.objects.all()
+    lookup_field = 'name'
 
     permission_classes = (
         permissions.PubliclyReadableByUsers,

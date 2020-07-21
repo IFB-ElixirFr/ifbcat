@@ -256,11 +256,13 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="name",
         queryset=models.Community.objects.all())
-    hostedBy = CreatableSlugRelatedField(
+    hostedBy = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=False,
-        slug_field="name",
-        queryset=models.Organisation.objects.all())
+        lookup_field="name",
+        view_name='organisation-detail',
+        queryset=models.Organisation.objects,
+    )
 
 #    accessibility = serializers.ChoiceField(
 #         choices = ('Public', 'Private'),
