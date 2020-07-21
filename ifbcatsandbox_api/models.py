@@ -441,9 +441,9 @@ class Event(models.Model):
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
     # contactId = ... TO_DO
     market = models.CharField(max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts.")
-    elixirPlatforms = models.ManyToManyField(ElixirPlatform, related_name='events', help_text="ELIXIR Platform to which the event is relevant.")
-    communities = models.ManyToManyField(Community, related_name='events', help_text="Community for which the event is relevant.")
-    hostedBy = models.ManyToManyField(Organisation, related_name='events', help_text="Organisation which is hosting the event.")
+    elixirPlatforms = models.ManyToManyField(ElixirPlatform, blank=True, related_name='events', help_text="ELIXIR Platform to which the event is relevant.")
+    communities = models.ManyToManyField(Community, blank=True, related_name='events', help_text="Community for which the event is relevant.")
+    hostedBy = models.ManyToManyField(Organisation, blank=True, related_name='events', help_text="Organisation which is hosting the event.")
 
     # organisedBy = ... TO_DO
     # sponsoredBy = ... TO_DO
