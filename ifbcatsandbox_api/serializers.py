@@ -241,9 +241,10 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="prerequisite",
         queryset=models.EventPrerequisite.objects.all())
-    dates=EventDateSerializer(
+    dates = EventDateSerializer(
         many=True,
         read_only=False,
+        required=False,
     )
 
 #    accessibility = serializers.ChoiceField(
