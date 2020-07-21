@@ -267,7 +267,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
     queryset = models.Organisation.objects.all()
 
     permission_classes = (
-        permissions.PubliclyReadableByUsers,
+        permissions.PubliclyReadableEditableByOwner,
         IsAuthenticatedOrReadOnly
     )
 
