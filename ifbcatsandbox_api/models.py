@@ -455,7 +455,7 @@ class Event(models.Model):
     )
     contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
-    # contactId = ... TO_DO
+    contactId = models.ForeignKey(UserProfile, related_name='eventContactId', null=True, on_delete=models.SET_NULL, help_text="IFB ID of person to contact about the event.")
     market = models.CharField(max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts.")
     elixirPlatforms = models.ManyToManyField(ElixirPlatform, blank=True, related_name='events', help_text="ELIXIR Platform to which the event is relevant.")
     communities = models.ManyToManyField(Community, blank=True, related_name='events', help_text="Community for which the event is relevant.")
