@@ -191,34 +191,12 @@ class EventSerializer(serializers.ModelSerializer):
     # max_value of maxParticipants set to 32767 corresponding to PositiveSmallIntegerField defined in models.py
     # See https://www.geeksforgeeks.org/positivesmallintegerfield-django-models/
     #
-    # "style={'base_template': 'textarea.html'}" sets the field style to an HTML textarea
-    # See https://www.django-rest-framework.org/topics/html-and-forms/#field-styles
     #
     # "many=True" for keyword etc. instantiates a ListSerializer, see https://www.django-rest-framework.org/api-guide/serializers/#listserializer
     # "allow_empty=False" disallows empty lists as valid input.
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
-    # name = serializers.CharField()
-    # shortName = serializers.CharField(allow_blank=False, required=False)
-    # description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
-    # homepage = serializers.URLField()
-
-#    type = serializers.ChoiceField(
-#        choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
-#        allow_blank=True,
-#        required=False)
-
-    # dates = ... TO_DO
-    # venue = serializers.CharField(allow_blank=True, required=False, style={'base_template': 'textarea.html'})
-    # city = serializers.CharField(allow_blank=True, required=False)
-    # country = serializers.CharField(allow_blank=True, required=False)
-    # onlineOnly = serializers.BooleanField(required=False)
-
-#    cost = serializers.ChoiceField(
-#         choices = ('Free', 'Free to academics', 'Concessions available'),
-#         allow_blank=True,
-#         required=False)
     costs = CreatableSlugRelatedField(
         many=True,
         read_only=False,
@@ -270,29 +248,16 @@ class EventSerializer(serializers.ModelSerializer):
 #         required=False)
 
 
-    # accessibilityNote = serializers.CharField(allow_blank=True, required=False)
-    # maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
-    # maxParticipants = serializers.IntegerField(max_value=32767, min_value=1)
-
-    # contactName = serializers.CharField()
-    # contactEmail = serializers.EmailField()
-    # contactId = ... TO_DO
-    # market = serializers.CharField(allow_blank=True, required=False)
-    # elixirPlatform = ... done
-    # community = ... done
-    # hostedBy = ... done
-    # organisedBy = ... TO_DO
-    # sponsoredBy = ... TO_DO
-    # logo = ... TO_DO
-
-
-    # To-add to "fields" below:  dates',  'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
+    # To-add to "fields" below:  'organisedBy', 'sponsoredBy', 'logo'
     class Meta:
         model = models.Event
 
         fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type', 'dates',
         'venue', 'city', 'country', 'onlineOnly', 'costs', 'topics', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
         'maxParticipants', 'contactName', 'contactEmail', 'contactId', 'market', 'elixirPlatforms', 'communities', 'hostedBy')
+
+        # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
+        # See https://www.django-rest-framework.org/topics/html-and-forms/#field-styles
 
         extra_kwargs = {
             # 'id': {'read_only': True},
