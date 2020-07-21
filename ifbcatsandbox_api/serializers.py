@@ -246,6 +246,21 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         required=False,
     )
+    elixirPlatforms = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.ElixirPlatform.objects.all())
+    communities = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Community.objects.all())
+    hostedBy = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Organisation.objects.all())
 
 #    accessibility = serializers.ChoiceField(
 #         choices = ('Public', 'Private'),
