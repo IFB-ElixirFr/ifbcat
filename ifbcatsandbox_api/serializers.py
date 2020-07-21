@@ -320,11 +320,15 @@ class EventSerializer(serializers.ModelSerializer):
         for nested_field in [
             'dates',
         ]:
+            try:
+                serialized_sub_instances = validated_data.pop(nested_field)
+            except KeyError:
+                continue
             # get the serializer, then the model, then the model manager
             qs = self.fields[nested_field].child.Meta.model.objects
             sub_instances_for_this_field = sub_instances.setdefault(nested_field, [])
             # iterate over each values (json dict) provided for the field, also remove them from validated_data
-            for serialized_sub_instance in validated_data.pop(nested_field):
+            for serialized_sub_instance in serialized_sub_instances:
                 # get or create it
                 sub_instance, _ = qs.get_or_create(**serialized_sub_instance)
                 # append the instance the new new list of sub_instance the instance will be associated with
