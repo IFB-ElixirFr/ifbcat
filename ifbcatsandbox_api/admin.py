@@ -74,6 +74,7 @@ class EventAdmin(ViewInApiModelAdmin):
         'topics',
         'keywords',
         'prerequisites',
+        'dates',
     )
 
     # date_hierarchy = 'dates'
