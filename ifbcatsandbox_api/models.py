@@ -11,6 +11,7 @@
 # so the translation occurs when the value is accessed rather than when they’re called.  We need this behaviour so
 # users will see the right language in their UI - see https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
 # See https://simpleisbetterthancomplex.com/tips/2016/10/17/django-tip-18-translations.html
+from django.core import validators
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
@@ -298,7 +299,12 @@ class Organisation(models.Model):
         settings.AUTH_USER_MODEL,
         null=True,
         on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, unique=True, help_text="Name of the organisation.")
+    name = models.CharField(
+        max_length=255, unique=True, help_text="Name of the organisation.",
+        validators=[
+            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]' ),
+        ],
+    )
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
     orgid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.")
