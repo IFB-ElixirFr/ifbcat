@@ -364,9 +364,16 @@ class EventSerializer(serializers.ModelSerializer):
 class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
+    fields = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="field",
+        queryset=models.OrganisationField.objects.all())
+
+
     class Meta:
         model = models.Organisation
 
         # logo ... TO_DO
-        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'field', 'city')
+        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city')
         read_only_fields = ['user_profile']

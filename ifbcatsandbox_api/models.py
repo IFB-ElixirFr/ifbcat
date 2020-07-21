@@ -279,9 +279,11 @@ class ElixirPlatform(models.Model):
 
 
 
-# Organisation model
-class Organisation(models.Model):
-    """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
+# Organisation field model
+# OrganisationField has a many:many relationship to Organisation
+class OrganisationField(models.Model):
+    """Organisation field model: A broad field that an organisation serves."""
+
 
     # OrganisationFieldNames: Controlled vocabulary of application areas of organisations and bioinformatics teams.
     class OrganisationFieldName(models.TextChoices):
@@ -293,6 +295,25 @@ class Organisation(models.Model):
         BIOMEDICAL_SCIENCE = 'Biomedical science', _('Biomedical science')
         BIOLOGY = 'Biology', _('Biology')
 
+
+    # field is mandatory
+    field = models.CharField(
+        max_length=255,
+        choices=OrganisationFieldName.choices,
+        unique=True,
+        help_text="A broad field that the organisation serves.")
+
+    def __str__(self):
+        """Return the OrganisationField model as a string."""
+        return self.field
+
+
+
+# Organisation model
+class Organisation(models.Model):
+    """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
+
+
     # name, description & homepage are mandatory
     user_profile = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -302,12 +323,7 @@ class Organisation(models.Model):
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
     orgid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.")
-    field = models.CharField(
-        max_length=255,
-        choices=OrganisationFieldName.choices,
-        unique=True,
-        blank=True,
-        help_text="Controlled vocabulary of application areas of organisations and bioinformatics teams.")
+    fields = models.ManyToManyField(OrganisationField, blank=True, related_name='organisations', help_text="A broad field that the organisation serves.")
     city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
     # logo ... TO_DO
 
