@@ -11,3 +11,5 @@
 8. Enable filtering for 'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy' in EventViewSet  ("search_fields") - once these are added
 9. Enable filtering over 'dates', 'costs', 'topics', 'keywords', 'prerequisites' (all ManyToManyField) in EventViewSet
 10. null=True, blank=True are set on Event model for homepage but this is mandatory (so these fields aren't needed?)
+11. Refactor EventTopic to just Topic (it's now re-used by multiple objects other than Event)
+12. Refactor to make validate_topics DRY (the code is duplicated in two serializers)

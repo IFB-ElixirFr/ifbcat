@@ -491,3 +491,29 @@ class EventDate(models.Model):
     def __str__(self):
         """Return the EventDate model as a string."""
         return self.dateStart.__str__()
+
+
+
+# Project model
+class Project(models.Model):
+    """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
+
+    user_profile = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL)
+    name = models.CharField(max_length=255, help_text="Name of the project.")
+    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the project.")
+    description = models.TextField(help_text="Description of the project.")
+    topics = models.ManyToManyField(EventTopic, related_name='projects', help_text="URI of EDAM Topic term describing the expertise of the project.")
+    # team  TO-DO
+    hostedBy = models.ManyToManyField(Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project.")
+    fundedBy = models.ManyToManyField(Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project.")
+    communities = models.ManyToManyField(Community, blank=True, related_name='projects', help_text="Community for which the project is relevant.")
+    elixirPlatforms = models.ManyToManyField(ElixirPlatform, blank=True, related_name='projects', help_text="ELIXIR Platform to which the project is relevant.")
+    # uses TO-DO
+
+
+    def __str__(self):
+        """Return the Project model as a string."""
+        return self.name

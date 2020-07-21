@@ -278,3 +278,25 @@ class OrganisationViewSet(viewsets.ModelViewSet):
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'description', 'homepage', 'orgid', 'field', 'city',)
+
+
+
+# Model ViewSet for projects
+class ProjectViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating projects."""
+
+    serializer_class = serializers.ProjectSerializer
+    queryset = models.Project.objects.all()
+
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner,
+        IsAuthenticatedOrReadOnly
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
+    filter_backends = (filters.SearchFilter,)
+    # TODO: : add to "search_fields" below:   'topics', 'team', 'hostedBy', 'fundedBy', 'communities', 'elixirPlatform', 'uses'
+    search_fields = ('name', 'homepage', 'description',)

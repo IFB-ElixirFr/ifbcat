@@ -280,8 +280,6 @@ class EventSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('This field can only contain valid EDAM Topic URIs.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$')
         return topics
 
-
-    # Validation logic
     def validate_costs(self, costs):
         """Validate supplied event costs."""
 
@@ -360,3 +358,68 @@ class OrganisationSerializer(serializers.ModelSerializer):
             if not p2.search(orgid):
                 raise serializers.ValidationError('This field can only contain a valid GRID or ROR ID.   GRID ID Syntax: grid.[0-9]{4,}.[a-f0-9]{1,2}   ROR ID Syntax: ^0[0-9a-zA-Z]{6}[0-9]{2}')
         return orgid
+
+
+
+
+# Model serializer for projects
+class ProjectSerializer(serializers.ModelSerializer):
+    """Serializes a project (Project object)."""
+
+    # team  TO-DO
+    # uses TO-DO
+
+    topics = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="topic",
+        queryset=models.EventTopic.objects.all())
+    elixirPlatforms = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.ElixirPlatform.objects.all())
+    communities = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+       queryset=models.Community.objects.all())
+    hostedBy = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=False,
+        lookup_field="name",
+        view_name='organisation-detail',
+        queryset=models.Organisation.objects,
+        )
+    fundedBy = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=False,
+        lookup_field="name",
+        view_name='organisation-detail',
+        queryset=models.Organisation.objects,
+        )
+
+    # To-add to "fields" below:  'team', 'uses', 'logo'
+    class Meta:
+        model = models.Project
+
+        fields = ('id', 'user_profile', 'name', 'homepage', 'description', 'topics', 'hostedBy', 'fundedBy', 'communities', 'elixirPlatforms')
+
+        extra_kwargs = {
+            'user_profile': {'read_only': True},
+            'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+        }
+
+    # Validation logic
+    def validate_topics(self, topics):
+        """Validate supplied EDAM topic URIs."""
+
+        # topics is not mandatory - catch that
+        if topics is None:
+            return topics
+
+        p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
+        for topic in topics:
+            if not p.search(topic.__str__()):
+                raise serializers.ValidationError('This field can only contain valid EDAM Topic URIs.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$')
+        return topics
