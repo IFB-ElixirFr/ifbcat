@@ -232,8 +232,7 @@ class EventKeywordViewSet(viewsets.ModelViewSet):
     )
 
     def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        # serializer.save(user_profile=self.request.user)
+        """Saves the serializer."""
         serializer.save()
 
     filter_backends = (filters.SearchFilter,)
@@ -252,9 +251,29 @@ class EventPrerequisiteViewSet(viewsets.ModelViewSet):
     )
 
     def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        # serializer.save(user_profile=self.request.user)
+        """Saves the serializer."""
         serializer.save()
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('prerequisite',)
+
+
+
+# Model ViewSet for organisation
+class OrganisationViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating organisations."""
+
+    serializer_class = serializers.OrganisationSerializer
+    queryset = models.Organisation.objects.all()
+
+    permission_classes = (
+        permissions.PubliclyReadableByUsers,
+        IsAuthenticatedOrReadOnly
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'description', 'homepage', 'orgid', 'field', 'city',)

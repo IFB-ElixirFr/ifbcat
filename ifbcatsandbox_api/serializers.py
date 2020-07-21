@@ -260,9 +260,9 @@ class EventSerializer(serializers.ModelSerializer):
     # contactEmail = serializers.EmailField()
     # contactId = ... TO_DO
     # market = serializers.CharField(allow_blank=True, required=False)
-    # elixirPlatform = ... TO_DO
-    # community = ... TO_DO
-    # hostedBy = ... TO_DO
+    # elixirPlatform = ... done
+    # community = ... done
+    # hostedBy = ... done
     # organisedBy = ... TO_DO
     # sponsoredBy = ... TO_DO
     # logo = ... TO_DO
@@ -337,3 +337,16 @@ class EventSerializer(serializers.ModelSerializer):
         if len(sub_instances) > 0:
             instance.save()
         return instance
+
+
+
+# Organisation serializer
+class OrganisationSerializer(serializers.ModelSerializer):
+    """Serializes an organisation (Organisation object)."""
+
+    class Meta:
+        model = models.Organisation
+
+        # logo ... TO_DO
+        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'field', 'city')
+        read_only_fields = ['user_profile']

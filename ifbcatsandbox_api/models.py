@@ -294,6 +294,10 @@ class Organisation(models.Model):
         BIOLOGY = 'Biology', _('Biology')
 
     # name, description & homepage are mandatory
+    user_profile = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL)
     name = models.CharField(max_length=255, help_text="Name of the organisation.")
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
