@@ -16,6 +16,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
+
 # from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
@@ -56,12 +57,7 @@ class UserProfileManager(BaseUserManager):
         """Create a new superuser profile"""
 
         user = self.create_user(
-            password=password,
-            firstname=firstname,
-            lastname=lastname,
-            email=email,
-            orcidid=orcidid,
-            homepage=homepage,
+            password=password, firstname=firstname, lastname=lastname, email=email, orcidid=orcidid, homepage=homepage,
         )
 
         # .is_superuser and is_staff come from PermissionsMixin
@@ -70,6 +66,7 @@ class UserProfileManager(BaseUserManager):
         user.save(using=self._db)
 
         return user
+
 
 # Custom user profile model
 #
@@ -86,15 +83,20 @@ class UserProfileManager(BaseUserManager):
 # null is used because two null values ARE considered unique when compared (in contrast to two blank values, which are considered non-unique)
 # Normally only "blank=True" is set for string-based fields (CharField, TextField)... see https://docs.djangoproject.com/en/3.0/ref/models/fields/#null
 
+
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """UserProfile model: a user in the system."""
 
     # firstname, lastname and email are mandatory
     firstname = models.CharField(max_length=255, help_text="First (or given) name of a person (IFB catalogue user).")
     lastname = models.CharField(max_length=255, help_text="Last (or family) name of a person (IFB catalogue user).")
-    orcidid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="ORCID ID of a person (IFB catalogue user).")
+    orcidid = models.CharField(
+        max_length=255, null=True, blank=True, unique=True, help_text="ORCID ID of a person (IFB catalogue user).",
+    )
     email = models.EmailField(max_length=255, unique=True, help_text="Email address of a person (IFB catalogue user).")
-    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of a person (IFB catalogue user).")
+    homepage = models.URLField(
+        max_length=255, null=True, blank=True, help_text="Homepage of a person (IFB catalogue user).",
+    )
     # expertise = ... TO_DO
 
     is_active = models.BooleanField(default=True, help_text="Whether a user account is active.")
@@ -123,7 +125,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-
 # News item model
 # Users can create News items; a NewsItem object is associated with the user who created it.
 class NewsItem(models.Model):
@@ -140,10 +141,7 @@ class NewsItem(models.Model):
     # NB. "on_delete=models.CASCADE," means that if the user profile is removed,
     # then the associated news items are also deleted.
     # Could set the field to SET_NULL instead (if we wanted to preserve the news items) - then "null=True" must also be set
-    user_profile = models.ForeignKey(
-    settings.AUTH_USER_MODEL,
-    on_delete=models.CASCADE
-    )
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,)
 
     # news and created_on are mandatory
     # "auto_now_add=True" means that the date/time stamp gets added automatically when the item is created.
@@ -163,23 +161,24 @@ class EventKeyword(models.Model):
     # "on_delete=models.NULL" means that the EventKeyword is not deleted if the user profile is deleted.
     # "null=True" is required in case a user profile IS deleted.
 
-    #user_profile = models.ForeignKey(
-    #settings.AUTH_USER_MODEL,
-    #on_delete=models.SET_NULL,
-    #null=True
-    #)
+    # user_profile = models.ForeignKey(
+    # settings.AUTH_USER_MODEL,
+    # on_delete=models.SET_NULL,
+    # null=True
+    # )
 
     # keyword is mandatory
     # For "event":
     #    "null=True" is required in case an event is deleted.
     #    "blank=True" is required to allow registration of keywords independent of events.
     # event = models.ForeignKey(Event, related_name='keywords', blank=True, null=True, on_delete=models.CASCADE)
-    keyword = models.CharField(max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event.")
+    keyword = models.CharField(
+        max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event.",
+    )
 
     def __str__(self):
         """Return the EventKeyword model as a string."""
         return self.keyword
-
 
 
 # Event prerequisite model
@@ -188,15 +187,19 @@ class EventKeyword(models.Model):
 class EventPrerequisite(models.Model):
     """Event prerequisite model: A skill which the audience should (ideally) possess to get the most out of the event, e.g. "Python"."""
 
-    #user_profile = models.ForeignKey(
-    #settings.AUTH_USER_MODEL,
-    #on_delete=models.SET_NULL,
-    #null=True
-    #)
+    # user_profile = models.ForeignKey(
+    # settings.AUTH_USER_MODEL,
+    # on_delete=models.SET_NULL,
+    # null=True
+    # )
 
     # prerequisite is mandatory
     # event = models.ForeignKey(Event, related_name='prerequisites', blank=True, null=True, on_delete=models.CASCADE)
-    prerequisite = models.CharField(max_length=255, unique=True, help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
+    prerequisite = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
+    )
 
     def __str__(self):
         """Return the EventPrerequisite model as a string."""
@@ -209,12 +212,13 @@ class EventTopic(models.Model):
     """Event topic model: URI of EDAM Topic term describing the scope of the event."""
 
     # topic is mandatory
-    topic = models.CharField(max_length=255, unique=True, help_text="URI of EDAM Topic term describing the scope of the event.")
+    topic = models.CharField(
+        max_length=255, unique=True, help_text="URI of EDAM Topic term describing the scope of the event."
+    )
 
     def __str__(self):
         """Return the EventTopic model as a string."""
         return self.topic
-
 
 
 # Event cost model
@@ -225,6 +229,7 @@ class EventCost(models.Model):
     # CostType: Controlled vocabulary of monetary costs to attend an event.
     class CostType(models.TextChoices):
         """Controlled vocabulary of monetary costs to attend an event."""
+
         # FREE = 'FR', _('Free')
         # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
         # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
@@ -233,13 +238,13 @@ class EventCost(models.Model):
         PRICED = 'Priced', _('Priced')
         CONCESSIONS_AVAILABLE = 'Concessions available', _('Concessions available')
 
-
     # cost is mandatory
     cost = models.CharField(
         max_length=255,
         choices=CostType.choices,
         unique=True,
-        help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
+        help_text="Monetary cost to attend the event, e.g. 'Free to academics'.",
+    )
 
     def __str__(self):
         """Return the EventCost model as a string."""
@@ -253,6 +258,7 @@ class ElixirPlatform(models.Model):
     # EventType: Controlled vocabulary of types of events.
     class ElixirPlatformName(models.TextChoices):
         """Controlled vocabulary of names of ELIXIR Platforms."""
+
         DATA = 'Data', _('Data')
         TOOLS = 'Tools', _('Tools')
         COMPUTE = 'Compute', _('Compute')
@@ -265,18 +271,28 @@ class ElixirPlatform(models.Model):
         max_length=255,
         choices=ElixirPlatformName.choices,
         unique=True,
-        help_text="Name of the ELIXIR Platform, e.g. 'Tools'.")
+        help_text="Name of the ELIXIR Platform, e.g. 'Tools'.",
+    )
 
     description = models.TextField(help_text="Short description of the ELIXIR Platform.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the ELIXR Platform.")
-    coordinator = models.ForeignKey(UserProfile, related_name='elixirPlatformCoordinator', null=True, on_delete=models.SET_NULL, help_text="Coordinator of the ELIXIR Platform activities in France.")
-    deputies = models.ManyToManyField(UserProfile, related_name='elixirPlatformDeputies', blank=True, help_text="Deputy coordinator of the ELIXIR Platform activities in France.")
-
+    coordinator = models.ForeignKey(
+        UserProfile,
+        related_name='elixirPlatformCoordinator',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Coordinator of the ELIXIR Platform activities in France.",
+    )
+    deputies = models.ManyToManyField(
+        UserProfile,
+        related_name='elixirPlatformDeputies',
+        blank=True,
+        help_text="Deputy coordinator of the ELIXIR Platform activities in France.",
+    )
 
     def __str__(self):
         """Return the ElixirPlatform model as a string."""
         return self.name
-
 
 
 # Organisation model
@@ -286,6 +302,7 @@ class Organisation(models.Model):
     # OrganisationFieldNames: Controlled vocabulary of application areas of organisations and bioinformatics teams.
     class OrganisationFieldName(models.TextChoices):
         """Controlled vocabulary of application areas of organisations and bioinformatics teams."""
+
         COMPUTER_SCIENCE = 'Computer science', _('Computer science')
         BIOTECHNOLOGY = 'Biotechnology', _('Biotechnology')
         ENVIRONMENTAL_SCIENCE = 'Environmental science', _('Environmental science')
@@ -294,23 +311,26 @@ class Organisation(models.Model):
         BIOLOGY = 'Biology', _('Biology')
 
     # name, description & homepage are mandatory
-    user_profile = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        on_delete=models.SET_NULL)
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=255, help_text="Name of the organisation.")
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
-    orgid = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.")
+    orgid = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text="Organisation ID (GRID or ROR ID) of the organisation.",
+    )
     field = models.CharField(
         max_length=255,
         choices=OrganisationFieldName.choices,
         unique=True,
         blank=True,
-        help_text="Controlled vocabulary of application areas of organisations and bioinformatics teams.")
+        help_text="Controlled vocabulary of application areas of organisations and bioinformatics teams.",
+    )
     city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
     # logo ... TO_DO
-
 
     def __str__(self):
         """Return the Organisation model as a string."""
@@ -324,6 +344,7 @@ class Community(models.Model):
     # EventType: Controlled vocabulary of types of events.
     class CommunityName(models.TextChoices):
         """Controlled vocabulary of names of communities."""
+
         # NB: Note "BIOINFO not 3D-BIOINFO" because of Python variable name restrictions.
         BIOINFO = '3D-BioInfo', _('3D-BioInfo')
         GALAXY = 'Galaxy', _('Galaxy')
@@ -337,19 +358,20 @@ class Community(models.Model):
         HUMAN_COPY_NUMBER_VARIATION = 'Human Copy Number Variation', _('Human Copy Number Variation')
         RARE_DISEASES = 'Rare Diseases', _('Rare Diseases')
 
-
     # name, description & homepage are mandatory
     # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
     name = models.CharField(
-        max_length=255,
-        choices=CommunityName.choices,
-        unique=True,
-        help_text="Name of the community, e.g. 'Galaxy'.")
+        max_length=255, choices=CommunityName.choices, unique=True, help_text="Name of the community, e.g. 'Galaxy'."
+    )
 
     description = models.TextField(help_text="Short description of the community.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the community.")
-    organisations = models.ManyToManyField(Organisation, blank=True, related_name='communities', help_text="An organisation to which the community is affiliated.")
-
+    organisations = models.ManyToManyField(
+        Organisation,
+        blank=True,
+        related_name='communities',
+        help_text="An organisation to which the community is affiliated.",
+    )
 
     class Meta:
         # To overide simply an 's' being appended to "Community" (== "Communitys") in Django admin interface
@@ -360,18 +382,13 @@ class Community(models.Model):
         return self.name
 
 
-
 # Event model
 class Event(models.Model):
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
 
     # "on_delete=models.NULL" means that the Event is not deleted if the user profile is deleted.
     # "null=True" is required in case a user profile IS deleted.
-    user_profile = models.ForeignKey(
-    settings.AUTH_USER_MODEL,
-    on_delete=models.SET_NULL,
-    null=True
-    )
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     # Controlled vocabularies
     # See https://docs.djangoproject.com/en/dev/ref/models/fields/#enumeration-types
@@ -383,6 +400,7 @@ class Event(models.Model):
     # see https://github.com/joncison/ifbcat-sandbox/pull/9
     class EventType(models.TextChoices):
         """Controlled vocabulary of types of events."""
+
         # WORKSHOP = 'WO', _('Workshop')
         # TRAINING_COURSE = 'TR', _('Training course')
         # MEETING = 'ME', _('Meeting')
@@ -392,10 +410,10 @@ class Event(models.Model):
         MEETING = 'Meeting', _('Meeting')
         CONFERENCE = 'Conference', _('Conference')
 
-
     # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
     class EventAccessibilityType(models.TextChoices):
         """Controlled vocabulary for whether an event is public or private."""
+
         # PUBLIC = 'PU', _('Public')
         # PRIVATE = 'PR', _('Private')
         PUBLIC = 'Public', _('Public')
@@ -409,28 +427,41 @@ class Event(models.Model):
 
     # NB: max_length is mandatory, but is ignored by sqlite3, see https://github.com/joncison/ifbcat-sandbox/pull/9
     type = models.CharField(
-        max_length=255,
-        choices=EventType.choices,
-        blank=True,
-        help_text="The type of event e.g. 'Training course'."
+        max_length=255, choices=EventType.choices, blank=True, help_text="The type of event e.g. 'Training course'."
     )
 
-    dates = models.ManyToManyField("EventDate", related_name='events', help_text="Date(s) and optional time periods on which the event takes place.")
+    dates = models.ManyToManyField(
+        "EventDate",
+        related_name='events',
+        help_text="Date(s) and optional time periods on which the event takes place.",
+    )
     venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
     city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
-    country = models.CharField(max_length=255,blank=True, help_text="The country where the event will be held.")
+    country = models.CharField(max_length=255, blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
-    costs = models.ManyToManyField(EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
-    topics = models.ManyToManyField(EventTopic, related_name='events', help_text="URI of EDAM Topic term describing the scope of the event.")
-    keywords = models.ManyToManyField(EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event.")
-    prerequisites = models.ManyToManyField(EventPrerequisite, related_name='events', help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.")
+    costs = models.ManyToManyField(
+        EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
+    )
+    topics = models.ManyToManyField(
+        EventTopic, related_name='events', help_text="URI of EDAM Topic term describing the scope of the event."
+    )
+    keywords = models.ManyToManyField(
+        EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event."
+    )
+    prerequisites = models.ManyToManyField(
+        EventPrerequisite,
+        related_name='events',
+        help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
+    )
     accessibility = models.CharField(
         max_length=255,
         choices=EventAccessibilityType.choices,
         blank=True,
-        help_text="Whether the event is public or private."
+        help_text="Whether the event is public or private.",
     )
-    accessibilityNote = models.CharField(max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for.")
+    accessibilityNote = models.CharField(
+        max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for."
+    )
     maxParticipants = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
@@ -440,10 +471,18 @@ class Event(models.Model):
     contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
     # contactId = ... TO_DO
-    market = models.CharField(max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts.")
-    elixirPlatforms = models.ManyToManyField(ElixirPlatform, blank=True, related_name='events', help_text="ELIXIR Platform to which the event is relevant.")
-    communities = models.ManyToManyField(Community, blank=True, related_name='events', help_text="Community for which the event is relevant.")
-    hostedBy = models.ManyToManyField(Organisation, blank=True, related_name='events', help_text="Organisation which is hosting the event.")
+    market = models.CharField(
+        max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts."
+    )
+    elixirPlatforms = models.ManyToManyField(
+        ElixirPlatform, blank=True, related_name='events', help_text="ELIXIR Platform to which the event is relevant."
+    )
+    communities = models.ManyToManyField(
+        Community, blank=True, related_name='events', help_text="Community for which the event is relevant."
+    )
+    hostedBy = models.ManyToManyField(
+        Organisation, blank=True, related_name='events', help_text="Organisation which is hosting the event."
+    )
 
     # organisedBy = ... TO_DO
     # sponsoredBy = ... TO_DO
@@ -452,7 +491,6 @@ class Event(models.Model):
     def __str__(self):
         """Return the Event model as a string."""
         return self.name
-
 
 
 # Event date model

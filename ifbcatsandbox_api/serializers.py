@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # This is just for testing serialization
 class TestApiViewSerializer(serializers.Serializer):
     """Serializes a test input field."""
+
     testinput = serializers.CharField(max_length=10)
 
 
@@ -38,18 +39,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
     # and setup a list of fields in the model to manage with the serializer.
     class Meta:
         model = models.UserProfile
-        fields = ('id', 'password', 'firstname', 'lastname', 'email', 'orcidid', 'homepage')
+        fields = (
+            'id',
+            'password',
+            'firstname',
+            'lastname',
+            'email',
+            'orcidid',
+            'homepage',
+        )
 
         # password field is set to be write-only - it should only be used when creating a new user profile
         # Would be security risk e.g. to allow password hash to be retrieved via API!
         # Also set the field style so that *** are given in the data entry field when the password is typed in
-        extra_kwargs = {
-            'password':
-            {
-                'write_only': True,
-                'style': {'input_type': 'password'}
-            }
-        }
+        extra_kwargs = {'password': {'write_only': True, 'style': {'input_type': 'password'}}}
 
     # Validation logic
     def validate_orcidid(self, orcidid):
@@ -61,7 +64,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         p = re.compile('^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$', re.IGNORECASE | re.UNICODE)
         if not p.search(orcidid):
-            raise serializers.ValidationError('This field can only contain a valid ORCID ID.  Syntax: ^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$')
+            raise serializers.ValidationError(
+                'This field can only contain a valid ORCID ID.  Syntax: ^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$'
+            )
         return orcidid
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
@@ -75,7 +80,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             lastname=validated_data['lastname'],
             email=validated_data['email'],
             orcidid=validated_data['orcidid'],
-            homepage=validated_data['homepage'])
+            homepage=validated_data['homepage'],
+        )
 
         return user
 
@@ -116,7 +122,12 @@ class NewsItemSerializer(serializers.ModelSerializer):
         #   extra_kwargs = {
         #      'user_profile': {'read_only': True}}
 
-        fields = ('id', 'user_profile', 'news', 'created_on')
+        fields = (
+            'id',
+            'user_profile',
+            'news',
+            'created_on',
+        )
         read_only_fields = ['user_profile']
 
 
@@ -131,10 +142,12 @@ class EventKeywordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.EventKeyword
-        fields = ('id', 'keyword')
+        fields = (
+            'id',
+            'keyword',
+        )
         # extra_kwargs = {'id': {'read_only': True}}
         # fields = ('keyword')
-
 
 
 # Model serializer for event prerequisite
@@ -148,8 +161,10 @@ class EventPrerequisiteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.EventPrerequisite
-        fields = ('id', 'prerequisite')
-
+        fields = (
+            'id',
+            'prerequisite',
+        )
 
 
 # See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
@@ -170,10 +185,10 @@ class EventDateSerializer(serializers.ModelSerializer):
         model = models.EventDate
         exclude = ('id',)
         extra_kwargs = dict(
-            dateStart= dict(format="%Y-%m-%d"),
-            dateEnd= dict(format="%Y-%m-%d"),
-            timeStart = dict(format="%H:%M"),
-            timeEnd = dict(format="%H:%M"),
+            dateStart=dict(format="%Y-%m-%d"),
+            dateEnd=dict(format="%Y-%m-%d"),
+            timeStart=dict(format="%H:%M"),
+            timeEnd=dict(format="%H:%M"),
         )
 
 
@@ -204,10 +219,10 @@ class EventSerializer(serializers.ModelSerializer):
     # description = serializers.CharField(allow_blank=False, required=False, style={'base_template': 'textarea.html'})
     # homepage = serializers.URLField()
 
-#    type = serializers.ChoiceField(
-#        choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
-#        allow_blank=True,
-#        required=False)
+    #    type = serializers.ChoiceField(
+    #        choices =  ('Workshop', 'Training course', 'Meeting', 'Conference'),
+    #        allow_blank=True,
+    #        required=False)
 
     # dates = ... TO_DO
     # venue = serializers.CharField(allow_blank=True, required=False, style={'base_template': 'textarea.html'})
@@ -215,58 +230,39 @@ class EventSerializer(serializers.ModelSerializer):
     # country = serializers.CharField(allow_blank=True, required=False)
     # onlineOnly = serializers.BooleanField(required=False)
 
-#    cost = serializers.ChoiceField(
-#         choices = ('Free', 'Free to academics', 'Concessions available'),
-#         allow_blank=True,
-#         required=False)
+    #    cost = serializers.ChoiceField(
+    #         choices = ('Free', 'Free to academics', 'Concessions available'),
+    #         allow_blank=True,
+    #         required=False)
     costs = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="cost",
-        queryset=models.EventCost.objects.all())
+        many=True, read_only=False, slug_field="cost", queryset=models.EventCost.objects.all()
+    )
 
     topics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.EventTopic.objects.all())
+        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects.all()
+    )
     # keyword = EventKeywordSerializer(many=True, allow_empty=False, required=False)
     keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="keyword",
-        queryset=models.EventKeyword.objects.all())
-    prerequisites = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="prerequisite",
-        queryset=models.EventPrerequisite.objects.all())
-    dates = EventDateSerializer(
-        many=True,
-        read_only=False,
-        required=False,
+        many=True, read_only=False, slug_field="keyword", queryset=models.EventKeyword.objects.all()
     )
+    prerequisites = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="prerequisite", queryset=models.EventPrerequisite.objects.all()
+    )
+    dates = EventDateSerializer(many=True, read_only=False, required=False,)
     elixirPlatforms = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="name",
-        queryset=models.ElixirPlatform.objects.all())
+        many=True, read_only=False, slug_field="name", queryset=models.ElixirPlatform.objects.all()
+    )
     communities = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="name",
-        queryset=models.Community.objects.all())
+        many=True, read_only=False, slug_field="name", queryset=models.Community.objects.all()
+    )
     hostedBy = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="name",
-        queryset=models.Organisation.objects.all())
+        many=True, read_only=False, slug_field="name", queryset=models.Organisation.objects.all()
+    )
 
-#    accessibility = serializers.ChoiceField(
-#         choices = ('Public', 'Private'),
-#         allow_blank=True,
-#         required=False)
-
+    #    accessibility = serializers.ChoiceField(
+    #         choices = ('Public', 'Private'),
+    #         allow_blank=True,
+    #         required=False)
 
     # accessibilityNote = serializers.CharField(allow_blank=True, required=False)
     # maxParticipants = serializers.IntegerField(max_value=32767, min_value=1, allow_null=True, required=False)
@@ -283,20 +279,43 @@ class EventSerializer(serializers.ModelSerializer):
     # sponsoredBy = ... TO_DO
     # logo = ... TO_DO
 
-
     # To-add to "fields" below:  dates', 'contactId', 'community', 'hostedBy', 'organisedBy', 'sponsoredBy', 'logo'
     class Meta:
         model = models.Event
 
-        fields = ('id', 'user_profile', 'name', 'shortName', 'description', 'homepage', 'type', 'dates',
-        'venue', 'city', 'country', 'onlineOnly', 'costs', 'topics', 'keywords', 'prerequisites', 'accessibility', 'accessibilityNote',
-        'maxParticipants', 'contactName', 'contactEmail', 'market', 'elixirPlatforms', 'communities', 'hostedBy')
+        fields = (
+            'id',
+            'user_profile',
+            'name',
+            'shortName',
+            'description',
+            'homepage',
+            'type',
+            'dates',
+            'venue',
+            'city',
+            'country',
+            'onlineOnly',
+            'costs',
+            'topics',
+            'keywords',
+            'prerequisites',
+            'accessibility',
+            'accessibilityNote',
+            'maxParticipants',
+            'contactName',
+            'contactEmail',
+            'market',
+            'elixirPlatforms',
+            'communities',
+            'hostedBy',
+        )
 
         extra_kwargs = {
             # 'id': {'read_only': True},
-            'user_profile': {'read_only': True},
-            'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'venue': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'user_profile': {'read_only': True,},
+            'description': {'style': {'rows': 4, 'base_template': 'textarea.html',},},
+            'venue': {'style': {'rows': 4, 'base_template': 'textarea.html',},},
         }
 
     # Validation logic
@@ -310,9 +329,10 @@ class EventSerializer(serializers.ModelSerializer):
         p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
         for topic in topics:
             if not p.search(topic.__str__()):
-                raise serializers.ValidationError('This field can only contain valid EDAM Topic URIs.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$')
+                raise serializers.ValidationError(
+                    'This field can only contain valid EDAM Topic URIs.  Syntax: ^https?://edamontology.org/topic_[0-9]{4}$'
+                )
         return topics
-
 
     # Validation logic
     def validate_costs(self, costs):
@@ -359,7 +379,6 @@ class EventSerializer(serializers.ModelSerializer):
         return instance
 
 
-
 # Organisation serializer
 class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
@@ -368,5 +387,14 @@ class OrganisationSerializer(serializers.ModelSerializer):
         model = models.Organisation
 
         # logo ... TO_DO
-        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'field', 'city')
+        fields = (
+            'id',
+            'user_profile',
+            'name',
+            'description',
+            'homepage',
+            'orgid',
+            'field',
+            'city',
+        )
         read_only_fields = ['user_profile']
