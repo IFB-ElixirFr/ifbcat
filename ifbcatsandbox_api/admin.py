@@ -75,6 +75,9 @@ class EventAdmin(ViewInApiModelAdmin):
         'keywords',
         'prerequisites',
         'dates',
+        'elixirPlatforms',
+        'communities',
+        'hostedBy',
     )
 
     # date_hierarchy = 'dates'
