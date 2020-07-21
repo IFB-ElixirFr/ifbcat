@@ -401,14 +401,10 @@ class Event(models.Model):
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
 
     # EventType: Controlled vocabulary of types of events.
-    # Short-form and human-readable labels are set the same (rather than using an abbreviation for the short-form), because of issue:
+    # Name and human-readable labels are set the same (rather than using an short-form abbreviation for the name), because of issue:
     # see https://github.com/joncison/ifbcat-sandbox/pull/9
     class EventType(models.TextChoices):
         """Controlled vocabulary of types of events."""
-        # WORKSHOP = 'WO', _('Workshop')
-        # TRAINING_COURSE = 'TR', _('Training course')
-        # MEETING = 'ME', _('Meeting')
-        # CONFERENCE = 'CO', _('Conference')
         WORKSHOP = 'Workshop', _('Workshop')
         TRAINING_COURSE = 'Training course', _('Training course')
         MEETING = 'Meeting', _('Meeting')
@@ -418,8 +414,6 @@ class Event(models.Model):
     # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
     class EventAccessibilityType(models.TextChoices):
         """Controlled vocabulary for whether an event is public or private."""
-        # PUBLIC = 'PU', _('Public')
-        # PRIVATE = 'PR', _('Private')
         PUBLIC = 'Public', _('Public')
         PRIVATE = 'Private', _('Private')
 
@@ -516,4 +510,131 @@ class Project(models.Model):
 
     def __str__(self):
         """Return the Project model as a string."""
+        return self.name
+
+
+# Training material model
+class Resource(models.Model):
+    """Resource model: A computing facility, database, tool or training material provided by a bioinformatics team."""
+
+    user_profile = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        on_delete=models.SET_NULL)
+
+    name = models.CharField(max_length=255, help_text="Name of the resource.")
+    description = models.TextField(help_text="A short description of the resource.")
+    communities = models.ManyToManyField(Community, blank=True, related_name='resources', help_text="Community which uses the resource.")
+    elixirPlatforms = models.ManyToManyField(ElixirPlatform, blank=True, related_name='resources', help_text="ELIXIR Platform which uses the resource.")
+
+    def __str__(self):
+        """Return the Resource model as a string."""
+        return self.name
+
+
+# Audience type model
+# AudienceType has a many:many relationship to TrainingMaterial
+class AudienceType(models.Model):
+    """AudienceType model: The education or professional level of the expected audience of the training event or material."""
+
+
+    # AudienceTypeName: Controlled vocabulary for training materials or events describing the education or professional level of the expected audience.
+    class AudienceTypeName(models.TextChoices):
+        """Controlled vocabulary for training materials or events describing the education or professional level of the expected audience.."""
+        UNDERGRADUATE = 'Undergraduate', _('Undergraduate')
+        GRADUATE = 'Graduate', _('Graduate')
+        PROFESSIONAL_INITIAL = 'Professional (initial)', _('Professional (initial)')
+        PROFESSIONAL_CONTINUED = 'Professional (continued)', _('Professional (continued)')
+
+    # field is mandatory
+    audienceType = models.CharField(
+        max_length=255,
+        choices=AudienceTypeName.choices,
+        unique=True,
+        help_text="The education or professional level of the expected audience of the training event or material.")
+
+    def __str__(self):
+        """Return the AudienceType model as a string."""
+        return self.audienceType
+
+
+# Audience role model
+# AudienceRole has a many:many relationship to TrainingMaterial
+class AudienceRole(models.Model):
+    """AudienceRole model: The professional roles of the expected audience of the training event or material."""
+
+
+    # AudienceRoleName: Controlled vocabulary for training materials or events describing the professional roles of the expected audience.
+    class AudienceRoleName(models.TextChoices):
+        """Controlled vocabulary for training materials or events describing the professional roles of the expected audience."""
+        RESEARCHERS = 'Researchers', _('Researchers')
+        LIFE_SCIENTISTS = 'Life scientists', _('Life scientists')
+        COMPUTER_SCIENTISTS = 'Computer scientists', _('Computer scientists')
+        BIOLOGISTS = 'Biologists', _('Biologists')
+        BIOINFORMATICIANS = 'Bioinformaticians', _('Bioinformaticians')
+        PROGRAMMERS = 'Programmers', _('Programmers')
+        CURATORS = 'Curators', _('Curators')
+        MANAGERS = 'Managers', _('Managers')
+        ALL = 'All', _('All')
+
+    # field is mandatory
+    audienceRole = models.CharField(
+        max_length=255,
+        choices=AudienceRoleName.choices,
+        unique=True,
+        help_text="The professional roles of the expected audience of the training event or material.")
+
+    def __str__(self):
+        """Return the AudienceRole model as a string."""
+        return self.audienceRole
+
+
+
+# Training material model
+class TrainingMaterial(Resource):
+    """Training material model: Digital media such as a presentation or tutorial that can be used for bioinformatics training or teaching."""
+
+
+    # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
+    class DifficultyLevelType(models.TextChoices):
+        """Controlled vocabulary for whether an event is public or private."""
+        NOVICE = 'Novice', _('Novice')
+        INTERMEDIATE = 'Intermediate', _('Intermediate')
+        ADVANCED = 'Advanced', _('Advanced')
+
+
+    # TrainingMaterialLicenseName: Controlled vocabulary of licenses of training materials.
+    class TrainingMaterialLicenseName(models.TextChoices):
+        """Controlled vocabulary of licenses of training materials."""
+        TEST_LICENSE1 = 'Test license 1', _('Test license 1')
+        TEST_LICENSE2 = 'Test license 2', _('Test license 2')
+
+
+    # fileLocation, fileName is mandatory
+    # TO-DO:  providedBy
+    doi = models.CharField(max_length=255, null=True, blank=True, unique=True, help_text="Unique identier (DOI) of the training material, e.g. a Zenodo DOI.")
+    fileLocation = models.URLField(max_length=255, help_text="A link to where the training material can be downloaded or accessed.")
+    fileName = models.CharField(max_length=255, help_text="The name of a downloadable file containing the training material.")
+    topics = models.ManyToManyField(EventTopic, blank=True, related_name='trainingMaterials', help_text="URI of EDAM Topic term describing the scope of the training material.")
+    keywords = models.ManyToManyField(EventKeyword, blank=True, related_name='trainingMaterials', help_text="A keyword (beyond EDAM ontology scope) describing the training material.")
+    audienceTypes = models.ManyToManyField(AudienceType, blank=True, related_name='trainingMaterials', help_text="The education or professional level of the expected audience of the training material.")
+    audienceRoles = models.ManyToManyField(AudienceRole, blank=True, related_name='trainingMaterials', help_text="The professional roles of the expected audience of the training material.")
+    difficultyLevel = models.CharField(
+        max_length=255,
+        choices=DifficultyLevelType.choices,
+        blank=True,
+        help_text="The required experience and skills of the expected audience of the training material."
+        )
+    # providedBy = models.ManyToManyField(BioinformaticsTeam, blank=True, related_name='trainingMaterials', help_text="The bioinformatics team that provides the training material.")
+    dateCreation = models.DateField(help_text="Date when the training material was created.")
+    dateUpdate = models.DateField(help_text="Date when the training material was updated.")
+    license = models.CharField(
+        max_length=255,
+        choices=TrainingMaterialLicenseName.choices,
+        blank=True,
+        help_text="License under which the training material is made available."
+        )
+
+    def __str__(self):
+        """Return the TrainingMaterial model as a string."""
         return self.name

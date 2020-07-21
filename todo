@@ -13,3 +13,5 @@
 10. null=True, blank=True are set on Event model for homepage but this is mandatory (so these fields aren't needed?)
 11. Refactor EventTopic to just Topic (it's now re-used by multiple objects other than Event)
 12. Refactor to make validate_topics DRY (the code is duplicated in two serializers)
+13. Refactor EventKeyword to just TrainingKeyword (or maybe just Keyword) it's now re-used by two objects )
+14. Check that discrepany in name and human-readable label is safe for all practical purposes:  BIOINFO = '3D-BioInfo', _('3D-BioInfo'),  PROFESSIONAL_INITIAL = 'Professional (initial)', _('Professional (initial)'),    PROFESSIONAL_CONTINUED = 'Professional (continued)', _('Professional (continued)')
