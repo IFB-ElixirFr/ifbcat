@@ -327,8 +327,8 @@ class CommunityViewSet(viewsets.ModelViewSet):
         'name',
         'description',
         'homepage',
-        'organisations_description',
-        'organisations_name',
+        'organisations__description',
+        'organisations__name',
     )
 
 
