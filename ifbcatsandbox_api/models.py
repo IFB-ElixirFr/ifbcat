@@ -223,22 +223,11 @@ class EventTopic(models.Model):
 class EventCost(models.Model):
     """Event cost model: Monetary cost to attend the event, e.g. 'Free to academics'."""
 
-    # CostType: Controlled vocabulary of monetary costs to attend an event.
-    class CostType(models.TextChoices):
-        """Controlled vocabulary of monetary costs to attend an event."""
-        # FREE = 'FR', _('Free')
-        # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
-        # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
-        FREE = 'Free', _('Free')
-        FREE_TO_ACADEMICS = 'Free to academics', _('Free to academics')
-        PRICED = 'Priced', _('Priced')
-        CONCESSIONS_AVAILABLE = 'Concessions available', _('Concessions available')
-
 
     # cost is mandatory
     cost = models.CharField(
         max_length=255,
-        choices=CostType.choices,
+        #choices=CostType.choices, # CostType moved to migration 0057
         unique=True,
         help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
 
@@ -286,21 +275,10 @@ class OrganisationField(models.Model):
     """Organisation field model: A broad field that an organisation serves."""
 
 
-    # OrganisationFieldNames: Controlled vocabulary of application areas of organisations and bioinformatics teams.
-    class OrganisationFieldName(models.TextChoices):
-        """Controlled vocabulary of application areas of organisations and bioinformatics teams."""
-        COMPUTER_SCIENCE = 'Computer science', _('Computer science')
-        BIOTECHNOLOGY = 'Biotechnology', _('Biotechnology')
-        ENVIRONMENTAL_SCIENCE = 'Environmental science', _('Environmental science')
-        AGRICULTURAL_SCIENCE = 'Agricultural science', _('Agricultural science')
-        BIOMEDICAL_SCIENCE = 'Biomedical science', _('Biomedical science')
-        BIOLOGY = 'Biology', _('Biology')
-
-
     # field is mandatory
     field = models.CharField(
         max_length=255,
-        choices=OrganisationFieldName.choices,
+        # choices=OrganisationFieldName.choices, # OrganisationFieldName moved to migration 0058
         unique=True,
         help_text="A broad field that the organisation serves.")
 

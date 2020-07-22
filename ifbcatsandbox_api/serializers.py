@@ -197,7 +197,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
-    costs = CreatableSlugRelatedField(
+    costs = serializers.SlugRelatedField(
         many=True,
         read_only=False,
         slug_field="cost",
@@ -315,7 +315,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
-    fields = CreatableSlugRelatedField(
+    fields = serializers.SlugRelatedField(
         many=True,
         read_only=False,
         slug_field="field",
