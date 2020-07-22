@@ -275,21 +275,10 @@ class OrganisationField(models.Model):
     """Organisation field model: A broad field that an organisation serves."""
 
 
-    # OrganisationFieldNames: Controlled vocabulary of application areas of organisations and bioinformatics teams.
-    class OrganisationFieldName(models.TextChoices):
-        """Controlled vocabulary of application areas of organisations and bioinformatics teams."""
-        COMPUTER_SCIENCE = 'Computer science', _('Computer science')
-        BIOTECHNOLOGY = 'Biotechnology', _('Biotechnology')
-        ENVIRONMENTAL_SCIENCE = 'Environmental science', _('Environmental science')
-        AGRICULTURAL_SCIENCE = 'Agricultural science', _('Agricultural science')
-        BIOMEDICAL_SCIENCE = 'Biomedical science', _('Biomedical science')
-        BIOLOGY = 'Biology', _('Biology')
-
-
     # field is mandatory
     field = models.CharField(
         max_length=255,
-        choices=OrganisationFieldName.choices,
+        # choices=OrganisationFieldName.choices, # OrganisationFieldName moved to migration 0058
         unique=True,
         help_text="A broad field that the organisation serves.")
 

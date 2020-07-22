@@ -329,7 +329,7 @@ class EventSerializer(serializers.ModelSerializer):
 class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
-    fields = CreatableSlugRelatedField(
+    fields = serializers.SlugRelatedField(
         many=True,
         read_only=False,
         slug_field="field",
