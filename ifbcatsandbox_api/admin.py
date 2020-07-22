@@ -10,9 +10,7 @@ from django.contrib.admin.options import get_content_type_for_model
 # prefix used in urls.py must match the class name : router.register('event', ...) is for class Event
 class ViewInApiModelAdmin(admin.ModelAdmin):
     class Media:
-        css = {
-            'all': ('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',)
-        }
+        css = {'all': ('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',)}
 
     def __init__(self, model, admin_site):
         self.list_display += ('view_in_api_in_list',)
@@ -21,8 +19,10 @@ class ViewInApiModelAdmin(admin.ModelAdmin):
     def view_in_api_in_list(self, obj):
         try:
             return format_html(
-                '<center><a href="' + reverse('%s-detail' % obj.__class__.__name__.lower(), args=[obj.pk])
-                + '"><i class="fa fa-external-link"></i></a><center>')
+                '<center><a href="'
+                + reverse('%s-detail' % obj.__class__.__name__.lower(), args=[obj.pk])
+                + '"><i class="fa fa-external-link"></i></a><center>'
+            )
         except NoReverseMatch:
             return format_html('<center><i class="fa fa-ban"></i></center>')
 
@@ -55,10 +55,7 @@ class EventAdmin(ViewInApiModelAdmin):
         'contactName',
         'market',
     )
-    list_display = (
-        'short_name_or_name',
-        'contactName'
-    )
+    list_display = ('short_name_or_name', 'contactName')
     list_filter = (
         'type',
         'costs',

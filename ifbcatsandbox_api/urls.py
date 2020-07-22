@@ -26,7 +26,7 @@ router.register('project', views.ProjectViewSet)
 # "include" function is used to include a list of URLS into the URL pattern
 # It figures out the URLs for all the functions ("list" etc.) defined in views.py for the ViewSet - hence the blank string as 1st arg.
 urlpatterns = [
-# path('testapiview/', views.TestApiView.as_view()),
-path('login/', views.UserLoginApiView.as_view()),
-path('', include(router.urls))
+    # path('testapiview/', views.TestApiView.as_view()),
+    path('login/', views.UserLoginApiView.as_view()),
+    path('', include(router.urls)),
 ]

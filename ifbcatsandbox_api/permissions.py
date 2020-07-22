@@ -17,10 +17,10 @@ class UpdateOwnProfile(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-         # Check whether object being updated matches the authenticated user profile.
-         # When a request is authenticated, the authenticated user profile is assigned
-         # to the request, so we can ensure this has the same id as the object.
-         # i.e. will return True if they're trying to update their own profile.
+        # Check whether object being updated matches the authenticated user profile.
+        # When a request is authenticated, the authenticated user profile is assigned
+        # to the request, so we can ensure this has the same id as the object.
+        # i.e. will return True if they're trying to update their own profile.
         return obj.id == request.user.id
 
 
