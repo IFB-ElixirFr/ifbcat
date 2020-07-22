@@ -350,7 +350,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
         # orcidid is not mandatory - catch that
         if orgid is None:
-            return orcidid
+            return orgid
 
         p1 = re.compile('^grid.[0-9]{4,}.[a-f0-9]{1,2}$', re.IGNORECASE | re.UNICODE)
         p2 = re.compile('^0[0-9a-zA-Z]{6}[0-9]{2}$', re.IGNORECASE | re.UNICODE)
