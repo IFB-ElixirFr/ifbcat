@@ -162,6 +162,21 @@ class OrganisationFieldAdmin(ViewInApiModelAdmin):
 
 @admin.register(models.Project)
 class ProjectAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'homepage',
+        'description',
+        'topics__topic',
+        'hostedBy__name',
+        'fundedBy__name',
+        'communities__name',
+        'elixirPlatforms__name',
+    )
+    list_filter = (
+        'elixirPlatforms',
+        'communities',
+        'hostedBy',
+    )
     autocomplete_fields = (
         'topics',
         'elixirPlatforms',

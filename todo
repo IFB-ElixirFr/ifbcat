@@ -15,3 +15,5 @@
 12. Refactor to make validate_topics DRY (the code is duplicated in two serializers)
 13. Refactor EventKeyword to just TrainingKeyword (or maybe just Keyword) it's now re-used by two objects )
 14. Check that discrepany in name and human-readable label is safe for all practical purposes:  BIOINFO = '3D-BioInfo', _('3D-BioInfo'),  PROFESSIONAL_INITIAL = 'Professional (initial)', _('Professional (initial)'),    PROFESSIONAL_CONTINUED = 'Professional (continued)', _('Professional (continued)')
+15. Consider adding team & uses fields to search_fields in Django admin interface (ProjectAdmin)
+16. Explore whether filtering by EDAM Topic (in Django admin interface) has value .. could be useful if EDAM terms were rendered (rather than URIs as currently)
