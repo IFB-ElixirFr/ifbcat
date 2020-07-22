@@ -1,0 +1,7 @@
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+exclude = '''(
+  migrations\/ | manage.py | wsgi.py | .venv | venv
+)
+'''
