@@ -19,6 +19,7 @@ router.register('eventkeyword', views.EventKeywordViewSet)
 router.register('eventprerequisite', views.EventPrerequisiteViewSet)
 router.register('organisation', views.OrganisationViewSet)
 router.register('elixirplatform', views.ElixirPlatformViewSet)
+router.register('community', views.CommunityViewSet)
 router.register('project', views.ProjectViewSet)
 
 # APIView ("testapiview" below) endpoints are registered differently than API ViewSet

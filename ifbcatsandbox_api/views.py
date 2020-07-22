@@ -301,6 +301,27 @@ class ElixirPlatformViewSet(viewsets.ModelViewSet):
     search_fields = ('name', 'description', 'homepage', 'coordinator', 'deputies',)
 
 
+# Model ViewSet for elixirPlatform
+class CommunityViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating elixirPlatforms."""
+
+    serializer_class = serializers.CommunitySerializer
+    queryset = models.Community.objects.all()
+    lookup_field = 'name'
+
+    permission_classes = (
+        permissions.PubliclyReadableByUsers,
+        IsAuthenticatedOrReadOnly
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'description', 'homepage', 'organisations',)
+
+
 
 # Model ViewSet for projects
 class ProjectViewSet(viewsets.ModelViewSet):
