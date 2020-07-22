@@ -224,11 +224,13 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         required=False,
     )
-    elixirPlatforms = CreatableSlugRelatedField(
+    elixirPlatforms = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=False,
-        slug_field="name",
-        queryset=models.ElixirPlatform.objects.all())
+        lookup_field="name",
+        view_name='elixirplatform-detail',
+        queryset=models.ElixirPlatform.objects,
+    )
     communities = CreatableSlugRelatedField(
         many=True,
         read_only=False,
@@ -361,6 +363,24 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
 
 
+# ElixirPlatform serializer
+class ElixirPlatformSerializer(serializers.ModelSerializer):
+    """Serializes an elixirPlatform (ElixirPlatform object)."""
+
+    coordinator = serializers.HyperlinkedRelatedField(
+        many=False,
+        # read_only=True,
+        view_name='userprofile-detail',
+        queryset=models.UserProfile.objects,
+    )
+
+    class Meta:
+        model = models.ElixirPlatform
+
+        # logo ... TO_DO
+        fields = ('id', 'name', 'description', 'homepage', 'coordinator', 'deputies')
+        read_only_fields = ['id']
+
 
 # Model serializer for projects
 class ProjectSerializer(serializers.ModelSerializer):
@@ -374,11 +394,13 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="topic",
         queryset=models.EventTopic.objects.all())
-    elixirPlatforms = CreatableSlugRelatedField(
+    elixirPlatforms = serializers.HyperlinkedRelatedField(
         many=True,
         read_only=False,
-        slug_field="name",
-        queryset=models.ElixirPlatform.objects.all())
+        lookup_field="name",
+        view_name='elixirplatform-detail',
+        queryset=models.ElixirPlatform.objects,
+    )
     communities = CreatableSlugRelatedField(
         many=True,
         read_only=False,

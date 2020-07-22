@@ -278,6 +278,27 @@ class OrganisationViewSet(viewsets.ModelViewSet):
 
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'description', 'homepage', 'orgid', 'field', 'city',)
+    
+
+# Model ViewSet for elixirPlatform
+class ElixirPlatformViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating elixirPlatforms."""
+
+    serializer_class = serializers.ElixirPlatformSerializer
+    queryset = models.ElixirPlatform.objects.all()
+    lookup_field = 'name'
+
+    permission_classes = (
+        permissions.PubliclyReadableEditableByCoordinator,
+        IsAuthenticatedOrReadOnly
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'description', 'homepage', 'coordinator', 'deputies',)
 
 
 

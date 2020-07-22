@@ -26,6 +26,7 @@ class UpdateOwnProfile(permissions.BasePermission):
 
 # Custom permissions class for updating object
 class PubliclyReadableEditableByOwner(permissions.BasePermission):
+    owner_field = 'user_profile'
     """Allow everyone to see, but only owner to update/delete."""
 
     def has_object_permission(self, request, view, obj):
@@ -37,7 +38,12 @@ class PubliclyReadableEditableByOwner(permissions.BasePermission):
         # Check that the user owns the object, i.e. the user_profile associated
         # with the object is assigned to the user making the request.
         # (returns True if the object being updated etc. has a user profile id that matches the request)
-        return obj.user_profile.id == request.user.id
+        return getattr(obj, self.owner_field).id == request.user.id
+
+
+# Custom permissions class for updating object
+class PubliclyReadableEditableByCoordinator(permissions.BasePermission):
+    owner_field = 'coordinator'
 
 
 # Custom permissions class for updating object
