@@ -152,6 +152,7 @@ class OrganisationAdmin(ViewInApiModelAdmin):
         'userprofile__lastname',
         'userprofile__email',
     )
+    list_filter = ('fields',)
     autocomplete_fields = ('fields',)
 
 
