@@ -393,7 +393,7 @@ class Event(models.Model):
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     # Controlled vocabularies
-    # See https://docs.djangoproject.com/en/dev/ref/models/fields/#enumeration-types
+    # See https://docs.django(project).com/en/dev/ref/models/fields/#enumeration-types
     # The enums support internatonalization (using the '_' shorthand convention for gettext_lazy() function)
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
 
@@ -515,9 +515,10 @@ class EventDate(models.Model):
 class Project(models.Model):
     """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
 
+    # name, homepage & description are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=255, help_text="Name of the project.")
-    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the project.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
     description = models.TextField(help_text="Description of the project.")
     topics = models.ManyToManyField(
         EventTopic, related_name='projects', help_text="URI of EDAM Topic term describing the expertise of the project."
