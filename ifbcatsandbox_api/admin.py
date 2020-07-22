@@ -12,6 +12,8 @@ class ViewInApiModelAdmin(admin.ModelAdmin):
     class Media:
         css = {'all': ('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',)}
 
+    slug_name = "pk"
+
     def __init__(self, model, admin_site):
         self.list_display += ('view_in_api_in_list',)
         super().__init__(model, admin_site)
@@ -20,13 +22,17 @@ class ViewInApiModelAdmin(admin.ModelAdmin):
         try:
             return format_html(
                 '<center><a href="'
-                + reverse('%s-detail' % obj.__class__.__name__.lower(), args=[obj.pk])
+                + reverse('%s-detail' % obj.__class__.__name__.lower(), args=[getattr(obj, self.slug_name)])
                 + '"><i class="fa fa-external-link"></i></a><center>'
             )
         except NoReverseMatch:
             return format_html('<center><i class="fa fa-ban"></i></center>')
 
     view_in_api_in_list.short_description = format_html('<center>View in API<center>')
+
+
+class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
+    slug_name = "name"
 
 
 # Models are registered below
@@ -66,12 +72,12 @@ class EventAdmin(ViewInApiModelAdmin):
         'hostedBy',
     )
     #
-    filter_horizontal = (
+    filter_horizontal = ('dates',)
+    autocomplete_fields = (
         'costs',
         'topics',
         'keywords',
         'prerequisites',
-        'dates',
         'elixirPlatforms',
         'communities',
         'hostedBy',
@@ -89,13 +95,77 @@ class EventAdmin(ViewInApiModelAdmin):
     short_name_or_name.short_description = "Name"
 
 
-admin.site.register(models.EventKeyword)
-admin.site.register(models.EventPrerequisite)
-admin.site.register(models.EventTopic)
-admin.site.register(models.EventCost)
+@admin.register(models.EventKeyword)
+class EventKeywordAdmin(ViewInApiModelAdmin):
+    search_fields = ['keyword']
+
+
+@admin.register(models.EventPrerequisite)
+class EventPrerequisiteAdmin(ViewInApiModelAdmin):
+    search_fields = ['prerequisite']
+
+
+@admin.register(models.EventTopic)
+class EventTopicAdmin(ViewInApiModelAdmin):
+    search_fields = ['topic']
+
+
+@admin.register(models.EventCost)
+class EventCostAdmin(ViewInApiModelAdmin):
+    search_fields = ['cost']
+
+
 admin.site.register(models.EventDate)
-admin.site.register(models.Community)
-admin.site.register(models.ElixirPlatform)
-admin.site.register(models.Organisation)
-admin.site.register(models.OrganisationField)
-admin.site.register(models.Project)
+
+
+@admin.register(models.Community)
+class CommunityAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'description',
+        'organisations__description',
+        'organisations__name',
+    )
+    autocomplete_fields = ('organisations',)
+
+
+@admin.register(models.ElixirPlatform)
+class ElixirPlatformAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'description',
+        'coordinator__firstname',
+        'coordinator__lastname',
+        'coordinator__email',
+        'deputies__firstname',
+        'deputies__lastname',
+        'deputies__email',
+    )
+
+
+@admin.register(models.Organisation)
+class OrganisationAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'description',
+        'userprofile__firstname',
+        'userprofile__lastname',
+        'userprofile__email',
+    )
+    autocomplete_fields = ('fields',)
+
+
+@admin.register(models.OrganisationField)
+class OrganisationFieldAdmin(ViewInApiModelAdmin):
+    search_fields = ('field',)
+
+
+@admin.register(models.Project)
+class ProjectAdmin(ViewInApiModelAdmin):
+    autocomplete_fields = (
+        'topics',
+        'elixirPlatforms',
+        'communities',
+        'hostedBy',
+        'fundedBy',
+    )
