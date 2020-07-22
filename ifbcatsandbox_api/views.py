@@ -277,7 +277,7 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'description', 'homepage', 'orgid', 'field', 'city',)
+    search_fields = ('name', 'description', 'homepage', 'orgid', 'fields__field', 'city',)
     
 
 # Model ViewSet for elixirPlatform
@@ -298,7 +298,17 @@ class ElixirPlatformViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'description', 'homepage', 'coordinator', 'deputies',)
+    search_fields = (
+        'name',
+        'description',
+        'homepage',
+        'coordinator__firstname',
+        'coordinator__lastname',
+        'coordinator__email',
+        'deputies__firstname',
+        'deputies__lastname',
+        'deputies__email',
+    )
 
 
 # Model ViewSet for elixirPlatform
@@ -319,7 +329,7 @@ class CommunityViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'description', 'homepage', 'organisations',)
+    search_fields = ('name', 'description', 'homepage', 'organisations_description', 'organisations_name',)
 
 
 
