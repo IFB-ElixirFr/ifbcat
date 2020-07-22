@@ -178,7 +178,7 @@ class EventDateSerializer(serializers.ModelSerializer):
 
 
 # Model serializer for user profile
-class EventSerializer(serializers.ModelSerializer):
+class EventSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an event (Event object)."""
 
     # CharField in ModelSerializer corresponds to both CharField and TextField in Django models
@@ -224,27 +224,6 @@ class EventSerializer(serializers.ModelSerializer):
         read_only=False,
         required=False,
     )
-    elixirPlatforms = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=False,
-        lookup_field="name",
-        view_name='elixirplatform-detail',
-        queryset=models.ElixirPlatform.objects,
-    )
-    communities = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=False,
-        lookup_field="name",
-        view_name='community-detail',
-        queryset=models.Community.objects,
-    )
-    hostedBy = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=False,
-        lookup_field="name",
-        view_name='organisation-detail',
-        queryset=models.Organisation.objects,
-    )
 
 #    accessibility = serializers.ChoiceField(
 #         choices = ('Public', 'Private'),
@@ -268,6 +247,9 @@ class EventSerializer(serializers.ModelSerializer):
             'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'venue': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'elixirPlatforms': {'lookup_field': 'name'},
+            'communities': {'lookup_field': 'name'},
+            'hostedBy': {'lookup_field': 'name'},
         }
 
     # Validation logic
@@ -366,19 +348,12 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
 
 # ElixirPlatform serializer
-class ElixirPlatformSerializer(serializers.ModelSerializer):
+class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an elixirPlatform (ElixirPlatform object)."""
 
-    coordinator = serializers.HyperlinkedRelatedField(
-        many=False,
-        # read_only=True,
-        view_name='userprofile-detail',
-        queryset=models.UserProfile.objects,
-    )
 
     class Meta:
         model = models.ElixirPlatform
-
         # logo ... TO_DO
         fields = ('id', 'name', 'description', 'homepage', 'coordinator', 'deputies')
         read_only_fields = ['id']
@@ -392,7 +367,7 @@ class CommunitySerializer(serializers.ModelSerializer):
 
 
 # Model serializer for projects
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a project (Project object)."""
 
     # team  TO-DO
@@ -403,34 +378,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only=False,
         slug_field="topic",
         queryset=models.EventTopic.objects.all())
-    elixirPlatforms = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=False,
-        lookup_field="name",
-        view_name='elixirplatform-detail',
-        queryset=models.ElixirPlatform.objects,
-    )
-    communities = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=False,
-        lookup_field="name",
-        view_name='community-detail',
-        queryset=models.Community.objects,
-    )
-    hostedBy = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=False,
-        lookup_field="name",
-        view_name='organisation-detail',
-        queryset=models.Organisation.objects,
-        )
-    fundedBy = serializers.HyperlinkedRelatedField(
-        many=True,
-        read_only=False,
-        lookup_field="name",
-        view_name='organisation-detail',
-        queryset=models.Organisation.objects,
-        )
 
     # To-add to "fields" below:  'team', 'uses', 'logo'
     class Meta:
@@ -441,6 +388,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'elixirPlatforms': {'lookup_field': 'name'},
+            'communities': {'lookup_field': 'name'},
+            'hostedBy': {'lookup_field': 'name'},
+            'fundedBy': {'lookup_field': 'name'},
         }
 
     # Validation logic
