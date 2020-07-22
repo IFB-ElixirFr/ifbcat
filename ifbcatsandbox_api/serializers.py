@@ -197,7 +197,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
-    costs = CreatableSlugRelatedField(
+    costs = serializers.SlugRelatedField(
         many=True,
         read_only=False,
         slug_field="cost",

@@ -223,22 +223,11 @@ class EventTopic(models.Model):
 class EventCost(models.Model):
     """Event cost model: Monetary cost to attend the event, e.g. 'Free to academics'."""
 
-    # CostType: Controlled vocabulary of monetary costs to attend an event.
-    class CostType(models.TextChoices):
-        """Controlled vocabulary of monetary costs to attend an event."""
-        # FREE = 'FR', _('Free')
-        # FREE_TO_ACADEMICS = 'FA', _('Free to academics')
-        # CONCESSIONS_AVAILABLE = 'CO', _('Concessions available')
-        FREE = 'Free', _('Free')
-        FREE_TO_ACADEMICS = 'Free to academics', _('Free to academics')
-        PRICED = 'Priced', _('Priced')
-        CONCESSIONS_AVAILABLE = 'Concessions available', _('Concessions available')
-
 
     # cost is mandatory
     cost = models.CharField(
         max_length=255,
-        choices=CostType.choices,
+        #choices=CostType.choices, # CostType moved to migration 0057
         unique=True,
         help_text="Monetary cost to attend the event, e.g. 'Free to academics'.")
 
