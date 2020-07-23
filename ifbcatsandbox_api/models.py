@@ -571,19 +571,10 @@ class Resource(models.Model):
 class AudienceType(models.Model):
     """AudienceType model: The education or professional level of the expected audience of the training event or material."""
 
-    # AudienceTypeName: Controlled vocabulary for training materials or events describing the education or professional level of the expected audience.
-    class AudienceTypeName(models.TextChoices):
-        """Controlled vocabulary for training materials or events describing the education or professional level of the expected audience.."""
-
-        UNDERGRADUATE = 'Undergraduate', _('Undergraduate')
-        GRADUATE = 'Graduate', _('Graduate')
-        PROFESSIONAL_INITIAL = 'Professional (initial)', _('Professional (initial)')
-        PROFESSIONAL_CONTINUED = 'Professional (continued)', _('Professional (continued)')
-
     # field is mandatory
     audienceType = models.CharField(
         max_length=255,
-        choices=AudienceTypeName.choices,
+        # choices=AudienceTypeName.choices,  # AudienceTypeName moved to migration 0061
         unique=True,
         help_text="The education or professional level of the expected audience of the training event or material.",
     )
@@ -598,24 +589,10 @@ class AudienceType(models.Model):
 class AudienceRole(models.Model):
     """AudienceRole model: The professional roles of the expected audience of the training event or material."""
 
-    # AudienceRoleName: Controlled vocabulary for training materials or events describing the professional roles of the expected audience.
-    class AudienceRoleName(models.TextChoices):
-        """Controlled vocabulary for training materials or events describing the professional roles of the expected audience."""
-
-        RESEARCHERS = 'Researchers', _('Researchers')
-        LIFE_SCIENTISTS = 'Life scientists', _('Life scientists')
-        COMPUTER_SCIENTISTS = 'Computer scientists', _('Computer scientists')
-        BIOLOGISTS = 'Biologists', _('Biologists')
-        BIOINFORMATICIANS = 'Bioinformaticians', _('Bioinformaticians')
-        PROGRAMMERS = 'Programmers', _('Programmers')
-        CURATORS = 'Curators', _('Curators')
-        MANAGERS = 'Managers', _('Managers')
-        ALL = 'All', _('All')
-
     # field is mandatory
     audienceRole = models.CharField(
         max_length=255,
-        choices=AudienceRoleName.choices,
+        # choices=AudienceRoleName.choices,  # AudienceRoleName moved to migration 0061
         unique=True,
         help_text="The professional roles of the expected audience of the training event or material.",
     )
@@ -647,13 +624,6 @@ class TrainingMaterial(Resource):
         NOVICE = 'Novice', _('Novice')
         INTERMEDIATE = 'Intermediate', _('Intermediate')
         ADVANCED = 'Advanced', _('Advanced')
-
-    # TrainingMaterialLicenseName: Controlled vocabulary of licenses of training materials.
-    class TrainingMaterialLicenseName(models.TextChoices):
-        """Controlled vocabulary of licenses of training materials."""
-
-        TEST_LICENSE1 = 'Test license 1', _('Test license 1')
-        TEST_LICENSE2 = 'Test license 2', _('Test license 2')
 
     # fileLocation, fileName is mandatory
     # TO-DO:  providedBy
