@@ -625,6 +625,17 @@ class AudienceRole(models.Model):
         return self.audienceRole
 
 
+class TrainingMaterialLicense(models.Model):
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="The professional roles of the expected audience of the training event or material.",
+    )
+
+    def __str__(self):
+        return self.name
+
+
 # Training material model
 class TrainingMaterial(Resource):
     """Training material model: Digital media such as a presentation or tutorial that can be used for bioinformatics training or teaching."""
@@ -692,11 +703,8 @@ class TrainingMaterial(Resource):
     # providedBy = models.ManyToManyField(BioinformaticsTeam, blank=True, related_name='trainingMaterials', help_text="The bioinformatics team that provides the training material.")
     dateCreation = models.DateField(help_text="Date when the training material was created.")
     dateUpdate = models.DateField(help_text="Date when the training material was updated.")
-    license = models.CharField(
-        max_length=255,
-        choices=TrainingMaterialLicenseName.choices,
-        blank=True,
-        help_text="License under which the training material is made available.",
+    license = models.ManyToManyField(
+        TrainingMaterialLicense, blank=True, help_text="License under which the training material is made available.",
     )
 
     def __str__(self):
