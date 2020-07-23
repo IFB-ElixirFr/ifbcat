@@ -2,21 +2,21 @@
 
 from django.db import migrations, models
 
+from django.utils.translation import gettext_lazy as _
+
 
 def migration_code(apps, schema_editor):
     OrganisationField = apps.get_model("ifbcatsandbox_api", "OrganisationField")
 
-    for s in [
-        'Computer science',
-        'Biotechnology',
-        'Environmental science',
-        'Agricultural science',
-        'Biomedical science',
-        'Biology',
+    for key, translated in [
+        ('Computer science', _('Computer science')),
+        ('Biotechnology', _('Biotechnology')),
+        ('Environmental science', _('Environmental science')),
+        ('Agricultural science', _('Agricultural science')),
+        ('Biomedical science', _('Biomedical science')),
+        ('Biology', _('Biology')),
     ]:
-        OrganisationField.objects.get_or_create(
-            field=s,
-        )
+        OrganisationField.objects.get_or_create(field=key,)
 
 
 class Migration(migrations.Migration):

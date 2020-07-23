@@ -2,17 +2,20 @@
 
 from django.db import migrations, models
 
+from django.utils.translation import gettext_lazy as _
+
 
 def migration_code(apps, schema_editor):
     EventCost = apps.get_model("ifbcatsandbox_api", "EventCost")
 
-    for name in [
-        'Free', 'Free to academics', 'Priced', 'Concessions available',
-
+    # translated is here just to be extracted by make_messages if needed
+    for key, translated in [
+        ('Free', _('Free')),
+        ('Free to academics', _('Free to academics')),
+        ('Priced', _('Priced')),
+        ('Concessions available', _('Concessions available')),
     ]:
-        EventCost.objects.get_or_create(
-            cost=name,
-        )
+        EventCost.objects.get_or_create(cost=key,)
 
 
 class Migration(migrations.Migration):
