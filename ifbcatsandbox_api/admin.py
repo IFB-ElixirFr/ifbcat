@@ -213,3 +213,14 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
         'audienceRoles',
         'license',
     )
+
+
+# register all models that are not registered yet
+from django.apps import apps
+
+models = apps.get_app_config('ifbcatsandbox_api').get_models()
+for model in models:
+    try:
+        admin.site.register(model)
+    except admin.sites.AlreadyRegistered:
+        pass
