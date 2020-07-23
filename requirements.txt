@@ -1,5 +1,6 @@
 # Need to update to latest versions, see https://pypi.org/
 # django==2.2
 # djangorestframework==3.9.2
-django==3.0.7
+django==3.0.8
 djangorestframework==3.11.0
+factory-boy
