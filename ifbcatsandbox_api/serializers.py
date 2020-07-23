@@ -364,7 +364,7 @@ class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ['id']
 
 
-class CommunitySerializer(serializers.ModelSerializer):
+class CommunitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Community
         fields = (
@@ -374,6 +374,9 @@ class CommunitySerializer(serializers.ModelSerializer):
             'organisations',
         )
         read_only_fields = ['id']
+        extra_kwargs = {
+            'organisations': {'lookup_field': 'name'},
+        }
 
 
 # Model serializer for projects
