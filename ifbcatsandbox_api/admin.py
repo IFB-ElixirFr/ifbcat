@@ -185,3 +185,31 @@ class ProjectAdmin(ViewInApiModelAdmin):
         'hostedBy',
         'fundedBy',
     )
+
+
+@admin.register(models.AudienceRole)
+class AudienceRoleAdmin(ViewInApiModelAdmin):
+    search_fields = ['audienceRole']
+
+
+@admin.register(models.AudienceType)
+class AudienceTypeAdmin(ViewInApiModelAdmin):
+    search_fields = ['audienceType']
+
+
+@admin.register(models.TrainingMaterialLicense)
+class TrainingMaterialLicenseAdmin(ViewInApiModelAdmin):
+    search_fields = ['name']
+
+
+@admin.register(models.TrainingMaterial)
+class TrainingMaterialAdmin(ViewInApiModelAdmin):
+    autocomplete_fields = (
+        'communities',
+        'elixirPlatforms',
+        'topics',
+        'keywords',
+        'audienceTypes',
+        'audienceRoles',
+        'license',
+    )
