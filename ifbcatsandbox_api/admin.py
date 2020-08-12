@@ -229,6 +229,16 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
 
 @admin.register(models.ComputingFacility)
 class ComputingFacilityAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'homepage',
+        # 'providedBy__name',
+        # 'team__name',
+        'trainingMaterials__name',
+        'serverDescription',
+    )
+
+    list_filter = ('accessibility',)
+
     autocomplete_fields = (
         # 'providedBy',
         # 'team',
