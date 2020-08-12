@@ -511,6 +511,68 @@ class EventDate(models.Model):
         return self.dateStart.__str__()
 
 
+# Trainer model
+class Trainer(models.Model):
+    """Trainer model: A person who is providing training at a training event."""
+
+    # trainerEmail is mandatory
+    trainerName = models.CharField(
+        max_length=255, blank=True, help_text="Name of person who is providing training at the training event."
+    )
+    trainerEmail = models.EmailField(help_text="Email of person who is providing training at the training event.")
+    trainerId = models.ForeignKey(
+        UserProfile,
+        related_name='trainerId',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="IFB ID of person who is providing training at the training event.",
+    )
+
+    def __str__(self):
+        """Return the Trainer model as a string."""
+        return self.name
+
+
+# Training event metrics model
+class TrainingEventMetrics(models.Model):
+    """Training event metrics model: Metrics and other information for a specific training event."""
+
+    # dateStart and dateEnd are mandatory
+    dateStart = models.DateField(help_text="The start date of the training event.")
+    dateEnd = models.DateField(help_text="The end date of the training event.")
+    numParticipants = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of participants at the training event.",
+        validators=[MinValueValidator(1),],
+    )
+
+    def __str__(self):
+        """Return the TrainingEventMetrics model as a string."""
+        return self.dateStart.__str__()
+
+
+# Event sponsor model
+class EventSponsor(models.Model):
+    """Event sponsor model: A sponsor of an event."""
+
+    # name & homepage are mandatory
+    name = models.CharField(max_length=255, help_text="Name of institutional entity that is sponsoring the event.")
+    homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
+    # TO-DO logo
+    organisationId = models.ForeignKey(
+        Organisation,
+        related_name='eventSponsor',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="IFB ID of a event-sponsoring organisation registered in the IFB catalogue.",
+    )
+
+    def __str__(self):
+        """Return the EventSponsor model as a string."""
+        return self.name
+
+
 # Project model
 class Project(models.Model):
     """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
