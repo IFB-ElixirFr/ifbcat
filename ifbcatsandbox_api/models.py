@@ -617,9 +617,9 @@ class TrainingMaterialLicense(models.Model):
 class TrainingMaterial(Resource):
     """Training material model: Digital media such as a presentation or tutorial that can be used for bioinformatics training or teaching."""
 
-    # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
+    # DifficultyLevelType: Controlled vocabulary for training materials or events describing the required experience and skills of the expected audience.
     class DifficultyLevelType(models.TextChoices):
-        """Controlled vocabulary for whether an event is public or private."""
+        """Controlled vocabulary for training materials or events describing the required experience and skills of the expected audience."""
 
         NOVICE = 'Novice', _('Novice')
         INTERMEDIATE = 'Intermediate', _('Intermediate')
@@ -680,3 +680,76 @@ class TrainingMaterial(Resource):
     def __str__(self):
         """Return the TrainingMaterial model as a string."""
         return self.name
+
+
+# Computing facility model
+class ComputingFacility(Resource):
+    """Computing facility model: Computing hardware that can be accessed by users for bioinformatics projects."""
+
+    # AccessibillityType: Controlled vocabulary of accessibillity levels of computing facility to end-users.
+    class AccessibillityType(models.TextChoices):
+        """Controlled vocabulary of accessibillity levels of computing facility to end-users."""
+
+        INTERNAL = 'Internal', _('Internal')
+        NATIONAL = 'National', _('National')
+        INTERNATIONAL = 'International', _('International')
+
+    # homepage & accessibility are mandatory
+    homepage = models.URLField(max_length=255, help_text="URL where the computing facility can be accessed.")
+    # TO-DO:  providedBy
+    # TO-DO:  team
+    accessibility = models.CharField(
+        max_length=255,
+        choices=AccessibillityType.choices,
+        blank=True,
+        help_text="Accessibillity of the computing facility to end-users.",
+    )
+    requestAccount = models.URLField(
+        max_length=255, help_text="URL of web page where one can request access to the computing facility."
+    )
+    termsOfUse = models.URLField(
+        max_length=255, help_text="URL where terms of use of the computing facility can be found."
+    )
+    trainingMaterials = models.ManyToManyField(
+        TrainingMaterial,
+        blank=True,
+        related_name='computingFacilities',
+        help_text="Training material for the computing facility.",
+    )
+    serverDescription = models.CharField(max_length=255, help_text="Description of number and type of servers.")
+    storageTb = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Amount of storage (TB) provided by the computing facility.",
+        validators=[MinValueValidator(1),],
+    )
+    cpuCores = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of CPU cores provided by the computing facility.",
+        validators=[MinValueValidator(1),],
+    )
+    ramGb = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="RAM (GB) provided by the computing facility.",
+        validators=[MinValueValidator(1),],
+    )
+    ramPerCoreGb = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="RAM (GB) per CPU core provided by the Platform physical infrastructure.",
+        validators=[MinValueValidator(1),],
+    )
+    cpuHoursYearly = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of CPU hours provided by the computing facility in the last year.",
+        validators=[MinValueValidator(1),],
+    )
+    usersYearly = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Number of users served by the computing facility in the last year.",
+        validators=[MinValueValidator(1),],
+    )
