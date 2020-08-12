@@ -321,6 +321,56 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         return instance
 
 
+# Model serializer for trainer
+class TrainerSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a trainer (Trainer object)."""
+
+    class Meta:
+        model = models.Trainer
+
+        fields = (
+            'id',
+            'trainerName',
+            'trainerEmail',
+            'trainerId',
+        )
+
+
+# Model serializer for training event metrics
+class TrainingEventMetricsSerializer(serializers.ModelSerializer):
+    """Serializes training event metrics (TrainingEventMetrics object)."""
+
+    class Meta:
+        model = models.TrainingEventMetrics
+
+        fields = (
+            'id',
+            'dateStart',
+            'dateEnd',
+            'numParticipants',
+        )
+
+
+# Model serializer for event sponsor
+class EventSponsorSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes an event sponsor (EventSponsor object)."""
+
+    class Meta:
+        model = models.EventSponsor
+
+        fields = (
+            'id',
+            'name',
+            'homepage',
+            # 'logo',
+            'organisationId',
+        )
+
+        extra_kwargs = {
+            'organisationId': {'lookup_field': 'name'},
+        }
+
+
 # Organisation serializer
 class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
