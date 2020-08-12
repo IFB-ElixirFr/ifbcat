@@ -352,3 +352,27 @@ class ProjectViewSet(viewsets.ModelViewSet):
         'homepage',
         'description',
     )
+
+
+# Model ViewSet for computing facilities
+class ComputingFacilityViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating computing facilities."""
+
+    serializer_class = serializers.ComputingFacilitySerializer
+    queryset = models.ComputingFacility.objects.all()
+
+    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
+    filter_backends = (filters.SearchFilter,)
+    # TODO: : add to "search_fields" below:   'team', 'providedBy'
+    search_fields = (
+        'homepage',
+        # 'providedBy',
+        # 'team',
+        'accessibility',
+        'serverDescription',
+    )
