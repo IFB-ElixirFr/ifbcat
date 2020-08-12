@@ -37,7 +37,23 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
 
 # Models are registered below
 # Enable Django admin for user profile and news item models - i.e. make them accessible through admin interface
-admin.site.register(models.UserProfile)
+
+
+@admin.register(models.UserProfile)
+class UserProfileAdmin(ViewInApiModelAdmin):
+    """Enables search, filtering and widgets in Django admin interface."""
+
+    search_fields = (
+        'firstname',
+        'lastName',
+        'email',
+        'orcidid',
+    )
+
+
+# admin.site.register(models.UserProfile)
+
+
 admin.site.register(models.NewsItem)
 
 # "search_fields" defines the searchable fields
@@ -116,6 +132,27 @@ class EventCostAdmin(ViewInApiModelAdmin):
 
 
 admin.site.register(models.EventDate)
+
+
+@admin.register(models.Trainer)
+class TrainerAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'trainerName',
+        'trainerEmail',
+    )
+    autocomplete_fields = ('trainerId',)
+
+
+admin.site.register(models.TrainingEventMetrics)
+
+
+@admin.register(models.EventSponsor)
+class EventSponsorAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'homepage',
+    )
+    autocomplete_fields = ('organisationId',)
 
 
 @admin.register(models.Community)
