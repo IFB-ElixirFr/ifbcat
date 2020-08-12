@@ -204,6 +204,18 @@ class TrainingMaterialLicenseAdmin(ViewInApiModelAdmin):
 
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'doi',
+        'fileName',
+        'topics__topic',
+        'keywords__keyword',
+        'audienceTypes__audienceType',
+        'audienceRoles__audienceRole',
+        'difficultyLevel',
+        # 'providedBy__name',
+        'license__name',
+    )
+
     autocomplete_fields = (
         'communities',
         'elixirPlatforms',
@@ -212,6 +224,15 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
         'audienceTypes',
         'audienceRoles',
         'license',
+    )
+
+
+@admin.register(models.ComputingFacility)
+class ComputingFacilityAdmin(ViewInApiModelAdmin):
+    autocomplete_fields = (
+        # 'providedBy',
+        # 'team',
+        'trainingMaterials',
     )
 
 
