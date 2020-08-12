@@ -432,3 +432,36 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
                     'Syntax: ^https?://edamontology.org/topic_[0-9]{4}$'
                 )
         return topics
+
+
+# Model serializer for computing facilities
+class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a computing facility (ComputingFacility object)."""
+
+    class Meta:
+        model = models.ComputingFacility
+
+        fields = (
+            'id',
+            'user_profile',
+            'homepage',
+            # 'providedBy',
+            # 'team',
+            'accessibility',
+            'requestAccount',
+            'termsOfUse',
+            'trainingMaterials',
+            'serverDescription',
+            'storageTb',
+            'cpuCores',
+            'ramGb',
+            'ramPerCoreGb',
+            'cpuHoursYearly',
+            'usersYearly',
+        )
+
+        extra_kwargs = {
+            'user_profile': {'read_only': True},
+            'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'trainingMaterials': {'lookup_field': 'name'},
+        }
