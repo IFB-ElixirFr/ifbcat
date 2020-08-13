@@ -326,10 +326,10 @@ class TrainingEventSerializer(EventSerializer):
     """Serializes a training event (TrainingEvent object)."""
 
     audienceTypes = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="cost", queryset=models.AudienceType.objects,
+        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects,
     )
     audienceRoles = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="cost", queryset=models.AudienceRole.objects,
+        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects,
     )
 
     class Meta:
