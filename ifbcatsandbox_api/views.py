@@ -221,6 +221,21 @@ class EventViewSet(viewsets.ModelViewSet):
     )
 
 
+# Model ViewSet for training events
+class TrainingEventViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating training events."""
+
+    serializer_class = serializers.TrainingEventSerializer
+    queryset = models.TrainingEvent.objects.all()
+
+    search_fields = (
+        'audienceTypes__audienceType',
+        'audienceRoles__audienceRole',
+        'difficultyLevel',
+        'learningOutcomes',
+    )
+
+
 # Model ViewSet for event keywords
 class EventKeywordViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating event keywords."""

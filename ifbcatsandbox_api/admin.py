@@ -111,6 +111,28 @@ class EventAdmin(ViewInApiModelAdmin):
     short_name_or_name.short_description = "Name"
 
 
+@admin.register(models.TrainingEvent)
+class TrainingEventAdmin(ViewInApiModelAdmin):
+    """Enables search, filtering and widgets in Django admin interface."""
+
+    search_fields = (
+        'audienceTypes__audienceType',
+        'audienceRoles__audienceRole',
+        'difficultyLevel',
+        'learningOutcomes',
+    )
+    list_filter = (
+        'trainingMaterials',
+        'computingFacilities',
+        # 'databases',
+        # 'tools',
+    )
+    autocomplete_fields = (
+        'trainingMaterials',
+        'computingFacilities',
+    )
+
+
 @admin.register(models.EventKeyword)
 class EventKeywordAdmin(ViewInApiModelAdmin):
     search_fields = ['keyword']

@@ -173,7 +173,7 @@ class EventDateSerializer(serializers.ModelSerializer):
         )
 
 
-# Model serializer for user profile
+# Model serializer for events.
 class EventSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an event (Event object)."""
 
@@ -319,6 +319,42 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         if len(sub_instances) > 0:
             instance.save()
         return instance
+
+
+# Model serializer for training events
+class TrainingEventSerializer(EventSerializer):
+    """Serializes a training event (TrainingEvent object)."""
+
+    audienceTypes = serializers.SlugRelatedField(
+        many=True, read_only=False, slug_field="cost", queryset=models.AudienceType.objects,
+    )
+    audienceRoles = serializers.SlugRelatedField(
+        many=True, read_only=False, slug_field="cost", queryset=models.AudienceRole.objects,
+    )
+
+    class Meta:
+        model = models.TrainingEvent
+
+        fields = (
+            'audienceTypes',
+            'audienceRoles',
+            'difficultyLevel',
+            'trainingMaterials',
+            'learningOutcomes',
+            'hoursPresentations',
+            'hoursHandsOn',
+            'hoursTotal',
+            'trainers',
+            'personalised',
+            'computingFacilities',
+            # 'databases',
+            # 'tools',
+        )
+
+    extra_kwargs = {
+        'learningOutcomes': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+        'computingFacilities': {'lookup_field': 'name'},
+    }
 
 
 # Model serializer for trainer

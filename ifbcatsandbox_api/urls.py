@@ -25,6 +25,7 @@ router.register('computingfacility', views.ComputingFacilityViewSet)
 router.register('trainer', views.TrainerViewSet)
 router.register('trainingeventmetrics', views.TrainingEventMetricsViewSet)
 router.register('eventsponsor', views.EventSponsorViewSet)
+router.register('trainingevent', views.TrainingEventViewSet)
 
 # APIView ("testapiview" below) endpoints are registered differently than API ViewSet
 # "include" function is used to include a list of URLS into the URL pattern
