@@ -19,7 +19,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
-    # "allow_null" means None is considered a val'id' value (it defauls to False)
+    # "allow_null" means None is considered a valid value (it defauls to False)
     # "required=False" means the field is not required to be present during (de)serialization (it defaults to True)
     # firstname, lastname and email are mandatory
     # NB. "allow_blank=False" means am empty string is considered invalid and will raise a validation error

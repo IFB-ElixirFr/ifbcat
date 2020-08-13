@@ -516,10 +516,13 @@ class Trainer(models.Model):
     """Trainer model: A person who is providing training at a training event."""
 
     # trainerEmail is mandatory
+
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     trainerName = models.CharField(
         max_length=255, blank=True, help_text="Name of person who is providing training at the training event."
     )
     trainerEmail = models.EmailField(help_text="Email of person who is providing training at the training event.")
+
     trainerId = models.ForeignKey(
         UserProfile,
         related_name='trainerId',
@@ -530,7 +533,7 @@ class Trainer(models.Model):
 
     def __str__(self):
         """Return the Trainer model as a string."""
-        return self.name
+        return self.trainerEmail.__str__()
 
 
 # Training event metrics model
@@ -538,6 +541,7 @@ class TrainingEventMetrics(models.Model):
     """Training event metrics model: Metrics and other information for a specific training event."""
 
     # dateStart and dateEnd are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     dateStart = models.DateField(help_text="The start date of the training event.")
     dateEnd = models.DateField(help_text="The end date of the training event.")
     numParticipants = models.PositiveSmallIntegerField(
@@ -557,6 +561,7 @@ class EventSponsor(models.Model):
     """Event sponsor model: A sponsor of an event."""
 
     # name & homepage are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=255, help_text="Name of institutional entity that is sponsoring the event.")
     homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
     # TO-DO logo
