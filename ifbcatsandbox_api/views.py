@@ -222,14 +222,14 @@ class EventViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for training events
-class TrainingEventViewSet(viewsets.ModelViewSet):
+class TrainingEventViewSet(EventViewSet):
     """Handles creating, reading and updating training events."""
 
     serializer_class = serializers.TrainingEventSerializer
     queryset = models.TrainingEvent.objects.all()
     #    lookup_field = 'name'
 
-    search_fields = (
+    search_fields = EventViewSet.search_fields + (
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
         'difficultyLevel',

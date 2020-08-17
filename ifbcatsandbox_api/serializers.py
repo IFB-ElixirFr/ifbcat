@@ -351,7 +351,7 @@ class TrainingEventSerializer(EventSerializer):
             # 'tools',
         )
 
-        # '**' syntax is recent Python syntax for combining two dictionaries into one
+        # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
         extra_kwargs = {
             **EventSerializer.Meta.extra_kwargs,
             **{
