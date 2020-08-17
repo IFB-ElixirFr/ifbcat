@@ -227,6 +227,7 @@ class TrainingEventViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.TrainingEventSerializer
     queryset = models.TrainingEvent.objects.all()
+    #    lookup_field = 'name'
 
     search_fields = (
         'audienceTypes__audienceType',

@@ -332,10 +332,10 @@ class TrainingEventSerializer(EventSerializer):
         many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects,
     )
 
-    class Meta:
+    class Meta(EventSerializer.Meta):
         model = models.TrainingEvent
 
-        fields = (
+        fields = EventSerializer.Meta.fields + (
             'audienceTypes',
             'audienceRoles',
             'difficultyLevel',
@@ -351,10 +351,14 @@ class TrainingEventSerializer(EventSerializer):
             # 'tools',
         )
 
-    extra_kwargs = {
-        'learningOutcomes': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-        'computingFacilities': {'lookup_field': 'name'},
-    }
+        # '**' syntax is recent Python syntax for combining two dictionaries into one
+        extra_kwargs = {
+            **EventSerializer.Meta.extra_kwargs,
+            **{
+                'learningOutcomes': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+                # 'computingFacilities': {'lookup_field': 'name'},
+            },
+        }
 
 
 # Model serializer for trainer
