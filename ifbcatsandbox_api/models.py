@@ -159,20 +159,6 @@ class NewsItem(models.Model):
 class EventKeyword(models.Model):
     """Event keyword model: A keyword (beyond EDAM ontology scope) describing the event."""
 
-    # "on_delete=models.NULL" means that the EventKeyword is not deleted if the user profile is deleted.
-    # "null=True" is required in case a user profile IS deleted.
-
-    # user_profile = models.ForeignKey(
-    # settings.AUTH_USER_MODEL,
-    # on_delete=models.SET_NULL,
-    # null=True
-    # )
-
-    # keyword is mandatory
-    # For "event":
-    #    "null=True" is required in case an event is deleted.
-    #    "blank=True" is required to allow registration of keywords independent of events.
-    # event = models.ForeignKey(Event, related_name='keywords', blank=True, null=True, on_delete=models.CASCADE)
     keyword = models.CharField(
         max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event."
     )
@@ -188,14 +174,7 @@ class EventKeyword(models.Model):
 class EventPrerequisite(models.Model):
     """Event prerequisite model: A skill which the audience should (ideally) possess to get the most out of the event, e.g. "Python"."""
 
-    # user_profile = models.ForeignKey(
-    # settings.AUTH_USER_MODEL,
-    # on_delete=models.SET_NULL,
-    # null=True
-    # )
-
     # prerequisite is mandatory
-    # event = models.ForeignKey(Event, related_name='prerequisites', blank=True, null=True, on_delete=models.CASCADE)
     prerequisite = models.CharField(
         max_length=255,
         unique=True,
@@ -944,9 +923,28 @@ class Team(models.Model):
         UserProfile, related_name='teamMaintainers', help_text="Maintainer(s) of the team metadata in IFB catalogue.",
     )
 
+    def __str__(self):
+        """Return the Team model as a string."""
+        return self.name
+
+
+# DOI model
+class Doi(models.Model):
+    """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
+
+    doi = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="A digital object identifier (DOI) of a publication or training material.",
+    )
+
+    def __str__(self):
+        """Return the Doi model as a string."""
+        return self.doi
+
 
 # Bioinformatics team model
-class BioiformaticsTeam(Team):
+class BioinformaticsTeam(Team):
     """Bioinformatics team model: A French team whose activities involve the development, deployment, provision, maintenance or support of bioinformatics resources, services or events."""
 
     # IfbMembershipType: Controlled vocabulary of types of membership bioinformatics teams have to IFB.
@@ -1024,12 +1022,8 @@ class BioiformaticsTeam(Team):
         related_name='bioinformaticsTeamsFundedBy',
         help_text="Organisation(s) that funds the bioinformatics team.",
     )
-    publications = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        unique=True,
-        help_text="Unique identier (DOI) of the training material, e.g. a Zenodo DOI.",
+    publications = models.ManyToManyField(
+        Doi, related_name='bioinformaticsTeams', blank=True, help_text="Publication(s) that describe the team.",
     )
     certification = models.CharField(
         max_length=255,

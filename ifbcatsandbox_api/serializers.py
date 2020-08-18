@@ -557,3 +557,110 @@ class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
             'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'trainingMaterials': {'lookup_field': 'name'},
         }
+
+
+# Model serializer for team
+class TeamSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a team (Team object)."""
+
+    class Meta:
+        model = models.Team
+        fields = (
+            'id',
+            'name',
+            'description',
+            'homepage',
+            'expertise',
+            'leader',
+            'deputies',
+            'scientificLeader',
+            'technicalLeader',
+            'members',
+            'maintainers',
+        )
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'leader': {'lookup_field': 'name'},
+            'deputies': {'lookup_field': 'name'},
+            'scientificLeader': {'lookup_field': 'name'},
+            'technicalLeader': {'lookup_field': 'name'},
+            'members': {'lookup_field': 'name'},
+            'maintainers': {'lookup_field': 'name'},
+        }
+
+
+# Model serializer for bioinformatics team
+class BioinformaticsTeamSerializer(TeamSerializer):
+    """Serializes a bioinformatics team (BioinformaticsTeam object)."""
+
+    publications = serializers.SlugRelatedField(
+        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects,
+    )
+
+    class Meta(TeamSerializer.Meta):
+        model = models.BioinformaticsTeam
+
+        fields = TeamSerializer.Meta.fields + (
+            'orgid',
+            'unitId',
+            'address',
+            # 'logo',
+            'fields',
+            'topics',
+            'keywords',
+            'ifbMembership',
+            'affiliatedWith',
+            'platforms',
+            'communities',
+            'projects',
+            'fundedBy',
+            'publications',
+            'certification',
+        )
+
+        # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
+        extra_kwargs = {
+            **TeamSerializer.Meta.extra_kwargs,
+            **{
+                'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+                'affiliatedWith': {'lookup_field': 'name'},
+                'platforms': {'lookup_field': 'name'},
+                'communities': {'lookup_field': 'name'},
+                'projects': {'lookup_field': 'name'},
+                'fundedBy': {'lookup_field': 'name'},
+            },
+        }
+
+        # Validation logic
+        def validate_orgid(self, orgid):
+            """Validate supplied organisation ID (GRID or ROR ID)."""
+
+            # orcidid is not mandatory - catch that
+            if orgid is None:
+                return orgid
+
+            p1 = re.compile('^grid.[0-9]{4,}.[a-f0-9]{1,2}$', re.IGNORECASE | re.UNICODE)
+            p2 = re.compile('^0[0-9a-zA-Z]{6}[0-9]{2}$', re.IGNORECASE | re.UNICODE)
+            if not p1.search(orgid):
+                if not p2.search(orgid):
+                    raise serializers.ValidationError(
+                        'This field can only contain a valid GRID or ROR ID.   GRID ID Syntax: grid.[0-9]{4,}.[a-f0-9]{1,2}   ROR ID Syntax: ^0[0-9a-zA-Z]{6}[0-9]{2}'
+                    )
+            return orgid
+
+        # Validation logic
+        def validate_topics(self, topics):
+            """Validate supplied EDAM topic URIs."""
+
+            # topics is not mandatory - catch that
+            if topics is None:
+                return topics
+
+            p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
+            for topic in topics:
+                if not p.search(topic.__str__()):
+                    raise serializers.ValidationError(
+                        'This field can only contain valid EDAM Topic URIs. '
+                        'Syntax: ^https?://edamontology.org/topic_[0-9]{4}$'
+                    )
+            return topics
