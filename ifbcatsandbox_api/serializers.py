@@ -249,7 +249,9 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
         # See https://www.django-rest-framework.org/topics/html-and-forms/#field-styles
-
+        # 'lookup_field' is used for relational fields (ForeignKey, ManyToManyField and OneToOneField) which are URLs.
+        # 'lookup_field' sets the keyword in the URL as serialized in the JSON.
+        # See https://www.django-rest-framework.org/api-guide/relations/
         extra_kwargs = {
             # 'id': {'read_only': True},
             'user_profile': {'read_only': True},

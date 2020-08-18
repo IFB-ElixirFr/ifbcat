@@ -904,3 +904,8 @@ class Project(models.Model):
     def __str__(self):
         """Return the Project model as a string."""
         return self.name
+
+
+# Team model
+class Team(models.Model):
+    """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
