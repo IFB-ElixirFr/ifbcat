@@ -439,7 +439,7 @@ class Event(models.Model):
         EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
     )
     topics = models.ManyToManyField(
-        EventTopic, related_name='events', help_text="URI of EDAM Topic term describing the scope of the event."
+        EventTopic, related_name='events', help_text="URIs of EDAM Topic terms describing the scope of the event."
     )
     keywords = models.ManyToManyField(
         EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event."
@@ -610,7 +610,7 @@ class TrainingMaterial(Resource):
         EventTopic,
         blank=True,
         related_name='trainingMaterials',
-        help_text="URI of EDAM Topic term describing the scope of the training material.",
+        help_text="URIs of EDAM Topic terms describing the scope of the training material.",
     )
     keywords = models.ManyToManyField(
         EventKeyword,
@@ -881,17 +881,19 @@ class Project(models.Model):
     homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
     description = models.TextField(help_text="Description of the project.")
     topics = models.ManyToManyField(
-        EventTopic, related_name='projects', help_text="URI of EDAM Topic term describing the expertise of the project."
+        EventTopic,
+        related_name='projects',
+        help_text="URIs of EDAM Topic terms describing the expertise of the project.",
     )
     # team  TO-DO
     hostedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project."
+        Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project.",
     )
     fundedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project."
+        Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project.",
     )
     communities = models.ManyToManyField(
-        Community, blank=True, related_name='projects', help_text="Community for which the project is relevant."
+        Community, blank=True, related_name='projects', help_text="Community for which the project is relevant.",
     )
     elixirPlatforms = models.ManyToManyField(
         ElixirPlatform,
@@ -909,3 +911,129 @@ class Project(models.Model):
 # Team model
 class Team(models.Model):
     """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
+
+    # name, description, homepage, members & maintainers are mandatory
+    name = models.CharField(max_length=255, unique=True, help_text="Name of the team.")
+    description = models.TextField(help_text="Description of the team.")
+    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the team.")
+    expertise = models.ManyToManyField(
+        EventTopic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the project.",
+    )
+    leader = models.ForeignKey(
+        UserProfile, related_name='teamLeader', null=True, on_delete=models.SET_NULL, help_text="Leader of the team.",
+    )
+    deputies = models.ManyToManyField(
+        UserProfile, related_name='teamDeputies', blank=True, help_text="Deputy leader(s) of the team.",
+    )
+    scientificLeader = models.ForeignKey(
+        UserProfile,
+        related_name='teamScientificLeader',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Scientific leader of the team.",
+    )
+    technicalLeader = models.ForeignKey(
+        UserProfile,
+        related_name='teamTechnicalLeader',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Technical leader of the team.",
+    )
+    members = models.ManyToManyField(UserProfile, related_name='teamMembers', help_text="Members of the team.",)
+    maintainers = models.ManyToManyField(
+        UserProfile, related_name='teamMaintainers', help_text="Maintainer(s) of the team metadata in IFB catalogue.",
+    )
+
+
+# Bioinformatics team model
+class BioiformaticsTeam(Team):
+    """Bioinformatics team model: A French team whose activities involve the development, deployment, provision, maintenance or support of bioinformatics resources, services or events."""
+
+    # IfbMembershipType: Controlled vocabulary of types of membership bioinformatics teams have to IFB.
+    class IfbMembershipType(models.TextChoices):
+        """Controlled vocabulary of types of membership bioinformatics teams have to IFB."""
+
+        IFB_PLATFORM = 'IFB platform', _('IFB platform')
+        IFB_ASSOCIATED_TEAM = 'IFB-associated team', _('IFB-associated team')
+        NOT_A_MEMBER = 'Not a member', _('Not a member')
+
+    # CertificationType: Controlled vocabulary of type of certification of bioinformatics teams.
+    class CertificationType(models.TextChoices):
+        """Controlled vocabulary of type of certification of bioinformatics teams."""
+
+        CERTIFICATE1 = 'Certificate 1', _('Certificate 1')
+
+    # orgid, ifbMembership & fundedBy are mandatory.
+    orgid = models.CharField(max_length=255, unique=True, help_text="Organisation ID (GRID or ROR ID) of the team.",)
+    unitId = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Unit ID (unique identifier of research or service unit) that the Bioinformatics Team belongs to.",
+    )
+    address = models.TextField(blank=True, help_text="Postal address of the bioinformatics team.")
+    # TO-DO logo
+    fields = models.ManyToManyField(
+        OrganisationField,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="A broad field that the bioinformatics team serves.",
+    )
+    topics = models.ManyToManyField(
+        EventTopic,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="URIs of EDAM Topic terms describing the bioinformatics team.",
+    )
+    keywords = models.ManyToManyField(
+        EventKeyword,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="A keyword (beyond EDAM ontology scope) describing the bioinformatics team.",
+    )
+    ifbMembership = models.CharField(
+        max_length=255,
+        choices=IfbMembershipType.choices,
+        help_text="Type of membership the bioinformatics team has to IFB.",
+    )
+    affiliatedWith = models.ManyToManyField(
+        Organisation,
+        blank=True,
+        related_name='bioinformaticsTeamsAffiliatedWith',
+        help_text="Organisation(s) to which the bioinformatics team is affiliated.",
+    )
+    platforms = models.ManyToManyField(
+        ElixirPlatform,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="ELIXIR Platform(s) in which the bioinformatics team is involved.",
+    )
+    communities = models.ManyToManyField(
+        Community,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="Communities in which the bioinformatics team is involved.",
+    )
+    projects = models.ManyToManyField(
+        Project,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="Project(s) that the bioinformatics team is involved with, supports or hosts.",
+    )
+    fundedBy = models.ManyToManyField(
+        Organisation,
+        related_name='bioinformaticsTeamsFundedBy',
+        help_text="Organisation(s) that funds the bioinformatics team.",
+    )
+    publications = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text="Unique identier (DOI) of the training material, e.g. a Zenodo DOI.",
+    )
+    certification = models.CharField(
+        max_length=255,
+        blank=True,
+        choices=CertificationType.choices,
+        help_text="Certification (e.g. ISO) of the bioinformatics team.",
+    )
