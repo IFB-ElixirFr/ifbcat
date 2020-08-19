@@ -823,6 +823,9 @@ class TrainingEventMetrics(models.Model):
         help_text="Training event to which the metrics are associated.",
     )
 
+    class Meta:
+        verbose_name_plural = "Training event metrics"
+
     def __str__(self):
         """Return the TrainingEventMetrics model as a string."""
         return self.dateStart.__str__()
@@ -892,11 +895,12 @@ class Team(models.Model):
     """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
 
     # name, description, homepage, members & maintainers are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=255, unique=True, help_text="Name of the team.")
     description = models.TextField(help_text="Description of the team.")
     homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the team.")
     expertise = models.ManyToManyField(
-        EventTopic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the project.",
+        EventTopic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the team.",
     )
     leader = models.ForeignKey(
         UserProfile, related_name='teamLeader', null=True, on_delete=models.SET_NULL, help_text="Leader of the team.",

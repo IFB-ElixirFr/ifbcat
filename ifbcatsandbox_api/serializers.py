@@ -563,10 +563,15 @@ class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
+    expertise = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
+    )
+
     class Meta:
         model = models.Team
         fields = (
             'id',
+            'user_profile',
             'name',
             'description',
             'homepage',
@@ -579,14 +584,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'maintainers',
         )
         read_only_fields = ['id']
-        extra_kwargs = {
-            'leader': {'lookup_field': 'name'},
-            'deputies': {'lookup_field': 'name'},
-            'scientificLeader': {'lookup_field': 'name'},
-            'technicalLeader': {'lookup_field': 'name'},
-            'members': {'lookup_field': 'name'},
-            'maintainers': {'lookup_field': 'name'},
-        }
+
+        extra_kwargs = {}
 
 
 # Model serializer for bioinformatics team
@@ -595,6 +594,12 @@ class BioinformaticsTeamSerializer(TeamSerializer):
 
     publications = serializers.SlugRelatedField(
         many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects,
+    )
+    topics = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
+    )
+    fields = serializers.SlugRelatedField(
+        many=True, read_only=False, slug_field="field", queryset=models.OrganisationField.objects.all()
     )
 
     class Meta(TeamSerializer.Meta):
@@ -626,7 +631,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
                 'affiliatedWith': {'lookup_field': 'name'},
                 'platforms': {'lookup_field': 'name'},
                 'communities': {'lookup_field': 'name'},
-                'projects': {'lookup_field': 'name'},
+                # 'projects': {'lookup_field': 'name'},
                 'fundedBy': {'lookup_field': 'name'},
             },
         }
