@@ -493,6 +493,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'homepage',
             'description',
             'topics',
+            'team',
             'hostedBy',
             'fundedBy',
             'communities',
@@ -504,6 +505,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
+            'team': {'lookup_field': 'name'},
             'hostedBy': {'lookup_field': 'name'},
             'fundedBy': {'lookup_field': 'name'},
         }

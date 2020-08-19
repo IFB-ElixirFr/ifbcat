@@ -853,43 +853,6 @@ class EventSponsor(models.Model):
         return self.name
 
 
-# Project model
-class Project(models.Model):
-    """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
-
-    # name, homepage & description are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, help_text="Name of the project.")
-    homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
-    description = models.TextField(help_text="Description of the project.")
-    topics = models.ManyToManyField(
-        EventTopic,
-        related_name='projects',
-        help_text="URIs of EDAM Topic terms describing the expertise of the project.",
-    )
-    # team  TO-DO
-    hostedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project.",
-    )
-    fundedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project.",
-    )
-    communities = models.ManyToManyField(
-        Community, blank=True, related_name='projects', help_text="Community for which the project is relevant.",
-    )
-    elixirPlatforms = models.ManyToManyField(
-        ElixirPlatform,
-        blank=True,
-        related_name='projects',
-        help_text="ELIXIR Platform to which the project is relevant.",
-    )
-    # uses TO-DO
-
-    def __str__(self):
-        """Return the Project model as a string."""
-        return self.name
-
-
 # Team model
 class Team(models.Model):
     """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
@@ -932,6 +895,49 @@ class Team(models.Model):
         return self.name
 
 
+# Project model
+class Project(models.Model):
+    """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
+
+    # name, homepage & description are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    name = models.CharField(max_length=255, help_text="Name of the project.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
+    description = models.TextField(help_text="Description of the project.")
+    topics = models.ManyToManyField(
+        EventTopic,
+        related_name='projects',
+        help_text="URIs of EDAM Topic terms describing the expertise of the project.",
+    )
+    team = models.ForeignKey(
+        Team,
+        related_name='project',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="The team which is delivering the project.",
+    )
+    hostedBy = models.ManyToManyField(
+        Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project.",
+    )
+    fundedBy = models.ManyToManyField(
+        Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project.",
+    )
+    communities = models.ManyToManyField(
+        Community, blank=True, related_name='projects', help_text="Community for which the project is relevant.",
+    )
+    elixirPlatforms = models.ManyToManyField(
+        ElixirPlatform,
+        blank=True,
+        related_name='projects',
+        help_text="ELIXIR Platform to which the project is relevant.",
+    )
+    # uses TO-DO
+
+    def __str__(self):
+        """Return the Project model as a string."""
+        return self.name
+
+
 # DOI model
 class Doi(models.Model):
     """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
@@ -953,7 +959,7 @@ class BioinformaticsTeam(Team):
 
     # IfbMembershipType: Controlled vocabulary of types of membership bioinformatics teams have to IFB.
     class IfbMembershipType(models.TextChoices):
-        """Controlled vocabulary of types of membership bioinformatics teams have to IFB."""
+        """Controlled vocabulary of types of membership bioinformatics  s have to IFB."""
 
         IFB_PLATFORM = 'IFB platform', _('IFB platform')
         IFB_ASSOCIATED_TEAM = 'IFB-associated team', _('IFB-associated team')

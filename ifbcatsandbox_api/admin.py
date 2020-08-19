@@ -227,6 +227,7 @@ class ProjectAdmin(ViewInApiModelAdmin):
         'homepage',
         'description',
         'topics__topic',
+        'team__name',
         'hostedBy__name',
         'fundedBy__name',
         'communities__name',
@@ -241,6 +242,7 @@ class ProjectAdmin(ViewInApiModelAdmin):
         'topics',
         'elixirPlatforms',
         'communities',
+        'team',
         'hostedBy',
         'fundedBy',
     )
