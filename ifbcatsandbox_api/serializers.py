@@ -598,6 +598,9 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     topics = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
     )
+    keywords = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="keyword", queryset=models.EventKeyword.objects,
+    )
     fields = serializers.SlugRelatedField(
         many=True, read_only=False, slug_field="field", queryset=models.OrganisationField.objects.all()
     )
@@ -628,6 +631,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
             **TeamSerializer.Meta.extra_kwargs,
             **{
                 'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+                'keywords': {'lookup_field': 'keyword'},
                 'affiliatedWith': {'lookup_field': 'name'},
                 'platforms': {'lookup_field': 'name'},
                 'communities': {'lookup_field': 'name'},
