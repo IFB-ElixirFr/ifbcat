@@ -505,7 +505,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
-            'team': {'lookup_field': 'name'},
+            # 'team': {'lookup_field': 'name'},
             'hostedBy': {'lookup_field': 'name'},
             'fundedBy': {'lookup_field': 'name'},
         }
@@ -540,7 +540,7 @@ class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
             'user_profile',
             'homepage',
             # 'providedBy',
-            # 'team',
+            'team',
             'accessibility',
             'requestAccount',
             'termsOfUse',
@@ -557,6 +557,7 @@ class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'user_profile': {'read_only': True},
             'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            # 'team': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
 

@@ -293,7 +293,7 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
     search_fields = (
         'homepage',
         # 'providedBy__name',
-        # 'team__name',
+        'team__name',
         'trainingMaterials__name',
         'serverDescription',
     )
@@ -302,7 +302,7 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
 
     autocomplete_fields = (
         # 'providedBy',
-        # 'team',
+        'team',
         'trainingMaterials',
     )
 

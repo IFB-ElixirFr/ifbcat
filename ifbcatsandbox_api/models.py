@@ -652,6 +652,48 @@ class Trainer(models.Model):
         return self.trainerEmail.__str__()
 
 
+# Team model
+class Team(models.Model):
+    """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
+
+    # name, description, homepage, members & maintainers are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    name = models.CharField(max_length=255, unique=True, help_text="Name of the team.")
+    description = models.TextField(help_text="Description of the team.")
+    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the team.")
+    expertise = models.ManyToManyField(
+        EventTopic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the team.",
+    )
+    leader = models.ForeignKey(
+        UserProfile, related_name='teamLeader', null=True, on_delete=models.SET_NULL, help_text="Leader of the team.",
+    )
+    deputies = models.ManyToManyField(
+        UserProfile, related_name='teamDeputies', blank=True, help_text="Deputy leader(s) of the team.",
+    )
+    scientificLeader = models.ForeignKey(
+        UserProfile,
+        related_name='teamScientificLeader',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Scientific leader of the team.",
+    )
+    technicalLeader = models.ForeignKey(
+        UserProfile,
+        related_name='teamTechnicalLeader',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Technical leader of the team.",
+    )
+    members = models.ManyToManyField(UserProfile, related_name='teamMembers', help_text="Members of the team.",)
+    maintainers = models.ManyToManyField(
+        UserProfile, related_name='teamMaintainers', help_text="Maintainer(s) of the team metadata in IFB catalogue.",
+    )
+
+    def __str__(self):
+        """Return the Team model as a string."""
+        return self.name
+
+
 # Computing facility model
 class ComputingFacility(Resource):
     """Computing facility model: Computing hardware that can be accessed by users for bioinformatics projects."""
@@ -667,7 +709,13 @@ class ComputingFacility(Resource):
     # homepage & accessibility are mandatory
     homepage = models.URLField(max_length=255, help_text="URL where the computing facility can be accessed.")
     # TO-DO:  providedBy
-    # TO-DO:  team
+    team = models.ForeignKey(
+        Team,
+        related_name='computingFacility',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="The team which is maintaining the computing facility.",
+    )
     accessibility = models.CharField(
         max_length=255,
         choices=AccessibillityType.choices,
@@ -850,48 +898,6 @@ class EventSponsor(models.Model):
 
     def __str__(self):
         """Return the EventSponsor model as a string."""
-        return self.name
-
-
-# Team model
-class Team(models.Model):
-    """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
-
-    # name, description, homepage, members & maintainers are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, unique=True, help_text="Name of the team.")
-    description = models.TextField(help_text="Description of the team.")
-    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the team.")
-    expertise = models.ManyToManyField(
-        EventTopic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the team.",
-    )
-    leader = models.ForeignKey(
-        UserProfile, related_name='teamLeader', null=True, on_delete=models.SET_NULL, help_text="Leader of the team.",
-    )
-    deputies = models.ManyToManyField(
-        UserProfile, related_name='teamDeputies', blank=True, help_text="Deputy leader(s) of the team.",
-    )
-    scientificLeader = models.ForeignKey(
-        UserProfile,
-        related_name='teamScientificLeader',
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="Scientific leader of the team.",
-    )
-    technicalLeader = models.ForeignKey(
-        UserProfile,
-        related_name='teamTechnicalLeader',
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="Technical leader of the team.",
-    )
-    members = models.ManyToManyField(UserProfile, related_name='teamMembers', help_text="Members of the team.",)
-    maintainers = models.ManyToManyField(
-        UserProfile, related_name='teamMaintainers', help_text="Maintainer(s) of the team metadata in IFB catalogue.",
-    )
-
-    def __str__(self):
-        """Return the Team model as a string."""
         return self.name
 
 
