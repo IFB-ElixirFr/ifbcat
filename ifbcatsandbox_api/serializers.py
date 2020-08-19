@@ -583,7 +583,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'members',
             'maintainers',
         )
-        read_only_fields = ['id']
+        read_only_fields = ['user_profile']
 
         extra_kwargs = {}
 
