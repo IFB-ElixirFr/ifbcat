@@ -449,3 +449,53 @@ class ComputingFacilityViewSet(viewsets.ModelViewSet):
         'accessibility',
         'serverDescription',
     )
+
+
+# Model ViewSet for teams
+class TeamViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating teams."""
+
+    serializer_class = serializers.TeamSerializer
+    queryset = models.Team.objects.all()
+
+    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
+    filter_backends = (filters.SearchFilter,)
+    # TODO: : add to "search_fields" below:   'team', 'providedBy'
+    search_fields = (
+        'name',
+        'description',
+        'expertise',
+        'leader',
+        'deputies',
+        'scientificLeader',
+        'technicalLeader',
+        'members',
+        'maintainers',
+    )
+
+
+# Model ViewSet for teams
+class BioinformaticsTeamViewSet(TeamViewSet):
+    """Handles creating, reading and updating bioinformatics teams."""
+
+    serializer_class = serializers.BioinformaticsTeamSerializer
+    queryset = models.BioinformaticsTeam.objects.all()
+
+    # TODO: : add to "search_fields" below:   'team', 'providedBy'
+    search_fields = TeamViewSet.search_fields + (
+        'orgid',
+        'unitId',
+        'address',
+        'fields',
+        'topics',
+        'keywords',
+        'ifbMembership',
+        'platforms',
+        'communities',
+        'projects',
+    )

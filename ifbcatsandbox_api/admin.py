@@ -56,7 +56,7 @@ class UserProfileAdmin(ViewInApiModelAdmin):
 
 admin.site.register(models.NewsItem)
 
-# "search_fields" defines the searchable fields
+# "search_fields" defines the searchable 'fields'
 # "list_filter" adds fields to Django admin filter box
 # "filter_horizontal" adds widgets for item selection from lists
 @admin.register(models.Event)
@@ -302,6 +302,54 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
         # 'providedBy',
         # 'team',
         'trainingMaterials',
+    )
+
+
+@admin.register(models.Team)
+class TeamAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'description',
+        'expertise',
+        'leader__name',
+        'deputies__name',
+        'scientificLeader__name',
+        'technicalLeader__name',
+        'members__name',
+        'maintainers__name',
+    )
+
+    autocomplete_fields = (
+        'leader',
+        'deputies',
+        'scientificLeader',
+        'technicalLeader',
+        'members',
+        'maintainers',
+    )
+
+
+@admin.register(models.BioinformaticsTeam)
+class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'orgid',
+        'unitId',
+        'address',
+        'topics',
+        'keywords_keyword',
+        'ifbMembership',
+        'platforms__name',
+        'communities__name',
+        'projects__name',
+    )
+
+    list_filter = ('fields',)
+
+    autocomplete_fields = (
+        'fields',
+        'platforms',
+        'communities',
+        'projects',
     )
 
 
