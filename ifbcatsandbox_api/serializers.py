@@ -214,7 +214,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     #         allow_blank=True,
     #         required=False)
 
-    # To-add to "fields" below:  'organisedBy', 'sponsoredBy', 'logo'
+    # To-add to "fields" below:  'organisedBy', 'logo'
     class Meta:
         model = models.Event
 
@@ -245,6 +245,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'elixirPlatforms',
             'communities',
             'hostedBy',
+            'sponsoredBy',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -260,6 +261,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
             'hostedBy': {'lookup_field': 'name'},
+            # 'sponsoredBy': {'lookup_field': 'name'},
         }
 
     # Validation logic

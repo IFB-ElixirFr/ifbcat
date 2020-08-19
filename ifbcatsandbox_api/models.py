@@ -363,6 +363,28 @@ class Community(models.Model):
         return self.name
 
 
+# Event sponsor model
+class EventSponsor(models.Model):
+    """Event sponsor model: A sponsor of an event."""
+
+    # name & homepage are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    name = models.CharField(max_length=255, help_text="Name of institutional entity that is sponsoring the event.")
+    homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
+    # TO-DO logo
+    organisationId = models.ForeignKey(
+        Organisation,
+        related_name='eventSponsor',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="IFB ID of a event-sponsoring organisation registered in the IFB catalogue.",
+    )
+
+    def __str__(self):
+        """Return the EventSponsor model as a string."""
+        return self.name
+
+
 # Event model
 class Event(models.Model):
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
@@ -466,7 +488,12 @@ class Event(models.Model):
     )
 
     # organisedBy = ... TO_DO
-    # sponsoredBy = ... TO_DO
+    sponsoredBy = models.ManyToManyField(
+        EventSponsor,
+        blank=True,
+        related_name='events',
+        help_text="An institutional entity that is sponsoring the event.",
+    )
     # logo = ... TO_DO
 
     def __str__(self):
@@ -1032,25 +1059,3 @@ class TrainingEventMetrics(models.Model):
     def __str__(self):
         """Return the TrainingEventMetrics model as a string."""
         return self.dateStart.__str__()
-
-
-# Event sponsor model
-class EventSponsor(models.Model):
-    """Event sponsor model: A sponsor of an event."""
-
-    # name & homepage are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, help_text="Name of institutional entity that is sponsoring the event.")
-    homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
-    # TO-DO logo
-    organisationId = models.ForeignKey(
-        Organisation,
-        related_name='eventSponsor',
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="IFB ID of a event-sponsoring organisation registered in the IFB catalogue.",
-    )
-
-    def __str__(self):
-        """Return the EventSponsor model as a string."""
-        return self.name

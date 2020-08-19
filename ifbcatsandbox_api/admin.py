@@ -76,6 +76,7 @@ class EventAdmin(ViewInApiModelAdmin):
         'prerequisites__prerequisite',
         'contactName',
         'market',
+        'sponsoredBy',
     )
     list_display = ('short_name_or_name', 'contactName')
     list_filter = (
@@ -97,6 +98,7 @@ class EventAdmin(ViewInApiModelAdmin):
         'elixirPlatforms',
         'communities',
         'hostedBy',
+        'sponsoredBy',
     )
 
     # date_hierarchy = 'dates'
