@@ -420,12 +420,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    # TODO: : add to "search_fields" below:   'topics', 'hostedBy', 'fundedBy', 'communities', 'elixirPlatform', 'uses'
+    # TODO: : add to "search_fields" below:   'topics', 'hostedBy', 'fundedBy', 'communities', 'elixirPlatform'
     search_fields = (
         'name',
         'homepage',
         'description',
         'team__name',
+        'uses_name',
     )
 
 

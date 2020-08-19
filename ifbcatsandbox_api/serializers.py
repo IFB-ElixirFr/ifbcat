@@ -484,7 +484,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects.all()
     )
 
-    # To-add to "fields" below:  'team', 'uses', 'logo'
+    # To-add to "fields" below:  'team', 'logo'
     class Meta:
         model = models.Project
 
@@ -500,6 +500,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'fundedBy',
             'communities',
             'elixirPlatforms',
+            'uses',
         )
 
         extra_kwargs = {
@@ -510,6 +511,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             # 'team': {'lookup_field': 'name'},
             'hostedBy': {'lookup_field': 'name'},
             'fundedBy': {'lookup_field': 'name'},
+            'uses': {'lookup_field': 'name'},
         }
 
     # Validation logic

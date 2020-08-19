@@ -234,12 +234,9 @@ class ProjectAdmin(ViewInApiModelAdmin):
         'fundedBy__name',
         'communities__name',
         'elixirPlatforms__name',
+        'uses__name',
     )
-    list_filter = (
-        'elixirPlatforms',
-        'communities',
-        'hostedBy',
-    )
+    list_filter = ('elixirPlatforms', 'communities', 'hostedBy', 'uses')
     autocomplete_fields = (
         'topics',
         'elixirPlatforms',
@@ -247,6 +244,7 @@ class ProjectAdmin(ViewInApiModelAdmin):
         'team',
         'hostedBy',
         'fundedBy',
+        'uses',
     )
 
 
