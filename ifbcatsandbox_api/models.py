@@ -694,6 +694,154 @@ class Team(models.Model):
         return self.name
 
 
+# Project model
+class Project(models.Model):
+    """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
+
+    # name, homepage & description are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    name = models.CharField(max_length=255, help_text="Name of the project.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
+    description = models.TextField(help_text="Description of the project.")
+    topics = models.ManyToManyField(
+        EventTopic,
+        related_name='projects',
+        help_text="URIs of EDAM Topic terms describing the expertise of the project.",
+    )
+    team = models.ForeignKey(
+        Team,
+        related_name='project',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="The team which is delivering the project.",
+    )
+    hostedBy = models.ManyToManyField(
+        Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project.",
+    )
+    fundedBy = models.ManyToManyField(
+        Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project.",
+    )
+    communities = models.ManyToManyField(
+        Community, blank=True, related_name='projects', help_text="Community for which the project is relevant.",
+    )
+    elixirPlatforms = models.ManyToManyField(
+        ElixirPlatform,
+        blank=True,
+        related_name='projects',
+        help_text="ELIXIR Platform to which the project is relevant.",
+    )
+    # uses TO-DO
+
+    def __str__(self):
+        """Return the Project model as a string."""
+        return self.name
+
+
+# DOI model
+class Doi(models.Model):
+    """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
+
+    doi = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="A digital object identifier (DOI) of a publication or training material.",
+    )
+
+    def __str__(self):
+        """Return the Doi model as a string."""
+        return self.doi
+
+
+# Bioinformatics team model
+class BioinformaticsTeam(Team):
+    """Bioinformatics team model: A French team whose activities involve the development, deployment, provision, maintenance or support of bioinformatics resources, services or events."""
+
+    # IfbMembershipType: Controlled vocabulary of types of membership bioinformatics teams have to IFB.
+    class IfbMembershipType(models.TextChoices):
+        """Controlled vocabulary of types of membership bioinformatics  s have to IFB."""
+
+        IFB_PLATFORM = 'IFB platform', _('IFB platform')
+        IFB_ASSOCIATED_TEAM = 'IFB-associated team', _('IFB-associated team')
+        NOT_A_MEMBER = 'Not a member', _('Not a member')
+
+    # CertificationType: Controlled vocabulary of type of certification of bioinformatics teams.
+    class CertificationType(models.TextChoices):
+        """Controlled vocabulary of type of certification of bioinformatics teams."""
+
+        CERTIFICATE1 = 'Certificate 1', _('Certificate 1')
+
+    # orgid, ifbMembership & fundedBy are mandatory.
+    orgid = models.CharField(max_length=255, unique=True, help_text="Organisation ID (GRID or ROR ID) of the team.",)
+    unitId = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Unit ID (unique identifier of research or service unit) that the Bioinformatics Team belongs to.",
+    )
+    address = models.TextField(blank=True, help_text="Postal address of the bioinformatics team.")
+    # TO-DO logo
+    fields = models.ManyToManyField(
+        OrganisationField,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="A broad field that the bioinformatics team serves.",
+    )
+    topics = models.ManyToManyField(
+        EventTopic,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="URIs of EDAM Topic terms describing the bioinformatics team.",
+    )
+    keywords = models.ManyToManyField(
+        EventKeyword,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="A keyword (beyond EDAM ontology scope) describing the bioinformatics team.",
+    )
+    ifbMembership = models.CharField(
+        max_length=255,
+        choices=IfbMembershipType.choices,
+        help_text="Type of membership the bioinformatics team has to IFB.",
+    )
+    affiliatedWith = models.ManyToManyField(
+        Organisation,
+        blank=True,
+        related_name='bioinformaticsTeamsAffiliatedWith',
+        help_text="Organisation(s) to which the bioinformatics team is affiliated.",
+    )
+    platforms = models.ManyToManyField(
+        ElixirPlatform,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="ELIXIR Platform(s) in which the bioinformatics team is involved.",
+    )
+    communities = models.ManyToManyField(
+        Community,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="Communities in which the bioinformatics team is involved.",
+    )
+    projects = models.ManyToManyField(
+        Project,
+        blank=True,
+        related_name='bioinformaticsTeams',
+        help_text="Project(s) that the bioinformatics team is involved with, supports or hosts.",
+    )
+    fundedBy = models.ManyToManyField(
+        Organisation,
+        related_name='bioinformaticsTeamsFundedBy',
+        help_text="Organisation(s) that funds the bioinformatics team.",
+    )
+    publications = models.ManyToManyField(
+        Doi, related_name='bioinformaticsTeams', blank=True, help_text="Publication(s) that describe the team.",
+    )
+    certification = models.CharField(
+        max_length=255,
+        blank=True,
+        choices=CertificationType.choices,
+        help_text="Certification (e.g. ISO) of the bioinformatics team.",
+    )
+
+
 # Computing facility model
 class ComputingFacility(Resource):
     """Computing facility model: Computing hardware that can be accessed by users for bioinformatics projects."""
@@ -708,10 +856,17 @@ class ComputingFacility(Resource):
 
     # homepage & accessibility are mandatory
     homepage = models.URLField(max_length=255, help_text="URL where the computing facility can be accessed.")
-    # TO-DO:  providedBy
+
+    providedBy = models.ForeignKey(
+        BioinformaticsTeam,
+        related_name='computingFacilityProvidedBy',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="The bioinformatics team that provides the computing facility.",
+    )
     team = models.ForeignKey(
         Team,
-        related_name='computingFacility',
+        related_name='computingFacilityTeam',
         null=True,
         on_delete=models.SET_NULL,
         help_text="The team which is maintaining the computing facility.",
@@ -899,151 +1054,3 @@ class EventSponsor(models.Model):
     def __str__(self):
         """Return the EventSponsor model as a string."""
         return self.name
-
-
-# Project model
-class Project(models.Model):
-    """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
-
-    # name, homepage & description are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, help_text="Name of the project.")
-    homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
-    description = models.TextField(help_text="Description of the project.")
-    topics = models.ManyToManyField(
-        EventTopic,
-        related_name='projects',
-        help_text="URIs of EDAM Topic terms describing the expertise of the project.",
-    )
-    team = models.ForeignKey(
-        Team,
-        related_name='project',
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="The team which is delivering the project.",
-    )
-    hostedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project.",
-    )
-    fundedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project.",
-    )
-    communities = models.ManyToManyField(
-        Community, blank=True, related_name='projects', help_text="Community for which the project is relevant.",
-    )
-    elixirPlatforms = models.ManyToManyField(
-        ElixirPlatform,
-        blank=True,
-        related_name='projects',
-        help_text="ELIXIR Platform to which the project is relevant.",
-    )
-    # uses TO-DO
-
-    def __str__(self):
-        """Return the Project model as a string."""
-        return self.name
-
-
-# DOI model
-class Doi(models.Model):
-    """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
-
-    doi = models.CharField(
-        max_length=255,
-        unique=True,
-        help_text="A digital object identifier (DOI) of a publication or training material.",
-    )
-
-    def __str__(self):
-        """Return the Doi model as a string."""
-        return self.doi
-
-
-# Bioinformatics team model
-class BioinformaticsTeam(Team):
-    """Bioinformatics team model: A French team whose activities involve the development, deployment, provision, maintenance or support of bioinformatics resources, services or events."""
-
-    # IfbMembershipType: Controlled vocabulary of types of membership bioinformatics teams have to IFB.
-    class IfbMembershipType(models.TextChoices):
-        """Controlled vocabulary of types of membership bioinformatics  s have to IFB."""
-
-        IFB_PLATFORM = 'IFB platform', _('IFB platform')
-        IFB_ASSOCIATED_TEAM = 'IFB-associated team', _('IFB-associated team')
-        NOT_A_MEMBER = 'Not a member', _('Not a member')
-
-    # CertificationType: Controlled vocabulary of type of certification of bioinformatics teams.
-    class CertificationType(models.TextChoices):
-        """Controlled vocabulary of type of certification of bioinformatics teams."""
-
-        CERTIFICATE1 = 'Certificate 1', _('Certificate 1')
-
-    # orgid, ifbMembership & fundedBy are mandatory.
-    orgid = models.CharField(max_length=255, unique=True, help_text="Organisation ID (GRID or ROR ID) of the team.",)
-    unitId = models.CharField(
-        max_length=255,
-        blank=True,
-        help_text="Unit ID (unique identifier of research or service unit) that the Bioinformatics Team belongs to.",
-    )
-    address = models.TextField(blank=True, help_text="Postal address of the bioinformatics team.")
-    # TO-DO logo
-    fields = models.ManyToManyField(
-        OrganisationField,
-        blank=True,
-        related_name='bioinformaticsTeams',
-        help_text="A broad field that the bioinformatics team serves.",
-    )
-    topics = models.ManyToManyField(
-        EventTopic,
-        blank=True,
-        related_name='bioinformaticsTeams',
-        help_text="URIs of EDAM Topic terms describing the bioinformatics team.",
-    )
-    keywords = models.ManyToManyField(
-        EventKeyword,
-        blank=True,
-        related_name='bioinformaticsTeams',
-        help_text="A keyword (beyond EDAM ontology scope) describing the bioinformatics team.",
-    )
-    ifbMembership = models.CharField(
-        max_length=255,
-        choices=IfbMembershipType.choices,
-        help_text="Type of membership the bioinformatics team has to IFB.",
-    )
-    affiliatedWith = models.ManyToManyField(
-        Organisation,
-        blank=True,
-        related_name='bioinformaticsTeamsAffiliatedWith',
-        help_text="Organisation(s) to which the bioinformatics team is affiliated.",
-    )
-    platforms = models.ManyToManyField(
-        ElixirPlatform,
-        blank=True,
-        related_name='bioinformaticsTeams',
-        help_text="ELIXIR Platform(s) in which the bioinformatics team is involved.",
-    )
-    communities = models.ManyToManyField(
-        Community,
-        blank=True,
-        related_name='bioinformaticsTeams',
-        help_text="Communities in which the bioinformatics team is involved.",
-    )
-    projects = models.ManyToManyField(
-        Project,
-        blank=True,
-        related_name='bioinformaticsTeams',
-        help_text="Project(s) that the bioinformatics team is involved with, supports or hosts.",
-    )
-    fundedBy = models.ManyToManyField(
-        Organisation,
-        related_name='bioinformaticsTeamsFundedBy',
-        help_text="Organisation(s) that funds the bioinformatics team.",
-    )
-    publications = models.ManyToManyField(
-        Doi, related_name='bioinformaticsTeams', blank=True, help_text="Publication(s) that describe the team.",
-    )
-    certification = models.CharField(
-        max_length=255,
-        blank=True,
-        choices=CertificationType.choices,
-        help_text="Certification (e.g. ISO) of the bioinformatics team.",
-    )

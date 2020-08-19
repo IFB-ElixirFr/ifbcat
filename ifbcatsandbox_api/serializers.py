@@ -539,7 +539,7 @@ class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
             'id',
             'user_profile',
             'homepage',
-            # 'providedBy',
+            'providedBy',
             'team',
             'accessibility',
             'requestAccount',
@@ -557,6 +557,7 @@ class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'user_profile': {'read_only': True},
             'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            # 'providedBy': {'lookup_field': 'name'},
             # 'team': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }

@@ -442,11 +442,10 @@ class ComputingFacilityViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (
         'homepage',
-        # 'providedBy',
-        # 'team',
+        'providedBy',
+        'team',
         'accessibility',
         'serverDescription',
     )

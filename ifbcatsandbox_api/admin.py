@@ -292,7 +292,7 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
 class ComputingFacilityAdmin(ViewInApiModelAdmin):
     search_fields = (
         'homepage',
-        # 'providedBy__name',
+        'providedBy__name',
         'team__name',
         'trainingMaterials__name',
         'serverDescription',
@@ -301,7 +301,7 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
     list_filter = ('accessibility',)
 
     autocomplete_fields = (
-        # 'providedBy',
+        'providedBy',
         'team',
         'trainingMaterials',
     )
