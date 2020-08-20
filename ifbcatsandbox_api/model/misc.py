@@ -18,17 +18,14 @@ class EventTopic(models.Model):
         return self.topic
 
 
-# Event keyword model
-# Keywords have a many:one relationship to Event
-class EventKeyword(models.Model):
-    """Event keyword model: A keyword (beyond EDAM ontology scope) describing the event."""
+# Keyword model
+class Keyword(models.Model):
+    """Keyword model: A keyword (beyond EDAM ontology scope)."""
 
-    keyword = models.CharField(
-        max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope) describing the event."
-    )
+    keyword = models.CharField(max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope).")
 
     def __str__(self):
-        """Return the EventKeyword model as a string."""
+        """Return the Keyword model as a string."""
         return self.keyword
 
 

@@ -135,8 +135,8 @@ class TrainingEventAdmin(ViewInApiModelAdmin):
     )
 
 
-@admin.register(models.EventKeyword)
-class EventKeywordAdmin(ViewInApiModelAdmin):
+@admin.register(models.Keyword)
+class KeywordAdmin(ViewInApiModelAdmin):
     search_fields = ['keyword']
 
 

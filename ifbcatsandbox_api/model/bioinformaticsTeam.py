@@ -50,7 +50,7 @@ class BioinformaticsTeam(Team):
         help_text="URIs of EDAM Topic terms describing the bioinformatics team.",
     )
     keywords = models.ManyToManyField(
-        EventKeyword,
+        Keyword,
         blank=True,
         related_name='bioinformaticsTeams',
         help_text="A keyword (beyond EDAM ontology scope) describing the bioinformatics team.",

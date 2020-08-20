@@ -238,12 +238,12 @@ class TrainingEventViewSet(EventViewSet):
     )
 
 
-# Model ViewSet for event keywords
-class EventKeywordViewSet(viewsets.ModelViewSet):
-    """Handles creating, reading and updating event keywords."""
+# Model ViewSet for keywords
+class KeywordViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating keywords."""
 
-    serializer_class = serializers.EventKeywordSerializer
-    queryset = models.EventKeyword.objects.all()
+    serializer_class = serializers.KeywordSerializer
+    queryset = models.Keyword.objects.all()
 
     permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 

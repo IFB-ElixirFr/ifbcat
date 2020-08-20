@@ -99,3 +99,10 @@ class ComputingFacility(Resource):
         help_text="Number of users served by the computing facility in the last year.",
         validators=[MinValueValidator(1),],
     )
+
+    class Meta:
+        verbose_name_plural = "Computing facilities"
+
+    def __str__(self):
+        """Return the ComputingFacility model as a string."""
+        return self.name

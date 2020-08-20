@@ -31,3 +31,4 @@ from .model.bioinformaticsTeam import *
 from .model.computingFacility import *
 from .model.project import *
 from .model.trainingEvent import *
+from .model.misc import *

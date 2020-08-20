@@ -11,8 +11,6 @@ from ifbcatsandbox_api.model.misc import *
 
 
 # Event prerequisite model
-# Prerequisites have a many:one relationship to Event
-# Same code as for EventKeyword
 class EventPrerequisite(models.Model):
     """Event prerequisite model: A skill which the audience should (ideally) possess to get the most out of the event, e.g. "Python"."""
 
@@ -29,7 +27,6 @@ class EventPrerequisite(models.Model):
 
 
 # Event cost model
-# Event cost has a many:many relationship to Event
 class EventCost(models.Model):
     """Event cost model: Monetary cost to attend the event, e.g. 'Free to academics'."""
 
@@ -126,7 +123,7 @@ class Event(models.Model):
         EventTopic, related_name='events', help_text="URIs of EDAM Topic terms describing the scope of the event."
     )
     keywords = models.ManyToManyField(
-        EventKeyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event."
+        Keyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event."
     )
     prerequisites = models.ManyToManyField(
         EventPrerequisite,

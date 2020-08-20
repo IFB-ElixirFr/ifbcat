@@ -58,10 +58,3 @@ class Project(models.Model):
     def __str__(self):
         """Return the Project model as a string."""
         return self.name
-
-    class Meta:
-        verbose_name_plural = "Computing facilities"
-
-    def __str__(self):
-        """Return the ComputingFacility model as a string."""
-        return self.name

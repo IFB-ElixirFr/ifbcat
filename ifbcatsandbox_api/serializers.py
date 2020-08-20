@@ -119,19 +119,13 @@ class NewsItemSerializer(serializers.ModelSerializer):
 
 
 # Model serializer for event keyword
-class EventKeywordSerializer(serializers.ModelSerializer):
-    """Serializes an event keyword (EventKeyword object)."""
+class KeywordSerializer(serializers.ModelSerializer):
+    """Serializes a keyword (Keyword object)."""
 
-    # keyword = serializers.CharField(
-    #     allow_blank=False,
-    #     required=False,
     #     validators=[UniqueValidator(queryset = models.EventKeyword.objects.all())])
-
     class Meta:
-        model = models.EventKeyword
+        model = models.Keyword
         fields = ('id', 'keyword')
-        # extra_kwargs = {'id': {'read_only': True}}
-        # fields = ('keyword')
 
 
 # Model serializer for event prerequisite
@@ -200,9 +194,8 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
     )
-    # keyword = EventKeywordSerializer(many=True, allow_empty=False, required=False)
     keywords = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="keyword", queryset=models.EventKeyword.objects,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
     )
     prerequisites = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="prerequisite", queryset=models.EventPrerequisite.objects,
@@ -291,10 +284,11 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         # .values gives e.g. "Free to academics" - the actual term we want in the database (as specified in the object)
         # .names gives e.g. "FREE_TO_ACADEMICS" (the variable name)
         # .labels gives e.g. "Free to Academics" (derived from the variable name )
-        for cost in costs:
-            if cost.__str__() not in models.EventCost.CostType.values:
-                msg = 'This field can only contain valid cost strings: ' + ','.join(models.EventCost.CostType.values)
-                raise serializers.ValidationError(msg)
+
+        #        for cost in costs:
+        #            if cost.__str__() not in models.EventCost.CostType.values:
+        #                msg = 'This field can only contain valid cost strings: ' + ','.join(models.EventCost.CostType.values)
+        #                raise serializers.ValidationError(msg)
         return costs
 
     def update(self, instance, validated_data):
@@ -607,7 +601,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
         many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
     )
     keywords = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="keyword", queryset=models.EventKeyword.objects,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
     )
     fields = serializers.SlugRelatedField(
         many=True, read_only=False, slug_field="field", queryset=models.OrganisationField.objects.all()

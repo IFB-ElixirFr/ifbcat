@@ -43,7 +43,7 @@ class TrainingMaterial(Resource):
         help_text="URIs of EDAM Topic terms describing the scope of the training material.",
     )
     keywords = models.ManyToManyField(
-        EventKeyword,
+        Keyword,
         blank=True,
         related_name='trainingMaterials',
         help_text="A keyword (beyond EDAM ontology scope) describing the training material.",
