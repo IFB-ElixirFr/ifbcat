@@ -258,9 +258,9 @@ class AudienceTypeAdmin(ViewInApiModelAdmin):
     search_fields = ['audienceType']
 
 
-@admin.register(models.TrainingMaterialLicense)
-class TrainingMaterialLicenseAdmin(ViewInApiModelAdmin):
-    search_fields = ['name']
+# @admin.register(models.TrainingMaterialLicense)
+# class TrainingMaterialLicenseAdmin(ViewInApiModelAdmin):
+#    search_fields = ['name']
 
 
 @admin.register(models.TrainingMaterial)
@@ -274,7 +274,7 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
         'audienceRoles__audienceRole',
         'difficultyLevel',
         # 'providedBy__name',
-        'license__name',
+        'license',
     )
 
     autocomplete_fields = (
@@ -284,7 +284,6 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
         'keywords',
         'audienceTypes',
         'audienceRoles',
-        'license',
     )
 
 
@@ -361,7 +360,8 @@ class ServiceAdmin(ViewInApiModelAdmin):
         'name',
         'description',
         'bioinformaticsTeams__name',
-        'computingFacilities__name' 'trainingEvents__name',
+        'computingFacilities__name',
+        'trainingEvents__name',
         'publications__doi',
     )
 

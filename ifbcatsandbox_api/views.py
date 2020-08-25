@@ -430,12 +430,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
     )
 
 
-# Model ViewSet for computing facilities
-class ComputingFacilityViewSet(viewsets.ModelViewSet):
-    """Handles creating, reading and updating computing facilities."""
-
-    serializer_class = serializers.ComputingFacilitySerializer
-    queryset = models.ComputingFacility.objects.all()
+# Model ViewSet for resources
+class ResourceViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating resources."""
 
     permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
@@ -445,6 +442,57 @@ class ComputingFacilityViewSet(viewsets.ModelViewSet):
 
     filter_backends = (filters.SearchFilter,)
     search_fields = (
+        'name',
+        'description',
+        'communities__name',
+        'elixirPlatforms__name',
+    )
+
+
+# Model ViewSet for computing facilities
+class ComputingFacilityViewSet(ResourceViewSet):
+    """Handles creating, reading and updating computing facilities."""
+
+    serializer_class = serializers.ComputingFacilitySerializer
+    queryset = models.ComputingFacility.objects.all()
+
+    search_fields = ResourceViewSet.search_fields + (
+        'homepage',
+        'providedBy__name',
+        'team',
+        'accessibility',
+        'serverDescription',
+    )
+
+
+# Model ViewSet for training materials
+class TrainingMaterialViewSet(ResourceViewSet):
+    """Handles creating, reading and updating training materials."""
+
+    serializer_class = serializers.TrainingMaterialSerializer
+    queryset = models.TrainingMaterial.objects.all()
+
+    search_fields = ResourceViewSet.search_fields + (
+        'doi',
+        'fileName',
+        'topics__topic',
+        'keywords__keyword',
+        'audienceTypes__audienceType',
+        'audienceRoles__audienceRole',
+        'difficultyLevel',
+        'providedBy__name',
+        'license',
+    )
+
+
+# Model ViewSet for computing facilities
+class ComputingFacilityViewSet(ResourceViewSet):
+    """Handles creating, reading and updating computing facilities."""
+
+    serializer_class = serializers.ComputingFacilitySerializer
+    queryset = models.ComputingFacility.objects.all()
+
+    search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy',
         'team',
@@ -488,6 +536,8 @@ class BioinformaticsTeamViewSet(TeamViewSet):
     serializer_class = serializers.BioinformaticsTeamSerializer
     queryset = models.BioinformaticsTeam.objects.all()
 
+    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = TeamViewSet.search_fields + (
         'orgid',
@@ -513,7 +563,9 @@ class ServiceViewSet(viewsets.ModelViewSet):
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (
         'name',
-        'description' 'bioinformaticsTeams__name',
-        'computingFacilities__name' 'trainingEvents__name',
+        'description',
+        'bioinformaticsTeams__name',
+        'computingFacilities__name',
+        'trainingEvents__name',
         'publications__doi',
     )

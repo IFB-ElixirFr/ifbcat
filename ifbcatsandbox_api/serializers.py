@@ -526,16 +526,37 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         return topics
 
 
+# Model serializer for resources
+class ResourceSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a resource (Resource object)."""
+
+    class Meta:
+        model = models.Resource
+
+        fields = (
+            'id',
+            'name',
+            'description',
+            'communities',
+            'elixirPlatforms',
+        )
+
+        extra_kwargs = {
+            'user_profile': {'read_only': True},
+            'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'communities': {'lookup_field': 'name'},
+            'elixirPlatforms': {'lookup_field': 'name'},
+        }
+
+
 # Model serializer for computing facilities
-class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
+class ComputingFacilitySerializer(ResourceSerializer):
     """Serializes a computing facility (ComputingFacility object)."""
 
     class Meta:
         model = models.ComputingFacility
 
-        fields = (
-            'id',
-            'user_profile',
+        fields = ResourceSerializer.Meta.fields + (
             'homepage',
             'providedBy',
             'team',
@@ -553,11 +574,56 @@ class ComputingFacilitySerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
-            'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            # 'providedBy': {'lookup_field': 'name'},
-            # 'team': {'lookup_field': 'name'},
-            'trainingMaterials': {'lookup_field': 'name'},
+            **ResourceSerializer.Meta.extra_kwargs,
+            **{
+                'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+                # 'providedBy': {'lookup_field': 'name'},
+                # 'team': {'lookup_field': 'name'},
+                'trainingMaterials': {'lookup_field': 'name'},
+            },
+        }
+
+
+# Model serializer for training materials
+class TrainingMaterialSerializer(ResourceSerializer):
+    """Serializes a training material (TrainingMaterial object)."""
+
+    topics = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
+    )
+    keywords = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
+    )
+    audienceTypes = serializers.SlugRelatedField(
+        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects,
+    )
+    audienceRoles = serializers.SlugRelatedField(
+        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects,
+    )
+
+    class Meta:
+        model = models.TrainingMaterial
+
+        fields = ResourceSerializer.Meta.fields + (
+            'doi',
+            'fileLocation',
+            'fileName',
+            'topics',
+            'keywords',
+            'audienceTypes',
+            'audienceRoles',
+            'difficultyLevel',
+            # 'providedBy',
+            'dateCreation',
+            'dateUpdate',
+            'license',
+        )
+
+        extra_kwargs = {
+            **ResourceSerializer.Meta.extra_kwargs,
+            **{
+                # 'providedBy': {'lookup_field': 'name'},
+            },
         }
 
 
@@ -703,8 +769,8 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'bioinformaticsTeams': {'lookup_field': 'name'},
-            'computingFacilities': {'lookup_field': 'name'},
-            'trainingEvents': {'lookup_field': 'name'},
-            'trainingMaterials': {'lookup_field': 'name'},
+            # 'bioinformaticsTeams': {'lookup_field': 'name'},
+            # 'computingFacilities': {'lookup_field': 'name'},
+            # 'trainingEvents': {'lookup_field': 'name'},
+            # 'trainingMaterials': {'lookup_field': 'name'},
         }
