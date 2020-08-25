@@ -613,7 +613,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
             'audienceTypes',
             'audienceRoles',
             'difficultyLevel',
-            # 'providedBy',
+            'providedBy',
             'dateCreation',
             'dateUpdate',
             'license',
@@ -621,9 +621,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
 
         extra_kwargs = {
             **ResourceSerializer.Meta.extra_kwargs,
-            **{
-                # 'providedBy': {'lookup_field': 'name'},
-            },
+            # **{'providedBy': {'lookup_field': 'name'},},
         }
 
 

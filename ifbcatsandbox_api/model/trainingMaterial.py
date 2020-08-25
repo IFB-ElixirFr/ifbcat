@@ -4,21 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ifbcatsandbox_api.model.resource import *
 from ifbcatsandbox_api.model.misc import *
-
-
-# Training material license model
-# class TrainingMaterialLicense(models.Model):
-#    """Training material license model: License under which the training material is made available."""
-#
-#    name = models.CharField(
-#        max_length=255,
-#        choices=TrainingMaterialLicenseType.choices,#
-#        unique=True,
-#        help_text="L#icense under which the training material is made available.",
-#    )
-#
-#    def __str__(self):
-#        return self.name
+from ifbcatsandbox_api.model.bioinformaticsTeam import *
 
 
 # Training material model
@@ -75,7 +61,12 @@ class TrainingMaterial(Resource):
         blank=True,
         help_text="The required experience and skills of the expected audience of the training material.",
     )
-    # providedBy = models.ManyToManyField(BioinformaticsTeam, blank=True, related_name='trainingMaterials', help_text="The bioinformatics team that provides the training material.")
+    providedBy = models.ManyToManyField(
+        BioinformaticsTeam,
+        blank=True,
+        related_name='trainingMaterials',
+        help_text="The bioinformatics team that provides the training material.",
+    )
     dateCreation = models.DateField(help_text="Date when the training material was created.")
     dateUpdate = models.DateField(help_text="Date when the training material was updated.")
     license = models.CharField(

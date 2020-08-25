@@ -5,8 +5,8 @@ from django.core.validators import MinValueValidator
 
 from ifbcatsandbox_api.model.resource import *
 from ifbcatsandbox_api.model.team import *
-from ifbcatsandbox_api.model.trainingMaterial import *
 from ifbcatsandbox_api.model.bioinformaticsTeam import *
+from ifbcatsandbox_api.model.trainingMaterial import *
 
 
 # Computing facility model
@@ -57,7 +57,7 @@ class ComputingFacility(Resource):
         max_length=255, help_text="URL where terms of use of the computing facility can be found."
     )
     trainingMaterials = models.ManyToManyField(
-        TrainingMaterial,
+        'TrainingMaterial',
         blank=True,
         related_name='computingFacilities',
         help_text="Training material for the computing facility.",

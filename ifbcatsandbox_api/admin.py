@@ -258,11 +258,6 @@ class AudienceTypeAdmin(ViewInApiModelAdmin):
     search_fields = ['audienceType']
 
 
-# @admin.register(models.TrainingMaterialLicense)
-# class TrainingMaterialLicenseAdmin(ViewInApiModelAdmin):
-#    search_fields = ['name']
-
-
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(ViewInApiModelAdmin):
     search_fields = (
@@ -273,7 +268,7 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
         'difficultyLevel',
-        # 'providedBy__name',
+        'providedBy__name',
         'license',
     )
 
