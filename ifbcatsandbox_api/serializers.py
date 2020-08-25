@@ -675,3 +675,36 @@ class BioinformaticsTeamSerializer(TeamSerializer):
                         'Syntax: ^https?://edamontology.org/topic_[0-9]{4}$'
                     )
             return topics
+
+
+# Model serializer for service
+class ServiceSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a service (Service object)."""
+
+    publications = serializers.SlugRelatedField(
+        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects,
+    )
+
+    class Meta(TeamSerializer.Meta):
+        model = models.Service
+
+        fields = (
+            'name',
+            'description',
+            'dateEstablished',
+            'bioinformaticsTeams',
+            'computingFacilities',
+            'trainingEvents',
+            'trainingMaterials',
+            'publications',
+            'governanceSab',
+        )
+
+        extra_kwargs = {
+            'user_profile': {'read_only': True},
+            'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'bioinformaticsTeams': {'lookup_field': 'name'},
+            'computingFacilities': {'lookup_field': 'name'},
+            'trainingEvents': {'lookup_field': 'name'},
+            'trainingMaterials': {'lookup_field': 'name'},
+        }

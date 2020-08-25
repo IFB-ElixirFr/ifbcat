@@ -501,3 +501,19 @@ class BioinformaticsTeamViewSet(TeamViewSet):
         'communities',
         'projects',
     )
+
+
+# Model ViewSet for services
+class ServiceViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating services."""
+
+    serializer_class = serializers.ServiceSerializer
+    queryset = models.Service.objects.all()
+
+    # TODO: : add to "search_fields" below:   'team', 'providedBy'
+    search_fields = (
+        'name',
+        'description' 'bioinformaticsTeams__name',
+        'computingFacilities__name' 'trainingEvents__name',
+        'publications__doi',
+    )

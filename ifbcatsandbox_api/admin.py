@@ -355,6 +355,24 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
     )
 
 
+@admin.register(models.Service)
+class ServiceAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'description',
+        'bioinformaticsTeams__name',
+        'computingFacilities__name' 'trainingEvents__name',
+        'publications__doi',
+    )
+
+    autocomplete_fields = (
+        'bioinformaticsTeams',
+        'computingFacilities',
+        'trainingEvents',
+        'trainingMaterials',
+    )
+
+
 # register all models that are not registered yet
 from django.apps import apps
 

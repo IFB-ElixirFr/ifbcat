@@ -1,6 +1,10 @@
 from django.db import models
 
 from ifbcatsandbox_api.model.userProfile import *
+from ifbcatsandbox_api.model.bioinformaticsTeam import *
+from ifbcatsandbox_api.model.trainingEvent import *
+from ifbcatsandbox_api.model.trainingMaterial import *
+from ifbcatsandbox_api.model.misc import *
 
 # Resource model
 class Service(models.Model):
@@ -18,16 +22,16 @@ class Service(models.Model):
     computingFacilities = models.ManyToManyField(
         BioinformaticsTeam,
         blank=True,
-        related_name='services',
+        related_name='servicesComputingFacilities',
         help_text="Computing facilities provided by the service.",
     )
     trainingEvents = models.ManyToManyField(
         TrainingEvent, blank=True, related_name='services', help_text="Training event(s) provided by the service.",
     )
-    TrainingMaterials = models.ManyToManyField(
+    trainingMaterials = models.ManyToManyField(
         TrainingMaterial,
         blank=True,
-        related_name='services',
+        related_name='servicesTrainingMaterials',
         help_text="Training material(s) provided by the service.",
     )
     publications = models.ManyToManyField(
