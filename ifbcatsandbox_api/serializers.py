@@ -535,6 +535,7 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
+            'user_profile',
             'name',
             'description',
             'communities',
@@ -749,10 +750,11 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
         many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects,
     )
 
-    class Meta(TeamSerializer.Meta):
+    class Meta:
         model = models.Service
 
         fields = (
+            'user_profile',
             'name',
             'description',
             'dateEstablished',
@@ -771,4 +773,37 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             # 'computingFacilities': {'lookup_field': 'name'},
             # 'trainingEvents': {'lookup_field': 'name'},
             # 'trainingMaterials': {'lookup_field': 'name'},
+        }
+
+
+# Model serializer for service submission
+class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a service submission (ServiceSubmission object)."""
+
+    class Meta:
+        model = models.ServiceSubmission
+
+        fields = (
+            'user_profile',
+            'service',
+            'authors',
+            'submitters',
+            'year',
+            'motivation',
+            'scope',
+            'caseForSupport',
+            'qaqc',
+            'usage',
+            'sustainability',
+        )
+
+        extra_kwargs = {
+            'user_profile': {'read_only': True},
+            'service': {'lookup_field': 'name'},
+            'motivation': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'scope': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'caseForSupport': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'qaqc': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'usage': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'sustainability': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
         }

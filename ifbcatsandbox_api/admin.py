@@ -368,6 +368,24 @@ class ServiceAdmin(ViewInApiModelAdmin):
     )
 
 
+@admin.register(models.ServiceSubmission)
+class ServiceSubmissionAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'service__name',
+        'authors',
+        'submitters',
+        'year',
+        'motivation',
+        'scope',
+        'caseForSupport',
+        'qaqc',
+        'usage',
+        'sustainability',
+    )
+
+    autocomplete_fields = ('service',)
+
+
 # register all models that are not registered yet
 from django.apps import apps
 

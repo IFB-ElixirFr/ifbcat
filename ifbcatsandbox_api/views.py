@@ -569,3 +569,24 @@ class ServiceViewSet(viewsets.ModelViewSet):
         'trainingEvents__name',
         'publications__doi',
     )
+
+
+# Model ViewSet for service submissions
+class ServiceSubmissionViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating service submissions."""
+
+    serializer_class = serializers.ServiceSubmissionSerializer
+    queryset = models.ServiceSubmission.objects.all()
+
+    search_fields = (
+        'service__name',
+        'authors',
+        'submitters',
+        'year',
+        'motivation',
+        'scope',
+        'caseForSupport',
+        'qaqc',
+        'usage',
+        'sustainability',
+    )

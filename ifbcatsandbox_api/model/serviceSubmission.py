@@ -1,6 +1,7 @@
 from django.db import models
 
 from ifbcatsandbox_api.model.service import *
+from ifbcatsandbox_api.model.userProfile import *
 
 # Service submission model
 class ServiceSubmission(models.Model):
@@ -11,19 +12,18 @@ class ServiceSubmission(models.Model):
     service = models.ForeignKey(
         Service,
         related_name='ServiceSubmission',
+        null=True,
         on_delete=models.SET_NULL,
         help_text="The service associated with this submission to the ELIXIR FR SDP process.",
     )
     authors = models.ManyToManyField(
         UserProfile,
         related_name='ServiceSubmissionAuthor',
-        on_delete=models.SET_NULL,
         help_text="The person(s) who submitted the service proposal to the ELIXIR FR SDP process.",
     )
     submitters = models.ManyToManyField(
         UserProfile,
         related_name='ServiceSubmissionSubmitter',
-        on_delete=models.SET_NULL,
         help_text="The person(s) who submitted the service proposal to the ELIXIR FR SDP process.",
     )
     year = models.PositiveSmallIntegerField(

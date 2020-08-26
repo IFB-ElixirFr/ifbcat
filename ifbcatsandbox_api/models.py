@@ -32,4 +32,5 @@ from .model.computingFacility import *
 from .model.project import *
 from .model.trainingEvent import *
 from .model.service import *
+from .model.serviceSubmission import *
 from .model.misc import *
