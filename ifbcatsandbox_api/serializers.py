@@ -799,7 +799,7 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
 
         extra_kwargs = {
             'user_profile': {'read_only': True},
-            'service': {'lookup_field': 'name'},
+            # 'service': {'lookup_field': 'name'},
             'motivation': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'scope': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'caseForSupport': {'style': {'rows': 4, 'base_template': 'textarea.html'}},

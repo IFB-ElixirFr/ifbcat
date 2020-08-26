@@ -1,5 +1,6 @@
 # Imports
 from django.db import models
+from django.core import validators
 
 from ifbcatsandbox_api.model.userProfile import *
 from ifbcatsandbox_api.model.elixirPlatform import *
@@ -11,7 +12,13 @@ class Resource(models.Model):
 
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
-    name = models.CharField(max_length=255, help_text="Name of the resource.")
+    name = models.CharField(
+        max_length=255,
+        help_text="Name of the resource.",
+        validators=[
+            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
+        ],
+    )
     description = models.TextField(help_text="A short description of the resource.")
     communities = models.ManyToManyField(
         Community, blank=True, related_name='resources', help_text="Community which uses the resource."

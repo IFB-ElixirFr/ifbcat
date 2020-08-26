@@ -97,7 +97,13 @@ class Event(models.Model):
         PRIVATE = 'Private', _('Private')
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
-    name = models.CharField(max_length=255, help_text="Full name / title of the event.")
+    name = models.CharField(
+        max_length=255,
+        help_text="Full name / title of the event.",
+        validators=[
+            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
+        ],
+    )
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
     homepage = models.URLField(max_length=255, null=True, blank=True, help_text="URL of event homepage.")

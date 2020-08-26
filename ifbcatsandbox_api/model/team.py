@@ -2,6 +2,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from django.core import validators
 
 from ifbcatsandbox_api.model.userProfile import *
 from ifbcatsandbox_api.model.misc import *
@@ -13,7 +14,14 @@ class Team(models.Model):
 
     # name, description, homepage, members & maintainers are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, unique=True, help_text="Name of the team.")
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Name of the team.",
+        validators=[
+            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
+        ],
+    )
     description = models.TextField(help_text="Description of the team.")
     homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the team.")
     expertise = models.ManyToManyField(

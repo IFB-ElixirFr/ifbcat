@@ -1,6 +1,7 @@
 # Imports
 from django.db import models
 from django.conf import settings
+from django.core import validators
 from django.utils.translation import gettext_lazy as _
 
 from ifbcatsandbox_api.model.team import *
@@ -18,7 +19,13 @@ class Project(models.Model):
 
     # name, homepage & description are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, help_text="Name of the project.")
+    name = models.CharField(
+        max_length=255,
+        help_text="Name of the project.",
+        validators=[
+            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
+        ],
+    )
     homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
     description = models.TextField(help_text="Description of the project.")
     topics = models.ManyToManyField(
