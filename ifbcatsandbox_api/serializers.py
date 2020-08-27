@@ -252,7 +252,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
             'hostedBy': {'lookup_field': 'name'},
-            # 'sponsoredBy': {'lookup_field': 'name'},
+            'sponsoredBy': {'lookup_field': 'name'},
         }
 
     # Validation logic
@@ -352,7 +352,8 @@ class TrainingEventSerializer(EventSerializer):
             **EventSerializer.Meta.extra_kwargs,
             **{
                 'learningOutcomes': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-                # 'computingFacilities': {'lookup_field': 'name'},
+                'computingFacilities': {'lookup_field': 'name'},
+                'trainingMaterials': {'lookup_field': 'name'},
             },
         }
 
@@ -500,7 +501,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
-            # 'team': {'lookup_field': 'name'},
+            'team': {'lookup_field': 'name'},
             'hostedBy': {'lookup_field': 'name'},
             'fundedBy': {'lookup_field': 'name'},
             'uses': {'lookup_field': 'name'},
@@ -576,7 +577,7 @@ class ComputingFacilitySerializer(ResourceSerializer):
             **ResourceSerializer.Meta.extra_kwargs,
             **{
                 'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-                # 'providedBy': {'lookup_field': 'name'},
+                'providedBy': {'lookup_field': 'name'},
                 'team': {'lookup_field': 'name'},
                 'trainingMaterials': {'lookup_field': 'name'},
             },
@@ -618,7 +619,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
 
         extra_kwargs = {
             **ResourceSerializer.Meta.extra_kwargs,
-            # **{'providedBy': {'lookup_field': 'name'},},
+            **{'providedBy': {'lookup_field': 'name'},},
         }
 
 
@@ -696,7 +697,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
                 'affiliatedWith': {'lookup_field': 'name'},
                 'platforms': {'lookup_field': 'name'},
                 'communities': {'lookup_field': 'name'},
-                # 'projects': {'lookup_field': 'name'},
+                'projects': {'lookup_field': 'name'},
                 'fundedBy': {'lookup_field': 'name'},
             },
         }
@@ -763,10 +764,10 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            # 'bioinformaticsTeams': {'lookup_field': 'name'},
-            # 'computingFacilities': {'lookup_field': 'name'},
-            # 'trainingEvents': {'lookup_field': 'name'},
-            # 'trainingMaterials': {'lookup_field': 'name'},
+            'bioinformaticsTeams': {'lookup_field': 'name'},
+            'computingFacilities': {'lookup_field': 'name'},
+            'trainingEvents': {'lookup_field': 'name'},
+            'trainingMaterials': {'lookup_field': 'name'},
         }
 
 
@@ -793,7 +794,7 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
 
         extra_kwargs = {
             'user_profile': {'read_only': True},
-            # 'service': {'lookup_field': 'name'},
+            'service': {'lookup_field': 'name'},
             'motivation': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'scope': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'caseForSupport': {'style': {'rows': 4, 'base_template': 'textarea.html'}},

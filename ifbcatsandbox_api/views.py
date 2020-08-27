@@ -192,6 +192,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
+    lookup_field = 'name'
 
     permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
@@ -228,7 +229,6 @@ class TrainingEventViewSet(EventViewSet):
 
     serializer_class = serializers.TrainingEventSerializer
     queryset = models.TrainingEvent.objects.all()
-    #    lookup_field = 'name'
 
     search_fields = EventViewSet.search_fields + (
         'audienceTypes__audienceType',
@@ -318,6 +318,7 @@ class EventSponsorViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.EventSponsorSerializer
     queryset = models.EventSponsor.objects.all()
+    lookup_field = 'name'
 
     permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
@@ -412,6 +413,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.ProjectSerializer
     queryset = models.Project.objects.all()
+    lookup_field = 'name'
 
     permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
@@ -435,6 +437,7 @@ class ResourceViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating resources."""
 
     permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    lookup_field = 'name'
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -507,6 +510,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.TeamSerializer
     queryset = models.Team.objects.all()
+    lookup_field = 'name'
 
     permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
@@ -559,6 +563,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.ServiceSerializer
     queryset = models.Service.objects.all()
+    lookup_field = 'name'
 
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (

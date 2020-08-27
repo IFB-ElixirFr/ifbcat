@@ -22,6 +22,7 @@ class Project(models.Model):
     name = models.CharField(
         max_length=255,
         help_text="Name of the project.",
+        unique=True,
         validators=[
             validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
         ],
