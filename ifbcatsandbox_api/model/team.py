@@ -25,7 +25,7 @@ class Team(models.Model):
     description = models.TextField(help_text="Description of the team.")
     homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the team.")
     expertise = models.ManyToManyField(
-        EventTopic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the team.",
+        Topic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the team.",
     )
     leader = models.ForeignKey(
         UserProfile, related_name='teamLeader', null=True, on_delete=models.SET_NULL, help_text="Leader of the team.",

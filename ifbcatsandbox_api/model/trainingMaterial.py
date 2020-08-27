@@ -32,7 +32,7 @@ class TrainingMaterial(Resource):
         max_length=255, help_text="The name of a downloadable file containing the training material."
     )
     topics = models.ManyToManyField(
-        EventTopic,
+        Topic,
         blank=True,
         related_name='trainingMaterials',
         help_text="URIs of EDAM Topic terms describing the scope of the training material.",

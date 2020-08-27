@@ -191,9 +191,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         many=True, read_only=False, slug_field="cost", queryset=models.EventCost.objects,
     )
 
-    topics = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
-    )
+    topics = CreatableSlugRelatedField(many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,)
     keywords = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
     )
@@ -475,7 +473,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     # uses TO-DO
 
     topics = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects.all()
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects.all()
     )
 
     # To-add to "fields" below:  'team', 'logo'
@@ -589,9 +587,7 @@ class ComputingFacilitySerializer(ResourceSerializer):
 class TrainingMaterialSerializer(ResourceSerializer):
     """Serializes a training material (TrainingMaterial object)."""
 
-    topics = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
-    )
+    topics = CreatableSlugRelatedField(many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,)
     keywords = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
     )
@@ -631,7 +627,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
     expertise = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,
     )
 
     class Meta:
@@ -662,9 +658,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     publications = serializers.SlugRelatedField(
         many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects,
     )
-    topics = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="topic", queryset=models.EventTopic.objects,
-    )
+    topics = CreatableSlugRelatedField(many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,)
     keywords = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
     )

@@ -126,7 +126,7 @@ class Event(models.Model):
         EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
     )
     topics = models.ManyToManyField(
-        EventTopic, related_name='events', help_text="URIs of EDAM Topic terms describing the scope of the event."
+        Topic, related_name='events', help_text="URIs of EDAM Topic terms describing the scope of the event."
     )
     keywords = models.ManyToManyField(
         Keyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event."

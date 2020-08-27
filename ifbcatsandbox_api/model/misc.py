@@ -3,18 +3,17 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-# Event topic model
-# Event topic has a many:many relationship to Event
-class EventTopic(models.Model):
-    """Event topic model: URI of EDAM Topic term describing the scope of the event."""
+# Topic model
+class Topic(models.Model):
+    """Event topic model: URI of EDAM Topic term describing scope or expertise."""
 
     # topic is mandatory
     topic = models.CharField(
-        max_length=255, unique=True, help_text="URI of EDAM Topic term describing the scope of the event."
+        max_length=255, unique=True, help_text="URI of EDAM Topic term describing scope or expertise."
     )
 
     def __str__(self):
-        """Return the EventTopic model as a string."""
+        """Return the Topic model as a string."""
         return self.topic
 
 

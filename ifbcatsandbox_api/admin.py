@@ -145,8 +145,8 @@ class EventPrerequisiteAdmin(ViewInApiModelAdmin):
     search_fields = ['prerequisite']
 
 
-@admin.register(models.EventTopic)
-class EventTopicAdmin(ViewInApiModelAdmin):
+@admin.register(models.Topic)
+class TopicAdmin(ViewInApiModelAdmin):
     search_fields = ['topic']
 
 

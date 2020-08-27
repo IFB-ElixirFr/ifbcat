@@ -44,7 +44,7 @@ class BioinformaticsTeam(Team):
         help_text="A broad field that the bioinformatics team serves.",
     )
     topics = models.ManyToManyField(
-        EventTopic,
+        Topic,
         blank=True,
         related_name='bioinformaticsTeams',
         help_text="URIs of EDAM Topic terms describing the bioinformatics team.",
