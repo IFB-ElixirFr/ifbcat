@@ -30,10 +30,7 @@ class Organisation(models.Model):
         help_text="Organisation ID (GRID or ROR ID) of the organisation.",
     )
     fields = models.ManyToManyField(
-        OrganisationField,
-        blank=True,
-        related_name='organisations',
-        help_text="A broad field that the organisation serves.",
+        Field, blank=True, related_name='organisations', help_text="A broad field that the organisation serves.",
     )
     city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
     # logo ... TO_DO

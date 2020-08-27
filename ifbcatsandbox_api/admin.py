@@ -217,8 +217,8 @@ class OrganisationAdmin(ViewInApiModelAdmin):
     autocomplete_fields = ('fields',)
 
 
-@admin.register(models.OrganisationField)
-class OrganisationFieldAdmin(ViewInApiModelAdmin):
+@admin.register(models.Field)
+class FieldAdmin(ViewInApiModelAdmin):
     search_fields = ('field',)
 
 

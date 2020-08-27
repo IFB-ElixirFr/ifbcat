@@ -414,7 +414,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
     fields = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="field", queryset=models.OrganisationField.objects.all()
+        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all()
     )
 
     class Meta:
@@ -579,7 +579,7 @@ class ComputingFacilitySerializer(ResourceSerializer):
             **{
                 'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
                 # 'providedBy': {'lookup_field': 'name'},
-                # 'team': {'lookup_field': 'name'},
+                'team': {'lookup_field': 'name'},
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
@@ -669,7 +669,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
         many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
     )
     fields = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="field", queryset=models.OrganisationField.objects.all()
+        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all()
     )
 
     class Meta(TeamSerializer.Meta):

@@ -74,21 +74,20 @@ class DifficultyLevelType(models.TextChoices):
     ADVANCED = 'Advanced', _('Advanced')
 
 
-# Organisation field model
-# OrganisationField has a many:many relationship to Organisation
-class OrganisationField(models.Model):
-    """Organisation field model: A broad field that an organisation serves."""
+# Field model
+class Field(models.Model):
+    """Field model: A broad field that an organisation or bioinformatics team serves."""
 
     # field is mandatory
     field = models.CharField(
         max_length=255,
         # choices=OrganisationFieldName.choices, # OrganisationFieldName moved to migration 0058
         unique=True,
-        help_text="A broad field that the organisation serves.",
+        help_text="A broad field that the organisation or bioinformatics serves.",
     )
 
     def __str__(self):
-        """Return the OrganisationField model as a string."""
+        """Return the Field model as a string."""
         return self.field
 
 

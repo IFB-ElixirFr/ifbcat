@@ -38,7 +38,7 @@ class BioinformaticsTeam(Team):
     address = models.TextField(blank=True, help_text="Postal address of the bioinformatics team.")
     # TO-DO logo
     fields = models.ManyToManyField(
-        OrganisationField,
+        Field,
         blank=True,
         related_name='bioinformaticsTeams',
         help_text="A broad field that the bioinformatics team serves.",
