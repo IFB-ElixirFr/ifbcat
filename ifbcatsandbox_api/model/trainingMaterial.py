@@ -18,10 +18,11 @@ class TrainingMaterial(Resource):
 
     # fileLocation, fileName is mandatory
     # TO-DO:  providedBy
+    # DOI is not mandatory, but if specified must be unique, so we cannot have blank=True.
+    # Two NULL values do not equate to being the same, whereas two blank values would!
     doi = models.CharField(
         max_length=255,
         null=True,
-        blank=True,
         unique=True,
         help_text="Unique identier (DOI) of the training material, e.g. a Zenodo DOI.",
     )
