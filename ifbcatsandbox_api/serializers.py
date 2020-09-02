@@ -127,6 +127,11 @@ class KeywordSerializer(serializers.ModelSerializer):
         model = models.Keyword
         fields = ('id', 'keyword')
 
+    def validate(self, attrs):
+        self.Meta.model(**attrs).clean_fields()
+        self.Meta.model(**attrs).clean()
+        return attrs
+
 
 # Model serializer for event prerequisite
 class EventPrerequisiteSerializer(serializers.ModelSerializer):

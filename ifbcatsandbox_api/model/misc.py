@@ -1,5 +1,7 @@
 # Imports
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 
@@ -26,6 +28,16 @@ class Keyword(models.Model):
     def __str__(self):
         """Return the Keyword model as a string."""
         return self.keyword
+
+    def clean_fields(self, exclude=None):
+        super().clean_fields()
+        if exclude is not None and "keyword" in exclude:
+            return
+        if Keyword.objects.filter(keyword__iexact=self.keyword).filter(~Q(pk=self.pk)).exists():
+            raise ValidationError(
+                "Keyword \"%s\" already exists as \"%s\""
+                % (self.keyword, Keyword.objects.filter(keyword__iexact=self.keyword).get().keyword)
+            )
 
 
 # Audience type model
