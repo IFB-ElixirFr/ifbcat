@@ -192,7 +192,6 @@ class EventViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
-    lookup_field = 'name'
 
     permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
