@@ -19,4 +19,4 @@ jobs:
         pip install Black
     - name: run black
       run: |
-        black . --check
+        black . --check --config ./pyproject.toml
