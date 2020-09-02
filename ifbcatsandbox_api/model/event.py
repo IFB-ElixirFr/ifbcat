@@ -123,17 +123,27 @@ class Event(models.Model):
     country = models.CharField(max_length=255, blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     costs = models.ManyToManyField(
-        EventCost, related_name='events', help_text="Monetary cost to attend the event, e.g. 'Free to academics'."
+        EventCost,
+        related_name='events',
+        blank=True,
+        help_text="Monetary cost to attend the event, e.g. 'Free to academics'.",
     )
     topics = models.ManyToManyField(
-        Topic, related_name='events', help_text="URIs of EDAM Topic terms describing the scope of the event."
+        Topic,
+        related_name='events',
+        blank=True,
+        help_text="URIs of EDAM Topic terms describing the scope of the event.",
     )
     keywords = models.ManyToManyField(
-        Keyword, related_name='events', help_text="A keyword (beyond EDAM ontology scope) describing the event."
+        Keyword,
+        related_name='events',
+        blank=True,
+        help_text="A keyword (beyond EDAM ontology scope) describing the event.",
     )
     prerequisites = models.ManyToManyField(
         EventPrerequisite,
         related_name='events',
+        blank=True,
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
     )
     accessibility = models.CharField(

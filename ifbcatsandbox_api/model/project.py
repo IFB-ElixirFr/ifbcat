@@ -28,7 +28,10 @@ class Project(models.Model):
     homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
     description = models.TextField(help_text="Description of the project.")
     topics = models.ManyToManyField(
-        Topic, related_name='projects', help_text="URIs of EDAM Topic terms describing the expertise of the project.",
+        Topic,
+        related_name='projects',
+        blank=True,
+        help_text="URIs of EDAM Topic terms describing the expertise of the project.",
     )
     team = models.ForeignKey(
         Team,

@@ -119,7 +119,6 @@ class TrainingEventMetrics(models.Model):
     trainingEvent = models.ForeignKey(
         TrainingEvent,
         related_name='metrics',
-        null=True,
         on_delete=models.CASCADE,
         help_text="Training event to which the metrics are associated.",
     )
