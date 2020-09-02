@@ -1,6 +1,6 @@
 # Imports
 from django.db import models
-from django.core import validators
+from django.core.validators import MinValueValidator
 
 from ifbcatsandbox_api.model.misc import *
 from ifbcatsandbox_api.model.event import *

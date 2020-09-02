@@ -1,5 +1,5 @@
 from django.db import models
-from django.core import validators
+from django.core.validators import RegexValidator
 
 from ifbcatsandbox_api.model.userProfile import *
 from ifbcatsandbox_api.model.bioinformaticsTeam import *
@@ -17,9 +17,7 @@ class Service(models.Model):
     name = models.CharField(
         max_length=255,
         help_text="Name of the service.",
-        validators=[
-            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
-        ],
+        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
     )
     description = models.TextField(help_text="Short description of the service.")
     dateEstablished = models.DateField(help_text="Date when the service was first established and started operating.")

@@ -2,7 +2,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 
 from ifbcatsandbox_api.model.organisation import *
 from ifbcatsandbox_api.model.elixirPlatform import *
@@ -100,9 +100,7 @@ class Event(models.Model):
     name = models.CharField(
         max_length=255,
         help_text="Full name / title of the event.",
-        validators=[
-            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
-        ],
+        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
     )
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")

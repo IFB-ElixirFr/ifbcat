@@ -1,6 +1,6 @@
 # Imports
 from django.db import models
-from django.core import validators
+from django.core.validators import RegexValidator
 
 from ifbcatsandbox_api.model.userProfile import *
 from ifbcatsandbox_api.model.misc import *
@@ -16,9 +16,7 @@ class Organisation(models.Model):
         max_length=255,
         unique=True,
         help_text="Name of the organisation.",
-        validators=[
-            validators.RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),
-        ],
+        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
     )
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
