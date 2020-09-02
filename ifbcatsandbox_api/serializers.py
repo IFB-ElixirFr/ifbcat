@@ -453,7 +453,7 @@ class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
         model = models.ElixirPlatform
         # logo ... TO_DO
         fields = ('name', 'description', 'homepage', 'coordinator', 'deputies')
-        read_only_fields = ['id']
+        # read_only_fields = ['id']
 
 
 class CommunitySerializer(serializers.HyperlinkedModelSerializer):
@@ -465,7 +465,7 @@ class CommunitySerializer(serializers.HyperlinkedModelSerializer):
             'homepage',
             'organisations',
         )
-        read_only_fields = ['id']
+        # read_only_fields = ['id']
         extra_kwargs = {
             'organisations': {'lookup_field': 'name'},
         }
