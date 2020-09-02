@@ -125,7 +125,7 @@ class KeywordSerializer(serializers.ModelSerializer):
     #     validators=[UniqueValidator(queryset = models.EventKeyword.objects.all())])
     class Meta:
         model = models.Keyword
-        fields = ('id', 'keyword')
+        fields = ('keyword',)
 
     def validate(self, attrs):
         self.Meta.model(**attrs).clean_fields()
@@ -452,7 +452,7 @@ class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElixirPlatform
         # logo ... TO_DO
-        fields = ('id', 'name', 'description', 'homepage', 'coordinator', 'deputies')
+        fields = ('name', 'description', 'homepage', 'coordinator', 'deputies')
         read_only_fields = ['id']
 
 
@@ -754,6 +754,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Service
 
         fields = (
+            'id',
             'user_profile',
             'name',
             'description',
@@ -771,7 +772,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'bioinformaticsTeams': {'lookup_field': 'name'},
             'computingFacilities': {'lookup_field': 'name'},
-            'trainingEvents': {'lookup_field': 'name'},
+            # 'trainingEvents': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
 
@@ -784,6 +785,7 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
         model = models.ServiceSubmission
 
         fields = (
+            'id',
             'user_profile',
             'service',
             'authors',
