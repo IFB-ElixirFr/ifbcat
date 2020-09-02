@@ -1,6 +1,7 @@
 # Imports
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import RegexValidator
 
 
 # Topic model
@@ -22,6 +23,8 @@ class Keyword(models.Model):
     """Keyword model: A keyword (beyond EDAM ontology scope)."""
 
     keyword = models.CharField(max_length=255, unique=True, help_text="A keyword (beyond EDAM ontology scope).")
+
+    validators = ([RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],)
 
     def __str__(self):
         """Return the Keyword model as a string."""
