@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 from ifbcatsandbox_api.model.service import *
 from ifbcatsandbox_api.model.userProfile import *
@@ -31,7 +31,7 @@ class ServiceSubmission(models.Model):
         null=True,
         blank=True,
         help_text="The year when the service was submitted for consideration of incluson in the French SDP.",
-        validators=[MinValueValidator(1),],
+        validators=[MinValueValidator(2020), MaxValueValidator(2050),],
     )
     motivation = models.TextField(help_text="Motivation for making the submission.")
     scope = models.TextField(
