@@ -20,7 +20,6 @@ class ElixirPlatform(models.Model):
         TRAINING = 'Training', _('Training')
 
     # name, description, homepage & coordinator are mandatory
-    # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
     name = models.CharField(
         max_length=255,
         choices=ElixirPlatformName.choices,
@@ -30,6 +29,7 @@ class ElixirPlatform(models.Model):
 
     description = models.TextField(help_text="Short description of the ELIXIR Platform.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the ELIXR Platform.")
+    # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
     coordinator = models.ForeignKey(
         UserProfile,
         related_name='elixirPlatformCoordinator',

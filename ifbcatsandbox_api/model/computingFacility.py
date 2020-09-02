@@ -47,14 +47,13 @@ class ComputingFacility(Resource):
     accessibility = models.CharField(
         max_length=255,
         choices=AccessibillityType.choices,
-        blank=True,
         help_text="Accessibillity of the computing facility to end-users.",
     )
     requestAccount = models.URLField(
-        max_length=255, help_text="URL of web page where one can request access to the computing facility."
+        max_length=255, blank=True, help_text="URL of web page where one can request access to the computing facility."
     )
     termsOfUse = models.URLField(
-        max_length=255, help_text="URL where terms of use of the computing facility can be found."
+        max_length=255, blank=True, help_text="URL where terms of use of the computing facility can be found."
     )
     trainingMaterials = models.ManyToManyField(
         'TrainingMaterial',
@@ -62,7 +61,9 @@ class ComputingFacility(Resource):
         related_name='computingFacilities',
         help_text="Training material for the computing facility.",
     )
-    serverDescription = models.CharField(max_length=255, help_text="Description of number and type of servers.")
+    serverDescription = models.CharField(
+        max_length=255, blank=True, help_text="Description of number and type of servers."
+    )
     storageTb = models.PositiveSmallIntegerField(
         null=True,
         blank=True,

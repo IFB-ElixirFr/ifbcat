@@ -106,7 +106,7 @@ class Event(models.Model):
     )
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
-    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="URL of event homepage.")
+    homepage = models.URLField(max_length=255, help_text="URL of event homepage.")
 
     # NB: max_length is mandatory, but is ignored by sqlite3, see https://github.com/joncison/ifbcat-sandbox/pull/9
     type = models.CharField(

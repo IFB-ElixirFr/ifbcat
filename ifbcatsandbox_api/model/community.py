@@ -27,7 +27,6 @@ class Community(models.Model):
         RARE_DISEASES = 'Rare Diseases', _('Rare Diseases')
 
     # name, description & homepage are mandatory
-    # null=True is set for coordinator, in case the UserProfile of the coordinator is deleted.
     name = models.CharField(
         max_length=255, choices=CommunityName.choices, unique=True, help_text="Name of the community, e.g. 'Galaxy'."
     )

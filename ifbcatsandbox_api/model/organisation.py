@@ -21,7 +21,7 @@ class Organisation(models.Model):
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
 
-    # DOI is not mandatory, but if specified must be unique, so we cannot have blank=True.
+    # orgid is not mandatory, but if specified must be unique, so we cannot have blank=True.
     # Two NULL values do not equate to being the same, whereas two blank values would!
     orgid = models.CharField(
         max_length=255, null=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.",

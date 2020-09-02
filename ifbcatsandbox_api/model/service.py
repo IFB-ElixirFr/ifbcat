@@ -44,7 +44,7 @@ class Service(models.Model):
         Doi, related_name='services', blank=True, help_text="Publication(s) that describe the service as a whole.",
     )
     governanceSab = models.URLField(
-        max_length=255, null=True, blank=True, help_text="Link to the description of the SAB covering the service."
+        max_length=255, blank=True, null=True, help_text="Link to the description of the SAB covering the service."
     )
 
     def __str__(self):

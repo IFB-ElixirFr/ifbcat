@@ -21,7 +21,7 @@ class Team(models.Model):
         validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
     )
     description = models.TextField(help_text="Description of the team.")
-    homepage = models.URLField(max_length=255, null=True, blank=True, help_text="Homepage of the team.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
     expertise = models.ManyToManyField(
         Topic, related_name='teams', help_text="URIs of EDAM Topic terms describing the expertise of the team.",
     )
