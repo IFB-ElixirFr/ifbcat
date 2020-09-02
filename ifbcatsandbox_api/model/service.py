@@ -16,6 +16,7 @@ class Service(models.Model):
     # name, description, dateEstablished & bioinformaticsTeam are mandatory
     name = models.CharField(
         max_length=255,
+        unique=True,
         help_text="Name of the service.",
         validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
     )

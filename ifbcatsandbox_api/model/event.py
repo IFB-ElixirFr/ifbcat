@@ -49,7 +49,9 @@ class EventSponsor(models.Model):
 
     # name & homepage are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(max_length=255, help_text="Name of institutional entity that is sponsoring the event.")
+    name = models.CharField(
+        max_length=255, unique=True, help_text="Name of institutional entity that is sponsoring the event."
+    )
     homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
     # TO-DO logo
     organisationId = models.ForeignKey(
