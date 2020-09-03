@@ -325,10 +325,10 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 class TrainingEventSerializer(EventSerializer):
     """Serializes a training event (TrainingEvent object)."""
 
-    audienceTypes = serializers.SlugRelatedField(
+    audienceTypes = VerboseSlugRelatedField(
         many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects, required=False,
     )
-    audienceRoles = serializers.SlugRelatedField(
+    audienceRoles = VerboseSlugRelatedField(
         many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects, required=False,
     )
 
@@ -416,7 +416,7 @@ class EventSponsorSerializer(serializers.HyperlinkedModelSerializer):
 class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
-    fields = serializers.SlugRelatedField(
+    fields = VerboseSlugRelatedField(
         many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all(), required=False,
     )
 
@@ -564,10 +564,10 @@ class TrainingMaterialSerializer(ResourceSerializer):
     keywords = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
-    audienceTypes = serializers.SlugRelatedField(
+    audienceTypes = VerboseSlugRelatedField(
         many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects, required=False,
     )
-    audienceRoles = serializers.SlugRelatedField(
+    audienceRoles = VerboseSlugRelatedField(
         many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects, required=False,
     )
 
@@ -637,7 +637,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     keywords = CreatableSlugRelatedField(
         many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
-    fields = serializers.SlugRelatedField(
+    fields = VerboseSlugRelatedField(
         many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all(), required=False,
     )
 
