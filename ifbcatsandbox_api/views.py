@@ -547,6 +547,8 @@ class ServiceViewSet(viewsets.ModelViewSet):
     queryset = models.Service.objects.all()
     lookup_field = 'name'
 
+    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (
         'name',
@@ -564,6 +566,8 @@ class ServiceSubmissionViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.ServiceSubmissionSerializer
     queryset = models.ServiceSubmission.objects.all()
+
+    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
     search_fields = (
         'service__name',
