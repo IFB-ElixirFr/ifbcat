@@ -15,12 +15,19 @@ class Service(models.Model):
 
     # name, description, dateEstablished & bioinformaticsTeam are mandatory
     name = models.CharField(
-        max_length=255, unique=True, help_text="Name of the service.", validators=[validate_can_be_looked_up,],
+        max_length=255,
+        unique=True,
+        help_text="Name of the service.",
+        validators=[
+            validate_can_be_looked_up,
+        ],
     )
     description = models.TextField(help_text="Short description of the service.")
     dateEstablished = models.DateField(help_text="Date when the service was first established and started operating.")
     bioinformaticsTeams = models.ManyToManyField(
-        BioinformaticsTeam, related_name='services', help_text="The bioinformatics team(s) that provides this service.",
+        BioinformaticsTeam,
+        related_name='services',
+        help_text="The bioinformatics team(s) that provides this service.",
     )
     computingFacilities = models.ManyToManyField(
         BioinformaticsTeam,
@@ -29,7 +36,10 @@ class Service(models.Model):
         help_text="Computing facilities provided by the service.",
     )
     trainingEvents = models.ManyToManyField(
-        TrainingEvent, blank=True, related_name='services', help_text="Training event(s) provided by the service.",
+        TrainingEvent,
+        blank=True,
+        related_name='services',
+        help_text="Training event(s) provided by the service.",
     )
     trainingMaterials = models.ManyToManyField(
         TrainingMaterial,
@@ -38,7 +48,10 @@ class Service(models.Model):
         help_text="Training material(s) provided by the service.",
     )
     publications = models.ManyToManyField(
-        Doi, related_name='services', blank=True, help_text="Publication(s) that describe the service as a whole.",
+        Doi,
+        related_name='services',
+        blank=True,
+        help_text="Publication(s) that describe the service as a whole.",
     )
     governanceSab = models.URLField(
         max_length=255, blank=True, null=True, help_text="Link to the description of the SAB covering the service."

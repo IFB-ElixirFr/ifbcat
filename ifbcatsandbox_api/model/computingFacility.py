@@ -65,37 +65,49 @@ class ComputingFacility(Resource):
         null=True,
         blank=True,
         help_text="Amount of storage (TB) provided by the computing facility.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     cpuCores = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         help_text="Number of CPU cores provided by the computing facility.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     ramGb = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         help_text="RAM (GB) provided by the computing facility.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     ramPerCoreGb = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         help_text="RAM (GB) per CPU core provided by the Platform physical infrastructure.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     cpuHoursYearly = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         help_text="Number of CPU hours provided by the computing facility in the last year.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     usersYearly = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         help_text="Number of users served by the computing facility in the last year.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
 
     class Meta:

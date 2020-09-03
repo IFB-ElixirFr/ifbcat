@@ -33,7 +33,9 @@ class BioinformaticsTeam(Team):
         max_length=255,
         unique=True,
         help_text="Organisation ID (GRID or ROR ID) of the team.",
-        validators=[validate_grid_or_ror_id,],
+        validators=[
+            validate_grid_or_ror_id,
+        ],
     )
     unitId = models.CharField(
         max_length=255,
@@ -95,7 +97,10 @@ class BioinformaticsTeam(Team):
         help_text="Organisation(s) that funds the bioinformatics team.",
     )
     publications = models.ManyToManyField(
-        Doi, related_name='bioinformaticsTeams', blank=True, help_text="Publication(s) that describe the team.",
+        Doi,
+        related_name='bioinformaticsTeams',
+        blank=True,
+        help_text="Publication(s) that describe the team.",
     )
     certification = models.CharField(
         max_length=255,

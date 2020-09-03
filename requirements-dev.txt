@@ -2,4 +2,4 @@
 # django==2.2
 # djangorestframework==3.9.2
 pre-commit
-black==19.10b0
+Black==20.8b1

@@ -13,7 +13,12 @@ class Team(models.Model):
     # name, description, homepage, members & maintainers are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
-        max_length=255, unique=True, help_text="Name of the team.", validators=[validate_can_be_looked_up,],
+        max_length=255,
+        unique=True,
+        help_text="Name of the team.",
+        validators=[
+            validate_can_be_looked_up,
+        ],
     )
     description = models.TextField(help_text="Description of the team.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
@@ -24,10 +29,17 @@ class Team(models.Model):
         help_text="URIs of EDAM Topic terms describing the expertise of the team.",
     )
     leader = models.ForeignKey(
-        UserProfile, related_name='teamLeader', null=True, on_delete=models.SET_NULL, help_text="Leader of the team.",
+        UserProfile,
+        related_name='teamLeader',
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Leader of the team.",
     )
     deputies = models.ManyToManyField(
-        UserProfile, related_name='teamDeputies', blank=True, help_text="Deputy leader(s) of the team.",
+        UserProfile,
+        related_name='teamDeputies',
+        blank=True,
+        help_text="Deputy leader(s) of the team.",
     )
     scientificLeader = models.ForeignKey(
         UserProfile,
@@ -43,9 +55,15 @@ class Team(models.Model):
         on_delete=models.SET_NULL,
         help_text="Technical leader of the team.",
     )
-    members = models.ManyToManyField(UserProfile, related_name='teamMembers', help_text="Members of the team.",)
+    members = models.ManyToManyField(
+        UserProfile,
+        related_name='teamMembers',
+        help_text="Members of the team.",
+    )
     maintainers = models.ManyToManyField(
-        UserProfile, related_name='teamMaintainers', help_text="Maintainer(s) of the team metadata in IFB catalogue.",
+        UserProfile,
+        related_name='teamMaintainers',
+        help_text="Maintainer(s) of the team metadata in IFB catalogue.",
     )
 
     def __str__(self):

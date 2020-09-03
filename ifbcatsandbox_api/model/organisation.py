@@ -12,7 +12,12 @@ class Organisation(models.Model):
     # name, description & homepage are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
-        max_length=255, unique=True, help_text="Name of the organisation.", validators=[validate_can_be_looked_up,],
+        max_length=255,
+        unique=True,
+        help_text="Name of the organisation.",
+        validators=[
+            validate_can_be_looked_up,
+        ],
     )
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
@@ -24,10 +29,15 @@ class Organisation(models.Model):
         null=True,
         unique=True,
         help_text="Organisation ID (GRID or ROR ID) of the organisation.",
-        validators=[validate_grid_or_ror_id,],
+        validators=[
+            validate_grid_or_ror_id,
+        ],
     )
     fields = models.ManyToManyField(
-        Field, blank=True, related_name='organisations', help_text="A broad field that the organisation serves.",
+        Field,
+        blank=True,
+        related_name='organisations',
+        help_text="A broad field that the organisation serves.",
     )
     city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
 

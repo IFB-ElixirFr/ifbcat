@@ -15,7 +15,9 @@ class Topic(models.Model):
         max_length=255,
         unique=True,
         help_text="URI of EDAM Topic term describing scope or expertise.",
-        validators=[validate_edam_topic,],
+        validators=[
+            validate_edam_topic,
+        ],
     )
 
     def __str__(self):
@@ -30,7 +32,9 @@ class Keyword(models.Model):
         max_length=255,
         unique=True,
         help_text="A keyword (beyond EDAM ontology scope).",
-        validators=[validate_can_be_looked_up,],
+        validators=[
+            validate_can_be_looked_up,
+        ],
     )
 
     def __str__(self):

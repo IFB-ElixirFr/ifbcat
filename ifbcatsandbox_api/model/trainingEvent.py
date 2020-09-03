@@ -67,19 +67,25 @@ class TrainingEvent(Event):
         null=True,
         blank=True,
         help_text="Total time (hours) of presented training material.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     hoursHandsOn = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         help_text="Total time (hours) of hands-on / practical work.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     hoursTotal = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         help_text="Total time investment (hours) of the training event, including recommended prework.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     trainers = models.ManyToManyField(
         Trainer,
@@ -113,7 +119,9 @@ class TrainingEventMetrics(models.Model):
         null=True,
         blank=True,
         help_text="Number of participants at the training event.",
-        validators=[MinValueValidator(1),],
+        validators=[
+            MinValueValidator(1),
+        ],
     )
     trainingEvent = models.ForeignKey(
         TrainingEvent,

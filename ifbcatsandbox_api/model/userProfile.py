@@ -44,7 +44,12 @@ class UserProfileManager(BaseUserManager):
         """Create a new superuser profile"""
 
         user = self.create_user(
-            password=password, firstname=firstname, lastname=lastname, email=email, orcidid=orcidid, homepage=homepage,
+            password=password,
+            firstname=firstname,
+            lastname=lastname,
+            email=email,
+            orcidid=orcidid,
+            homepage=homepage,
         )
 
         # .is_superuser and is_staff come from PermissionsMixin
@@ -83,7 +88,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         blank=True,
         unique=True,
         help_text="ORCID ID of a person (IFB catalogue user).",
-        validators=[validate_orcid,],
+        validators=[
+            validate_orcid,
+        ],
     )
     email = models.EmailField(max_length=255, unique=True, help_text="Email address of a person (IFB catalogue user).")
     homepage = models.URLField(

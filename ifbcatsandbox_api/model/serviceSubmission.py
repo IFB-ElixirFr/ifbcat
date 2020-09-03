@@ -31,7 +31,10 @@ class ServiceSubmission(models.Model):
     year = models.PositiveSmallIntegerField(
         null=True,
         help_text="The year when the service was submitted for consideration of incluson in the French SDP.",
-        validators=[MinValueValidator(2020), MaxValueValidator(2050),],
+        validators=[
+            MinValueValidator(2020),
+            MaxValueValidator(2050),
+        ],
     )
     motivation = models.TextField(help_text="Motivation for making the submission.")
     scope = models.TextField(

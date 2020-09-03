@@ -17,7 +17,12 @@ class Project(models.Model):
     # name, homepage & description are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
-        max_length=255, help_text="Name of the project.", unique=True, validators=[validate_can_be_looked_up,],
+        max_length=255,
+        help_text="Name of the project.",
+        unique=True,
+        validators=[
+            validate_can_be_looked_up,
+        ],
     )
     homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
     description = models.TextField(help_text="Description of the project.")
@@ -35,13 +40,22 @@ class Project(models.Model):
         help_text="The team which is delivering the project.",
     )
     hostedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsHosts', help_text="Organisation that hosts the project.",
+        Organisation,
+        blank=True,
+        related_name='projectsHosts',
+        help_text="Organisation that hosts the project.",
     )
     fundedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='projectsFunders', help_text="Organisation that funds the project.",
+        Organisation,
+        blank=True,
+        related_name='projectsFunders',
+        help_text="Organisation that funds the project.",
     )
     communities = models.ManyToManyField(
-        Community, blank=True, related_name='projects', help_text="Community for which the project is relevant.",
+        Community,
+        blank=True,
+        related_name='projects',
+        help_text="Community for which the project is relevant.",
     )
     elixirPlatforms = models.ManyToManyField(
         ElixirPlatform,
