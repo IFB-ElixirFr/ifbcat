@@ -5,6 +5,7 @@ from django.db import models
 
 from ifbcatsandbox_api.model.community import Community
 from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
+from ifbcatsandbox_api.validators import validate_can_be_looked_up
 
 
 # Resource model
@@ -13,11 +14,7 @@ class Resource(models.Model):
 
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
-    name = models.CharField(
-        max_length=255,
-        help_text="Name of the resource.",
-        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
-    )
+    name = models.CharField(max_length=255, help_text="Name of the resource.", validators=[validate_can_be_looked_up,],)
     description = models.TextField(help_text="A short description of the resource.")
     communities = models.ManyToManyField(
         Community, blank=True, related_name='resources', help_text="Community which uses the resource."

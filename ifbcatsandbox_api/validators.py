@@ -1,6 +1,7 @@
 import re
 
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 __p_orcid_regexp = '^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$'
 __p_orcid = re.compile(__p_orcid_regexp, re.IGNORECASE | re.UNICODE)
@@ -10,6 +11,10 @@ __p_grid_regexp = '^grid.[0-9]{4,}.[a-f0-9]{1,2}$'
 __p_grid = re.compile(__p_grid_regexp, re.IGNORECASE | re.UNICODE)
 __p_ror_regexp = '^0[0-9a-zA-Z]{6}[0-9]{2}$'
 __p_ror = re.compile(__p_ror_regexp, re.IGNORECASE | re.UNICODE)
+
+validate_can_be_looked_up = RegexValidator(
+    regex=r'^[a-zA-Z0-9 \-_~]+$', message='Should only contains char such as ^[a-zA-Z0-9\\-_~]'
+)
 
 
 def validate_grid_or_ror_id(value):

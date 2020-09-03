@@ -1,11 +1,10 @@
 # Imports
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from ifbcatsandbox_api.validators import validate_edam_topic
+from ifbcatsandbox_api.validators import validate_edam_topic, validate_can_be_looked_up
 
 
 # Topic model
@@ -33,7 +32,7 @@ class Keyword(models.Model):
         max_length=255,
         unique=True,
         help_text="A keyword (beyond EDAM ontology scope).",
-        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
+        validators=[validate_can_be_looked_up,],
     )
 
     def __str__(self):

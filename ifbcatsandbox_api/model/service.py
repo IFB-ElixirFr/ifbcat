@@ -1,14 +1,13 @@
 from django.conf import settings
-from django.core.validators import RegexValidator
 from django.db import models
 
 from ifbcatsandbox_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcatsandbox_api.model.misc import Doi
 from ifbcatsandbox_api.model.trainingEvent import TrainingEvent
 from ifbcatsandbox_api.model.trainingMaterial import TrainingMaterial
+from ifbcatsandbox_api.validators import validate_can_be_looked_up
 
 
-# Resource model
 class Service(models.Model):
     """Service model: A provision of a bundle of computing facilities, databases, tools, training events and materials, with support to help end-users utilise the resources."""
 
@@ -16,10 +15,7 @@ class Service(models.Model):
 
     # name, description, dateEstablished & bioinformaticsTeam are mandatory
     name = models.CharField(
-        max_length=255,
-        unique=True,
-        help_text="Name of the service.",
-        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
+        max_length=255, unique=True, help_text="Name of the service.", validators=[validate_can_be_looked_up,],
     )
     description = models.TextField(help_text="Short description of the service.")
     dateEstablished = models.DateField(help_text="Date when the service was first established and started operating.")

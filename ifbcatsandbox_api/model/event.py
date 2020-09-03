@@ -1,6 +1,6 @@
 # Imports
 from django.conf import settings
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -9,6 +9,7 @@ from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
 from ifbcatsandbox_api.model.misc import Topic, Keyword
 from ifbcatsandbox_api.model.organisation import Organisation
 from ifbcatsandbox_api.model.userProfile import UserProfile
+from ifbcatsandbox_api.validators import validate_can_be_looked_up
 
 
 # Event prerequisite model
@@ -101,9 +102,7 @@ class Event(models.Model):
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(
-        max_length=255,
-        help_text="Full name / title of the event.",
-        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
+        max_length=255, help_text="Full name / title of the event.", validators=[validate_can_be_looked_up,],
     )
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")

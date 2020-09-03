@@ -1,6 +1,5 @@
 # Imports
 from django.conf import settings
-from django.core.validators import RegexValidator
 from django.db import models
 
 from ifbcatsandbox_api.model.community import Community
@@ -9,6 +8,7 @@ from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
 from ifbcatsandbox_api.model.misc import Topic
 from ifbcatsandbox_api.model.organisation import Organisation
 from ifbcatsandbox_api.model.team import Team
+from ifbcatsandbox_api.validators import validate_can_be_looked_up
 
 
 # Project model
@@ -18,10 +18,7 @@ class Project(models.Model):
     # name, homepage & description are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
-        max_length=255,
-        help_text="Name of the project.",
-        unique=True,
-        validators=[RegexValidator(r'^[a-zA-Z0-9 \-_~]+$', 'Should only contains char such as ^[a-zA-Z0-9\-_~]'),],
+        max_length=255, help_text="Name of the project.", unique=True, validators=[validate_can_be_looked_up,],
     )
     homepage = models.URLField(max_length=255, help_text="Homepage of the project.")
     description = models.TextField(help_text="Description of the project.")
