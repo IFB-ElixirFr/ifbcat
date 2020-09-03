@@ -5,7 +5,6 @@ from django.utils.translation import gettext_lazy as _
 from ifbcatsandbox_api.model.organisation import Organisation
 
 
-# Community model
 class Community(models.Model):
     """Community model: A group of people collaborating on a common scientific or technical topic, including formal ELIXIR  Communities, emerging ELIXIR communities, ELXIR focus groups, IFB communities, and others."""
 

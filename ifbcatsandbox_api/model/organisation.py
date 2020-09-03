@@ -6,7 +6,6 @@ from ifbcatsandbox_api.model.misc import Field
 from ifbcatsandbox_api.validators import validate_grid_or_ror_id, validate_can_be_looked_up
 
 
-# Organisation model
 class Organisation(models.Model):
     """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
 

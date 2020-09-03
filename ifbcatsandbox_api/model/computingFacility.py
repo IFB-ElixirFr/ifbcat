@@ -7,7 +7,6 @@ from ifbcatsandbox_api.model.resource import Resource
 from ifbcatsandbox_api.model.team import Team
 
 
-# Computing facility model
 class ComputingFacility(Resource):
     """Computing facility model: Computing hardware that can be accessed by users for bioinformatics projects."""
 

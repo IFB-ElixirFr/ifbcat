@@ -11,7 +11,6 @@ from ifbcatsandbox_api.model.team import Team
 from ifbcatsandbox_api.validators import validate_can_be_looked_up
 
 
-# Project model
 class Project(models.Model):
     """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
 

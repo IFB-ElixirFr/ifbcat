@@ -7,7 +7,6 @@ from ifbcatsandbox_api.model.misc import Keyword, Topic, AudienceRole, AudienceT
 from ifbcatsandbox_api.model.resource import Resource
 
 
-# Training material model
 class TrainingMaterial(Resource):
     """Training material model: Digital media such as a presentation or tutorial that can be used for bioinformatics training or teaching."""
 

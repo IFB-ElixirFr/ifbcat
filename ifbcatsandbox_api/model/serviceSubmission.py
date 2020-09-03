@@ -6,7 +6,6 @@ from ifbcatsandbox_api.model.service import Service
 from ifbcatsandbox_api.model.userProfile import UserProfile
 
 
-# Service submission model
 class ServiceSubmission(models.Model):
     """Service submission model: Metadata for a service that is included as part of the submission of the service to a ELIXIR-FR SDP submission process."""
 

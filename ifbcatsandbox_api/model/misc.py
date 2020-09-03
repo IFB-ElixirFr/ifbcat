@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from ifbcatsandbox_api.validators import validate_edam_topic, validate_can_be_looked_up
 
 
-# Topic model
 class Topic(models.Model):
     """Event topic model: URI of EDAM Topic term describing scope or expertise."""
 
@@ -24,7 +23,6 @@ class Topic(models.Model):
         return self.topic
 
 
-# Keyword model
 class Keyword(models.Model):
     """Keyword model: A keyword (beyond EDAM ontology scope)."""
 
@@ -86,7 +84,6 @@ class AudienceRole(models.Model):
         return self.audienceRole
 
 
-# DifficultyLevelType: Controlled vocabulary for training materials or events describing the required experience and skills of the expected audience.
 class DifficultyLevelType(models.TextChoices):
     """Controlled vocabulary for training materials or events describing the required experience and skills of the expected audience."""
 
@@ -95,7 +92,6 @@ class DifficultyLevelType(models.TextChoices):
     ADVANCED = 'Advanced', _('Advanced')
 
 
-# Field model
 class Field(models.Model):
     """Field model: A broad field that an organisation or bioinformatics team serves."""
 
@@ -112,7 +108,6 @@ class Field(models.Model):
         return self.field
 
 
-# DOI model
 class Doi(models.Model):
     """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
 

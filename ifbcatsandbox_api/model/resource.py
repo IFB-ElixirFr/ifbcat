@@ -8,7 +8,6 @@ from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
 from ifbcatsandbox_api.validators import validate_can_be_looked_up
 
 
-# Resource model
 class Resource(models.Model):
     """Resource model: A computing facility, database, tool or training material provided by a bioinformatics team."""
 

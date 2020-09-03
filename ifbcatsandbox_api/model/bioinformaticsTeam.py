@@ -11,7 +11,6 @@ from ifbcatsandbox_api.model.team import Team
 from ifbcatsandbox_api.validators import validate_grid_or_ror_id
 
 
-# Bioinformatics team model
 class BioinformaticsTeam(Team):
     """Bioinformatics team model: A French team whose activities involve the development, deployment, provision, maintenance or support of bioinformatics resources, services or events."""
 

@@ -9,10 +9,10 @@ from django.db import models
 from ifbcatsandbox_api.validators import validate_orcid
 
 
-# Manager for custom user profile model
-# For more on user models with authentication see https://github.com/django/django/blob/stable/3.0.x/django/contrib/auth/models.py#L131-L158
 class UserProfileManager(BaseUserManager):
-    """Manager for user profiles"""
+    """Manager for custom user profiles model
+    For more on user models with authentication see https://github.com/django/django/blob/stable/3.0.x/django/contrib/auth/models.py#L131-L158
+    """
 
     # Function that Django CLI will use when creating users
     # password=None means that if a password is not set it wil default to None,

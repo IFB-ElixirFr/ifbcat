@@ -10,7 +10,6 @@ from ifbcatsandbox_api.model.trainingMaterial import TrainingMaterial
 from ifbcatsandbox_api.model.userProfile import UserProfile
 
 
-# Trainer model
 class Trainer(models.Model):
     """Trainer model: A person who is providing training at a training event."""
 
@@ -35,7 +34,6 @@ class Trainer(models.Model):
         return self.trainerEmail.__str__()
 
 
-# Training event model
 class TrainingEvent(Event):
     """Training event model: An event dedicated to bioinformatics training or teaching."""
 
@@ -104,7 +102,6 @@ class TrainingEvent(Event):
     # tools
 
 
-# Training event metrics model
 class TrainingEventMetrics(models.Model):
     """Training event metrics model: Metrics and other information for a specific training event."""
 
