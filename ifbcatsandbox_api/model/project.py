@@ -1,16 +1,14 @@
 # Imports
-from django.db import models
 from django.conf import settings
 from django.core.validators import RegexValidator
-from django.utils.translation import gettext_lazy as _
+from django.db import models
 
-from ifbcatsandbox_api.model.team import *
-from ifbcatsandbox_api.model.organisation import *
-from ifbcatsandbox_api.model.community import *
-from ifbcatsandbox_api.model.elixirPlatform import *
-from ifbcatsandbox_api.model.computingFacility import *
-from ifbcatsandbox_api.model.misc import *
-from ifbcatsandbox_api.model.bioinformaticsTeam import *
+from ifbcatsandbox_api.model.community import Community
+from ifbcatsandbox_api.model.computingFacility import ComputingFacility
+from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
+from ifbcatsandbox_api.model.misc import Topic
+from ifbcatsandbox_api.model.organisation import Organisation
+from ifbcatsandbox_api.model.team import Team
 
 
 # Project model
