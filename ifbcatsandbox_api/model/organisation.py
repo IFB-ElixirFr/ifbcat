@@ -5,6 +5,7 @@ from django.core.validators import RegexValidator
 from ifbcatsandbox_api.model.userProfile import *
 from ifbcatsandbox_api.model.misc import *
 
+from ifbcatsandbox_api.validators import validate_grid_or_ror_id
 
 # Organisation model
 class Organisation(models.Model):
@@ -24,12 +25,17 @@ class Organisation(models.Model):
     # orgid is not mandatory, but if specified must be unique, so we cannot have blank=True.
     # Two NULL values do not equate to being the same, whereas two blank values would!
     orgid = models.CharField(
-        max_length=255, null=True, unique=True, help_text="Organisation ID (GRID or ROR ID) of the organisation.",
+        max_length=255,
+        null=True,
+        unique=True,
+        help_text="Organisation ID (GRID or ROR ID) of the organisation.",
+        validators=[validate_grid_or_ror_id,],
     )
     fields = models.ManyToManyField(
         Field, blank=True, related_name='organisations', help_text="A broad field that the organisation serves.",
     )
     city = models.CharField(max_length=255, blank=True, help_text="Nearest city to the organisation.")
+
     # logo ... TO_DO
 
     def __str__(self):

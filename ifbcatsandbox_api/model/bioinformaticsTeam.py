@@ -9,6 +9,7 @@ from ifbcatsandbox_api.model.elixirPlatform import *
 from ifbcatsandbox_api.model.community import *
 from ifbcatsandbox_api.model.project import *
 
+from ifbcatsandbox_api.validators import validate_grid_or_ror_id
 
 # Bioinformatics team model
 class BioinformaticsTeam(Team):
@@ -29,7 +30,12 @@ class BioinformaticsTeam(Team):
         CERTIFICATE1 = 'Certificate 1', _('Certificate 1')
 
     # orgid, ifbMembership & fundedBy are mandatory.
-    orgid = models.CharField(max_length=255, unique=True, help_text="Organisation ID (GRID or ROR ID) of the team.",)
+    orgid = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Organisation ID (GRID or ROR ID) of the team.",
+        validators=[validate_grid_or_ror_id,],
+    )
     unitId = models.CharField(
         max_length=255,
         blank=True,

@@ -7,12 +7,18 @@ from django.core.validators import RegexValidator
 
 
 # Topic model
+from ifbcatsandbox_api.validators import validate_edam_topic
+
+
 class Topic(models.Model):
     """Event topic model: URI of EDAM Topic term describing scope or expertise."""
 
     # topic is mandatory
     topic = models.CharField(
-        max_length=255, unique=True, help_text="URI of EDAM Topic term describing scope or expertise."
+        max_length=255,
+        unique=True,
+        help_text="URI of EDAM Topic term describing scope or expertise.",
+        validators=[validate_edam_topic,],
     )
 
     def __str__(self):
