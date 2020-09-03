@@ -1,11 +1,10 @@
 # Imports
-from django.db import models
-from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.validators import RegexValidator
+from django.db import models
 
-from ifbcatsandbox_api.model.userProfile import *
-from ifbcatsandbox_api.model.misc import *
+from ifbcatsandbox_api.model.misc import Topic
+from ifbcatsandbox_api.model.userProfile import UserProfile
 
 
 # Team model

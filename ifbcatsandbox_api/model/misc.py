@@ -1,9 +1,11 @@
 # Imports
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
+
+from ifbcatsandbox_api.validators import validate_edam_topic
 
 
 # Topic model
@@ -12,7 +14,10 @@ class Topic(models.Model):
 
     # topic is mandatory
     topic = models.CharField(
-        max_length=255, unique=True, help_text="URI of EDAM Topic term describing scope or expertise."
+        max_length=255,
+        unique=True,
+        help_text="URI of EDAM Topic term describing scope or expertise.",
+        validators=[validate_edam_topic,],
     )
 
     def __str__(self):

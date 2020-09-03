@@ -46,21 +46,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         # Also set the field style so that *** are given in the data entry field when the password is typed in
         extra_kwargs = {'password': {'write_only': True, 'style': {'input_type': 'password'}}}
 
-    # Validation logic
-    def validate_orcidid(self, orcidid):
-        """Validate supplied orcidid."""
-
-        # orcidid is not mandatory - catch that
-        if orcidid is None:
-            return orcidid
-
-        p = re.compile('^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$', re.IGNORECASE | re.UNICODE)
-        if not p.search(orcidid):
-            raise serializers.ValidationError(
-                'This field can only contain a valid ORCID ID.  Syntax: ^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$'
-            )
-        return orcidid
-
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
     # This will ensure the password gets created as a hash, rather than clear text
     def create(self, validated_data):
@@ -155,7 +140,11 @@ class CreatableSlugRelatedField(serializers.SlugRelatedField):
         try:
             return self.get_queryset().get(**{self.slug_field: data})
         except ObjectDoesNotExist:
-            return self.get_queryset().create(**{self.slug_field: data})  # to create the object
+            instance = self.get_queryset().model(**{self.slug_field: data})
+            instance.clean_fields()
+            instance.clean()
+            instance.save()
+            return instance
         except (TypeError, ValueError):
             self.fail('invalid')
 
@@ -265,23 +254,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'hostedBy': {'lookup_field': 'name'},
             'sponsoredBy': {'lookup_field': 'name'},
         }
-
-    # Validation logic
-    def validate_topics(self, topics):
-        """Validate supplied EDAM topic URIs."""
-
-        # topics is not mandatory - catch that
-        if topics is None:
-            return topics
-
-        p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
-        for topic in topics:
-            if not p.search(topic.__str__()):
-                raise serializers.ValidationError(
-                    'This field can only contain valid EDAM Topic URIs.  '
-                    'Syntax: ^https?://edamontology.org/topic_[0-9]{4}$'
-                )
-        return topics
 
     def validate_costs(self, costs):
         """Validate supplied event costs."""
@@ -433,23 +405,6 @@ class OrganisationSerializer(serializers.ModelSerializer):
         fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city')
         read_only_fields = ['user_profile']
 
-    # Validation logic
-    def validate_orgid(self, orgid):
-        """Validate supplied organisation ID (GRID or ROR ID)."""
-
-        # orcidid is not mandatory - catch that
-        if orgid is None:
-            return orgid
-
-        p1 = re.compile('^grid.[0-9]{4,}.[a-f0-9]{1,2}$', re.IGNORECASE | re.UNICODE)
-        p2 = re.compile('^0[0-9a-zA-Z]{6}[0-9]{2}$', re.IGNORECASE | re.UNICODE)
-        if not p1.search(orgid):
-            if not p2.search(orgid):
-                raise serializers.ValidationError(
-                    'This field can only contain a valid GRID or ROR ID.   GRID ID Syntax: grid.[0-9]{4,}.[a-f0-9]{1,2}   ROR ID Syntax: ^0[0-9a-zA-Z]{6}[0-9]{2}'
-                )
-        return orgid
-
 
 # ElixirPlatform serializer
 class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
@@ -517,23 +472,6 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'fundedBy': {'lookup_field': 'name'},
             'uses': {'lookup_field': 'name'},
         }
-
-    # Validation logic
-    def validate_topics(self, topics):
-        """Validate supplied EDAM topic URIs."""
-
-        # topics is not mandatory - catch that
-        if topics is None:
-            return topics
-
-        p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
-        for topic in topics:
-            if not p.search(topic.__str__()):
-                raise serializers.ValidationError(
-                    'This field can only contain valid EDAM Topic URIs. '
-                    'Syntax: ^https?://edamontology.org/topic_[0-9]{4}$'
-                )
-        return topics
 
 
 # Model serializer for resources
@@ -712,40 +650,6 @@ class BioinformaticsTeamSerializer(TeamSerializer):
                 'fundedBy': {'lookup_field': 'name'},
             },
         }
-
-        # Validation logic
-        def validate_orgid(self, orgid):
-            """Validate supplied organisation ID (GRID or ROR ID)."""
-
-            # orcidid is not mandatory - catch that
-            if orgid is None:
-                return orgid
-
-            p1 = re.compile('^grid.[0-9]{4,}.[a-f0-9]{1,2}$', re.IGNORECASE | re.UNICODE)
-            p2 = re.compile('^0[0-9a-zA-Z]{6}[0-9]{2}$', re.IGNORECASE | re.UNICODE)
-            if not p1.search(orgid):
-                if not p2.search(orgid):
-                    raise serializers.ValidationError(
-                        'This field can only contain a valid GRID or ROR ID.   GRID ID Syntax: grid.[0-9]{4,}.[a-f0-9]{1,2}   ROR ID Syntax: ^0[0-9a-zA-Z]{6}[0-9]{2}'
-                    )
-            return orgid
-
-        # Validation logic
-        def validate_topics(self, topics):
-            """Validate supplied EDAM topic URIs."""
-
-            # topics is not mandatory - catch that
-            if topics is None:
-                return topics
-
-            p = re.compile('^https?://edamontology.org/topic_[0-9]{4}$', re.IGNORECASE | re.UNICODE)
-            for topic in topics:
-                if not p.search(topic.__str__()):
-                    raise serializers.ValidationError(
-                        'This field can only contain valid EDAM Topic URIs. '
-                        'Syntax: ^https?://edamontology.org/topic_[0-9]{4}$'
-                    )
-            return topics
 
 
 # Model serializer for service

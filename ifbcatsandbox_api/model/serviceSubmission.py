@@ -1,8 +1,10 @@
-from django.db import models
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
 
-from ifbcatsandbox_api.model.service import *
-from ifbcatsandbox_api.model.userProfile import *
+from ifbcatsandbox_api.model.service import Service
+from ifbcatsandbox_api.model.userProfile import UserProfile
+
 
 # Service submission model
 class ServiceSubmission(models.Model):

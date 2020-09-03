@@ -1,10 +1,12 @@
 # Imports
 # BaseUserManager is the default user manager that comes with Django
-from django.db import models
-from django.contrib.auth.models import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin
 from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
+from django.db import models
+
+from ifbcatsandbox_api.validators import validate_orcid
 
 
 # Manager for custom user profile model
@@ -76,7 +78,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     firstname = models.CharField(max_length=255, help_text="First (or given) name of a person (IFB catalogue user).")
     lastname = models.CharField(max_length=255, help_text="Last (or family) name of a person (IFB catalogue user).")
     orcidid = models.CharField(
-        max_length=255, null=True, blank=True, unique=True, help_text="ORCID ID of a person (IFB catalogue user)."
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text="ORCID ID of a person (IFB catalogue user).",
+        validators=[validate_orcid,],
     )
     email = models.EmailField(max_length=255, unique=True, help_text="Email address of a person (IFB catalogue user).")
     homepage = models.URLField(
