@@ -276,23 +276,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'sponsoredBy': {'lookup_field': 'name'},
         }
 
-    def validate_costs(self, costs):
-        """Validate supplied event costs."""
-
-        if costs is None:
-            return costs
-
-        # In TextChoices (e.g. CostType):
-        # .values gives e.g. "Free to academics" - the actual term we want in the database (as specified in the object)
-        # .names gives e.g. "FREE_TO_ACADEMICS" (the variable name)
-        # .labels gives e.g. "Free to Academics" (derived from the variable name )
-
-        # for cost in costs:
-        #    if cost.__str__() not in models.EventCost.CostType.values:
-        #        msg = 'This field can only contain valid cost strings: ' + ','.join(models.EventCost.CostType.values)
-        #        raise serializers.ValidationError(msg)
-        # return costs
-
     def update(self, instance, validated_data):
         sub_instances = dict()
         for nested_field in [
