@@ -31,7 +31,6 @@ class ServiceSubmission(models.Model):
     )
     year = models.PositiveSmallIntegerField(
         null=True,
-        blank=True,
         help_text="The year when the service was submitted for consideration of incluson in the French SDP.",
         validators=[MinValueValidator(2020), MaxValueValidator(2050),],
     )

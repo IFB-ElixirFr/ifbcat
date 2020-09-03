@@ -305,10 +305,10 @@ class TrainingEventSerializer(EventSerializer):
     """Serializes a training event (TrainingEvent object)."""
 
     audienceTypes = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects,
+        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects, required=False,
     )
     audienceRoles = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects,
+        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects, required=False,
     )
 
     class Meta(EventSerializer.Meta):
@@ -396,7 +396,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
     fields = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all()
+        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all(), required=False,
     )
 
     class Meta:
@@ -440,7 +440,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     # uses TO-DO
 
     topics = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects.all()
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects.all(), required=False,
     )
 
     # To-add to "fields" below:  'team', 'logo'
@@ -537,15 +537,17 @@ class ComputingFacilitySerializer(ResourceSerializer):
 class TrainingMaterialSerializer(ResourceSerializer):
     """Serializes a training material (TrainingMaterial object)."""
 
-    topics = CreatableSlugRelatedField(many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,)
+    topics = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
+    )
     keywords = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
     audienceTypes = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects,
+        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects, required=False,
     )
     audienceRoles = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects,
+        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects, required=False,
     )
 
     class Meta:
@@ -577,7 +579,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
     expertise = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
     )
 
     class Meta:
@@ -606,14 +608,16 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     """Serializes a bioinformatics team (BioinformaticsTeam object)."""
 
     publications = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects,
+        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects, required=False,
     )
-    topics = CreatableSlugRelatedField(many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,)
+    topics = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
+    )
     keywords = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
     fields = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all()
+        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all(), required=False,
     )
 
     class Meta(TeamSerializer.Meta):
@@ -657,7 +661,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a service (Service object)."""
 
     publications = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects,
+        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects, required=False,
     )
 
     class Meta:
