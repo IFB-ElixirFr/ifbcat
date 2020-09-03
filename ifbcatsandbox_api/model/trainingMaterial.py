@@ -2,9 +2,9 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from ifbcatsandbox_api.model.resource import *
-from ifbcatsandbox_api.model.misc import *
-from ifbcatsandbox_api.model.bioinformaticsTeam import *
+from ifbcatsandbox_api.model.bioinformaticsTeam import BioinformaticsTeam
+from ifbcatsandbox_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType
+from ifbcatsandbox_api.model.resource import Resource
 
 
 # Training material model

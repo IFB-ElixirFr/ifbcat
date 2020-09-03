@@ -2,14 +2,14 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from ifbcatsandbox_api.model.team import *
-from ifbcatsandbox_api.model.misc import *
-from ifbcatsandbox_api.model.organisation import *
-from ifbcatsandbox_api.model.elixirPlatform import *
-from ifbcatsandbox_api.model.community import *
-from ifbcatsandbox_api.model.project import *
-
+from ifbcatsandbox_api.model.community import Community
+from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
+from ifbcatsandbox_api.model.misc import Keyword, Field, Topic, Doi
+from ifbcatsandbox_api.model.organisation import Organisation
+from ifbcatsandbox_api.model.project import Project
+from ifbcatsandbox_api.model.team import Team
 from ifbcatsandbox_api.validators import validate_grid_or_ror_id
+
 
 # Bioinformatics team model
 class BioinformaticsTeam(Team):

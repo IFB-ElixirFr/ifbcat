@@ -1,13 +1,14 @@
 # Imports
-from django.db import models
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, RegexValidator
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-from ifbcatsandbox_api.model.organisation import *
-from ifbcatsandbox_api.model.elixirPlatform import *
-from ifbcatsandbox_api.model.community import *
-from ifbcatsandbox_api.model.misc import *
+from ifbcatsandbox_api.model.community import Community
+from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
+from ifbcatsandbox_api.model.misc import Topic, Keyword
+from ifbcatsandbox_api.model.organisation import Organisation
+from ifbcatsandbox_api.model.userProfile import UserProfile
 
 
 # Event prerequisite model
@@ -190,6 +191,7 @@ class Event(models.Model):
         related_name='events',
         help_text="An institutional entity that is sponsoring the event.",
     )
+
     # logo = ... TO_DO
 
     def __str__(self):

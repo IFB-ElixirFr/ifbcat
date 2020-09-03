@@ -1,12 +1,13 @@
 # Imports
 # BaseUserManager is the default user manager that comes with Django
-from django.db import models
-from django.contrib.auth.models import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import PermissionsMixin
 from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
+from django.db import models
 
 from ifbcatsandbox_api.validators import validate_orcid
+
 
 # Manager for custom user profile model
 # For more on user models with authentication see https://github.com/django/django/blob/stable/3.0.x/django/contrib/auth/models.py#L131-L158

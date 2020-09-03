@@ -1,11 +1,12 @@
-from django.db import models
+from django.conf import settings
 from django.core.validators import RegexValidator
+from django.db import models
 
-from ifbcatsandbox_api.model.userProfile import *
-from ifbcatsandbox_api.model.bioinformaticsTeam import *
-from ifbcatsandbox_api.model.trainingEvent import *
-from ifbcatsandbox_api.model.trainingMaterial import *
-from ifbcatsandbox_api.model.misc import *
+from ifbcatsandbox_api.model.bioinformaticsTeam import BioinformaticsTeam
+from ifbcatsandbox_api.model.misc import Doi
+from ifbcatsandbox_api.model.trainingEvent import TrainingEvent
+from ifbcatsandbox_api.model.trainingMaterial import TrainingMaterial
+
 
 # Resource model
 class Service(models.Model):

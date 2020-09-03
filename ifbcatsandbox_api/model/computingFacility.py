@@ -1,12 +1,10 @@
 # Imports
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator
 
-from ifbcatsandbox_api.model.resource import *
-from ifbcatsandbox_api.model.team import *
-from ifbcatsandbox_api.model.bioinformaticsTeam import *
-from ifbcatsandbox_api.model.trainingMaterial import *
+from ifbcatsandbox_api.model.resource import Resource
+from ifbcatsandbox_api.model.team import Team
 
 
 # Computing facility model

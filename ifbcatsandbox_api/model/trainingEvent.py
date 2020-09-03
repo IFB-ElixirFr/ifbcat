@@ -1,11 +1,13 @@
 # Imports
-from django.db import models
+from django.conf import settings
 from django.core.validators import MinValueValidator
+from django.db import models
 
-from ifbcatsandbox_api.model.misc import *
-from ifbcatsandbox_api.model.event import *
-from ifbcatsandbox_api.model.trainingMaterial import *
-from ifbcatsandbox_api.model.computingFacility import *
+from ifbcatsandbox_api.model.computingFacility import ComputingFacility
+from ifbcatsandbox_api.model.event import Event
+from ifbcatsandbox_api.model.misc import AudienceType, AudienceRole, DifficultyLevelType
+from ifbcatsandbox_api.model.trainingMaterial import TrainingMaterial
+from ifbcatsandbox_api.model.userProfile import UserProfile
 
 
 # Trainer model

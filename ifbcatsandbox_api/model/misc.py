@@ -1,15 +1,14 @@
 # Imports
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import RegexValidator
 
-
-# Topic model
 from ifbcatsandbox_api.validators import validate_edam_topic
 
 
+# Topic model
 class Topic(models.Model):
     """Event topic model: URI of EDAM Topic term describing scope or expertise."""
 

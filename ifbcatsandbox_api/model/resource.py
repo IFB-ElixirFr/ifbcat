@@ -1,10 +1,11 @@
 # Imports
-from django.db import models
+from django.conf import settings
 from django.core.validators import RegexValidator
+from django.db import models
 
-from ifbcatsandbox_api.model.userProfile import *
-from ifbcatsandbox_api.model.elixirPlatform import *
-from ifbcatsandbox_api.model.community import *
+from ifbcatsandbox_api.model.community import Community
+from ifbcatsandbox_api.model.elixirPlatform import ElixirPlatform
+
 
 # Resource model
 class Resource(models.Model):
