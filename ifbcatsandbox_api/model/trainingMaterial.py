@@ -68,8 +68,8 @@ class TrainingMaterial(Resource):
         related_name='trainingMaterials',
         help_text="The bioinformatics team that provides the training material.",
     )
-    dateCreation = models.DateField(help_text="Date when the training material was created.")
-    dateUpdate = models.DateField(help_text="Date when the training material was updated.")
+    dateCreation = models.DateField(blank=True, help_text="Date when the training material was created.")
+    dateUpdate = models.DateField(blank=True, help_text="Date when the training material was updated.")
     license = models.CharField(
         max_length=255,
         choices=TrainingMaterialLicenseName.choices,
