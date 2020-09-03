@@ -1,10 +1,12 @@
 # Imports
 # "re" is regular expression library
-import re
-from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from ifbcatsandbox_api import models
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.encoding import smart_str
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
+from ifbcatsandbox_api import models
 
 
 # This is just for testing serialization
@@ -149,6 +151,25 @@ class CreatableSlugRelatedField(serializers.SlugRelatedField):
             self.fail('invalid')
 
 
+class VerboseSlugRelatedField(serializers.SlugRelatedField):
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except ObjectDoesNotExist:
+            try:
+                self.fail('does_not_exist', slug_name=self.slug_field, value=smart_str(data))
+            except ValidationError as e:
+                detail = str(e)
+                try:
+                    detail = e.detail.pop()
+                except IndexError:
+                    pass
+                detail += " Choices are :" + ", ".join(self.get_queryset().values_list(self.slug_field, flat=True))
+                raise ValidationError(detail=detail)
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+
 class EventDateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EventDate
@@ -181,7 +202,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
-    costs = serializers.SlugRelatedField(
+    costs = VerboseSlugRelatedField(
         many=True, read_only=False, slug_field="cost", queryset=models.EventCost.objects, required=False,
     )
 
