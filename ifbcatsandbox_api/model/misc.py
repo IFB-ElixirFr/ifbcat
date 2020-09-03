@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from ifbcatsandbox_api.validators import validate_edam_topic, validate_can_be_looked_up
+from ifbcatsandbox_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
 
 
 class Topic(models.Model):
@@ -121,6 +121,9 @@ class Doi(models.Model):
         max_length=255,
         unique=True,
         help_text="A digital object identifier (DOI) of a publication or training material.",
+        validators=[
+            validate_doi,
+        ],
     )
 
     def __str__(self):

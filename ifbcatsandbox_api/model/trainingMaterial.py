@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from ifbcatsandbox_api.model.bioinformaticsTeam import BioinformaticsTeam
-from ifbcatsandbox_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType
+from ifbcatsandbox_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType, Doi
 from ifbcatsandbox_api.model.resource import Resource
 
 
@@ -19,10 +19,10 @@ class TrainingMaterial(Resource):
     # TO-DO:  providedBy
     # DOI is not mandatory, but if specified must be unique, so we cannot have blank=True.
     # Two NULL values do not equate to being the same, whereas two blank values would!
-    doi = models.CharField(
-        max_length=255,
-        null=True,
-        unique=True,
+    doi = models.ForeignKey(
+        Doi,
+        blank=True,
+        on_delete=models.SET_NULL,
         help_text="Unique identier (DOI) of the training material, e.g. a Zenodo DOI.",
     )
     fileLocation = models.URLField(
