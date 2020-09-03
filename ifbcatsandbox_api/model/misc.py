@@ -48,10 +48,11 @@ class Keyword(models.Model):
             )
 
 
-# Audience type model
-# AudienceType has a many:many relationship to TrainingMaterial
 class AudienceType(models.Model):
-    """AudienceType model: The education or professional level of the expected audience of the training event or material."""
+    """
+    AudienceType model: The education or professional level of the expected audience of the training event or material.
+    AudienceType has a many:many relationship to TrainingMaterial
+    """
 
     # field is mandatory
     audienceType = models.CharField(
@@ -66,10 +67,11 @@ class AudienceType(models.Model):
         return self.audienceType
 
 
-# Audience role model
-# AudienceRole has a many:many relationship to TrainingMaterial
 class AudienceRole(models.Model):
-    """AudienceRole model: The professional roles of the expected audience of the training event or material."""
+    """
+    AudienceRole model: The professional roles of the expected audience of the training event or material.
+    AudienceRole has a many:many relationship to TrainingMaterial
+    """
 
     # field is mandatory
     audienceRole = models.CharField(
