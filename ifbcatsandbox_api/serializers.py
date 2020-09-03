@@ -193,17 +193,23 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
     costs = serializers.SlugRelatedField(
-        many=True, read_only=False, slug_field="cost", queryset=models.EventCost.objects,
+        many=True, read_only=False, slug_field="cost", queryset=models.EventCost.objects, required=False,
     )
 
-    topics = CreatableSlugRelatedField(many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects,)
+    topics = CreatableSlugRelatedField(
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
+    )
     keywords = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
     prerequisites = CreatableSlugRelatedField(
-        many=True, read_only=False, slug_field="prerequisite", queryset=models.EventPrerequisite.objects,
+        many=True,
+        read_only=False,
+        slug_field="prerequisite",
+        queryset=models.EventPrerequisite.objects,
+        required=False,
     )
-    dates = EventDateSerializer(many=True, read_only=False, required=False,)
+    dates = EventDateSerializer(many=True, read_only=False,)
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),
@@ -288,11 +294,11 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         # .names gives e.g. "FREE_TO_ACADEMICS" (the variable name)
         # .labels gives e.g. "Free to Academics" (derived from the variable name )
 
-        #        for cost in costs:
-        #            if cost.__str__() not in models.EventCost.CostType.values:
-        #                msg = 'This field can only contain valid cost strings: ' + ','.join(models.EventCost.CostType.values)
-        #                raise serializers.ValidationError(msg)
-        return costs
+        # for cost in costs:
+        #    if cost.__str__() not in models.EventCost.CostType.values:
+        #        msg = 'This field can only contain valid cost strings: ' + ','.join(models.EventCost.CostType.values)
+        #        raise serializers.ValidationError(msg)
+        # return costs
 
     def update(self, instance, validated_data):
         sub_instances = dict()

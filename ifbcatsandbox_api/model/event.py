@@ -110,7 +110,7 @@ class Event(models.Model):
 
     # NB: max_length is mandatory, but is ignored by sqlite3, see https://github.com/joncison/ifbcat-sandbox/pull/9
     type = models.CharField(
-        max_length=255, choices=EventType.choices, blank=True, help_text="The type of event e.g. 'Training course'."
+        max_length=255, blank=True, choices=EventType.choices, help_text="The type of event e.g. 'Training course'."
     )
 
     dates = models.ManyToManyField(
@@ -147,10 +147,7 @@ class Event(models.Model):
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
     )
     accessibility = models.CharField(
-        max_length=255,
-        choices=EventAccessibilityType.choices,
-        blank=True,
-        help_text="Whether the event is public or private.",
+        max_length=255, choices=EventAccessibilityType.choices, help_text="Whether the event is public or private.",
     )
     accessibilityNote = models.CharField(
         max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for."
