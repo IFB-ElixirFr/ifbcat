@@ -524,8 +524,6 @@ class BioinformaticsTeamViewSet(TeamViewSet):
     serializer_class = serializers.BioinformaticsTeamSerializer
     queryset = models.BioinformaticsTeam.objects.all()
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
-
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = TeamViewSet.search_fields + (
         'orgid',
