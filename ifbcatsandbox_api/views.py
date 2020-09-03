@@ -488,22 +488,6 @@ class TrainingMaterialViewSet(ResourceViewSet):
     )
 
 
-# Model ViewSet for computing facilities
-class ComputingFacilityViewSet(ResourceViewSet):
-    """Handles creating, reading and updating computing facilities."""
-
-    serializer_class = serializers.ComputingFacilitySerializer
-    queryset = models.ComputingFacility.objects.all()
-
-    search_fields = ResourceViewSet.search_fields + (
-        'homepage',
-        'providedBy',
-        'team',
-        'accessibility',
-        'serverDescription',
-    )
-
-
 # Model ViewSet for teams
 class TeamViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating teams."""
