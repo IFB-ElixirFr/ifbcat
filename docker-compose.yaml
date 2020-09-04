@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+
+  db:
+    image: postgres:12
+#    build:
+#      context: ./
+#      dockerfile: postgres.dockerfile
+    volumes:
+      - /opt/ifbcat/db_data:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - "5433:5432"
+    env_file:
+      - ./resources/default.ini
+      - ./local.ini
+    #environment:
+    #  POSTGRES_USER: "ifb_user"
+    #  POSTGRES_PASSWORD: "pass"
+    #  POSTGRES_DB: "ifb_catalog"
+#      PGDATA: /var/lib/postgresql/data/pgdata
+
+  web:
+    build:
+      context: ./
+      dockerfile: django.dockerfile
+    restart:
+      always
+    entrypoint: /code/docker-entrypoint.sh
+    # command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: gunicorn --reload catalogue.wsgi -b 0.0.0.0:8000
+    env_file:
+      - ./resources/default.ini
+    volumes:
+      - .:/code
+      - /opt/ifbcat/static:/code/static
+    # ports:
+    #   - "8001:8000"
+    depends_on:
+      - db
+    # user: "${UID}:${GID}"
+  # The Database manager (adminer)
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+
+  nginx:
+    image: nginx:1.17.4-alpine
+    #build:
+    #  context: ./
+    #  dockerfile: nginx.dockerfile
+    volumes:
+    #  - .:/code
+      - /opt/ifbcat/static:/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - web
+
+
+#volumes:
+#  db_data:

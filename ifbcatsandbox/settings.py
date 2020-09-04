@@ -11,8 +11,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from ifbcatsandbox import db_finder
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -82,12 +85,32 @@ WSGI_APPLICATION = 'ifbcatsandbox.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if config('USE_SQLITE_AS_DB', default=True, cast=bool):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    if os.environ.get('POSTGRES_PASSWORD', '') == '':
+        DATABASES_HOST = db_finder.get_db_ip()
+    else:
+        DATABASES_HOST = 'db'
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': 'postgres',
+            'PASSWORD': config('POSTGRES_PASSWORD'),
+            'HOST': DATABASES_HOST,
+            'PORT': 5432,
+        }
+    }
+
+    # INSTALLED_APPS += [
+    #     'django.contrib.postgres',
+    # ]  # needed for __unaccent
 
 
 # Password validation
@@ -127,6 +150,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Configure Django to use our custom user model for authentication and user registration
 AUTH_USER_MODEL = 'ifbcatsandbox_api.UserProfile'
