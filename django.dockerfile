@@ -23,12 +23,3 @@ COPY ./resources/*-entrypoint.sh /
 RUN chmod a+x /*-entrypoint.sh
 
 COPY . /code/
-
-# expose the port 8000
-
-# CMD ["python", "manage.py", "makemigrations"]
-# CMD ["python", "manage.py", "collectstatic"]
-
-# define the default command to run when starting the container
-# For dev
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
