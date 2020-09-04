@@ -36,6 +36,8 @@ class BioinformaticsTeam(Team):
         validators=[
             validate_grid_or_ror_id,
         ],
+        null=True,
+        blank=True,
     )
     unitId = models.CharField(
         max_length=255,
