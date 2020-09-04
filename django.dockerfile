@@ -7,13 +7,14 @@ RUN apt-get update && \
         gettext \
         python3-dev \
         cron \
- && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/* \
+ && python -m pip install --upgrade pip
 
 ENV PYTHONUNBUFFERED 1
 EXPOSE 8000
 RUN mkdir /code
 WORKDIR /code
-CMD ["gunicorn", "--reload", "--reload-engine", "inotify", "--chdir", "catalogue", "--bind", ":8000", "catalogue.wsgi:application"]
+CMD ["gunicorn", "--reload", "--reload-engine", "inotify", "--chdir", "ifbcatsandbox", "--bind", ":8000", "ifbcatsandbox.wsgi:application"]
 
 COPY requirements.txt /code/
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt

@@ -6,3 +6,4 @@ djangorestframework==3.11.0
 python-decouple
 psycopg2
 psycopg2-binary
+gunicorn

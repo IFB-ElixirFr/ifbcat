@@ -17,8 +17,8 @@ cd /code
 msg_info "Applying database migrations"
 python manage.py migrate
 
-msg_info "Compilling localization (.po -> .mo)"
-python manage.py compilemessages
+#msg_info "Compilling localization (.po -> .mo)"
+#python manage.py compilemessages
 
 STATIC_ROOT_DIR=$(python manage.py shell -c "from django.conf import settings; print(settings.STATIC_ROOT)")
 msg_info "Creating static root at $STATIC_ROOT_DIR"
@@ -32,14 +32,14 @@ fi
 msg_info "Collecting static files"
 python manage.py collectstatic --noinput
 
-MEDIA_ROOT_DIR=$(python manage.py shell -c "from django.conf import settings; print(settings.MEDIA_ROOT)")
-msg_info "Creating media root at $MEDIA_ROOT_DIR"
-if [ "$MEDIA_ROOT_DIR" != "" ]; then
-    mkdir -p $MEDIA_ROOT_DIR
-    chmod 777 $MEDIA_ROOT_DIR
-else
-    msg_warning "settings.MEDIA_ROOT missing, passed"
-fi
+#MEDIA_ROOT_DIR=$(python manage.py shell -c "from django.conf import settings; print(settings.MEDIA_ROOT)")
+#msg_info "Creating media root at $MEDIA_ROOT_DIR"
+#if [ "$MEDIA_ROOT_DIR" != "" ]; then
+#    mkdir -p $MEDIA_ROOT_DIR
+#    chmod 777 $MEDIA_ROOT_DIR
+#else
+#    msg_warning "settings.MEDIA_ROOT missing, passed"
+#fi
 
 #Setting up cron tasks
 #msg_info "Registering cron tasks"

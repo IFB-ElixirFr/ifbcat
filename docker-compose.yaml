@@ -27,16 +27,16 @@ services:
       dockerfile: django.dockerfile
     restart:
       always
-    entrypoint: /code/resources/docker-entrypoint.sh
+    entrypoint: /docker-entrypoint.sh
     # command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    command: gunicorn --reload catalogue.wsgi -b 0.0.0.0:8000
+    command: gunicorn --reload ifbcatsandbox.wsgi -b 0.0.0.0:8000
     env_file:
       - ./resources/default.ini
     volumes:
-      - .:/code
+      - .:/code # for dev purpose !!!
       - /opt/ifbcat/static:/code/static
-    # ports:
-    #   - "8001:8000"
+    ports:
+      - "8000:8000"
     depends_on:
       - db
     # user: "${UID}:${GID}"
@@ -56,7 +56,7 @@ services:
     #  - .:/code
       - /opt/ifbcat/static:/static
     ports:
-      - "8000:8000"
+      - "8080:8080"
     depends_on:
       - web
 
