@@ -27,7 +27,7 @@ services:
       dockerfile: django.dockerfile
     restart:
       always
-    entrypoint: /code/docker-entrypoint.sh
+    entrypoint: /code/resources/docker-entrypoint.sh
     # command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     command: gunicorn --reload catalogue.wsgi -b 0.0.0.0:8000
     env_file:
