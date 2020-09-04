@@ -9,6 +9,8 @@ from django.core.management import BaseCommand
 from database.models import Training_material
 from database.models import Keyword
 from catalogue.settings import BASE_DIR
+
+
 class Command(BaseCommand):
     def import_materiel_formation_from_csv_file(self):
         data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
@@ -21,7 +23,7 @@ class Command(BaseCommand):
                     data = csv.reader(data_file)
                     # skip first line as there is always a header
                     next(data)
-                    #do the work
+                    # do the work
                     for data_object in data:
                         if data_object == []:
                             continue  # Check for empty lines
@@ -38,7 +40,6 @@ class Command(BaseCommand):
 
                                     training_material_keyword, created = Keyword.objects.get_or_create(
                                         name=keyword,
-
                                     )
                                     training_material_keyword.save()
                                     training_material_keywords_list.append(training_material_keyword)
@@ -47,18 +48,22 @@ class Command(BaseCommand):
                                 except Exception as ex:
                                     print(str(ex))
                                     msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(
-                                        training_material_keyword, str(ex))
+                                        training_material_keyword, str(ex)
+                                    )
                                     print(msg)
-
 
                         training_material_licence = data_object[4]
                         training_material_event_link = data_object[5]
                         if data_object[6]:
-                            training_material_publication_date = datetime.datetime.strptime(data_object[6].split(" to ")[0], "%d-%m-%Y")#.strftime("%Y-%m-%d")
-                            training_material_publication_date = make_aware(training_material_publication_date, timezone=pytz.timezone('Europe/Paris'))
+                            training_material_publication_date = datetime.datetime.strptime(
+                                data_object[6].split(" to ")[0], "%d-%m-%Y"
+                            )  # .strftime("%Y-%m-%d")
+                            training_material_publication_date = make_aware(
+                                training_material_publication_date, timezone=pytz.timezone('Europe/Paris')
+                            )
                         else:
                             training_material_publication_date = None
-                        print (training_material_publication_date)
+                        print(training_material_publication_date)
                         training_material_target_audience = data_object[7]
                         training_material_url_file = data_object[8]
 
@@ -67,18 +72,16 @@ class Command(BaseCommand):
                             training_material, created = Training_material.objects.get_or_create(
                                 name=training_material_name,
                                 description=training_material_description,
-                                file_name = training_material_file_name,
-                                licence = training_material_licence,
-                                event_link = training_material_event_link,
-                                publication_date = training_material_publication_date,
-                                target_audience = training_material_target_audience,
-                                url_file = training_material_url_file,
-
+                                file_name=training_material_file_name,
+                                licence=training_material_licence,
+                                event_link=training_material_event_link,
+                                publication_date=training_material_publication_date,
+                                target_audience=training_material_target_audience,
+                                url_file=training_material_url_file,
                             )
 
                             if created:
                                 training_material.save()
-
 
                                 display_format = "\nTraining material, {}, has been saved."
                                 print(display_format.format(training_material))
@@ -89,7 +92,9 @@ class Command(BaseCommand):
 
                         except Exception as ex:
                             print(str(ex))
-                            msg = "\n\nSomething went wrong saving this training material: {}\n{}".format(training_material, str(ex))
+                            msg = "\n\nSomething went wrong saving this training material: {}\n{}".format(
+                                training_material, str(ex)
+                            )
                             print(msg)
 
     def handle(self, *args, **options):

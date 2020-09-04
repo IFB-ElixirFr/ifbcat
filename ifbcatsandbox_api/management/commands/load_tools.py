@@ -1,4 +1,3 @@
-
 import os
 import csv
 from django.core.management import BaseCommand
@@ -7,6 +6,8 @@ from database.models import Keyword
 from database.models import ToolType
 from database.models import Platform
 from catalogue.settings import BASE_DIR
+
+
 class Command(BaseCommand):
     def import_tools_from_csv_file(self):
         data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
@@ -19,12 +20,12 @@ class Command(BaseCommand):
                     data = csv.reader(data_file)
                     # skip first line as there is always a header
                     next(data)
-                    #do the work
+                    # do the work
                     for data_object in data:
                         if data_object == []:
                             continue  # Check for empty lines
                         tool_name = data_object[0]
-                        print (tool_name)
+                        print(tool_name)
                         tool_citation = data_object[1]
                         tool_logo = data_object[2]
                         tool_access_condition = data_object[3]
@@ -41,7 +42,6 @@ class Command(BaseCommand):
 
                                     tool_keyword, created = Keyword.objects.get_or_create(
                                         name=keyword,
-
                                     )
                                     tool_keyword.save()
                                     tool_keywords_list.append(tool_keyword)
@@ -50,7 +50,8 @@ class Command(BaseCommand):
                                 except Exception as ex:
                                     print(str(ex))
                                     msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(
-                                        tool_keyword, str(ex))
+                                        tool_keyword, str(ex)
+                                    )
                                     print(msg)
 
                         tool_types_bis = data_object[13]
@@ -64,7 +65,6 @@ class Command(BaseCommand):
 
                                     tool_type, created = ToolType.objects.get_or_create(
                                         name=type,
-
                                     )
                                     tool_type.save()
                                     tool_type_list.append(tool_type)
@@ -72,8 +72,7 @@ class Command(BaseCommand):
                                     print(display_format.format(tool_type))
                                 except Exception as ex:
                                     print(str(ex))
-                                    msg = "\n\nSomething went wrong saving this type: {}\n{}".format(
-                                        tool_type, str(ex))
+                                    msg = "\n\nSomething went wrong saving this type: {}\n{}".format(tool_type, str(ex))
                                     print(msg)
 
                         tool_downloads = data_object[14] or 0
@@ -83,28 +82,26 @@ class Command(BaseCommand):
                         print(tool_platform)
 
                         tool = ""
-                        object_platform =  Platform.objects.get(
-                                        name=tool_platform,
-                                    )
+                        object_platform = Platform.objects.get(
+                            name=tool_platform,
+                        )
                         print(object_platform.id)
                         try:
                             tool, created = Tool.objects.get_or_create(
                                 name=tool_name,
                                 citations=tool_citation,
-                                logo= tool_logo,
-                                access_condition = tool_access_condition,
-                                description = tool_description,
-                                link = tool_link,
-                                downloads = int(tool_downloads),
-                                annual_visits = int(tool_annual_visits),
-                                unique_visits = int(tool_unique_visits),
-
+                                logo=tool_logo,
+                                access_condition=tool_access_condition,
+                                description=tool_description,
+                                link=tool_link,
+                                downloads=int(tool_downloads),
+                                annual_visits=int(tool_annual_visits),
+                                unique_visits=int(tool_unique_visits),
                             )
                             print(created)
                             tool.platform.add(object_platform.id)
                             if created:
                                 tool.save()
-
 
                                 display_format = "\nTool, {}, has been saved."
                                 print(display_format.format(tool))
@@ -120,8 +117,6 @@ class Command(BaseCommand):
                             msg = "\n\nSomething went wrong saving this tool: {}\n{}".format(tool, str(ex))
                             print(msg)
                             raise ex
-
-
 
     def handle(self, *args, **options):
         """

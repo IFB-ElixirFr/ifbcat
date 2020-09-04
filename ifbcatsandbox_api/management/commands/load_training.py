@@ -9,6 +9,8 @@ from django.core.management import BaseCommand
 from database.models import Formation
 from database.models import Keyword
 from catalogue.settings import BASE_DIR
+
+
 class Command(BaseCommand):
     def import_formations_from_csv_file(self):
         data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
@@ -21,7 +23,7 @@ class Command(BaseCommand):
                     data = csv.reader(data_file)
                     # skip first line as there is always a header
                     next(data)
-                    #do the work
+                    # do the work
                     for data_object in data:
                         if data_object == []:
                             continue  # Check for empty lines
@@ -38,7 +40,6 @@ class Command(BaseCommand):
 
                                     formation_keyword, created = Keyword.objects.get_or_create(
                                         name=keyword,
-
                                     )
                                     formation_keyword.save()
                                     formation_keywords_list.append(formation_keyword)
@@ -47,18 +48,31 @@ class Command(BaseCommand):
                                 except Exception as ex:
                                     print(str(ex))
                                     msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(
-                                        formation_keyword, str(ex))
+                                        formation_keyword, str(ex)
+                                    )
                                     print(msg)
 
                         if data_object[7]:
                             if "to" in data_object[7]:
-                                formation_start_date = datetime.datetime.strptime(data_object[7].split(" to ")[0], "%d-%m-%Y")#.strftime("%Y-%m-%d")
-                                formation_start_date = make_aware(formation_start_date, timezone=pytz.timezone('Europe/Paris'))
-                                formation_end_date = datetime.datetime.strptime(data_object[7].split(" to ")[1], "%d-%m-%Y")
-                                formation_end_date = make_aware(formation_end_date, timezone=pytz.timezone('Europe/Paris'))
+                                formation_start_date = datetime.datetime.strptime(
+                                    data_object[7].split(" to ")[0], "%d-%m-%Y"
+                                )  # .strftime("%Y-%m-%d")
+                                formation_start_date = make_aware(
+                                    formation_start_date, timezone=pytz.timezone('Europe/Paris')
+                                )
+                                formation_end_date = datetime.datetime.strptime(
+                                    data_object[7].split(" to ")[1], "%d-%m-%Y"
+                                )
+                                formation_end_date = make_aware(
+                                    formation_end_date, timezone=pytz.timezone('Europe/Paris')
+                                )
                             else:
-                                formation_start_date = datetime.datetime.strptime(data_object[7], "%d-%m-%Y")#.strftime("%Y-%m-%d")
-                                formation_start_date = make_aware(formation_start_date, timezone=pytz.timezone('Europe/Paris'))
+                                formation_start_date = datetime.datetime.strptime(
+                                    data_object[7], "%d-%m-%Y"
+                                )  # .strftime("%Y-%m-%d")
+                                formation_start_date = make_aware(
+                                    formation_start_date, timezone=pytz.timezone('Europe/Paris')
+                                )
                                 formation_end_date = None
                         else:
                             formation_start_date = None
@@ -97,39 +111,37 @@ class Command(BaseCommand):
                             formation_satisfaction_rate = data_object[22].split("%")[0]
                         else:
                             formation_satisfaction_rate = None
-                        #formation_platform = data_object[23]
+                        # formation_platform = data_object[23]
 
-                        formation= ""
+                        formation = ""
 
                         try:
                             formation, created = Formation.objects.get_or_create(
                                 name=formation_name,
                                 formation_type=formation_type,
-                                description = formation_description,
-                                start_date = formation_start_date,
-                                end_date = formation_end_date,
+                                description=formation_description,
+                                start_date=formation_start_date,
+                                end_date=formation_end_date,
                                 location=formation_location,
-                                access_conditions= formation_acces_condition,
-                                link = formation_link,
-                                organizer = formation_organizer,
-                                sponsors = formation_sponsors,
-                                number_people_trained= formation_number_people_trained,
-                                number_of_academic_participants = formation_number_of_academic_participants,
-                                number_of_non_academic_participants = formation_number_of_non_academic_participants,
-                                training_time = formation_training_time,
-                                participation = formation_participation,
-                                training_level = formation_training_level,
-                                training_operator = formation_training_operator,
-                                number_of_sessions = formation_number_of_sessions,
-                                recurrence = formation_recurrence,
-                                satisfaction_rate = formation_satisfaction_rate,
-                                #platform = formation_platform,
-
+                                access_conditions=formation_acces_condition,
+                                link=formation_link,
+                                organizer=formation_organizer,
+                                sponsors=formation_sponsors,
+                                number_people_trained=formation_number_people_trained,
+                                number_of_academic_participants=formation_number_of_academic_participants,
+                                number_of_non_academic_participants=formation_number_of_non_academic_participants,
+                                training_time=formation_training_time,
+                                participation=formation_participation,
+                                training_level=formation_training_level,
+                                training_operator=formation_training_operator,
+                                number_of_sessions=formation_number_of_sessions,
+                                recurrence=formation_recurrence,
+                                satisfaction_rate=formation_satisfaction_rate,
+                                # platform = formation_platform,
                             )
 
                             if created:
                                 formation.save()
-
 
                                 display_format = "\nFormation, {}, has been saved."
                                 print(display_format.format(formation))
@@ -137,7 +149,6 @@ class Command(BaseCommand):
                                     formation.keywords.add(keyword)
 
                                 formation.save()
-
 
                         except Exception as ex:
                             print(str(ex))

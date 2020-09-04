@@ -1,4 +1,3 @@
-
 import os
 import csv
 
@@ -7,6 +6,8 @@ from database.models import Platform
 from database.models import People
 from database.models import Certificat
 from catalogue.settings import BASE_DIR
+
+
 class Command(BaseCommand):
     def import_plateforme_from_csv_file(self):
         data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
@@ -19,12 +20,12 @@ class Command(BaseCommand):
                     data = csv.reader(data_file)
                     # skip first line as there is always a header
                     next(data)
-                    #do the work
+                    # do the work
                     for data_object in data:
                         if data_object == []:
                             continue  # Check for empty lines
-                        lead_technic_list= []
-                        lead_scientific_list= []
+                        lead_technic_list = []
+                        lead_scientific_list = []
                         platform_certificats_list = []
                         platform_team_list = []
                         platform_name = data_object[0]
@@ -39,7 +40,6 @@ class Command(BaseCommand):
 
                                     lead_tech, created = People.objects.get_or_create(
                                         name=lead_technic,
-
                                     )
                                     lead_tech.save()
                                     lead_technic_list.append(lead_tech)
@@ -47,7 +47,9 @@ class Command(BaseCommand):
                                     print(display_format.format(lead_tech))
                                 except Exception as ex:
                                     print(str(ex))
-                                    msg = "\n\nSomething went wrong saving this People: {}\n{}".format(lead_tech, str(ex))
+                                    msg = "\n\nSomething went wrong saving this People: {}\n{}".format(
+                                        lead_tech, str(ex)
+                                    )
                                     print(msg)
 
                         lead_scientific_name = data_object[5].split("\n")
@@ -58,7 +60,6 @@ class Command(BaseCommand):
 
                                     lead_scien, created = People.objects.get_or_create(
                                         name=lead_scientific,
-
                                     )
                                     lead_scien.save()
                                     lead_scientific_list.append(lead_scien)
@@ -66,7 +67,9 @@ class Command(BaseCommand):
                                     print(display_format.format(lead_scien))
                                 except Exception as ex:
                                     print(str(ex))
-                                    msg = "\n\nSomething went wrong saving this People: {}\n{}".format(lead_scien, str(ex))
+                                    msg = "\n\nSomething went wrong saving this People: {}\n{}".format(
+                                        lead_scien, str(ex)
+                                    )
                                     print(msg)
 
                         platform_certificat_name = data_object[6].split("\n")
@@ -76,7 +79,6 @@ class Command(BaseCommand):
                                 try:
                                     pf_cert, created = Certificat.objects.get_or_create(
                                         name=platform_certif,
-
                                     )
                                     pf_cert.save()
                                     platform_certificats_list.append(pf_cert)
@@ -96,7 +98,6 @@ class Command(BaseCommand):
                                 try:
                                     pf_team, created = People.objects.get_or_create(
                                         name=platform_team,
-
                                     )
                                     pf_team.save()
                                     platform_team_list.append(pf_team)
@@ -115,9 +116,9 @@ class Command(BaseCommand):
                                 name=platform_name,
                                 logo=platform_logo,
                                 address=platform_adress,
-                                affiliation = platform_affiliation,
-                                website = platform_website,
-                                structure = platform_structure,
+                                affiliation=platform_affiliation,
+                                website=platform_website,
+                                structure=platform_structure,
                             )
 
                             if created:

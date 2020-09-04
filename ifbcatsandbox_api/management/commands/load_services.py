@@ -24,11 +24,11 @@ class Command(BaseCommand):
                     data = csv.reader(data_file)
                     # skip first line as there is always a header
                     next(data)
-                    #do the work
+                    # do the work
                     for data_object in data:
                         if data_object == []:
                             continue  # Check for empty lines
-                        credit_list=[]
+                        credit_list = []
                         service_name = data_object[0]
                         credit_name = data_object[1]
 
@@ -44,7 +44,6 @@ class Command(BaseCommand):
                                 institute=credit_institute,
                                 adress=credit_adress,
                                 email=credit_email,
-
                             )
 
                             credit1.save()
@@ -70,7 +69,6 @@ class Command(BaseCommand):
                                     institute=credit_institute2,
                                     adress=credit_adress2,
                                     email=credit_email2,
-
                                 )
 
                                 credit2.save()
@@ -106,7 +104,7 @@ class Command(BaseCommand):
                         service_communities = data_object[14]
                         elixir_communities_name_bis = data_object[15]
                         elixir_communities_name = elixir_communities_name_bis.split("\n")
-                        elixir_communities_list=[]
+                        elixir_communities_list = []
                         elixir_community = ""
                         for community in elixir_communities_name:
                             if len(community) > 4:
@@ -115,7 +113,6 @@ class Command(BaseCommand):
 
                                     elixir_community, created = ElixirCommunities.objects.get_or_create(
                                         name=community,
-
                                     )
                                     elixir_community.save()
                                     elixir_communities_list.append(elixir_community)
@@ -123,7 +120,9 @@ class Command(BaseCommand):
                                     print(display_format.format(elixir_community))
                                 except Exception as ex:
                                     print(str(ex))
-                                    msg = "\n\nSomething went wrong saving this Elixir_communities: {}\n{}".format(elixir_community, str(ex))
+                                    msg = "\n\nSomething went wrong saving this Elixir_communities: {}\n{}".format(
+                                        elixir_community, str(ex)
+                                    )
                                     print(msg)
 
                         service_year_created = data_object[16]
@@ -149,8 +148,9 @@ class Command(BaseCommand):
                                     publications_doi.append(publication)
                                 except Exception as ex:
                                     print(str(ex))
-                                    msg = "\n\nSomething went wrong saving this publication: {}\n{}".format(publication,
-                                                                                                        str(ex))
+                                    msg = "\n\nSomething went wrong saving this publication: {}\n{}".format(
+                                        publication, str(ex)
+                                    )
                                     print(msg)
                             else:
                                 continue
@@ -197,8 +197,8 @@ class Command(BaseCommand):
                                 access=service_access,
                                 quality=service_quality,
                                 usage=service_usage,
-                                publication_citations_nb=service_publication_citations_nb.replace(",",""),
-                                publication_coauthor_nb=service_publication_coauthor_nb.replace(",",""),
+                                publication_citations_nb=service_publication_citations_nb.replace(",", ""),
+                                publication_coauthor_nb=service_publication_coauthor_nb.replace(",", ""),
                                 sab_user_comittee=service_sab_user_comittee,
                                 term_of_use=service_term_of_use,
                                 ethics_policy=service_ethics_policy,
@@ -208,7 +208,6 @@ class Command(BaseCommand):
                                 motivation_support_ifb_it=service_motivation_support_ifb_it,
                                 motivation_support_ifb_curation=service_motivation_support_ifb_curation,
                                 motivation_support_ifb_core_resource=service_motivation_support_ifb_core_resource,
-
                             )
 
                             if created:
@@ -226,15 +225,10 @@ class Command(BaseCommand):
 
                                 service.save()
 
-
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this service: {}\n{}".format(service, str(ex))
                             print(msg)
-
-
-
-
 
     def handle(self, *args, **options):
         """
