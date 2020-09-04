@@ -4,6 +4,7 @@ import pandas as pd
 from django.core.management import BaseCommand
 from ifbcatsandbox_api.models import BioinformaticsTeam, Organisation
 
+
 class Command(BaseCommand):
 
     help = "Import Teams"
@@ -18,10 +19,10 @@ class Command(BaseCommand):
         for index, row in df.iterrows():
             bt = BioinformaticsTeam()
             bt.name = row["Nom de la plateforme"]
-            bt.address = row["Adresse postale"]                
+            bt.address = row["Adresse postale"]
             bt.save()
             for affiliation in row["Affiliation"].split(","):
-                #FIXME, adding dummy contents because description and homepage are missing
+                # FIXME, adding dummy contents because description and homepage are missing
                 o, created = Organisation.objects.get_or_create(name=affiliation)
                 if created:
                     o.name = affiliation
@@ -31,6 +32,8 @@ class Command(BaseCommand):
                     o.save()
                 bt.affiliatedWith.add(o)
             bt.save()
+
+
 """
             lead_technic_list= []
             lead_scientific_list= []
