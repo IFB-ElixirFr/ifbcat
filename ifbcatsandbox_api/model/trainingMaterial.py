@@ -22,6 +22,7 @@ class TrainingMaterial(Resource):
     doi = models.ForeignKey(
         Doi,
         blank=True,
+        null=True,
         on_delete=models.SET_NULL,
         help_text="Unique identier (DOI) of the training material, e.g. a Zenodo DOI.",
     )
