@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html
 
 from ifbcatsandbox_api import models
@@ -40,14 +41,42 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.UserProfile)
-class UserProfileAdmin(ViewInApiModelAdmin):
-    """Enables search, filtering and widgets in Django admin interface."""
-
+class UserProfileAdmin(UserAdmin):
+    # Enables search, filtering and widgets in Django admin interface.
+    ordering = ("email",)
+    list_display = (
+        'email',
+        'firstname',
+        'lastname',
+    )
     search_fields = (
         'firstname',
-        'lastName',
+        'lastname',
         'email',
         'orcidid',
+    )
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        ('Personal info', {'fields': ('firstname', 'lastname')}),
+        (
+            'Permissions',
+            {
+                'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+            },
+        ),
+        (
+            'Important dates',
+            {'fields': ('last_login',)},
+        ),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                'classes': ('wide',),
+                'fields': ('email', 'password1', 'password2'),
+            },
+        ),
     )
 
 
