@@ -45,7 +45,7 @@ class BioinformaticsTeam(Team):
         help_text="Unit ID (unique identifier of research or service unit) that the Bioinformatics Team belongs to.",
     )
     address = models.TextField(blank=True, help_text="Postal address of the bioinformatics team.")
-    # TO-DO logo
+    logo_url = models.URLField(max_length=512, help_text="URL of logo.", blank=True, null=True)
     fields = models.ManyToManyField(
         Field,
         blank=True,

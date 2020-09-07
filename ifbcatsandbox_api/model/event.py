@@ -55,6 +55,7 @@ class EventSponsor(models.Model):
         max_length=255, unique=True, help_text="Name of institutional entity that is sponsoring the event."
     )
     homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
+    logo_url = models.URLField(max_length=512, help_text="URL of logo.", blank=True, null=True)
     # TO-DO logo
     organisationId = models.ForeignKey(
         Organisation,
