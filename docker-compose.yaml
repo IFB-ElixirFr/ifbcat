@@ -48,7 +48,7 @@ services:
       - "8081:8080"
 
   nginx:
-    image: nginx:1.17.4-alpine
+    image: nginx:1.19-alpine
     #build:
     #  context: ./
     #  dockerfile: nginx.dockerfile
