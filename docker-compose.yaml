@@ -55,10 +55,10 @@ services:
     #  dockerfile: nginx.dockerfile
     volumes:
     #  - .:/code
-      - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - /var/ifbcat/static:/static
-      - /etc/ssl/certs/wildcard-chained-france-bioinformatique.crt:/wildcard-chained-france-bioinformatique.crt
-      - /etc/ssl/private/wildcard-france-bioinformatique.key:/wildcard-france-bioinformatique.key
+      - /etc/ssl/certs/wildcard-chained-france-bioinformatique.crt:/wildcard-chained-france-bioinformatique.crt:ro
+      - /etc/ssl/private/wildcard-france-bioinformatique.key:/wildcard-france-bioinformatique.key:ro
     ports:
       - "8080:8080"
       - "443:8443"
