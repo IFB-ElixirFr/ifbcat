@@ -82,3 +82,11 @@ class PubliclyReadableEditableByMembers(PubliclyReadableEditableBySomething):
 
 class PubliclyReadableEditableByContact(PubliclyReadableEditableBySomething):
     target = 'contactId'
+
+
+class PubliclyReadableEditableByAuthors(PubliclyReadableEditableBySomething):
+    target = 'authors'
+
+
+class PubliclyReadableEditableBySubmitters(PubliclyReadableEditableBySomething):
+    target = 'submitters'

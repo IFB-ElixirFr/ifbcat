@@ -595,7 +595,12 @@ class ServiceSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ServiceSubmissionSerializer
     queryset = models.ServiceSubmission.objects.all()
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableEditableBySubmitters,
+        permissions.PubliclyReadableEditableByAuthors,
+        IsAuthenticatedOrReadOnly,
+    )
 
     search_fields = (
         'service__name',
