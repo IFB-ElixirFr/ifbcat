@@ -32,6 +32,7 @@ services:
     command: gunicorn --reload ifbcatsandbox.wsgi -b 0.0.0.0:8000
     env_file:
       - ./resources/default.ini
+      - ./local.ini
     volumes:
       - .:/code # for dev purpose !!!
       - /var/ifbcat/static:/code/static
