@@ -234,7 +234,7 @@ class TrainingEventViewSet(EventViewSet):
     queryset = models.TrainingEvent.objects.all()
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByTrainer,
+        permissions.PubliclyReadableEditableByTrainers,
         permissions.PubliclyReadableEditableByContact,
         permissions.PubliclyReadableEditableByOwner,
         IsAuthenticatedOrReadOnly,
@@ -428,7 +428,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     permission_classes = (
         permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMember,
+        permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -475,7 +475,7 @@ class ComputingFacilityViewSet(ResourceViewSet):
     queryset = models.ComputingFacility.objects.all()
     permission_classes = (
         permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMember,
+        permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -518,7 +518,7 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     permission_classes = (
         permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMember,
+        permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -573,7 +573,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
     permission_classes = (
         permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMember,
+        permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 

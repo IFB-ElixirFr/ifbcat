@@ -72,11 +72,11 @@ class PubliclyReadableEditableByCoordinator(PubliclyReadableEditableBySomething)
     target = 'coordinator'
 
 
-class PubliclyReadableEditableByTrainer(PubliclyReadableEditableBySomething):
+class PubliclyReadableEditableByTrainers(PubliclyReadableEditableBySomething):
     target = 'trainers'
 
 
-class PubliclyReadableEditableByMember(PubliclyReadableEditableBySomething):
+class PubliclyReadableEditableByMembers(PubliclyReadableEditableBySomething):
     target = 'members'
 
 
