@@ -1,9 +1,10 @@
-
 import os
 import csv
 from django.core.management import BaseCommand
 from database.models import People
 from catalogue.settings import BASE_DIR
+
+
 class Command(BaseCommand):
     def import_poeple_from_csv_file(self):
         data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
@@ -22,7 +23,9 @@ class Command(BaseCommand):
                             data_object = next(data)
                         people_name = data_object[0]
                         people_email = data_object[1]
-                        people_link = str("https://www.france-bioinformatique.fr/fr/users/"+people_name.replace(" ","-")).lower()
+                        people_link = str(
+                            "https://www.france-bioinformatique.fr/fr/users/" + people_name.replace(" ", "-")
+                        ).lower()
                         people_platform = data_object[2]
 
                         people = ""
@@ -30,9 +33,8 @@ class Command(BaseCommand):
                             people, created = People.objects.get_or_create(
                                 name=people_name,
                                 email=people_email,
-                                link = people_link,
+                                link=people_link,
                                 # platform = people_platform,
-
                             )
                             if created:
                                 people.save()

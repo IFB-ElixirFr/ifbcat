@@ -10,6 +10,8 @@ from django.utils.timezone import make_aware
 from django.core.management import BaseCommand
 from database.models import Event
 from catalogue.settings import BASE_DIR
+
+
 class Command(BaseCommand):
     def import_events_from_csv_file(self):
         data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
@@ -23,11 +25,11 @@ class Command(BaseCommand):
                     data = csv.reader(data_file)
                     # skip first line as there is always a header
                     next(data)
-                    #count number of lines
+                    # count number of lines
                     data_len = len(list(data))
                     data_file.seek(0)
                     next(data)
-                    #do the work
+                    # do the work
                     for data_object in tqdm(data, total=data_len):
                         if data_object == []:
                             continue  # Check for empty lines
@@ -36,12 +38,16 @@ class Command(BaseCommand):
                         event_description = data_object[2]
                         if data_object[3]:
                             if "to" in data_object[3]:
-                                event_start_date = datetime.datetime.strptime(data_object[3].split(" to ")[0], "%d-%m-%Y")#.strftime("%Y-%m-%d")
+                                event_start_date = datetime.datetime.strptime(
+                                    data_object[3].split(" to ")[0], "%d-%m-%Y"
+                                )  # .strftime("%Y-%m-%d")
                                 event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
                                 event_end_date = datetime.datetime.strptime(data_object[3].split(" to ")[1], "%d-%m-%Y")
                                 event_end_date = make_aware(event_end_date, timezone=pytz.timezone('Europe/Paris'))
                             else:
-                                event_start_date = datetime.datetime.strptime(data_object[3], "%d-%m-%Y")#.strftime("%Y-%m-%d")
+                                event_start_date = datetime.datetime.strptime(
+                                    data_object[3], "%d-%m-%Y"
+                                )  # .strftime("%Y-%m-%d")
                                 event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
                                 event_end_date = None
                         else:

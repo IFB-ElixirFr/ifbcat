@@ -10,7 +10,7 @@ class Organisation(models.Model):
     """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
 
     # name, description & homepage are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(
         max_length=255,
         unique=True,
@@ -27,6 +27,7 @@ class Organisation(models.Model):
     orgid = models.CharField(
         max_length=255,
         null=True,
+        blank=True,
         unique=True,
         help_text="Organisation ID (GRID or ROR ID) of the organisation.",
         validators=[

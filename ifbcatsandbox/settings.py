@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-from decouple import config
+from decouple import config, UndefinedValueError
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from ifbcatsandbox import db_finder
@@ -28,8 +28,10 @@ SECRET_KEY = config('SECRET_KEY', '#1eg!-*r&1*y8*s9!g^!if!-(1&11k0%*7b$-jwgv!7u!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', 'true').lower() == 'true'
 
-ALLOWED_HOSTS = [s.strip() for s in config('ALLOWED_HOSTS').split(',')]
-
+try:
+    ALLOWED_HOSTS = [s.strip() for s in config('ALLOWED_HOSTS').split(',')]
+except UndefinedValueError:
+    print('WARNING: ALLOWED_HOSTS not found. Declare it as environment variable for production environments.')
 
 # Application definition
 #
