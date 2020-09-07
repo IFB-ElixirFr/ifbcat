@@ -42,6 +42,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserProfile
         fields = ('id', 'password', 'firstname', 'lastname', 'email', 'orcidid', 'homepage')
+        exclude = (
+            'is_superuser',
+            'is_staff',
+            'id',
+            'permissions',
+        )
 
         # password field is set to be write-only - it should only be used when creating a new user profile
         # Would be security risk e.g. to allow password hash to be retrieved via API!
