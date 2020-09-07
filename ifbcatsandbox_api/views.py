@@ -193,7 +193,11 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableEditableByContact,
+        IsAuthenticatedOrReadOnly,
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -228,6 +232,13 @@ class TrainingEventViewSet(EventViewSet):
 
     serializer_class = serializers.TrainingEventSerializer
     queryset = models.TrainingEvent.objects.all()
+
+    permission_classes = (
+        permissions.PubliclyReadableEditableByTrainer,
+        permissions.PubliclyReadableEditableByContact,
+        permissions.PubliclyReadableEditableByOwner,
+        IsAuthenticatedOrReadOnly,
+    )
 
     search_fields = EventViewSet.search_fields + (
         'audienceTypes__audienceType',
@@ -415,7 +426,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = models.Project.objects.all()
     lookup_field = 'name'
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableEditableByMember,
+        IsAuthenticatedOrReadOnly,
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -458,6 +473,11 @@ class ComputingFacilityViewSet(ResourceViewSet):
 
     serializer_class = serializers.ComputingFacilitySerializer
     queryset = models.ComputingFacility.objects.all()
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableEditableByMember,
+        IsAuthenticatedOrReadOnly,
+    )
 
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
@@ -496,7 +516,11 @@ class TeamViewSet(viewsets.ModelViewSet):
     queryset = models.Team.objects.all()
     lookup_field = 'name'
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableEditableByMember,
+        IsAuthenticatedOrReadOnly,
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -547,7 +571,11 @@ class ServiceViewSet(viewsets.ModelViewSet):
     queryset = models.Service.objects.all()
     lookup_field = 'name'
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableEditableByMember,
+        IsAuthenticatedOrReadOnly,
+    )
 
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (

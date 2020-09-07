@@ -1,4 +1,5 @@
 # Imports
+from django.db.models import ManyToManyField
 from rest_framework import permissions
 
 # Custom permission class for updating user profiles
@@ -25,9 +26,15 @@ class UpdateOwnProfile(permissions.BasePermission):
 
 
 # Custom permissions class for updating object
-class PubliclyReadableEditableByOwner(permissions.BasePermission):
-    owner_field = 'user_profile'
-    """Allow everyone to see, but only owner to update/delete."""
+class PubliclyReadableEditableBySomething(permissions.BasePermission):
+    class Meta:
+        abstract = True
+
+    """Allow everyone to see, but only target to update/delete."""
+    target = None
+
+    def __init__(self, *args, **kwargs):
+        assert self.target is not None, "target cannot be None"
 
     def has_object_permission(self, request, view, obj):
         """Check the user is trying to update their own object."""
@@ -38,12 +45,10 @@ class PubliclyReadableEditableByOwner(permissions.BasePermission):
         # Check that the user owns the object, i.e. the user_profile associated
         # with the object is assigned to the user making the request.
         # (returns True if the object being updated etc. has a user profile id that matches the request)
-        return getattr(obj, self.owner_field).id == request.user.id
-
-
-# Custom permissions class for updating object
-class PubliclyReadableEditableByCoordinator(permissions.BasePermission):
-    owner_field = 'coordinator'
+        target_attr = getattr(obj, self.target)
+        if isinstance(obj._meta.get_field(self.target), ManyToManyField):
+            return target_attr.filter(id=request.user.id).exists()
+        return target_attr.id == request.user.id
 
 
 # Custom permissions class for updating object
@@ -57,3 +62,23 @@ class PubliclyReadableByUsers(permissions.BasePermission):
             return True
 
         return False
+
+
+class PubliclyReadableEditableByOwner(PubliclyReadableEditableBySomething):
+    target = 'user_profile'
+
+
+class PubliclyReadableEditableByCoordinator(PubliclyReadableEditableBySomething):
+    target = 'coordinator'
+
+
+class PubliclyReadableEditableByTrainer(PubliclyReadableEditableBySomething):
+    target = 'trainers'
+
+
+class PubliclyReadableEditableByMember(PubliclyReadableEditableBySomething):
+    target = 'members'
+
+
+class PubliclyReadableEditableByContact(PubliclyReadableEditableBySomething):
+    target = 'contactId'
