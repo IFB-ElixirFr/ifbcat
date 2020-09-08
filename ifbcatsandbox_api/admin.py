@@ -48,6 +48,9 @@ class UserProfileAdmin(UserAdmin):
         'email',
         'firstname',
         'lastname',
+        'is_active',
+        'is_staff',
+        'is_superuser',
     )
     search_fields = (
         'firstname',
