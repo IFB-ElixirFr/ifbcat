@@ -12,3 +12,25 @@ pre-commit install
 #run black as it will be before each commit
 pre-commit run black
 ```
+
+# How to manage the server
+
+*All of this consider that you already are on the server and you are sudoer* 
+
+## Restart the service
+```
+sudo service ifbcat restart
+```
+
+## Pull the latest sources and restart
+```
+cd /var/ifbcat-src
+sudo git pull
+sudo service ifbcat restart
+```
+
+## Create a superuser
+```
+cd /var/ifbcat-src
+sudo docker-compose exec web python manage.py createsuperuser
+```
