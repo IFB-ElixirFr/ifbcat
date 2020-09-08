@@ -25,7 +25,7 @@ services:
       - ./resources/default.ini
       - ./local.ini
     volumes:
-      - .:/code # for dev purpose !!!
+#      - .:/code # for dev purpose !!!
       - /var/ifbcat/static:/code/static
     ports:
       - "8000:8000"
@@ -43,7 +43,7 @@ services:
     image: nginx:1.19-alpine
     volumes:
       - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - /var/ifbcat/static:/static
+      - /var/ifbcat/static:/static:ro
       - /etc/ssl/certs/wildcard-chained-france-bioinformatique.crt:/wildcard-chained-france-bioinformatique.crt:ro
       - /etc/ssl/private/wildcard-france-bioinformatique.key:/wildcard-france-bioinformatique.key:ro
     ports:
