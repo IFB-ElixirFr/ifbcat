@@ -236,7 +236,7 @@ class TrainingEventViewSet(EventViewSet):
         permissions.PubliclyReadableEditableByTrainers
         | permissions.PubliclyReadableEditableByContact
         | permissions.PubliclyReadableEditableByOwner,
-        IsAuthenticatedOrReadOnly,
+        IsAuthenticated,
     )
 
     search_fields = EventViewSet.search_fields + (
