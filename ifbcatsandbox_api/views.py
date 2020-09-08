@@ -194,8 +194,7 @@ class EventViewSet(viewsets.ModelViewSet):
     queryset = models.Event.objects.all()
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByContact,
+        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByContact,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -234,9 +233,9 @@ class TrainingEventViewSet(EventViewSet):
     queryset = models.TrainingEvent.objects.all()
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByTrainers,
-        permissions.PubliclyReadableEditableByContact,
-        permissions.PubliclyReadableEditableByOwner,
+        permissions.PubliclyReadableEditableByTrainers
+        | permissions.PubliclyReadableEditableByContact
+        | permissions.PubliclyReadableEditableByOwner,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -427,8 +426,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMembers,
+        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -474,8 +472,7 @@ class ComputingFacilityViewSet(ResourceViewSet):
     serializer_class = serializers.ComputingFacilitySerializer
     queryset = models.ComputingFacility.objects.all()
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMembers,
+        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -517,8 +514,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMembers,
+        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -572,8 +568,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
     lookup_field = 'name'
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableByMembers,
+        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
         IsAuthenticatedOrReadOnly,
     )
 
@@ -596,9 +591,9 @@ class ServiceSubmissionViewSet(viewsets.ModelViewSet):
     queryset = models.ServiceSubmission.objects.all()
 
     permission_classes = (
-        permissions.PubliclyReadableEditableByOwner,
-        permissions.PubliclyReadableEditableBySubmitters,
-        permissions.PubliclyReadableEditableByAuthors,
+        permissions.PubliclyReadableEditableByOwner
+        | permissions.PubliclyReadableEditableBySubmitters
+        | permissions.PubliclyReadableEditableByAuthors,
         IsAuthenticatedOrReadOnly,
     )
 
