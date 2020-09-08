@@ -42,7 +42,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserProfile
         fields = ('id', 'password', 'firstname', 'lastname', 'email', 'orcidid', 'homepage')
-        exclude = (
+        read_only = (
             'is_superuser',
             'is_staff',
             'id',
