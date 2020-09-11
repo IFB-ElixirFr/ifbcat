@@ -20,7 +20,7 @@ services:
     restart:
       always
     entrypoint: /docker-entrypoint.sh
-    command: gunicorn --reload ifbcatsandbox.wsgi -b 0.0.0.0:8000
+    command: gunicorn --reload ifbcat.wsgi -b 0.0.0.0:8000
     env_file:
       - ./resources/default.ini
       - ./local.ini

@@ -14,7 +14,7 @@ ENV PYTHONUNBUFFERED 1
 EXPOSE 8000
 RUN mkdir /code
 WORKDIR /code
-CMD ["gunicorn", "--reload", "--reload-engine", "inotify", "--chdir", "ifbcatsandbox", "--bind", ":8000", "ifbcatsandbox.wsgi:application"]
+CMD ["gunicorn", "--reload", "--reload-engine", "inotify", "--chdir", "ifbcat", "--bind", ":8000", "ifbcat.wsgi:application"]
 
 COPY requirements.txt /code/
 RUN python -m pip install --upgrade pip && pip install -r requirements.txt
