@@ -204,7 +204,7 @@ class EventViewSet(viewsets.ModelViewSet):
 
     filter_backends = (filters.SearchFilter,)
     # TODO: : add to "search_fields" below:   'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'logo'
-    # TODO: : add 'costs', 'topics', 'keywords', 'prerequisites' (which are ManyToManyField)
+    # TODO: : add 'costs', 'topics', 'keywords', 'prerequisites', 'sponsoredBy' (which are ManyToManyField)
     search_fields = (
         'name',
         'shortName',
@@ -221,7 +221,7 @@ class EventViewSet(viewsets.ModelViewSet):
         'contactName',
         'contactEmail',
         'market',
-        'sponsoredBy',
+        # 'sponsoredBy', # M2M
     )
 
 
