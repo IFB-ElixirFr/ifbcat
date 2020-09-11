@@ -104,9 +104,6 @@ class Event(models.Model):
     name = models.CharField(
         max_length=255,
         help_text="Full name / title of the event.",
-        validators=[
-            validate_can_be_looked_up,
-        ],
     )
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
