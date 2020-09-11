@@ -44,10 +44,19 @@ services:
     volumes:
       - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - /var/ifbcat/static:/static:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - web
+
+  nginx-https:
+    image: nginx:1.19-alpine
+    volumes:
+      - ./resources/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
+      - /var/ifbcat/static:/static:ro
       - /etc/ssl/certs/wildcard-chained-france-bioinformatique.crt:/wildcard-chained-france-bioinformatique.crt:ro
       - /etc/ssl/private/wildcard-france-bioinformatique.key:/wildcard-france-bioinformatique.key:ro
     ports:
-      - "8080:8080"
       - "443:8443"
     depends_on:
       - web
