@@ -55,7 +55,7 @@ class EventSponsor(models.Model):
         max_length=255, unique=True, help_text="Name of institutional entity that is sponsoring the event."
     )
     homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
-    logo_url = models.URLField(max_length=512, help_text="URL of logo.", blank=True, null=True)
+    logo_url = models.URLField(max_length=512, help_text="URL of logo of event sponsor.", blank=True, null=True)
     # TO-DO logo
     organisationId = models.ForeignKey(
         Organisation,
@@ -101,10 +101,7 @@ class Event(models.Model):
         PRIVATE = 'Private', _('Private')
 
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
-    name = models.CharField(
-        max_length=255,
-        help_text="Full name / title of the event.",
-    )
+    name = models.CharField(max_length=255, help_text="Full name / title of the event.",)
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
     homepage = models.URLField(max_length=255, help_text="URL of event homepage.")
@@ -148,9 +145,7 @@ class Event(models.Model):
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
     )
     accessibility = models.CharField(
-        max_length=255,
-        choices=EventAccessibilityType.choices,
-        help_text="Whether the event is public or private.",
+        max_length=255, choices=EventAccessibilityType.choices, help_text="Whether the event is public or private.",
     )
     accessibilityNote = models.CharField(
         max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for."
@@ -159,9 +154,7 @@ class Event(models.Model):
         null=True,
         blank=True,
         help_text="Maximum number of participants to the event.",
-        validators=[
-            MinValueValidator(1),
-        ],
+        validators=[MinValueValidator(1),],
     )
     contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
