@@ -23,7 +23,7 @@ from ifbcat_api import serializers
 from ifbcat_api import models
 from ifbcat_api import permissions
 
-# TestApiView is just a test API View, done in case APIView(s) are needed in the ifbcat API
+# TestApiView is just a test API View - not currently used but kept in case it's needed later.
 class TestApiView(APIView):
     """Test API View.  Currently just returns a test message."""
 
@@ -67,7 +67,7 @@ class TestApiView(APIView):
         return Response({'method called': 'DELETE'})
 
 
-# TestViewSet is just a test API ViewSet
+# TestViewSet is just a test API ViewSet - not currently used but kept in case it's needed later.
 class TestViewSet(viewsets.ViewSet):
     """Test API ViewSet.  Currently just returns a test message."""
 
