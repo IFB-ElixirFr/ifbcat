@@ -4,9 +4,6 @@ services:
 
   db:
     image: postgres:12
-#    build:
-#      context: ./
-#      dockerfile: postgres.dockerfile
     volumes:
       - /var/ifbcat/db_data:/var/lib/postgresql/data
     restart: always
@@ -15,11 +12,6 @@ services:
     env_file:
       - ./resources/default.ini
       - ./local.ini
-    #environment:
-    #  POSTGRES_USER: "ifb_user"
-    #  POSTGRES_PASSWORD: "pass"
-    #  POSTGRES_DB: "ifb_catalog"
-#      PGDATA: /var/lib/postgresql/data/pgdata
 
   web:
     build:
@@ -28,19 +20,18 @@ services:
     restart:
       always
     entrypoint: /docker-entrypoint.sh
-    # command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    command: gunicorn --reload ifbcatsandbox.wsgi -b 0.0.0.0:8000
+    command: gunicorn --reload ifbcat.wsgi -b 0.0.0.0:8000
     env_file:
       - ./resources/default.ini
       - ./local.ini
     volumes:
-      - .:/code # for dev purpose !!!
+#      - .:/code # for dev purpose !!!
       - /var/ifbcat/static:/code/static
     ports:
       - "8000:8000"
     depends_on:
       - db
-    # user: "${UID}:${GID}"
+
   # The Database manager (adminer)
   adminer:
     image: adminer
@@ -50,18 +41,22 @@ services:
 
   nginx:
     image: nginx:1.19-alpine
-    #build:
-    #  context: ./
-    #  dockerfile: nginx.dockerfile
     volumes:
-    #  - .:/code
-      - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf
-      - /var/ifbcat/static:/static
+      - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /var/ifbcat/static:/static:ro
     ports:
       - "8080:8080"
     depends_on:
       - web
 
-
-#volumes:
-#  db_data:
+  nginx-https:
+    image: nginx:1.19-alpine
+    volumes:
+      - ./resources/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
+      - /var/ifbcat/static:/static:ro
+      - /etc/ssl/certs/wildcard-chained-france-bioinformatique.crt:/wildcard-chained-france-bioinformatique.crt:ro
+      - /etc/ssl/private/wildcard-france-bioinformatique.key:/wildcard-france-bioinformatique.key:ro
+    ports:
+      - "443:8443"
+    depends_on:
+      - web
