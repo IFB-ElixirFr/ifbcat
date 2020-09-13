@@ -209,26 +209,14 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
 
     costs = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="cost",
-        queryset=models.EventCost.objects,
-        required=False,
+        many=True, read_only=False, slug_field="cost", queryset=models.EventCost.objects, required=False,
     )
 
     topics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects,
-        required=False,
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
     )
     keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="keyword",
-        queryset=models.Keyword.objects,
-        required=False,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
     prerequisites = CreatableSlugRelatedField(
         many=True,
@@ -237,17 +225,14 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.EventPrerequisite.objects,
         required=False,
     )
-    dates = EventDateSerializer(
-        many=True,
-        read_only=False,
-    )
+    dates = EventDateSerializer(many=True, read_only=False,)
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),
     #         allow_blank=True,
     #         required=False)
 
-    # To-add to "fields" below:  'organisedBy', 'logo'
+    # To-add to "fields" below:  'organisedBy'
     class Meta:
         model = models.Event
 
@@ -279,6 +264,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'communities',
             'hostedBy',
             'sponsoredBy',
+            'logo_url',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -330,18 +316,10 @@ class TrainingEventSerializer(EventSerializer):
     """Serializes a training event (TrainingEvent object)."""
 
     audienceTypes = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="audienceType",
-        queryset=models.AudienceType.objects,
-        required=False,
+        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects, required=False,
     )
     audienceRoles = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="audienceRole",
-        queryset=models.AudienceRole.objects,
-        required=False,
+        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects, required=False,
     )
 
     class Meta(EventSerializer.Meta):
@@ -415,7 +393,7 @@ class EventSponsorSerializer(serializers.HyperlinkedModelSerializer):
             'id',
             'name',
             'homepage',
-            # 'logo',
+            'logo_url',
             'organisationId',
         )
 
@@ -429,17 +407,12 @@ class OrganisationSerializer(serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
     fields = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="field",
-        queryset=models.Field.objects.all(),
-        required=False,
+        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all(), required=False,
     )
 
     class Meta:
         model = models.Organisation
-        # logo ... TO_DO
-        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city')
+        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
         read_only_fields = ['user_profile']
 
 
@@ -449,7 +422,6 @@ class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.ElixirPlatform
-        # logo ... TO_DO
         fields = ('name', 'description', 'homepage', 'coordinator', 'deputies')
         # read_only_fields = ['id']
 
@@ -477,14 +449,9 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     # uses TO-DO
 
     topics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects.all(),
-        required=False,
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects.all(), required=False,
     )
 
-    # To-add to "fields" below:  'team', 'logo'
     class Meta:
         model = models.Project
 
@@ -579,32 +546,16 @@ class TrainingMaterialSerializer(ResourceSerializer):
     """Serializes a training material (TrainingMaterial object)."""
 
     topics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects,
-        required=False,
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
     )
     keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="keyword",
-        queryset=models.Keyword.objects,
-        required=False,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
     audienceTypes = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="audienceType",
-        queryset=models.AudienceType.objects,
-        required=False,
+        many=True, read_only=False, slug_field="audienceType", queryset=models.AudienceType.objects, required=False,
     )
     audienceRoles = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="audienceRole",
-        queryset=models.AudienceRole.objects,
-        required=False,
+        many=True, read_only=False, slug_field="audienceRole", queryset=models.AudienceRole.objects, required=False,
     )
 
     class Meta:
@@ -627,9 +578,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
 
         extra_kwargs = {
             **ResourceSerializer.Meta.extra_kwargs,
-            **{
-                'providedBy': {'lookup_field': 'name'},
-            },
+            **{'providedBy': {'lookup_field': 'name'},},
         }
 
 
@@ -638,11 +587,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
     expertise = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects,
-        required=False,
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
     )
 
     class Meta:
@@ -671,32 +616,16 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     """Serializes a bioinformatics team (BioinformaticsTeam object)."""
 
     publications = serializers.SlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="doi",
-        queryset=models.Doi.objects,
-        required=False,
+        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects, required=False,
     )
     topics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects,
-        required=False,
+        many=True, read_only=False, slug_field="topic", queryset=models.Topic.objects, required=False,
     )
     keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="keyword",
-        queryset=models.Keyword.objects,
-        required=False,
+        many=True, read_only=False, slug_field="keyword", queryset=models.Keyword.objects, required=False,
     )
     fields = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="field",
-        queryset=models.Field.objects.all(),
-        required=False,
+        many=True, read_only=False, slug_field="field", queryset=models.Field.objects.all(), required=False,
     )
 
     class Meta(TeamSerializer.Meta):
@@ -706,7 +635,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
             'orgid',
             'unitId',
             'address',
-            # 'logo',
+            'logo_url',
             'fields',
             'topics',
             'keywords',
@@ -740,11 +669,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a service (Service object)."""
 
     publications = serializers.SlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="doi",
-        queryset=models.Doi.objects,
-        required=False,
+        many=True, read_only=False, slug_field="doi", queryset=models.Doi.objects, required=False,
     )
 
     class Meta:

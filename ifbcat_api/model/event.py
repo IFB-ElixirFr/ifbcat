@@ -56,7 +56,6 @@ class EventSponsor(models.Model):
     )
     homepage = models.URLField(max_length=255, help_text="Homepage URL of the sponsor of the event.")
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event sponsor.", blank=True, null=True)
-    # TO-DO logo
     organisationId = models.ForeignKey(
         Organisation,
         related_name='eventSponsor',
@@ -185,8 +184,7 @@ class Event(models.Model):
         related_name='events',
         help_text="An institutional entity that is sponsoring the event.",
     )
-
-    # logo = ... TO_DO
+    logo_url = models.URLField(max_length=512, help_text="URL of logo of event.", blank=True, null=True)
 
     def __str__(self):
         """Return the Event model as a string."""
