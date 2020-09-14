@@ -19,4 +19,4 @@ jobs:
         pip install -r requirements-dev.txt
     - name: run black
       run: |
-        black . --check
+        black . --check --diff
