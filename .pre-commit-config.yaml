@@ -5,6 +5,6 @@ repos:
     rev: 20.8b1
     hooks:
       - id: black
-        args: ['.', '--check', '--config', './pyproject.toml']
+        args: ['.', '--check', '--diff', '--config', './pyproject.toml']
         language_version: python3.7
         exclude: 'migrations|manage\.py|wsgi\.py'
