@@ -4,10 +4,12 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.community import Community
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Topic, Keyword
 from ifbcat_api.model.organisation import Organisation
+from ifbcat_api.model.team import Team
 from ifbcat_api.model.userProfile import UserProfile
 from ifbcat_api.validators import validate_can_be_looked_up
 
@@ -183,8 +185,24 @@ class Event(models.Model):
     hostedBy = models.ManyToManyField(
         Organisation, blank=True, related_name='events', help_text="Organisation which is hosting the event."
     )
-
-    # organisedBy = ... TO_DO
+    organisedByTeams = models.ManyToManyField(
+        Team,
+        blank=True,
+        related_name='organized_events',
+        help_text="A Team that is organizing the event.",
+    )
+    organisedByBioinformaticsTeams = models.ManyToManyField(
+        BioinformaticsTeam,
+        blank=True,
+        related_name='organized_events_as_bioinfo',
+        help_text="A BioInformaticsTeam that is organizing the event.",
+    )
+    organisedByOrganisations = models.ManyToManyField(
+        Organisation,
+        blank=True,
+        related_name='organized_events',
+        help_text="An organisation that is organizing the event.",
+    )
     sponsoredBy = models.ManyToManyField(
         EventSponsor,
         blank=True,

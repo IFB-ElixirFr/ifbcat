@@ -279,6 +279,9 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'communities',
             'hostedBy',
             'sponsoredBy',
+            'organisedByOrganisations',
+            'organisedByTeams',
+            'organisedByBioinformaticsTeams',
             'logo_url',
         )
 
@@ -296,6 +299,10 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'communities': {'lookup_field': 'name'},
             'hostedBy': {'lookup_field': 'name'},
             'sponsoredBy': {'lookup_field': 'name'},
+            # 'organisedBy': {'lookup_field': 'name'},
+            'organisedByOrganisations': {'lookup_field': 'name'},
+            'organisedByTeams': {'lookup_field': 'name'},
+            'organisedByBioinformaticsTeams': {'lookup_field': 'name'},
         }
 
     def update(self, instance, validated_data):
