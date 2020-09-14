@@ -21,6 +21,9 @@ services:
       always
     entrypoint: /docker-entrypoint.sh
     command: gunicorn --reload ifbcat.wsgi -b 0.0.0.0:8000
+    environment:
+      - CI_COMMIT_SHA=$CI_COMMIT_SHA
+      - CI_COMMIT_DATE=$CI_COMMIT_DATE
     env_file:
       - ./resources/default.ini
       - ./local.ini

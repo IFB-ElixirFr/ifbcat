@@ -23,3 +23,8 @@ COPY ./resources/*-entrypoint.sh /
 RUN chmod a+x /*-entrypoint.sh
 
 COPY . /code/
+
+ARG CI_COMMIT_SHA
+ARG CI_COMMIT_DATE
+
+RUN echo "{\"commit_sha\":\"$CI_COMMIT_SHA\",\"commit_date\":\"$CI_COMMIT_DATE\"}">/code/source_info.json

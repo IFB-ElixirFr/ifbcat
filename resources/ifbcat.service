@@ -10,7 +10,7 @@ TimeoutStartSec=15min
 Restart=always
 
 ExecStartPre=/usr/bin/docker-compose pull --quiet --ignore-pull-failures
-ExecStartPre=/usr/bin/docker-compose build --pull
+ExecStartPre=/usr/bin/docker-compose build --pull --build-arg CI_COMMIT_SHA=$(git rev-parse HEAD) --build-arg CI_COMMIT_DATE="$(git log -1 --format="%ai")"
 
 ExecStart=/usr/bin/docker-compose up --remove-orphans
 

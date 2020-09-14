@@ -8,6 +8,8 @@
 # "api_settings" is used when configuring the custom ObtainAuthToken view
 # "IsAuthenticatedOrReadOnly" is used to ensure that a ViewSet is read-only if the user is not autheticated.
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
+import json
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -22,6 +24,17 @@ from rest_framework.permissions import IsAuthenticated
 from ifbcat_api import serializers
 from ifbcat_api import models
 from ifbcat_api import permissions
+
+
+class SourceInfoViewSet(viewsets.ViewSet):
+    def list(self, request):
+        try:
+            with open("source_info.json", "r") as stream:
+                info = json.load(stream)
+                info["commit_url"] = "https://github.com/IFB-ElixirFr/ifbcat/commit/%s" % info["commit_sha"]
+                return Response(info)
+        except FileNotFoundError as e:
+            return Response(str(e))
 
 # TestApiView is just a test API View - not currently used but kept in case it's needed later.
 class TestApiView(APIView):
