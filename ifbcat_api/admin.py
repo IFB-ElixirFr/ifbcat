@@ -109,6 +109,7 @@ class EventAdmin(ViewInApiModelAdmin):
         'contactName',
         'market',
         'sponsoredBy',
+        'logo_url',
     )
     list_display = ('short_name_or_name', 'contactName')
     list_filter = (
