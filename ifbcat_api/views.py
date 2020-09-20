@@ -363,7 +363,10 @@ class EventSponsorViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'organisationId__name')
+    search_fields = (
+        'name',
+        'organisationId__name',
+    )
 
 
 # Model ViewSet for organisation

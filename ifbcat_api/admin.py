@@ -192,8 +192,21 @@ class TrainerAdmin(ViewInApiModelAdmin):
     search_fields = (
         'trainerName',
         'trainerEmail',
+        'trainerId__name',
     )
     autocomplete_fields = ('trainerId',)
+
+
+@admin.register(models.TrainingEventMetrics)
+class TrainingEventMetricsAdmin(ViewInApiModelAdmin):
+    search_fields = (
+        'dateStart',
+        'dateEnd',
+        'trainingEvent__name',
+        'trainingEvent__shortName',
+        'trainingEvent__description',
+    )
+    autocomplete_fields = ('trainingEvent',)
 
 
 admin.site.register(models.TrainingEventMetrics)
@@ -203,7 +216,7 @@ admin.site.register(models.TrainingEventMetrics)
 class EventSponsorAdmin(ViewInApiModelAdmin):
     search_fields = (
         'name',
-        'homepage',
+        'organisationId__name',
     )
     autocomplete_fields = ('organisationId',)
 
@@ -213,7 +226,7 @@ class CommunityAdmin(ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
-        'organisations__description',
+        'homepage',
         'organisations__name',
     )
     autocomplete_fields = ('organisations',)
@@ -224,6 +237,7 @@ class ElixirPlatformAdmin(ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
+        'homepage',
         'coordinator__firstname',
         'coordinator__lastname',
         'coordinator__email',
@@ -238,9 +252,10 @@ class OrganisationAdmin(ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
-        'userprofile__firstname',
-        'userprofile__lastname',
-        'userprofile__email',
+        'homepage',
+        'orgid',
+        'fields__field',
+        'city',
     )
     list_filter = ('fields',)
     autocomplete_fields = ('fields',)
@@ -263,7 +278,7 @@ class ProjectAdmin(ViewInApiModelAdmin):
         'fundedBy__name',
         'communities__name',
         'elixirPlatforms__name',
-        'uses__name',
+        'uses_name',
     )
     list_filter = ('elixirPlatforms', 'communities', 'hostedBy', 'uses')
     autocomplete_fields = (
@@ -290,7 +305,7 @@ class AudienceTypeAdmin(ViewInApiModelAdmin):
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(ViewInApiModelAdmin):
     search_fields = (
-        'doi',
+        'doi__doi',
         'fileName',
         'topics__topic',
         'keywords__keyword',
@@ -317,7 +332,7 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
         'homepage',
         'providedBy__name',
         'team__name',
-        'trainingMaterials__name',
+        'accessibility',
         'serverDescription',
     )
 
@@ -336,12 +351,18 @@ class TeamAdmin(ViewInApiModelAdmin):
         'name',
         'description',
         'expertise',
-        'leader__name',
-        'deputies__name',
-        'scientificLeader__name',
-        'technicalLeader__name',
-        'members__name',
-        'maintainers__name',
+        'leader__firstname',
+        'leader__lastname',
+        'deputies__firstname',
+        'deputies__lastname',
+        'scientificLeader__firstname',
+        'scientificLeader__lastname',
+        'technicalLeader__firstname',
+        'technicalLeader__lastname',
+        'members__firstname',
+        'members__lastname',
+        'maintainers__firstname',
+        'maintainers__lastname',
     )
 
     autocomplete_fields = (
@@ -360,12 +381,16 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
         'orgid',
         'unitId',
         'address',
-        'topics',
-        'keywords_keyword',
+        'fields',
+        'topics__topic',
+        'keywords__keyword',
         'ifbMembership',
         'platforms__name',
         'communities__name',
         'projects__name',
+        'fundedBy__name',
+        'publications__doi',
+        'certification',
     )
 
     list_filter = ('fields',)
@@ -386,6 +411,7 @@ class ServiceAdmin(ViewInApiModelAdmin):
         'bioinformaticsTeams__name',
         'computingFacilities__name',
         'trainingEvents__name',
+        'trainingMaterials__name',
         'publications__doi',
     )
 
@@ -401,8 +427,10 @@ class ServiceAdmin(ViewInApiModelAdmin):
 class ServiceSubmissionAdmin(ViewInApiModelAdmin):
     search_fields = (
         'service__name',
-        'authors',
-        'submitters',
+        'authors_firstname',
+        'authors_lastname',
+        'submitters_firstname',
+        'submitters_lastname',
         'year',
         'motivation',
         'scope',
