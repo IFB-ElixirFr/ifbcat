@@ -209,9 +209,6 @@ class TrainingEventMetricsAdmin(ViewInApiModelAdmin):
     autocomplete_fields = ('trainingEvent',)
 
 
-admin.site.register(models.TrainingEventMetrics)
-
-
 @admin.register(models.EventSponsor)
 class EventSponsorAdmin(ViewInApiModelAdmin):
     search_fields = (
