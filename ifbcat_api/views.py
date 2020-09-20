@@ -156,6 +156,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         'lastname',
         'email',
         'orcidid',
+        'expertise__topic',
     )
 
 

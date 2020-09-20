@@ -7,6 +7,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
 from ifbcat_api.validators import validate_orcid
+from ifbcat_api.model.misc import Topic
 
 
 class UserProfileManager(BaseUserManager):
@@ -17,7 +18,7 @@ class UserProfileManager(BaseUserManager):
     # Function that Django CLI will use when creating users
     # password=None means that if a password is not set it wil default to None,
     # preventing authentication with the user until a password is set.
-    def create_user(self, firstname, lastname, email, orcidid=None, homepage=None, password=None):
+    def create_user(self, firstname, lastname, email, orcidid=None, homepage=None, password=None, expertise=None):
         """Create a new user profile"""
         if not firstname:
             raise ValueError('Users must have a first (given) name.')
@@ -28,7 +29,9 @@ class UserProfileManager(BaseUserManager):
 
         # Normalize the email address (makes the 2nd part of the address all lowercase)
         email = self.normalize_email(email)
-        user = self.model(firstname=firstname, lastname=lastname, email=email, orcidid=orcidid, homepage=homepage)
+        user = self.model(
+            firstname=firstname, lastname=lastname, email=email, orcidid=orcidid, homepage=homepage, expertise=expertise
+        )
 
         # Set password will encrypt the provided password - good practice to do so!
         # Even thoough there's only one database, it's good practice to name the databaes anyway, using:
@@ -40,7 +43,7 @@ class UserProfileManager(BaseUserManager):
 
     # Function for creating super-users
     # NB. all superusers must have a password, hence no "password=Nane"
-    def create_superuser(self, firstname, lastname, email, password, orcidid=None, homepage=None):
+    def create_superuser(self, firstname, lastname, email, password, orcidid=None, homepage=None, expertise=None):
         """Create a new superuser profile"""
 
         user = self.create_user(
@@ -50,6 +53,7 @@ class UserProfileManager(BaseUserManager):
             email=email,
             orcidid=orcidid,
             homepage=homepage,
+            expertise=expertise,
         )
 
         # .is_superuser and is_staff come from PermissionsMixin
@@ -88,14 +92,19 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         blank=True,
         unique=True,
         help_text="ORCID ID of a person (IFB catalogue user).",
-        validators=[
-            validate_orcid,
-        ],
+        validators=[validate_orcid,],
     )
     email = models.EmailField(max_length=255, unique=True, help_text="Email address of a person (IFB catalogue user).")
     homepage = models.URLField(
         max_length=255, null=True, blank=True, help_text="Homepage of a person (IFB catalogue user)."
     )
+    expertise = models.ManyToManyField(
+        Topic,
+        related_name='userprofiles',
+        blank=True,
+        help_text="URIs of EDAM Topic terms describing the expertise of a person (IFB catalogue user).",
+    )
+
     # expertise = ... TO_DO
 
     is_active = models.BooleanField(default=True, help_text="Whether a user account is active.")
