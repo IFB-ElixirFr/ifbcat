@@ -231,6 +231,7 @@ class EventViewSet(viewsets.ModelViewSet):
         'costs_cost',
         'topics__topic',
         'keywords__keyword',
+        'prerequisites__prerequisite',
         'accessibility',
         'accessibilityNote',
         'contactName',
