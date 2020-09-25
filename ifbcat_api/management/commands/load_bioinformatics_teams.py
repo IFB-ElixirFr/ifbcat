@@ -17,21 +17,30 @@ class Command(BaseCommand):
         BioinformaticsTeam.objects.all().delete()
         Organisation.objects.all().delete()
         for index, row in df.iterrows():
-            bt = BioinformaticsTeam()
-            bt.name = row["Nom de la plateforme"]
-            bt.address = row["Adresse postale"]
-            bt.save()
-            for affiliation in row["Affiliation"].split(","):
-                # FIXME, adding dummy contents because description and homepage are missing
-                o, created = Organisation.objects.get_or_create(name=affiliation)
-                if created:
-                    o.name = affiliation
-                    o.description = f"description for {affiliation}"
-                    o.homepage = f"http://nothing.org"
-                    o.full_clean()
-                    o.save()
-                bt.affiliatedWith.add(o)
-            bt.save()
+            try:
+                bt = BioinformaticsTeam()
+                bt.name = row["Nom de la plateforme"]
+                bt.address = row["Adresse postale"]
+                bt.save()
+                for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(","):
+                    affiliation = affiliation.strip()
+                    if affiliation == "Unité : \nNon renseignée":
+                        continue
+                    # FIXME, adding dummy contents because description and homepage are missing
+                    try:
+                        o, created = Organisation.objects.get_or_create(name=affiliation)
+                        if created:
+                            o.name = affiliation
+                            o.description = f"description for {affiliation}"
+                            o.homepage = f"http://nothing.org"
+                            o.full_clean()
+                            o.save()
+                        bt.affiliatedWith.add(o)
+                    except Exception as e:
+                        print("Failed with %s" % affiliation)
+                bt.save()
+            except Exception as e:
+                print("Failed with line %i:%s" % (index, str(row)))
 
 
 """
