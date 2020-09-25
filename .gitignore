@@ -140,3 +140,7 @@ eb-package.zip
 static/
 
 local.ini
+settings.ini
+
+# folder were data are git line
+./import_data
