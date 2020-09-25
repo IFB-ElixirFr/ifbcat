@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class LoadBioinfoTeamsTestCase(EnsureImportDataAreHere):
-
     def test_import_in_db(self):
         management.call_command('load_bioinformatics_teams', os.path.join(self.import_data, "platforms.csv"))
         print("%i Teams #######################################" % Team.objects.count())

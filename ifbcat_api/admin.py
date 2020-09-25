@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 
 from ifbcat_api import models
-from django.urls import reverse, NoReverseMatch
-from django.contrib.admin.options import get_content_type_for_model
+
 
 # A ModelAdmin that try to find for each instance the associated link in the api:
 # For a instance pk=42 of class Blabla, we try to get the url 'blabla-detail' with the pk 42. Note that to work the
@@ -62,16 +62,33 @@ class UserProfileAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('firstname', 'lastname', 'orcidid', 'homepage', 'expertise')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),},),
-        ('Important dates', {'fields': ('last_login',)},),
+        (
+            'Permissions',
+            {
+                'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
+            },
+        ),
+        (
+            'Important dates',
+            {'fields': ('last_login',)},
+        ),
     )
-    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('email', 'password1', 'password2'),},),)
+    add_fieldsets = (
+        (
+            None,
+            {
+                'classes': ('wide',),
+                'fields': ('email', 'password1', 'password2'),
+            },
+        ),
+    )
 
 
 # admin.site.register(models.UserProfile)
 
 
 admin.site.register(models.NewsItem)
+
 
 # "search_fields" defines the searchable 'fields'
 # "list_filter" adds fields to Django admin filter box
