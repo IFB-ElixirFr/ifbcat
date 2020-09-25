@@ -41,7 +41,23 @@ class UserProfileSerializer(serializers.ModelSerializer):
     # and setup a list of fields in the model to manage with the serializer.
     class Meta:
         model = models.UserProfile
-        fields = ('id', 'password', 'firstname', 'lastname', 'email', 'orcidid', 'homepage', 'expertise')
+        fields = (
+            'id',
+            'password',
+            'firstname',
+            'lastname',
+            'email',
+            'orcidid',
+            'homepage',
+            'expertise',
+            'homepage',
+            'teamLeader',
+            'teamDeputies',
+            'teamScientificLeader',
+            'teamTechnicalLeader',
+            'teamMembers',
+            'teamMaintainers',
+        )
         read_only = (
             'is_superuser',
             'is_staff',
