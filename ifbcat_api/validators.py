@@ -15,7 +15,7 @@ __p_doi_regexp = '^10.\d{4,9}/.+$'
 __p_doi = re.compile(__p_doi_regexp, re.IGNORECASE | re.UNICODE)
 
 validate_can_be_looked_up = RegexValidator(
-    regex=r'^[a-zA-Z0-9 \-_~]+$', message='Should only contains char such as ^[a-zA-Z0-9 \\-_~]'
+    regex=r'^[.a-zéèàâçA-Z0-9 \-_~\']+$', message='Should only contains char such as ^[.a-zéèàâçA-Z0-9 \\-_~\']'
 )
 
 
