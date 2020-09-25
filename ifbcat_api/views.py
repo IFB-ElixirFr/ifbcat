@@ -156,6 +156,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         'lastname',
         'email',
         'orcidid',
+        'expertise__topic',
     )
 
 
@@ -217,28 +218,32 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    # TODO: : add to "search_fields" below:   'dates', 'contactId', 'elixirPlatform', 'community', 'hostedBy', 'organisedBy', 'logo'
-    # TODO: : add 'costs', 'prerequisites' (which are ManyToManyField)
     search_fields = (
         'name',
         'shortName',
         'description',
-        'homepage',
         'type',
         'venue',
         'city',
         'country',
-        'onlineOnly',
+        'costs_cost',
+        'topics__topic',
+        'keywords__keyword',
+        'prerequisites__prerequisite',
         'accessibility',
         'accessibilityNote',
-        'maxParticipants',
         'contactName',
+        'contactId__name',
         'contactEmail',
         'market',
+        'elixirPlatforms__name',
+        'communities__name',
+        'hostedBy__name',
+        'organisedByTeams__name',
+        'organisedByBioinformaticsTeams__name',
+        'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
-        'keywords__keyword',
-        'topics__topic',
     )
 
 
@@ -316,6 +321,7 @@ class TrainerViewSet(viewsets.ModelViewSet):
     search_fields = (
         'trainerName',
         'trainerEmail',
+        'trainerId__name',
     )
 
 
@@ -336,6 +342,9 @@ class TrainingEventMetricsViewSet(viewsets.ModelViewSet):
     search_fields = (
         'dateStart',
         'dateEnd',
+        'trainingEvent__name',
+        'trainingEvent__shortName',
+        'trainingEvent__description',
     )
 
 
@@ -354,7 +363,10 @@ class EventSponsorViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
+    search_fields = (
+        'name',
+        'organisationId__name',
+    )
 
 
 # Model ViewSet for organisation
@@ -429,7 +441,6 @@ class CommunityViewSet(viewsets.ModelViewSet):
         'name',
         'description',
         'homepage',
-        'organisations__description',
         'organisations__name',
     )
 
@@ -452,12 +463,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
     filter_backends = (filters.SearchFilter,)
-    # TODO: : add to "search_fields" below:   'topics', 'hostedBy', 'fundedBy', 'communities', 'elixirPlatform'
     search_fields = (
         'name',
         'homepage',
         'description',
+        'topics__topic',
         'team__name',
+        'hostedBy__name',
+        'fundedBy__name',
+        'communities__name',
+        'elixirPlatforms__name',
         'uses_name',
     )
 
@@ -496,7 +511,7 @@ class ComputingFacilityViewSet(ResourceViewSet):
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy__name',
-        'team',
+        'team__name',
         'accessibility',
         'serverDescription',
     )
@@ -545,12 +560,18 @@ class TeamViewSet(viewsets.ModelViewSet):
         'name',
         'description',
         'expertise',
-        'leader',
-        'deputies',
-        'scientificLeader',
-        'technicalLeader',
-        'members',
-        'maintainers',
+        'leader__firstname',
+        'leader__lastname',
+        'deputies__firstname',
+        'deputies__lastname',
+        'scientificLeader__firstname',
+        'scientificLeader__lastname',
+        'technicalLeader__firstname',
+        'technicalLeader__lastname',
+        'members__firstname',
+        'members__lastname',
+        'maintainers__firstname',
+        'maintainers__lastname',
     )
 
 
@@ -561,18 +582,20 @@ class BioinformaticsTeamViewSet(TeamViewSet):
     serializer_class = serializers.BioinformaticsTeamSerializer
     queryset = models.BioinformaticsTeam.objects.all()
 
-    # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = TeamViewSet.search_fields + (
         'orgid',
         'unitId',
         'address',
         'fields',
-        # 'topics__topic',
-        # 'keywords__keyword',
+        'topics__topic',
+        'keywords__keyword',
         'ifbMembership',
-        'platforms',
-        'communities',
-        'projects',
+        'platforms__name',
+        'communities__name',
+        'projects__name',
+        'fundedBy__name',
+        'publications__doi',
+        'certification',
     )
 
 
@@ -596,6 +619,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
         'bioinformaticsTeams__name',
         'computingFacilities__name',
         'trainingEvents__name',
+        'trainingMaterials__name',
         'publications__doi',
     )
 
@@ -616,8 +640,10 @@ class ServiceSubmissionViewSet(viewsets.ModelViewSet):
 
     search_fields = (
         'service__name',
-        'authors',
-        'submitters',
+        'authors_firstname',
+        'authors_lastname',
+        'submitters_firstname',
+        'submitters_lastname',
         'year',
         'motivation',
         'scope',

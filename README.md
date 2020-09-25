@@ -1,4 +1,4 @@
-# ifbcat-sandbox
+# ifbcat
 
 ifbcat is the database hosting and serving the IFB Catalogue through a REST API.
 
