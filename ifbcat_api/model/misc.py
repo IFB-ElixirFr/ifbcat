@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+from ifbcat_api.misc import unaccent_if_available
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
 
 
@@ -45,10 +46,11 @@ class Keyword(models.Model):
         super().clean_fields()
         if exclude is not None and "keyword" in exclude:
             return
-        if Keyword.objects.filter(keyword__iexact=self.keyword).filter(~Q(pk=self.pk)).exists():
+        qs = Keyword.objects.filter(**{unaccent_if_available("keyword__iexact"): self.keyword}).filter(~Q(pk=self.pk))
+        if qs.exists():
             raise ValidationError(
                 "Keyword \"%s\" already exists as \"%s\""
-                % (self.keyword, Keyword.objects.filter(keyword__iexact=self.keyword).get().keyword)
+                % (self.keyword, qs.get().keyword)
             )
 
 

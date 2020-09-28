@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from ifbcat_api import models
+from ifbcat_api.misc import unaccent_if_available
 
 
 # This is just for testing serialization
@@ -243,7 +244,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     keywords = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="keyword",
+        slug_field=unaccent_if_available("keyword"),
         queryset=models.Keyword.objects,
         required=False,
     )
@@ -610,7 +611,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
     keywords = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="keyword",
+        slug_field=unaccent_if_available("keyword"),
         queryset=models.Keyword.objects,
         required=False,
     )
@@ -709,7 +710,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     keywords = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="keyword",
+        slug_field=unaccent_if_available("keyword"),
         queryset=models.Keyword.objects,
         required=False,
     )

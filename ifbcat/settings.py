@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
 from decouple import config, UndefinedValueError
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -110,9 +111,9 @@ else:
         }
     }
 
-    # INSTALLED_APPS += [
-    #     'django.contrib.postgres',
-    # ]  # needed for __unaccent
+    INSTALLED_APPS += [
+        'django.contrib.postgres',
+    ]  # needed for __unaccent
 
 
 # Password validation

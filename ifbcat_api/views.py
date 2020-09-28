@@ -10,20 +10,20 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.authentication import TokenAuthentication
-from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
+from rest_framework.settings import api_settings
+from rest_framework.views import APIView
 
-from ifbcat_api import serializers
 from ifbcat_api import models
 from ifbcat_api import permissions
+from ifbcat_api import serializers
+from ifbcat_api.misc import unaccent_if_available
 
 
 class SourceInfoViewSet(viewsets.ViewSet):
@@ -275,7 +275,7 @@ class KeywordViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.KeywordSerializer
     queryset = models.Keyword.objects.all()
-    lookup_field = 'keyword__iexact'
+    lookup_field = unaccent_if_available('keyword__iexact')
 
     permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
