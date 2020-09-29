@@ -10,5 +10,5 @@ def unaccent_if_available(s):
         "__in",
     ]:
         if s.endswith(ender):
-            return unaccent_if_available(s[:-len(ender)]) + ender
+            return unaccent_if_available(s[: -len(ender)]) + ender
     return "%s__unaccent" % s if connection.vendor == "postgresql" else s

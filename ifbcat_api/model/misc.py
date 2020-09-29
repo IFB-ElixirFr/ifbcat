@@ -48,10 +48,7 @@ class Keyword(models.Model):
             return
         qs = Keyword.objects.filter(**{unaccent_if_available("keyword__iexact"): self.keyword}).filter(~Q(pk=self.pk))
         if qs.exists():
-            raise ValidationError(
-                "Keyword \"%s\" already exists as \"%s\""
-                % (self.keyword, qs.get().keyword)
-            )
+            raise ValidationError("Keyword \"%s\" already exists as \"%s\"" % (self.keyword, qs.get().keyword))
 
 
 class AudienceType(models.Model):
