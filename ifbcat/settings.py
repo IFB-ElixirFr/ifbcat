@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
+import logging
 import os
 
 from decouple import config, UndefinedValueError
@@ -171,3 +171,9 @@ REST_FRAMEWORK = {
 }
 # From https://gist.github.com/davewongillies/6897161#gistcomment-3017261
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+################################################################################
+# Log level
+################################################################################
+LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO' if DEBUG else 'WARNING').upper()
+logging.basicConfig(level=LOGLEVEL)
