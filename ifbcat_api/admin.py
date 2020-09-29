@@ -1,14 +1,16 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.db.models.functions import Upper
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 
 from ifbcat_api import models
-
-
 # A ModelAdmin that try to find for each instance the associated link in the api:
 # For a instance pk=42 of class Blabla, we try to get the url 'blabla-detail' with the pk 42. Note that to work the
 # prefix used in urls.py must match the class name : router.register('event', ...) is for class Event
+from ifbcat_api.misc import unaccent_if_available
+
+
 class ViewInApiModelAdmin(admin.ModelAdmin):
     class Media:
         css = {'all': ('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',)}
@@ -361,6 +363,7 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
 
 @admin.register(models.Team)
 class TeamAdmin(ViewInApiModelAdmin):
+    ordering = (Upper(unaccent_if_available("name")),)
     search_fields = (
         'name',
         'description',
@@ -369,10 +372,10 @@ class TeamAdmin(ViewInApiModelAdmin):
         'leader__lastname',
         'deputies__firstname',
         'deputies__lastname',
-        'scientificLeader__firstname',
-        'scientificLeader__lastname',
-        'technicalLeader__firstname',
-        'technicalLeader__lastname',
+        'scientificLeaders__firstname',
+        'scientificLeaders__lastname',
+        'technicalLeaders__firstname',
+        'technicalLeaders__lastname',
         'members__firstname',
         'members__lastname',
         'maintainers__firstname',
@@ -382,16 +385,39 @@ class TeamAdmin(ViewInApiModelAdmin):
     autocomplete_fields = (
         'leader',
         'deputies',
-        'scientificLeader',
-        'technicalLeader',
+        'scientificLeaders',
+        'technicalLeaders',
         'members',
         'maintainers',
+    )
+    filter_horizontal = (
+        'scientificLeaders',
+        'technicalLeaders',
+        'members',
+        'maintainers',
+        'deputies',
     )
 
 
 @admin.register(models.BioinformaticsTeam)
 class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
+    ordering = (unaccent_if_available("name"),)
     search_fields = (
+        'name',
+        'description',
+        'expertise',
+        'leader__firstname',
+        'leader__lastname',
+        'deputies__firstname',
+        'deputies__lastname',
+        'scientificLeaders__firstname',
+        'scientificLeaders__lastname',
+        'technicalLeaders__firstname',
+        'technicalLeaders__lastname',
+        'members__firstname',
+        'members__lastname',
+        'maintainers__firstname',
+        'maintainers__lastname',
         'orgid',
         'unitId',
         'address',
@@ -414,6 +440,13 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
         'platforms',
         'communities',
         'projects',
+    )
+    filter_horizontal = (
+        'scientificLeaders',
+        'technicalLeaders',
+        'members',
+        'maintainers',
+        'deputies',
     )
 
 
