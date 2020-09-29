@@ -10,4 +10,5 @@ gunicorn
 pandas
 pyyaml
 uritemplate
+unidecode
 #end of file
