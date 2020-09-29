@@ -22,8 +22,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='team',
-            name='scientificLeader',
-            field=models.ManyToManyField(help_text='Scientific leader(s) of the team.', related_name='teamScientificLeaders', to=settings.AUTH_USER_MODEL),
+            name='scientificLeaders',
+            field=models.ManyToManyField(help_text='Scientific leader(s) of the team.',
+                                         related_name='teamScientificLeaders', to=settings.AUTH_USER_MODEL),
         ),
         migrations.RemoveField(
             model_name='team',
@@ -31,7 +32,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='team',
-            name='technicalLeader',
-            field=models.ManyToManyField(help_text='Technical leader(s) of the team.', related_name='teamTechnicalLeaders', to=settings.AUTH_USER_MODEL),
+            name='technicalLeaders',
+            field=models.ManyToManyField(help_text='Technical leader(s) of the team.',
+                                         related_name='teamTechnicalLeaders', to=settings.AUTH_USER_MODEL),
         ),
     ]

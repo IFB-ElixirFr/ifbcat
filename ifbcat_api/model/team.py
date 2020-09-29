@@ -40,12 +40,12 @@ class Team(models.Model):
         related_name='teamDeputies',
         help_text="Deputy leader(s) of the team.",
     )
-    scientificLeader = models.ManyToManyField(
+    scientificLeaders = models.ManyToManyField(
         UserProfile,
         related_name='teamScientificLeaders',
         help_text="Scientific leader(s) of the team.",
     )
-    technicalLeader = models.ManyToManyField(
+    technicalLeaders = models.ManyToManyField(
         UserProfile,
         related_name='teamTechnicalLeaders',
         help_text="Technical leader(s) of the team.",
