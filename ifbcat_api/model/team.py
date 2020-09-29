@@ -38,22 +38,17 @@ class Team(models.Model):
     deputies = models.ManyToManyField(
         UserProfile,
         related_name='teamDeputies',
-        blank=True,
         help_text="Deputy leader(s) of the team.",
     )
-    scientificLeader = models.ForeignKey(
+    scientificLeader = models.ManyToManyField(
         UserProfile,
-        related_name='teamScientificLeader',
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="Scientific leader of the team.",
+        related_name='teamScientificLeaders',
+        help_text="Scientific leader(s) of the team.",
     )
-    technicalLeader = models.ForeignKey(
+    technicalLeader = models.ManyToManyField(
         UserProfile,
-        related_name='teamTechnicalLeader',
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="Technical leader of the team.",
+        related_name='teamTechnicalLeaders',
+        help_text="Technical leader(s) of the team.",
     )
     members = models.ManyToManyField(
         UserProfile,
