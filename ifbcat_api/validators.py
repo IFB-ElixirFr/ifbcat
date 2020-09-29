@@ -22,7 +22,7 @@ def validate_can_be_looked_up(value):
     if not __looked_up.search(value):
         raise ValidationError(
             'This field can only contain a lookup-able name (%s is not).'
-            'Should only contains char such as: %s' % (value, __p_grid_regexp, __p_ror_regexp)
+            'Should only contains char such as: %s' % (value, __looked_up_regexp)
         )
     return value
 
