@@ -1,12 +1,62 @@
-import os
-import pandas as pd
+import logging
+import math
 
+import pandas as pd
 from django.core.management import BaseCommand
-from ifbcat_api.models import BioinformaticsTeam, Organisation
+
+from ifbcat_api import models
+from ifbcat_api.misc import unaccent_if_available
+from ifbcat_api.models import Organisation
+
+logger = logging.getLogger(__name__)
+
+
+def to_none_when_appropriate(e):
+    if type(e) == str and e.upper() in ["NULL", "NAN"]:
+        return None
+    if type(e) == float and math.isnan(e):
+        return None
+    return e
+
+
+def find_persons(first_and_last_names):
+    if type(first_and_last_names) == float and math.isnan(first_and_last_names):
+        return
+    for p in first_and_last_names.replace(",", "\n").strip().split("\n"):
+        pers = find_person(p)
+        if pers:
+            yield pers
+
+
+def find_person(first_and_last_name):
+    if type(first_and_last_name) == float and math.isnan(first_and_last_name):
+        return None
+    first_and_last_name = first_and_last_name.strip()
+    names = first_and_last_name.split(" ")
+    for i in range(1, len(names)):
+        a_raw = " ".join(names[:i])
+        b_raw = " ".join(names[i:])
+        for f, l in [
+            (a_raw, b_raw),
+            (b_raw, a_raw),
+            (a_raw, b_raw.replace(" ", "-")),
+            (b_raw, a_raw.replace(" ", "-")),
+            (a_raw.replace(" ", "-"), b_raw),
+            (b_raw.replace(" ", "-"), a_raw),
+            (a_raw.replace(" ", "-"), b_raw.replace(" ", "-")),
+            (b_raw.replace(" ", "-"), a_raw.replace(" ", "-")),
+        ]:
+            try:
+                return models.UserProfile.objects.get(
+                    **{unaccent_if_available("firstname__iexact"): f, unaccent_if_available("lastname__iexact"): l}
+                )
+            except models.UserProfile.DoesNotExist:
+                pass
+    print("Did not found", first_and_last_name)
+    return None
 
 
 class Command(BaseCommand):
-
     help = "Import Teams"
 
     def add_arguments(self, parser):
@@ -14,14 +64,21 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         df = pd.read_csv(options["file"], sep=",")
-        BioinformaticsTeam.objects.all().delete()
-        Organisation.objects.all().delete()
+        # models.BioinformaticsTeam.objects.all().delete()
+        # models.Organisation.objects.all().delete()
         for index, row in df.iterrows():
             try:
-                bt = BioinformaticsTeam()
-                bt.name = row["Nom de la plateforme"]
+                bt, _ = models.BioinformaticsTeam.objects.get_or_create(name=row["Nom de la plateforme"])
                 bt.address = row["Adresse postale"]
+                bt.logo_url = to_none_when_appropriate(str(row["Chemin"]))
+                for p in find_persons(row["Responsable scientifique"]):
+                    bt.scientificLeaders.add(p)
+                for p in find_persons(row["Responsable technique"]):
+                    bt.technicalLeaders.add(p)
+                for p in find_persons(row["Equipe"]):
+                    bt.members.add(p)
                 bt.save()
+
                 for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
                     if affiliation == "Unité : \nNon renseignée":
@@ -40,7 +97,8 @@ class Command(BaseCommand):
                         print("Failed with %s" % affiliation)
                 bt.save()
             except Exception as e:
-                print("Failed with line %i:%s" % (index, str(row)))
+                print("Failed with line %i:%s; %s" % (index, str(row), str(e)))
+                raise e
 
 
 """
