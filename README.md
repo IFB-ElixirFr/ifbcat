@@ -44,6 +44,13 @@ cd /var/ifbcat-src
 sudo docker-compose exec web python manage.py createsuperuser
 ```
 
+## Do some import
+```
+cd /var/ifbcat-src
+sudo docker-compose run -v /var/ifbcat-importdata:/import_data web python manage.py load_persons /import_data/persons.csv /import_data/drupal_db_dump/users.txt
+sudo docker-compose run -v /var/ifbcat-importdata:/import_data web python manage.py load_bioinformatics_teams /import_data/platforms.csv
+```
+
 # How to generate graph models
 
 To export the models to an image, you hav to:
