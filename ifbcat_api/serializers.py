@@ -68,7 +68,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         # password field is set to be write-only - it should only be used when creating a new user profile
         # Would be security risk e.g. to allow password hash to be retrieved via API!
         # Also set the field style so that *** are given in the data entry field when the password is typed in
-        extra_kwargs = {'password': {'write_only': True, 'style': {'input_type': 'password'}}}
+        extra_kwargs = {
+            'password': {'write_only': True, 'style': {'input_type': 'password'}},
+            'email': {'write_only': True},
+        }
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
     # This will ensure the password gets created as a hash, rather than clear text
