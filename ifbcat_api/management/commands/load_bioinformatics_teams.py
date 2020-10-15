@@ -2,10 +2,12 @@ import logging
 import math
 
 import pandas as pd
+from django.contrib.postgres.lookups import Unaccent
 from django.core.management import BaseCommand
+from django.db.models import Value
+from django.db.models.functions import Replace
 
 from ifbcat_api import models
-from ifbcat_api.misc import unaccent_if_available
 from ifbcat_api.models import Organisation
 
 logger = logging.getLogger(__name__)
@@ -50,6 +52,12 @@ def find_person(first_and_last_name):
                 return models.UserProfile.objects.get(
                     **{unaccent_if_available("firstname__iexact"): f, unaccent_if_available("lastname__iexact"): l}
                 )
+            except models.UserProfile.DoesNotExist:
+                pass
+            try:
+                return models.UserProfile.objects.annotate(
+                    f_no_quote=Replace(Unaccent("firstname"), Value("'"), Value(''))
+                ).get(f_no_quote__iexact=f, lastname__unaccent__iexact=l)
             except models.UserProfile.DoesNotExist:
                 pass
     print("Did not found", first_and_last_name)
