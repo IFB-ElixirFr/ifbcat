@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.db.models.functions import Upper
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
+from django.utils.translation import ugettext
 
 from ifbcat_api import models
 
@@ -449,6 +450,17 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
         'maintainers',
         'deputies',
     )
+    list_display = (
+        'name',
+        'logo',
+    )
+
+    def logo(self, obj):
+        if obj.logo_url:
+            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+        return format_html('<center style="margin: -8px;">-<center>')
+
+    logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
 @admin.register(models.Service)
