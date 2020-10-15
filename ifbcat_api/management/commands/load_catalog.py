@@ -10,10 +10,10 @@ class Command(BaseCommand):
     def import_catalog(self):
         call_command('load_persons', os.path.join(self.import_data, "persons.csv"))
         call_command('load_bioinformatics_teams', os.path.join(self.import_data, "platforms.csv"))
+        call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
         # call_command('load_databases')
         # # call_command('load_tools')
         # call_command('load_services')
-        # call_command('load_expertises')
         # call_command('load_training')
         # call_command('load_training_material')
         # call_command('load_events')
