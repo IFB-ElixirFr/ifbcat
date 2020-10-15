@@ -558,7 +558,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     search_fields = (
         'name',
         'description',
-        'expertise',
+        'expertise__topic',
         'leader__firstname',
         'leader__lastname',
         'deputies__firstname',
@@ -585,7 +585,7 @@ class BioinformaticsTeamViewSet(TeamViewSet):
         'orgid',
         'unitId',
         'address',
-        'fields',
+        'fields__field',
         'topics__topic',
         'keywords__keyword',
         'ifbMembership',
