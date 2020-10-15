@@ -679,8 +679,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'expertise',
             'leader',
             'deputies',
-            'scientificLeader',
-            'technicalLeader',
+            'scientificLeaders',
+            'technicalLeaders',
             'members',
             'maintainers',
         )
