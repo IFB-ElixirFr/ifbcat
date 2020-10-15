@@ -20,6 +20,7 @@ pre-commit run black
 ```
 docker-compose run db
 ```
+also do not forget to [create a superuser](#create-a-superuser)
 
 # How to manage the server
 
