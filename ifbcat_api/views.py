@@ -23,7 +23,6 @@ from rest_framework.views import APIView
 from ifbcat_api import models
 from ifbcat_api import permissions
 from ifbcat_api import serializers
-from ifbcat_api.misc import unaccent_if_available
 
 
 class SourceInfoViewSet(viewsets.ViewSet):
@@ -275,7 +274,7 @@ class KeywordViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.KeywordSerializer
     queryset = models.Keyword.objects.all()
-    lookup_field = unaccent_if_available('keyword__iexact')
+    lookup_field = 'keyword__unaccent__iexact'
 
     permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 

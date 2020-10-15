@@ -49,9 +49,7 @@ def find_person(first_and_last_name):
             (b_raw.replace(" ", "-"), a_raw.replace(" ", "-")),
         ]:
             try:
-                return models.UserProfile.objects.get(
-                    **{unaccent_if_available("firstname__iexact"): f, unaccent_if_available("lastname__iexact"): l}
-                )
+                return models.UserProfile.objects.get(firstname__unaccent__iexact=f, lastname__unaccent__iexact=l)
             except models.UserProfile.DoesNotExist:
                 pass
             try:

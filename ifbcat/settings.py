@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'ifbcat_api',
+    'django.contrib.postgres',
 ]
 
 # INSTALLED_APPS.append('django_extensions')
@@ -86,37 +87,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ifbcat.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-if config('USE_SQLITE_AS_DB', default=True, cast=bool):
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
+if os.environ.get('POSTGRES_PASSWORD', '') == '':
+    DATABASES_HOST = db_finder.get_db_ip()
 else:
-    if os.environ.get('POSTGRES_PASSWORD', '') == '':
-        DATABASES_HOST = db_finder.get_db_ip()
-    else:
-        DATABASES_HOST = 'db'
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': config('POSTGRES_PASSWORD'),
-            'HOST': DATABASES_HOST,
-            'PORT': 5432,
-        }
+    DATABASES_HOST = 'db'
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': DATABASES_HOST,
+        'PORT': 5432,
     }
-
-    INSTALLED_APPS += [
-        'django.contrib.postgres',
-    ]  # needed for __unaccent
-
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

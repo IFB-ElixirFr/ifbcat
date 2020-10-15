@@ -1,16 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.postgres.lookups import Unaccent
 from django.db.models.functions import Upper
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 from django.utils.translation import ugettext
 
 from ifbcat_api import models
-
-# A ModelAdmin that try to find for each instance the associated link in the api:
-# For a instance pk=42 of class Blabla, we try to get the url 'blabla-detail' with the pk 42. Note that to work the
-# prefix used in urls.py must match the class name : router.register('event', ...) is for class Event
-from ifbcat_api.misc import unaccent_if_available
 
 
 class ViewInApiModelAdmin(admin.ModelAdmin):
@@ -365,7 +361,7 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
 
 @admin.register(models.Team)
 class TeamAdmin(ViewInApiModelAdmin):
-    ordering = (Upper(unaccent_if_available("name")),)
+    ordering = (Upper(Unaccent("name")),)
     search_fields = (
         'name',
         'description',
@@ -403,7 +399,7 @@ class TeamAdmin(ViewInApiModelAdmin):
 
 @admin.register(models.BioinformaticsTeam)
 class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
-    ordering = (unaccent_if_available("name"),)
+    ordering = (Unaccent("name"),)
     search_fields = (
         'name',
         'description',
