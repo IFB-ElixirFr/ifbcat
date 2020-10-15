@@ -48,7 +48,7 @@ class PubliclyReadableEditableBySomething(permissions.BasePermission):
         target_attr = getattr(obj, self.target)
         if isinstance(obj._meta.get_field(self.target), ManyToManyField):
             return target_attr.filter(id=request.user.id).exists()
-        return target_attr.id == request.user.id
+        return target_attr is not None and target_attr.id == request.user.id
 
 
 # Custom permissions class for updating object
