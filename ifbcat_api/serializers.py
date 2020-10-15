@@ -54,8 +54,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'homepage',
             'teamLeader',
             'teamDeputies',
-            'teamScientificLeader',
-            'teamTechnicalLeader',
+            'teamScientificLeaders',
+            'teamTechnicalLeaders',
             'teamMembers',
             'teamMaintainers',
         )
