@@ -34,3 +34,14 @@ sudo service ifbcat restart
 cd /var/ifbcat-src
 sudo docker-compose exec web python manage.py createsuperuser
 ```
+
+# How to generate graph models
+
+To export the models to an image, you hav to:
+ * uncomment django_extensions in settings.py
+ * and then run this:
+```bash
+pip install pygraphviz django-extensions
+python manage.py graph_models -a -g -o ifb_cat.png
+python manage.py graph_models -a -g -o ifb_cat.svg
+```

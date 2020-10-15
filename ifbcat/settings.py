@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'ifbcat_api',
 ]
 
+# INSTALLED_APPS.append('django_extensions')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
