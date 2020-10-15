@@ -246,7 +246,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     keywords = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="keyword__unaccent",
+        slug_field="keyword",
         queryset=models.Keyword.objects,
         required=False,
     )
@@ -613,7 +613,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
     keywords = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="keyword__unaccent",
+        slug_field="keyword",
         queryset=models.Keyword.objects,
         required=False,
     )
@@ -712,7 +712,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     keywords = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="keyword__unaccent",
+        slug_field="keyword",
         queryset=models.Keyword.objects,
         required=False,
     )
