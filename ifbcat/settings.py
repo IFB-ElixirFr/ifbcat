@@ -157,6 +157,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',  # allows to put used within the browser
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 20,
 }
 # From https://gist.github.com/davewongillies/6897161#gistcomment-3017261
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
