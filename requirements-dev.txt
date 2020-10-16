@@ -1,5 +1,2 @@
-# Need to update to latest versions, see https://pypi.org/
-# django==2.2
-# djangorestframework==3.9.2
 pre-commit
 Black==20.8b1
