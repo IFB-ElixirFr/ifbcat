@@ -16,6 +16,24 @@ class TestApiViewSerializer(serializers.Serializer):
     testinput = serializers.CharField(max_length=10)
 
 
+class UserProfileSerializerTiny(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserProfile
+        fields = (
+            'firstname',
+            'lastname',
+            'email',
+            'orcidid',
+            'homepage',
+            'expertise',
+            'homepage',
+        )
+        extra_kwargs = {
+            'email': {'write_only': True},
+        }
+        read_only = True
+
+
 # Model serializer for user profile
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile (UserProfile object)."""

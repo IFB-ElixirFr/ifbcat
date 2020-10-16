@@ -141,7 +141,6 @@ class TestViewSet(viewsets.ViewSet):
 class UserProfileViewSet(viewsets.ModelViewSet):
     """Handle creating and updating user profiles."""
 
-    serializer_class = serializers.UserProfileSerializer
     queryset = models.UserProfile.objects.all()
 
     # permission_classes set how user has gets permission to do certain things.
@@ -157,6 +156,11 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         'orcidid',
         'expertise__topic',
     )
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.UserProfileSerializerTiny
+        return serializers.UserProfileSerializer
 
 
 # Class for handling user authentication.
