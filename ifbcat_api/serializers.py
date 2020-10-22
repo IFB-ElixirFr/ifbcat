@@ -35,7 +35,7 @@ class UserProfileSerializerTiny(serializers.ModelSerializer):
 
 
 # Model serializer for user profile
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
@@ -849,3 +849,93 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
             'usage': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'sustainability': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
         }
+
+
+# Model serializer for tool credit
+class ToolCreditSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a tool (Tool object)."""
+
+    type_role = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.TypeRole.objects,
+        required=False,
+    )
+
+    class Meta:
+        model = models.ToolCredit
+        fields = (
+            'type_role',
+            'name',
+            'email',
+            'url',
+            'orcidid',
+            'gridid',
+            'typeEntity',
+            'note',
+        )
+
+
+# Model serializer for tools
+class ToolSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a tool (Tool object)."""
+
+    tool_type = VerboseSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.ToolType.objects,
+        required=False,
+    )
+
+    scientific_topics = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="topic",
+        queryset=models.Topic.objects,
+        required=False,
+    )
+
+    primary_publication = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="doi",
+        queryset=models.Doi.objects,
+        required=False,
+    )
+
+    operating_system = VerboseSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.OperatingSystem.objects,
+        required=False,
+    )
+
+    tool_credit = ToolCreditSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = models.Tool
+        fields = (
+            'name',
+            'description',
+            'homepage',
+            'biotoolsID',
+            'biotoolsCURIE',
+            'tool_type',
+            'scientific_topics',
+            'primary_publication',
+            'operating_system',
+            # 'scientific_operations',
+            'tool_credit',
+            'tool_license',
+            'maturity',
+            'cost',
+            # 'access_condition',
+            # 'keywords',
+            # 'platform',
+            # 'language',
+            # 'topic',
+        )
+        # depth = 1
