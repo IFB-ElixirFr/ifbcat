@@ -35,7 +35,7 @@ class UserProfileSerializerTiny(serializers.ModelSerializer):
 
 
 # Model serializer for user profile
-class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
+class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
