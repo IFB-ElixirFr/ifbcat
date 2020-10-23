@@ -2,19 +2,15 @@ from django.db import models
 
 
 class OperatingSystem(models.Model):
-    # OPERATING_SYSTEM_CHOICES = (
-    #     ('LINUX', 'Linux'),
-    #     ('WINDOWS', 'Windows'),
-    #     ('MAC', 'Mac')
-    # )
+    OPERATING_SYSTEM_CHOICES = (('LINUX', 'Linux'), ('WINDOWS', 'Windows'), ('MAC', 'Mac'))
 
-    name = models.CharField(unique=True, max_length=100, blank=True, null=True)
+    name = models.CharField(unique=True, max_length=100, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
 
     # metadata
     additionDate = models.DateTimeField(auto_now_add=True)
 
-    def __unicode__(self):
-        return unicode(self.name) or u''
+    def __str__(self):
+        return self.name
 
 
 # class OperatingSystem(models.Model):

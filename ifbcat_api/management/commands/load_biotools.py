@@ -35,6 +35,7 @@ from ifbcat_api.model.misc import Topic
 
 import urllib3
 import json
+from Bio import Entrez
 
 logger = logging.getLogger(__name__)
 
@@ -113,14 +114,23 @@ class Command(BaseCommand):
                         # # insert or get doi
                         # self.add_many_to_many_entry_array(tool_entry, tool_entry.tool_type, tool['toolType'], ToolType)
 
-                        # entry for publications
+                        # entry for publications DOI
                         for publication in tool['publication']:
-                            print(tool['name'])
-                            print(publication)
                             if 'Primary' in publication['type']:
-                                doi_entry, created = Doi.objects.get_or_create(doi=publication['doi'])
-                                doi_entry.save()
-                                tool_entry.primary_publication.add(doi_entry.id)
+                                doi = None
+
+                                if publication['doi'] != None:
+                                    doi = publication['doi']
+                                if publication['doi'] == None and publication['pmid'] != None:
+                                    doi = self.get_doi_from_pmid(publication['pmid'])
+                                    # print('*Get DOI from PMID: ' + str(doi))
+                                if publication['doi'] == None and publication['pmcid'] != None:
+                                    doi = self.get_doi_from_pmid(publication['pmcid'])
+
+                                if doi != None:
+                                    doi_entry, created = Doi.objects.get_or_create(doi=doi)
+                                    doi_entry.save()
+                                    tool_entry.primary_publication.add(doi_entry.id)
 
                         # insert or get DB topic entry table here
                         for topic in tool['topic']:
@@ -468,6 +478,13 @@ class Command(BaseCommand):
             print("Connection error")
             print(e)
             return None
+
+    def get_doi_from_pmid(self, pmid):
+        with Entrez.efetch(db="pubmed", id=str(pmid), rettype="xml", retmode="text") as handle:
+            d = Entrez.read(handle)
+            for article_id in d["PubmedArticle"][0]["PubmedData"]["ArticleIdList"]:
+                if article_id[:2] == "10":
+                    return article_id
 
     def add_many_to_many_entry_array(self, tool_entry, tool_to_field, tool_field, field_class):
         for field_value in tool_field:

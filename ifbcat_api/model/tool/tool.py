@@ -32,12 +32,22 @@ class Tool(models.Model):
         null=False,
         max_length=1000,
     )
-    homepage = models.CharField(max_length=1000, null=True, blank=True)
+    homepage = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True,
+    )
     biotoolsID = models.CharField(blank=False, null=False, max_length=100)
     tool_type = models.ManyToManyField(ToolType, blank=True)
     # Use edam topics from Topic table
-    scientific_topics = models.ManyToManyField(Topic, blank=True)
-    operating_system = models.ManyToManyField(OperatingSystem, blank=True)
+    scientific_topics = models.ManyToManyField(
+        Topic,
+        blank=True,
+    )
+    operating_system = models.ManyToManyField(
+        OperatingSystem,
+        blank=True,
+    )
     tool_credit = models.ManyToManyField(ToolCredit, blank=True)
     tool_license = models.CharField(max_length=1000, blank=True, null=True)
     # add operation/function here
@@ -102,3 +112,6 @@ class Tool(models.Model):
     # metadata
     additionDate = models.DateTimeField(blank=True, null=True)
     lastUpdate = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name

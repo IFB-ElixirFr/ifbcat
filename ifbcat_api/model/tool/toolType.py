@@ -20,7 +20,13 @@ class ToolType(models.Model):
         ("Workflow", "Workflow"),
     )
     # name = models.CharField(max_length=10000, choices=TOOLTYPE_CHOICES)
-    name = models.CharField(unique=True, blank=True, null=True, max_length=100, choices=TOOLTYPE_CHOICES)
+    name = models.CharField(
+        unique=True,
+        blank=True,
+        null=True,
+        max_length=100,
+        choices=TOOLTYPE_CHOICES,
+    )
 
     # metadata
     additionDate = models.DateTimeField(auto_now_add=True)
