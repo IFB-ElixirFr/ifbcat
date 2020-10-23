@@ -34,3 +34,4 @@ from .model.trainingEvent import *
 from .model.service import *
 from .model.serviceSubmission import *
 from .model.misc import *
+from .model.tool.tool import *

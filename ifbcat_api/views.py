@@ -655,3 +655,24 @@ class ServiceSubmissionViewSet(viewsets.ModelViewSet):
         'usage',
         'sustainability',
     )
+
+
+# Model ViewSet for tools
+class ToolViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating tools."""
+
+    serializer_class = serializers.ToolSerializer
+    queryset = models.Tool.objects.all()
+
+    permission_classes = (
+        permissions.PubliclyReadableEditableByOwner
+        | permissions.PubliclyReadableEditableBySubmitters
+        | permissions.PubliclyReadableEditableByAuthors,
+        IsAuthenticatedOrReadOnly,
+    )
+
+    search_fields = (
+        'name',
+        'description',
+        'tool_type__name',
+    )

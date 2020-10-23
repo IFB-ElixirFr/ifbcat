@@ -31,6 +31,7 @@ router.register('team', views.TeamViewSet)
 router.register('bioinformaticsteam', views.BioinformaticsTeamViewSet)
 router.register('service', views.ServiceViewSet)
 router.register('servicesubmission', views.ServiceSubmissionViewSet)
+router.register('tool', views.ToolViewSet)
 router.register('source_info', views.SourceInfoViewSet, basename='source_info')
 
 # APIView ("testapiview" below) endpoints are registered differently than API ViewSet
