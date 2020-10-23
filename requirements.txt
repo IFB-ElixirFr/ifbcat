@@ -1,3 +1,4 @@
+biopython
 django==3.0.7
 djangorestframework==3.11.0
 python-decouple
@@ -7,5 +8,6 @@ gunicorn
 pandas
 pyyaml
 uritemplate
+urllib3
 unidecode
 #end of file
