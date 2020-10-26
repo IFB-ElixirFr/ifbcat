@@ -6,14 +6,14 @@ from django.db.transaction import atomic
 from django.utils.timezone import make_aware
 import datetime
 from django.core.management import BaseCommand
-from database.models import Formation
-from database.models import Keyword
-from catalogue.settings import BASE_DIR
+from ifbcat_api.models import Formation
+from ifbcat_api.models import Keyword
+from ifbcat.settings import BASE_DIR
 
 
 class Command(BaseCommand):
     def import_formations_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
+        data_folder = os.path.join(BASE_DIR, '../ifbcat-importdata')
         Formation.objects.all().delete()
         print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):
