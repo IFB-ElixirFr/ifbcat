@@ -54,7 +54,7 @@ class Command(BaseCommand):
                         else:
                             event_start_date = None
                             event_end_date = None
-                        
+
                         event_location = data_object[4]
                         event_link = data_object[5]
                         event_organizer = data_object[6]
@@ -72,9 +72,7 @@ class Command(BaseCommand):
                                 homepage=event_link,
                             )
 
-                            dates = EventDate.objects.create(
-                                    dateStart=event_start_date,
-                                    dateEnd=event_end_date)
+                            dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
 
                             event.dates.add(dates)
 
@@ -82,8 +80,8 @@ class Command(BaseCommand):
                                 organizer = organizer.strip()
 
                                 if organizer == '':
-                                    print('No organizer for '+event_name)
-                                
+                                    print('No organizer for ' + event_name)
+
                                 elif Organisation.objects.filter(name=organizer).exists():
                                     organisation = Organisation.objects.get(name=organizer)
                                     event.organisedByOrganisations.add(organisation)
@@ -92,7 +90,7 @@ class Command(BaseCommand):
                                     print(organizer + 'is not an organisation in the DB.')
 
                             # EventSponsors should be created before to be able to add them here to events
-                            #for sponsor in event_sponsors.split(','):
+                            # for sponsor in event_sponsors.split(','):
                             #    sponsor=sponsor.strip()
 
                             #    if sponsor == '':
