@@ -9,5 +9,6 @@ pandas
 pyyaml
 uritemplate
 urllib3
+tqdm
 unidecode
 #end of file
