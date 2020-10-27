@@ -10,7 +10,7 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
-from rest_framework import filters
+from rest_framework import filters, pagination
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -659,6 +659,7 @@ class ServiceSubmissionViewSet(viewsets.ModelViewSet):
 
 # Model ViewSet for tools
 class ToolViewSet(viewsets.ModelViewSet):
+    pagination_class = pagination.LimitOffsetPagination
     """Handles creating, reading and updating tools."""
 
     serializer_class = serializers.ToolSerializer
