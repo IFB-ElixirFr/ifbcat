@@ -10,6 +10,9 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from rest_framework import filters, pagination
 from rest_framework import status
 from rest_framework import viewsets
@@ -395,6 +398,11 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         'fields__field',
         'city',
     )
+
+    @method_decorator(cache_page(60 * 60 * 0.5))
+    @method_decorator(vary_on_cookie)
+    def list(self, *args, **kwargs):
+        return super().list(*args, **kwargs)
 
 
 # Model ViewSet for elixirPlatform
