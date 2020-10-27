@@ -10,6 +10,7 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
+from django.core.cache import cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
@@ -388,6 +389,15 @@ class OrganisationViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
+        cache.clear()
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        cache.clear()
 
     filter_backends = (filters.SearchFilter,)
     search_fields = (
