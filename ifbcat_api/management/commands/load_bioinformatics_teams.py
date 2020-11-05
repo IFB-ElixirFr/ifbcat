@@ -75,7 +75,12 @@ class Command(BaseCommand):
         for index, row in df.iterrows():
             try:
                 bt, _ = models.BioinformaticsTeam.objects.get_or_create(name=row["Nom de la plateforme"])
-                bt.address = row["Adresse postale"]
+                address = row["Adresse postale"]
+                zip_city = address.split('\n')[-2]
+                city = zip_city.split(' ')[-1]
+                bt.address = address
+                bt.country = address.split('\n')[-1]
+                bt.city = city
                 bt.logo_url = to_none_when_appropriate(str(row["Chemin"]))
                 for p in find_persons(row["Responsable scientifique"]):
                     bt.scientificLeaders.add(p)
