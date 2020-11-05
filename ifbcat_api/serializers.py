@@ -70,11 +70,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'expertise',
             'homepage',
             'teamLeader',
-            'teamDeputies',
-            'teamScientificLeaders',
-            'teamTechnicalLeaders',
-            'teamMembers',
-            'teamMaintainers',
+            'teamsDeputies',
+            'teamsScientificLeaders',
+            'teamsTechnicalLeaders',
+            'teamsMembers',
+            'teamsMaintainers',
         )
         read_only = (
             'is_superuser',
