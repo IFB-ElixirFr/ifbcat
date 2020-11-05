@@ -8,9 +8,13 @@ class Command(BaseCommand):
     import_data = "../ifbcat-importdata"
 
     def import_catalog(self):
-        call_command('load_persons', os.path.join(self.import_data, "persons.csv"))
+        call_command(
+            'load_persons',
+            os.path.join(self.import_data, "persons.csv"),
+            os.path.join(self.import_data, "drupal_db_dump/users.txt"),
+        )
         call_command('load_bioinformatics_teams', os.path.join(self.import_data, "platforms.csv"))
-        call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
+        # call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
         call_command('load_biotools')
         # call_command('load_databases')
         # # call_command('load_tools')
