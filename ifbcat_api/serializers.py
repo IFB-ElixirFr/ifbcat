@@ -694,9 +694,25 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'id',
             'user_profile',
             'name',
+            'logo_url',
             'description',
-            'homepage',
             'expertise',
+            'linkCovid19',
+            'homepage',
+            'unitId',
+            'address',
+            'city',
+            'country',
+            'communities',
+            'projects',
+            'affiliatedWith',
+            'publications',
+            'certification',
+            'fundedBy',
+            'keywords',
+            'fields',
+            'orgid',
+            # fields below are legacy
             'leader',
             'deputies',
             'scientificLeaders',
@@ -706,74 +722,66 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         )
         read_only_fields = ['user_profile']
 
-        extra_kwargs = {}
+        # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
+        extra_kwargs = {
+            **{
+                'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+                'keywords': {'lookup_field': 'keyword'},
+                'affiliatedWith': {'lookup_field': 'name'},
+                'communities': {'lookup_field': 'name'},
+                'projects': {'lookup_field': 'name'},
+                'fundedBy': {'lookup_field': 'name'},
+            },
+        }
 
 
 # Model serializer for bioinformatics team
 class BioinformaticsTeamSerializer(TeamSerializer):
     """Serializes a bioinformatics team (BioinformaticsTeam object)."""
 
-    publications = serializers.SlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="doi",
-        queryset=models.Doi.objects,
-        required=False,
-    )
-    topics = CreatableSlugRelatedField(
+    # publications = serializers.SlugRelatedField(
+    #    many=True,
+    #    read_only=False,
+    #    slug_field="doi",
+    #    queryset=models.Doi.objects,
+    #    required=False,
+    # )
+    edamTopics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
         slug_field="topic",
         queryset=models.Topic.objects,
         required=False,
     )
-    keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="keyword",
-        queryset=models.Keyword.objects,
-        required=False,
-    )
-    fields = VerboseSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="field",
-        queryset=models.Field.objects.all(),
-        required=False,
-    )
+    # keywords = CreatableSlugRelatedField(
+    #    many=True,
+    #    read_only=False,
+    #    slug_field="keyword",
+    #    queryset=models.Keyword.objects,
+    #    required=False,
+    # )
+    # fields = VerboseSlugRelatedField(
+    #    many=True,
+    #    read_only=False,
+    #    slug_field="field",
+    #    queryset=models.Field.objects.all(),
+    #    required=False,
+    # )
 
     class Meta(TeamSerializer.Meta):
         model = models.BioinformaticsTeam
 
         fields = TeamSerializer.Meta.fields + (
-            'orgid',
-            'unitId',
-            'address',
-            'logo_url',
-            'fields',
-            'topics',
-            'keywords',
+            'edamTopics',
             'ifbMembership',
-            'affiliatedWith',
             'platforms',
-            'communities',
-            'projects',
-            'fundedBy',
-            'publications',
-            'certification',
         )
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
         extra_kwargs = {
             **TeamSerializer.Meta.extra_kwargs,
             **{
-                'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-                'keywords': {'lookup_field': 'keyword'},
-                'affiliatedWith': {'lookup_field': 'name'},
                 'platforms': {'lookup_field': 'name'},
-                'communities': {'lookup_field': 'name'},
-                'projects': {'lookup_field': 'name'},
-                'fundedBy': {'lookup_field': 'name'},
             },
         }
 
