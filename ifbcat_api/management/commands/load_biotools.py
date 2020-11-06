@@ -21,7 +21,8 @@ from ifbcat_api.model.tool.toolCredit import *
 # from database.models import Download
 # from database.models import Relation
 
-# from database.models import Collection
+from ifbcat_api.model.tool.collection import Collection
+
 # from database.models import OtherID
 # from database.models import Version
 
@@ -48,6 +49,7 @@ class Command(BaseCommand):
         ToolType.objects.all().delete()
         OperatingSystem.objects.all().delete()
         ToolCredit.objects.all().delete()
+        Collection.objects.all().delete()
 
         http = urllib3.PoolManager()
         try:
@@ -75,6 +77,9 @@ class Command(BaseCommand):
                     # if 'FR' in tool['collectionID']:
                     if 'elixir-fr-sdp-2019' in tool['collectionID']:
                         # if True:
+
+                        # JSONLD url FROM biotools API
+                        print("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
 
                         # insert in DB tool table here
                         tool_entry, created = Tool.objects.get_or_create(
@@ -109,6 +114,11 @@ class Command(BaseCommand):
                         # insert accessibility entry
                         self.add_many_to_many_entry_array(
                             tool_entry, tool_entry.operating_system, tool['operatingSystem'], OperatingSystem
+                        )
+
+                        # insert collectionID entry
+                        self.add_many_to_many_entry_array(
+                            tool_entry, tool_entry.collection, tool['collectionID'], Collection
                         )
 
                         # # insert or get doi
