@@ -497,9 +497,8 @@ class CertificationSerializer(serializers.ModelSerializer):
 
     teamsCertifications = serializers.SlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field="name",
-        queryset=models.Team.objects,
         required=False,
     )
 
