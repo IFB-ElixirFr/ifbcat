@@ -12,6 +12,7 @@ from ifbcat_api.model.tool.toolType import ToolType
 # from database.model.tool.elixirNode import *
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
+from ifbcat_api.model.tool.collection import Collection
 
 # from ifbcat_api.model.tool.function import *
 
@@ -58,6 +59,7 @@ class Tool(models.Model):
         blank=True,
         help_text="Publication(s) that describe the tool as a whole.",
     )
+    collection = models.ManyToManyField(Collection, blank=True)
 
     biotoolsCURIE = models.CharField(blank=False, null=False, max_length=109)  # because of biotools: prefix
 
@@ -83,7 +85,6 @@ class Tool(models.Model):
 
     # language = models.ManyToManyField(Language, blank=True)
 
-    # collection = models.ManyToManyField(Collection, blank=True)
     # elixir_platform = models.ManyToManyField(ElixirPlatform, blank=True)
     # elixir_node = models.ManyToManyField(ElixirNode, blank=True)
     # accessibility = models.ManyToManyField(Accessibility, blank=True)

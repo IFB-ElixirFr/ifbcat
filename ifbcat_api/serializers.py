@@ -919,6 +919,14 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         required=False,
     )
 
+    collection = VerboseSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Collection.objects,
+        required=False,
+    )
+
     scientific_topics = serializers.SlugRelatedField(
         many=True,
         read_only=False,
@@ -954,6 +962,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
             'biotoolsID',
             'biotoolsCURIE',
             'tool_type',
+            'collection',
             'scientific_topics',
             'primary_publication',
             'operating_system',
