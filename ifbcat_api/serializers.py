@@ -700,6 +700,28 @@ class TrainingMaterialSerializer(ResourceSerializer):
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
+    publications = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="doi",
+        queryset=models.Doi.objects,
+        required=False,
+    )
+    keywords = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="keyword",
+        queryset=models.Keyword.objects,
+        required=False,
+    )
+    fields = VerboseSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="field",
+        queryset=models.Field.objects.all(),
+        required=False,
+    )
+
     expertise = CreatableSlugRelatedField(
         many=True,
         read_only=False,
@@ -760,13 +782,6 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
 class BioinformaticsTeamSerializer(TeamSerializer):
     """Serializes a bioinformatics team (BioinformaticsTeam object)."""
 
-    # publications = serializers.SlugRelatedField(
-    #    many=True,
-    #    read_only=False,
-    #    slug_field="doi",
-    #    queryset=models.Doi.objects,
-    #    required=False,
-    # )
     edamTopics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
@@ -774,20 +789,6 @@ class BioinformaticsTeamSerializer(TeamSerializer):
         queryset=models.Topic.objects,
         required=False,
     )
-    # keywords = CreatableSlugRelatedField(
-    #    many=True,
-    #    read_only=False,
-    #    slug_field="keyword",
-    #    queryset=models.Keyword.objects,
-    #    required=False,
-    # )
-    # fields = VerboseSlugRelatedField(
-    #    many=True,
-    #    read_only=False,
-    #    slug_field="field",
-    #    queryset=models.Field.objects.all(),
-    #    required=False,
-    # )
 
     class Meta(TeamSerializer.Meta):
         model = models.BioinformaticsTeam
