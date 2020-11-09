@@ -404,11 +404,7 @@ class CertificationViewSet(viewsets.ModelViewSet):
     queryset = models.Certification.objects.all()
     lookup_field = 'name'
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
+    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
     filter_backends = (filters.SearchFilter,)
     search_fields = (
