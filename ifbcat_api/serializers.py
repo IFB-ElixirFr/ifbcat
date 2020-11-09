@@ -488,6 +488,27 @@ class OrganisationSerializer(serializers.ModelSerializer):
         read_only_fields = ['user_profile']
 
 
+class CertificationSerializer(serializers.ModelSerializer):
+    """Serializes an organisation (Organisation object)."""
+
+    class Meta:
+        model = models.Certification
+        fields = ('id', 'name', 'description', 'homepage', 'teamsCertifications')
+
+    teamsCertifications = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Team.objects,
+        required=False,
+    )
+
+    ## Lead to unexpected keyword argument 'lookup_field'
+    # extra_kwargs = {
+    #    'teamsCertifications': {'lookup_field': 'name'},
+    # }
+
+
 # ElixirPlatform serializer
 class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an elixirPlatform (ElixirPlatform object)."""
@@ -707,7 +728,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'projects',
             'affiliatedWith',
             'publications',
-            'certification',
+            'certifications',
             'fundedBy',
             'keywords',
             'fields',
@@ -728,6 +749,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
                 'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
                 'keywords': {'lookup_field': 'keyword'},
                 'affiliatedWith': {'lookup_field': 'name'},
+                'certifications': {'lookup_field': 'name'},
                 'communities': {'lookup_field': 'name'},
                 'projects': {'lookup_field': 'name'},
                 'fundedBy': {'lookup_field': 'name'},

@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from ifbcat_api.model.community import Community
+from ifbcat_api.model.certification import Certification
 from ifbcat_api.model.misc import Keyword, Field, Topic, Doi
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
@@ -129,11 +130,11 @@ class Team(models.Model):
         blank=True,
         help_text="Publication(s) that describe the team.",
     )
-    certification = models.CharField(
-        max_length=255,
+    certifications = models.ManyToManyField(
+        Certification,
+        related_name='teamsCertifications',
         blank=True,
-        choices=CertificationType.choices,
-        help_text="Certification (e.g. ISO) of the bioinformatics team.",
+        help_text="Certification(s) possessed by the team.",
     )
     affiliatedWith = models.ManyToManyField(
         Organisation,
