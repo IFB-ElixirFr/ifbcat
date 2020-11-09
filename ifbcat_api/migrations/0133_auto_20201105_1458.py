@@ -2,13 +2,14 @@
 
 from django.conf import settings
 from django.db import migrations, models
+
 import ifbcat_api.validators
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ifbcat_api', '0132_auto_20201023_0952'),
+        ('ifbcat_api', '0133_auto_20201104_1425'),
     ]
 
     operations = [
