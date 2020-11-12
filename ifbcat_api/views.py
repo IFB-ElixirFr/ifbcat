@@ -610,6 +610,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         'members__lastname',
         'maintainers__firstname',
         'maintainers__lastname',
+        'certifications__name',
     )
 
 
@@ -625,7 +626,7 @@ class BioinformaticsTeamViewSet(TeamViewSet):
         'unitId',
         'address',
         'fields__field',
-        'topics__topic',
+        'edamTopics__topic',
         'keywords__keyword',
         'ifbMembership',
         'platforms__name',
@@ -633,7 +634,6 @@ class BioinformaticsTeamViewSet(TeamViewSet):
         'projects__name',
         'fundedBy__name',
         'publications__doi',
-        'certifications__name',
     )
 
 
