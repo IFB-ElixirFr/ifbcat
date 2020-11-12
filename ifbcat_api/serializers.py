@@ -488,7 +488,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
         read_only_fields = ['user_profile']
 
 
-class CertificationSerializer(serializers.ModelSerializer):
+class CertificationSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
     class Meta:
@@ -727,6 +727,13 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         read_only=False,
         slug_field="topic",
         queryset=models.Topic.objects,
+        required=False,
+    )
+    certifications = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Certification.objects,
         required=False,
     )
 
