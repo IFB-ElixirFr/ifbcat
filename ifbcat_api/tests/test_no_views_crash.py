@@ -1,7 +1,7 @@
 import logging
 
 from django.core import management
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
 
 from ifbcat_api.model.misc import Topic, Keyword, Field
 from ifbcat_api.tests.test_with_importdata import EnsureImportDataAreHere
@@ -87,7 +87,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
             for o in getattr(url_instance.callback.cls, "queryset").all():
                 try:
                     url_detail = reverse(url_instance.name, kwargs={lookup_field: getattr(o, attr_field)})
-                except AttributeError as e:
+                except (AttributeError, NoReverseMatch) as e:
                     raise Exception(
                         f'failed while opening {url_instance.name} with {o}',
                         e,
