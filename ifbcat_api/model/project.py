@@ -7,7 +7,8 @@ from ifbcat_api.model.computingFacility import ComputingFacility
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Topic
 from ifbcat_api.model.organisation import Organisation
-from ifbcat_api.model.team import Team
+
+# from ifbcat_api.model.team import Team
 from ifbcat_api.validators import validate_can_be_looked_up
 
 
@@ -33,7 +34,7 @@ class Project(models.Model):
         help_text="URIs of EDAM Topic terms describing the expertise of the project.",
     )
     team = models.ForeignKey(
-        Team,
+        'ifbcat_api.Team',
         related_name='project',
         null=True,
         on_delete=models.SET_NULL,

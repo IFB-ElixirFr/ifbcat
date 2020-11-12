@@ -23,6 +23,7 @@ from .model.userProfile import *
 from .model.event import *
 from .model.elixirPlatform import *
 from .model.organisation import *
+from .model.certification import *
 from .model.community import *
 from .model.resource import *
 from .model.trainingMaterial import *

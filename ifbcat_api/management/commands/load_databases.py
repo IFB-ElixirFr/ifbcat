@@ -8,16 +8,16 @@ from django.core.management import BaseCommand
 from django.db.transaction import atomic
 from django.utils.timezone import make_aware
 
-from database.models import Database
-from database.models import Keyword
-from database.models import Platform
-from catalogue.settings import BASE_DIR
+from ifbcat_api.models import Database
+from ifbcat_api.models import Keyword
+from ifbcat_api.models import Platform
+from ifbcat.settings import BASE_DIR
 
 
 class Command(BaseCommand):
     @atomic
     def import_databases_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
+        data_folder = os.path.join(BASE_DIR, '../ifbcat-importdata')
         Database.objects.all().delete()
         # print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):

@@ -415,6 +415,23 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         return super().list(*args, **kwargs)
 
 
+class CertificationViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating organisations."""
+
+    serializer_class = serializers.CertificationSerializer
+    queryset = models.Certification.objects.all()
+    lookup_field = 'name'
+
+    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = (
+        'name',
+        'description',
+        'homepage',
+    )
+
+
 # Model ViewSet for elixirPlatform
 class ElixirPlatformViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating elixirPlatforms."""
@@ -616,7 +633,7 @@ class BioinformaticsTeamViewSet(TeamViewSet):
         'projects__name',
         'fundedBy__name',
         'publications__doi',
-        'certification',
+        'certifications__name',
     )
 
 

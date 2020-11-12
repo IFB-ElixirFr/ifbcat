@@ -10,4 +10,5 @@ pyyaml
 uritemplate
 urllib3
 unidecode
+tqdm
 #end of file

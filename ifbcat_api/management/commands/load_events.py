@@ -8,13 +8,14 @@ from django.db.transaction import atomic
 from django.utils.timezone import make_aware
 
 from django.core.management import BaseCommand
-from database.models import Event
-from catalogue.settings import BASE_DIR
+from ifbcat_api.model.event import *
+from ifbcat_api.model.organisation import Organisation
+from ifbcat.settings import BASE_DIR
 
 
 class Command(BaseCommand):
     def import_events_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
+        data_folder = os.path.join(BASE_DIR, '../ifbcat-importdata')
         Event.objects.all().delete()
         # print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):
@@ -61,18 +62,44 @@ class Command(BaseCommand):
                         event_logo = data_object[8]
 
                         try:
-                            event = Event.objects.create(
+                            event, created = Event.objects.get_or_create(
                                 name=event_name,
-                                logo=event_logo,
-                                event_type=event_type,
+                                logo_url=event_logo,
+                                type=event_type,
                                 description=event_description,
-                                start_date=event_start_date,
-                                end_date=event_end_date,
-                                location=event_location,
-                                link=event_link,
-                                organizer=event_organizer,
-                                sponsors=event_sponsors,
+                                # city is only a subset of event_location for the moment
+                                city=event_location,
+                                homepage=event_link,
                             )
+
+                            dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
+
+                            event.dates.add(dates)
+
+                            for organizer in event_organizer.split(','):
+                                organizer = organizer.strip()
+
+                                if organizer == '':
+                                    print('No organizer for ' + event_name)
+
+                                elif Organisation.objects.filter(name=organizer).exists():
+                                    organisation = Organisation.objects.get(name=organizer)
+                                    event.organisedByOrganisations.add(organisation)
+
+                                else:
+                                    print(organizer + 'is not an organisation in the DB.')
+
+                            # EventSponsors should be created before to be able to add them here to events
+                            # for sponsor in event_sponsors.split(','):
+                            #    sponsor=sponsor.strip()
+
+                            #    if sponsor == '':
+                            #        print('No sponsor for '+event_name)
+
+                            #    elif EventSponsor.objects.filter(name=sponsor).exists():
+                            #        organisation=EventSponsor.objects.get(name=sponsor)
+                            #        event.sponsoredBy.add(organisation)
+
                         except Exception as e:
                             print(data_object)
                             raise e
