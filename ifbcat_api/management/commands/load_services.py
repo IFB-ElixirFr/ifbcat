@@ -11,7 +11,7 @@ from ifbcat.settings import BASE_DIR
 
 class Command(BaseCommand):
     def import_service_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, '../ifbcat-importdata')
+        data_folder = os.path.join(BASE_DIR, './import_data')
         Service.objects.all().delete()
         Credit.objects.all().delete()
         ElixirCommunities.objects.all().delete()

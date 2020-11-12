@@ -17,7 +17,7 @@ from ifbcat.settings import BASE_DIR
 class Command(BaseCommand):
     @atomic
     def import_databases_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, '../ifbcat-importdata')
+        data_folder = os.path.join(BASE_DIR, './import_data')
         Database.objects.all().delete()
         # print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):

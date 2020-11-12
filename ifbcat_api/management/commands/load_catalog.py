@@ -5,7 +5,7 @@ from django.core.management import call_command
 
 
 class Command(BaseCommand):
-    import_data = "../ifbcat-importdata"
+    import_data = "./import_data"
 
     def import_catalog(self):
         call_command(

@@ -15,7 +15,7 @@ from ifbcat.settings import BASE_DIR
 
 class Command(BaseCommand):
     def import_events_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, '../ifbcat-importdata')
+        data_folder = os.path.join(BASE_DIR, './import_data')
         Event.objects.all().delete()
         # print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):
