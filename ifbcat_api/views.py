@@ -611,6 +611,15 @@ class TeamViewSet(viewsets.ModelViewSet):
         'maintainers__firstname',
         'maintainers__lastname',
         'certifications__name',
+        'orgid',
+        'unitId',
+        'address',
+        'fields__field',
+        'communities__name',
+        'projects__name',
+        'fundedBy__name',
+        'publications__doi',
+        'keywords__keyword',
     )
 
 
@@ -622,18 +631,9 @@ class BioinformaticsTeamViewSet(TeamViewSet):
     queryset = models.BioinformaticsTeam.objects.all()
 
     search_fields = TeamViewSet.search_fields + (
-        'orgid',
-        'unitId',
-        'address',
-        'fields__field',
         'edamTopics__topic',
-        'keywords__keyword',
         'ifbMembership',
         'platforms__name',
-        'communities__name',
-        'projects__name',
-        'fundedBy__name',
-        'publications__doi',
     )
 
 
