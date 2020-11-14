@@ -282,7 +282,7 @@ class KeywordViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.KeywordSerializer
     queryset = models.Keyword.objects.all()
-    lookup_field = 'keyword__unaccent__iexact'
+    # lookup_field = 'keyword__unaccent__iexact'
 
     permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
