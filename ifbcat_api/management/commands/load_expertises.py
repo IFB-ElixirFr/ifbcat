@@ -76,14 +76,15 @@ class Command(BaseCommand):
                         try:
                             print(Team.objects.filter(name=pf_name).exists())
                             if Team.objects.filter(name=pf_name).exists():
-                                platform, created = Team.objects.update_or_create(name=pf_name)
+                                platform, created = Team.objects.get_or_create(name=pf_name)
+
                                 platform.description = pf_description_expertises
 
                                 for an_activity_area in pf_activity_areas_list:
                                     platform.fields.add(an_activity_area)
                                 for a_keyword in pf_keywords_list:
                                     platform.keywords.add(a_keyword)
-                                # platform.save()
+                                platform.save()
                                 display_format = "\nExpertise, {}, has been saved."
                                 print(display_format.format(platform))
 
