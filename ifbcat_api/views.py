@@ -282,7 +282,7 @@ class KeywordViewSet(viewsets.ModelViewSet):
 
     serializer_class = serializers.KeywordSerializer
     queryset = models.Keyword.objects.all()
-    lookup_field = 'keyword__unaccent__iexact'
+    # lookup_field = 'keyword__unaccent__iexact'
 
     permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
@@ -413,6 +413,24 @@ class OrganisationViewSet(viewsets.ModelViewSet):
     @method_decorator(vary_on_cookie)
     def list(self, *args, **kwargs):
         return super().list(*args, **kwargs)
+
+
+class CertificationViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating organisations."""
+
+    serializer_class = serializers.CertificationSerializer
+    queryset = models.Certification.objects.all()
+    # We can't use name if we want to keeep "CATI / CTAI" certification
+    # lookup_field = 'name'
+
+    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+
+    filter_backends = (filters.SearchFilter,)
+    search_fields = (
+        'name',
+        'description',
+        'homepage',
+    )
 
 
 # Model ViewSet for elixirPlatform
@@ -593,6 +611,16 @@ class TeamViewSet(viewsets.ModelViewSet):
         'members__lastname',
         'maintainers__firstname',
         'maintainers__lastname',
+        'certifications__name',
+        'orgid',
+        'unitId',
+        'address',
+        'fields__field',
+        'communities__name',
+        'projects__name',
+        'fundedBy__name',
+        'publications__doi',
+        'keywords__keyword',
     )
 
 
@@ -604,19 +632,9 @@ class BioinformaticsTeamViewSet(TeamViewSet):
     queryset = models.BioinformaticsTeam.objects.all()
 
     search_fields = TeamViewSet.search_fields + (
-        'orgid',
-        'unitId',
-        'address',
-        'fields__field',
-        'topics__topic',
-        'keywords__keyword',
+        'edamTopics__topic',
         'ifbMembership',
         'platforms__name',
-        'communities__name',
-        'projects__name',
-        'fundedBy__name',
-        'publications__doi',
-        'certification',
     )
 
 

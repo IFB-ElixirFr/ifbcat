@@ -6,14 +6,14 @@ import pytz
 from django.db.transaction import atomic
 from django.utils.timezone import make_aware
 from django.core.management import BaseCommand
-from database.models import Training_material
-from database.models import Keyword
-from catalogue.settings import BASE_DIR
+from ifbcat_api.models import Training_material
+from ifbcat_api.models import Keyword
+from ifbcat.settings import BASE_DIR
 
 
 class Command(BaseCommand):
     def import_materiel_formation_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
+        data_folder = os.path.join(BASE_DIR, './import_data')
         Training_material.objects.all().delete()
         print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):

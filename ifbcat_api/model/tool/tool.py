@@ -13,6 +13,8 @@ from ifbcat_api.model.tool.toolType import ToolType
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
 from ifbcat_api.model.tool.collection import Collection
+from ifbcat_api.models import Keyword
+
 
 # from ifbcat_api.model.tool.function import *
 
@@ -24,26 +26,25 @@ from ifbcat_api.model.misc import Topic, Doi
 class Tool(models.Model):
 
     name = models.CharField(
+        unique=True,
         blank=False,
         null=False,
         max_length=100,
     )
-    description = models.CharField(
-        blank=False,
-        null=False,
-        max_length=1000,
-    )
-    homepage = models.CharField(
-        max_length=1000,
-        null=True,
-        blank=True,
-    )
+    description = models.TextField(blank=True)
+    homepage = models.URLField(max_length=512, help_text="Homepage of the tool.", blank=True, null=True)
     biotoolsID = models.CharField(blank=False, null=False, max_length=100)
     tool_type = models.ManyToManyField(ToolType, blank=True)
     # Use edam topics from Topic table
     scientific_topics = models.ManyToManyField(
         Topic,
         blank=True,
+    )
+    keywords = models.ManyToManyField(
+        Keyword,
+        blank=True,
+        related_name='toolsKeywords',
+        help_text="A keyword (beyond EDAM ontology scope) describing the tool.",
     )
     operating_system = models.ManyToManyField(
         OperatingSystem,
@@ -111,8 +112,8 @@ class Tool(models.Model):
     primary = models.CharField(max_length=1000, blank=True, null=True)
 
     # metadata
-    additionDate = models.DateTimeField(blank=True, null=True)
-    lastUpdate = models.DateTimeField(auto_now=True)
+    addition_date = models.DateTimeField(blank=True, null=True)
+    last_update = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

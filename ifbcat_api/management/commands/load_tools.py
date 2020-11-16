@@ -1,16 +1,16 @@
 import os
 import csv
 from django.core.management import BaseCommand
-from database.models import Tool
-from database.models import Keyword
-from database.models import ToolType
-from database.models import Platform
-from catalogue.settings import BASE_DIR
+from ifbcat_api.models import Tool
+from ifbcat_api.models import Keyword
+from ifbcat_api.models import ToolType
+from ifbcat_api.models import Platform
+from ifbcat.settings import BASE_DIR
 
 
 class Command(BaseCommand):
     def import_tools_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
+        data_folder = os.path.join(BASE_DIR, './import_data')
         Tool.objects.all().delete()
         print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):

@@ -142,5 +142,6 @@ static/
 local.ini
 settings.ini
 
-# folder were data are git line
+# folder where data are git cloned
 ./import_data
+import_data

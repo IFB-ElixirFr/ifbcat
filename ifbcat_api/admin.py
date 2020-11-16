@@ -428,7 +428,7 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
         'projects__name',
         'fundedBy__name',
         'publications__doi',
-        'certification',
+        'certifications__name',
     )
 
     list_filter = ('fields',)

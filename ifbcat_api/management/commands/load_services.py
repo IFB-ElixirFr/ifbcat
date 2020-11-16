@@ -2,16 +2,16 @@ import os
 import csv
 import re
 from django.core.management import BaseCommand
-from database.models import Credit
-from database.models import Service
-from database.models import ElixirCommunities
-from database.models import Publication
-from catalogue.settings import BASE_DIR
+from ifbcat_api.models import Credit
+from ifbcat_api.models import Service
+from ifbcat_api.models import ElixirCommunities
+from ifbcat_api.models import Publication
+from ifbcat.settings import BASE_DIR
 
 
 class Command(BaseCommand):
     def import_service_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, 'import_data', 'resources/csv_file')
+        data_folder = os.path.join(BASE_DIR, './import_data')
         Service.objects.all().delete()
         Credit.objects.all().delete()
         ElixirCommunities.objects.all().delete()

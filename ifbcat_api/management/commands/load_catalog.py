@@ -14,14 +14,18 @@ class Command(BaseCommand):
             os.path.join(self.import_data, "drupal_db_dump", "users.txt"),
         )
         call_command('load_bioinformatics_teams', os.path.join(self.import_data, "platforms.csv"))
-        # call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
-        # call_command('load_databases')
+        call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
+        call_command('load_databases', os.path.join(self.import_data, "databases.csv"))
         # # call_command('load_tools')
         # call_command('load_services')
         # call_command('load_training')
         # call_command('load_training_material')
-        # call_command('load_events')
+        call_command('load_events', os.path.join(self.import_data, "events.csv"))
         # call_command('load_infrastructure')
+
+        # load_biotools works but the call should be avoided here
+        # to avoid spamming NCBI for queries each time we run tests.
+        # call_command('load_biotools')
 
     def handle(self, *args, **options):
         """

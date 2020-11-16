@@ -70,11 +70,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'expertise',
             'homepage',
             'teamLeader',
-            'teamDeputies',
-            'teamScientificLeaders',
-            'teamTechnicalLeaders',
-            'teamMembers',
-            'teamMaintainers',
+            'teamsDeputies',
+            'teamsScientificLeaders',
+            'teamsTechnicalLeaders',
+            'teamsMembers',
+            'teamsMaintainers',
         )
         read_only = (
             'is_superuser',
@@ -488,6 +488,26 @@ class OrganisationSerializer(serializers.ModelSerializer):
         read_only_fields = ['user_profile']
 
 
+class CertificationSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes an organisation (Organisation object)."""
+
+    class Meta:
+        model = models.Certification
+        fields = ('id', 'name', 'description', 'homepage', 'teamsCertifications')
+
+    teamsCertifications = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        required=False,
+    )
+
+    ## Lead to unexpected keyword argument 'lookup_field'
+    # extra_kwargs = {
+    #    'teamsCertifications': {'lookup_field': 'name'},
+    # }
+
+
 # ElixirPlatform serializer
 class ElixirPlatformSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an elixirPlatform (ElixirPlatform object)."""
@@ -680,51 +700,11 @@ class TrainingMaterialSerializer(ResourceSerializer):
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
-    expertise = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects,
-        required=False,
-    )
-
-    class Meta:
-        model = models.Team
-        fields = (
-            'id',
-            'user_profile',
-            'name',
-            'description',
-            'homepage',
-            'expertise',
-            'leader',
-            'deputies',
-            'scientificLeaders',
-            'technicalLeaders',
-            'members',
-            'maintainers',
-        )
-        read_only_fields = ['user_profile']
-
-        extra_kwargs = {}
-
-
-# Model serializer for bioinformatics team
-class BioinformaticsTeamSerializer(TeamSerializer):
-    """Serializes a bioinformatics team (BioinformaticsTeam object)."""
-
     publications = serializers.SlugRelatedField(
         many=True,
         read_only=False,
         slug_field="doi",
         queryset=models.Doi.objects,
-        required=False,
-    )
-    topics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects,
         required=False,
     )
     keywords = CreatableSlugRelatedField(
@@ -742,38 +722,95 @@ class BioinformaticsTeamSerializer(TeamSerializer):
         required=False,
     )
 
+    expertise = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="topic",
+        queryset=models.Topic.objects,
+        required=False,
+    )
+    certifications = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Certification.objects,
+        required=False,
+    )
+
+    class Meta:
+        model = models.Team
+        fields = (
+            'id',
+            'user_profile',
+            'name',
+            'logo_url',
+            'description',
+            'expertise',
+            'linkCovid19',
+            'homepage',
+            'unitId',
+            'address',
+            'city',
+            'country',
+            'communities',
+            'projects',
+            'affiliatedWith',
+            'publications',
+            'certifications',
+            'fundedBy',
+            'keywords',
+            'fields',
+            'orgid',
+            # fields below are legacy
+            'leader',
+            'deputies',
+            'scientificLeaders',
+            'technicalLeaders',
+            'members',
+            'maintainers',
+        )
+        read_only_fields = ['user_profile']
+
+        # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
+        extra_kwargs = {
+            **{
+                'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+                'keywords': {'lookup_field': 'keyword'},
+                'affiliatedWith': {'lookup_field': 'name'},
+                'certifications': {'lookup_field': 'name'},
+                'communities': {'lookup_field': 'name'},
+                'projects': {'lookup_field': 'name'},
+                'fundedBy': {'lookup_field': 'name'},
+            },
+        }
+
+
+# Model serializer for bioinformatics team
+class BioinformaticsTeamSerializer(TeamSerializer):
+    """Serializes a bioinformatics team (BioinformaticsTeam object)."""
+
+    edamTopics = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="topic",
+        queryset=models.Topic.objects,
+        required=False,
+    )
+
     class Meta(TeamSerializer.Meta):
         model = models.BioinformaticsTeam
 
         fields = TeamSerializer.Meta.fields + (
-            'orgid',
-            'unitId',
-            'address',
-            'logo_url',
-            'fields',
-            'topics',
-            'keywords',
+            'edamTopics',
             'ifbMembership',
-            'affiliatedWith',
             'platforms',
-            'communities',
-            'projects',
-            'fundedBy',
-            'publications',
-            'certification',
         )
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
         extra_kwargs = {
             **TeamSerializer.Meta.extra_kwargs,
             **{
-                'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-                'keywords': {'lookup_field': 'keyword'},
-                'affiliatedWith': {'lookup_field': 'name'},
                 'platforms': {'lookup_field': 'name'},
-                'communities': {'lookup_field': 'name'},
-                'projects': {'lookup_field': 'name'},
-                'fundedBy': {'lookup_field': 'name'},
             },
         }
 
@@ -888,7 +925,13 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.ToolType.objects,
         required=False,
     )
-
+    keywords = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="keyword",
+        queryset=models.Keyword.objects,
+        required=False,
+    )
     collection = VerboseSlugRelatedField(
         many=True,
         read_only=False,
@@ -929,6 +972,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
             'name',
             'description',
             'homepage',
+            'logo',
             'biotoolsID',
             'biotoolsCURIE',
             'tool_type',
@@ -941,8 +985,15 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
             'tool_license',
             'maturity',
             'cost',
+            'unique_visits',
+            'access_condition',
+            'citations',
+            'annual_visits',
+            'unique_visits',
+            'last_update',
+            #'increase_last_update',
             # 'access_condition',
-            # 'keywords',
+            'keywords',
             # 'platform',
             # 'language',
             # 'topic',

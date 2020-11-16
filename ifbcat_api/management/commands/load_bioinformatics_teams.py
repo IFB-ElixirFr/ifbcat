@@ -9,6 +9,7 @@ from django.db.models.functions import Replace
 
 from ifbcat_api import models
 from ifbcat_api.models import Organisation
+from ifbcat_api.models import Certification
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +76,12 @@ class Command(BaseCommand):
         for index, row in df.iterrows():
             try:
                 bt, _ = models.BioinformaticsTeam.objects.get_or_create(name=row["Nom de la plateforme"])
-                bt.address = row["Adresse postale"]
+                address = row["Adresse postale"]
+                zip_city = address.split('\n')[-2]
+                city = zip_city.split(' ')[-1]
+                bt.address = address
+                bt.country = address.split('\n')[-1]
+                bt.city = city
                 bt.logo_url = to_none_when_appropriate(str(row["Chemin"]))
                 for p in find_persons(row["Responsable scientifique"]):
                     bt.scientificLeaders.add(p)
@@ -83,8 +89,23 @@ class Command(BaseCommand):
                     bt.technicalLeaders.add(p)
                 for p in find_persons(row["Equipe"]):
                     bt.members.add(p)
-                bt.save()
-
+                for certification in row['Certificat(s)'].strip().split('\n'):
+                    certification = certification.strip()
+                    if certification == "Non renseigné":
+                        continue
+                    try:
+                        c, created = Certification.objects.get_or_create(name=certification)
+                        if created:
+                            c.name = certification
+                            c.description = f"description for {certification}"
+                            c.homepage = f"http://nothing.org"
+                            c.certifiedTeam = bt.name  # unsure this line does something
+                            c.full_clean()
+                            c.save()
+                        bt.certifications.add(c)
+                    except Exception as e:
+                        print("Failed with %s" % certification)
+                        print(e)
                 for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
                     if affiliation == "Unité : \nNon renseignée":

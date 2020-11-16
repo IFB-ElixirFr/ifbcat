@@ -4,7 +4,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from ifbcat_api.model.resource import Resource
-from ifbcat_api.model.team import Team
+
+# from ifbcat_api.model.team import Team
 
 
 class ComputingFacility(Resource):
@@ -35,7 +36,7 @@ class ComputingFacility(Resource):
         help_text="The bioinformatics team that provides the computing facility.",
     )
     team = models.ForeignKey(
-        Team,
+        'ifbcat_api.Team',
         related_name='computingFacilityTeam',
         null=True,
         on_delete=models.SET_NULL,
