@@ -32,7 +32,7 @@ class Tool(models.Model):
         max_length=100,
     )
     description = models.TextField(blank=True)
-    homepage = models.URLField(max_length=512, help_text="Homepage of the tool.")  # , blank=True, null=True)
+    homepage = models.URLField(max_length=512, help_text="Homepage of the tool.", blank=True, null=True)
     biotoolsID = models.CharField(blank=False, null=False, max_length=100)
     tool_type = models.ManyToManyField(ToolType, blank=True)
     # Use edam topics from Topic table
