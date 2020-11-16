@@ -925,7 +925,13 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.ToolType.objects,
         required=False,
     )
-
+    keywords = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="keyword",
+        queryset=models.Keyword.objects,
+        required=False,
+    )
     collection = VerboseSlugRelatedField(
         many=True,
         read_only=False,
@@ -966,6 +972,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
             'name',
             'description',
             'homepage',
+            'logo',
             'biotoolsID',
             'biotoolsCURIE',
             'tool_type',
@@ -978,8 +985,15 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
             'tool_license',
             'maturity',
             'cost',
+            'unique_visits',
+            'access_condition',
+            'citations',
+            'annual_visits',
+            'unique_visits',
+            'last_update',
+            #'increase_last_update',
             # 'access_condition',
-            # 'keywords',
+            'keywords',
             # 'platform',
             # 'language',
             # 'topic',

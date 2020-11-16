@@ -8,9 +8,10 @@ from django.core.management import BaseCommand
 from django.db.transaction import atomic
 from django.utils.timezone import make_aware
 
-from ifbcat_api.models import Database
+from ifbcat_api.models import Tool
+from ifbcat_api.models import ToolType
 from ifbcat_api.models import Keyword
-from ifbcat_api.models import Platform
+from ifbcat_api.models import Team
 from ifbcat.settings import BASE_DIR
 
 
@@ -18,7 +19,6 @@ class Command(BaseCommand):
     @atomic
     def import_databases_from_csv_file(self):
         data_folder = os.path.join(BASE_DIR, './import_data')
-        Database.objects.all().delete()
         # print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):
             # name of the correct csv file
@@ -43,16 +43,17 @@ class Command(BaseCommand):
                         database_citations = data_object[4]
                         database_citations = int(database_citations) if database_citations != '' else None
                         database_link_data = data_object[5]
-                        database_keywords = data_object[6].split("\n")
+                        database_keywords = [x.strip() for x in data_object[6].split(",")]
                         database_keywords_list = []
                         database_keyword = ""
                         for keyword in database_keywords:
                             if len(keyword) > 2:
 
                                 try:
+                                    print(keyword)
 
                                     database_keyword, created = Keyword.objects.get_or_create(
-                                        name=keyword,
+                                        keyword=keyword,
                                     )
                                     database_keyword.save()
                                     database_keywords_list.append(database_keyword)
@@ -84,38 +85,46 @@ class Command(BaseCommand):
                         database = ""
 
                         try:
-                            object_platform = Platform.objects.get(
+                            object_platform = Team.objects.get(
                                 name=database_platform,
                             )
-                        except Platform.DoesNotExist:
+                        except Team.DoesNotExist:
                             object_platform = None
 
                         try:
-                            database = Database.objects.create(
+                            print(database_link_data)
+                            database, created = Tool.objects.update_or_create(
                                 name=database_name,
-                                logo=database_logo,
-                                description=database_description,
-                                access_conditions=database_access_conditions,
-                                citations=database_citations,
-                                link_data=database_link_data,
-                                annual_visits=database_annual_visits,
-                                unique_visits=database_unique_visits,
-                                last_update=database_last_update,
-                                increase_last_update=database_increase_last_update,
-                                # platform =  object_platform.id,
+                                defaults={
+                                    'logo': database_logo,
+                                    'description': database_description,
+                                    'access_condition': database_access_conditions,
+                                    'citations': database_citations,
+                                    'homepage': database_link_data,
+                                    'annual_visits': database_annual_visits,
+                                    'unique_visits': database_unique_visits,
+                                    'last_update': database_last_update,
+                                    # 'increase_last_update' is not in Tool model.
+                                    # Maybe we could create a Database model inheriting from Tool
+                                    # with this additionnal field?
+                                    #'increase_last_update': database_increase_last_update
+                                },
                             )
+
                         except Exception as e:
                             print(data_object)
                             raise e
 
-                        if object_platform:
-                            database.platform.add(object_platform)
+                        # if object_platform:
+                        #    database.platform.add(object_platform)
 
                         display_format = "\nDatabase, {}, has been saved."
                         # print(display_format.format(database))
                         for keyword in database_keywords_list:
                             database.keywords.add(keyword)
 
+                        # biotoolsCURIE and biotoolsID are missing for validation
+                        # database.full_clean()
                         database.save()
 
     def handle(self, *args, **options):
