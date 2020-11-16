@@ -2,15 +2,18 @@ import os
 import csv
 
 from django.core.management import BaseCommand
-from ifbcat_api.models import Platform
-from ifbcat_api.models import Activityarea
+
+# from ifbcat_api.models import Platform
+# from ifbcat_api.models import Activityarea
+from ifbcat_api.models import Field
 from ifbcat_api.models import Keyword
+from ifbcat_api.models import Team
 from ifbcat.settings import BASE_DIR
 
 
 class Command(BaseCommand):
     def import_expertise_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, '../ifbcat-importdata')
+        data_folder = os.path.join(BASE_DIR, './import_data')
         print(data_folder, 'data_folder')
         for data_file in os.listdir(data_folder):
             # name of the correct csv file
@@ -32,8 +35,8 @@ class Command(BaseCommand):
 
                                 try:
 
-                                    activity_area, created = Activityarea.objects.get_or_create(
-                                        name=pf_activity_area,
+                                    activity_area, created = Field.objects.get_or_create(
+                                        field=pf_activity_area,
                                     )
                                     activity_area.save()
                                     pf_activity_areas_list.append(activity_area)
@@ -56,7 +59,7 @@ class Command(BaseCommand):
                                 try:
 
                                     pf_keyword, created = Keyword.objects.get_or_create(
-                                        name=keyword,
+                                        keyword=keyword,
                                     )
                                     pf_keyword.save()
                                     pf_keywords_list.append(pf_keyword)
@@ -71,14 +74,14 @@ class Command(BaseCommand):
 
                         platform = ""
                         try:
-                            print(Platform.objects.filter(name=pf_name).exists())
-                            if Platform.objects.filter(name=pf_name).exists():
-                                platform, created = Platform.objects.get_or_create(
-                                    description_expertise=pf_description_expertises,
-                                )
+                            print(Team.objects.filter(name=pf_name).exists())
+                            if Team.objects.filter(name=pf_name).exists():
+                                platform, created = Team.objects.get_or_create(name=pf_name)
+
+                                platform.description = pf_description_expertises
 
                                 for an_activity_area in pf_activity_areas_list:
-                                    platform.activity_area.add(an_activity_area)
+                                    platform.fields.add(an_activity_area)
                                 for a_keyword in pf_keywords_list:
                                     platform.keywords.add(a_keyword)
                                 platform.save()

@@ -33,7 +33,7 @@ class Team(models.Model):
         Keyword,
         blank=True,
         related_name='teamsKeywords',
-        help_text="A keyword (beyond EDAM ontology scope) describing the bioinformatics team.",
+        help_text="A keyword (beyond EDAM ontology scope) describing the team.",
     )
     # name, description, homepage, members & maintainers are mandatory
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
