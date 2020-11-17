@@ -1,13 +1,14 @@
-import os
 import csv
+import logging
+import os
 
 from django.core.management import BaseCommand
 
-# from ifbcat_api.models import Platform
-# from ifbcat_api.models import Activityarea
 from ifbcat_api.models import Field
 from ifbcat_api.models import Keyword
 from ifbcat_api.models import Team
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -35,9 +36,9 @@ class Command(BaseCommand):
                             activity_area, created = Field.objects.get_or_create(
                                 field=pf_activity_area,
                             )
-                            activity_area.save()
                             pf_activity_areas_list.append(activity_area)
-                            display_format = '\nActivity area "{}" has been saved.'
+                            if created:
+                                logger.info(f'Field (i.e Activity area) "{activity_area}" has been saved.')
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this activity_area: {}\n{}".format(
@@ -57,10 +58,10 @@ class Command(BaseCommand):
                             pf_keyword, created = Keyword.objects.get_or_create(
                                 keyword=keyword,
                             )
-                            pf_keyword.save()
+                            # pf_keyword.save()
                             pf_keywords_list.append(pf_keyword)
-                            display_format = '\nKeyword "{}" has been saved.'
-                            print(display_format.format(pf_keyword))
+                            if created:
+                                logger.info(f'Keyword "{pf_keyword}" has been saved.')
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(pf_keyword, str(ex))
@@ -78,8 +79,8 @@ class Command(BaseCommand):
                         for a_keyword in pf_keywords_list:
                             platform.keywords.add(a_keyword)
                         platform.save()
-                        display_format = '\nPlatform "{}" has been saved.'
-                        print(display_format.format(platform))
+                        if created:
+                            logger.info(f'Team (i.e Platform) "{platform}" has been saved.')
 
                 except Exception as ex:
                     print(str(ex))
