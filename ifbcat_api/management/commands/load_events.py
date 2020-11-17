@@ -1,5 +1,6 @@
 import csv
 import datetime
+import logging
 import os
 
 import pytz
@@ -10,6 +11,8 @@ from tqdm import tqdm
 from ifbcat_api.model.event import *
 from ifbcat_api.model.organisation import Organisation
 
+logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
@@ -17,7 +20,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
-            print(data_file.name)
             data = csv.reader(data_file)
             # skip first line as there is always a header
             next(data)
@@ -75,26 +77,24 @@ class Command(BaseCommand):
                         organizer = organizer.strip()
 
                         if organizer == '':
-                            print('No organizer for ' + event_name)
-
+                            logger.debug(f'No organizer for {event_name}')
                         elif Organisation.objects.filter(name=organizer).exists():
                             organisation = Organisation.objects.get(name=organizer)
                             event.organisedByOrganisations.add(organisation)
-
                         else:
-                            print(organizer + 'is not an organisation in the DB.')
+                            logger.error(f'{organizer} is not an organisation in the DB.')
 
                     # EventSponsors should be created before to be able to add them here to events
                     # for sponsor in event_sponsors.split(','):
                     #    sponsor=sponsor.strip()
 
                     #    if sponsor == '':
-                    #        print('No sponsor for '+event_name)
+                    #        logger.debug(f'No sponsor for {sponsor}')
 
                     #    elif EventSponsor.objects.filter(name=sponsor).exists():
                     #        organisation=EventSponsor.objects.get(name=sponsor)
                     #        event.sponsoredBy.add(organisation)
 
                 except Exception as e:
-                    print(data_object)
+                    logger.error(data_object)
                     raise e
