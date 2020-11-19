@@ -7,6 +7,58 @@ from django.utils.html import format_html
 from django.utils.translation import ugettext
 
 from ifbcat_api import models
+from ifbcat_api.permissions import simple_override_method
+
+
+class PermissionInClassModelAdmin(admin.ModelAdmin):
+    class Meta:
+        abstract = True
+
+    def has_permission_for_methods(self, *, request, methods: list, obj=None):
+        # similar to rest_framework/views.py:APIView.check_permissions#L326
+        for perm in self.model.get_permission_classes():
+            for method in methods:
+                with simple_override_method(request=request, method=method) as request:
+                    if obj is None:
+                        if not perm().has_permission(request=request, view=None):
+                            return False
+                    else:
+                        if not perm().has_object_permission(request=request, view=None, obj=obj):
+                            return False
+        return True
+
+    def has_view_permission(self, request, obj=None):
+        from_super = super().has_view_permission(request=request, obj=obj)
+        if not from_super:
+            return False
+        if obj is None:
+            return from_super
+
+        return self.has_permission_for_methods(request=request, obj=obj, methods=["GET"])
+
+    def has_add_permission(self, request):
+        from_super = super().has_add_permission(request=request)
+        if not from_super:
+            return False
+
+        return self.has_permission_for_methods(request=request, methods=["PUT"])
+
+    def has_change_permission(self, request, obj=None):
+        from_super = super().has_change_permission(request=request, obj=obj)
+        if not from_super:
+            return False
+        if obj is None:
+            return from_super
+
+        return self.has_permission_for_methods(request=request, obj=obj, methods=["POST", "PUT"])
+
+    def has_delete_permission(self, request, obj=None):
+        from_super = super().has_delete_permission(request=request, obj=obj)
+        if not from_super:
+            return False
+        if obj is None:
+            return from_super
+        return self.has_permission_for_methods(request=request, obj=obj, methods=["DELETE"])
 
 
 class ViewInApiModelAdmin(admin.ModelAdmin):
