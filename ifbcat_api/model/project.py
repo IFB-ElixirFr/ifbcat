@@ -1,7 +1,9 @@
 # Imports
 from django.conf import settings
 from django.db import models
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.community import Community
 from ifbcat_api.model.computingFacility import ComputingFacility
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
@@ -74,3 +76,10 @@ class Project(models.Model):
     def __str__(self):
         """Return the Project model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
+            IsAuthenticatedOrReadOnly,
+        )

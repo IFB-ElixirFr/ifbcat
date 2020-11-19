@@ -333,7 +333,7 @@ class FieldAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Project)
-class ProjectAdmin(ViewInApiModelAdmin):
+class ProjectAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'homepage',

@@ -492,17 +492,12 @@ class CommunityViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for projects
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating projects."""
 
     serializer_class = serializers.ProjectSerializer
     queryset = models.Project.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
