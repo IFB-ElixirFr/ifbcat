@@ -458,10 +458,9 @@ class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for resources
-class ResourceViewSet(viewsets.ModelViewSet):
+class ResourceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating resources."""
 
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
     lookup_field = 'name'
 
     def perform_create(self, serializer):
@@ -483,10 +482,6 @@ class ComputingFacilityViewSet(ResourceViewSet):
 
     serializer_class = serializers.ComputingFacilitySerializer
     queryset = models.ComputingFacility.objects.all()
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
 
     search_fields = ResourceViewSet.search_fields + (
         'homepage',

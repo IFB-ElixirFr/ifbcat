@@ -416,7 +416,7 @@ class AudienceTypeAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.TrainingMaterial)
-class TrainingMaterialAdmin(ViewInApiModelAdmin):
+class TrainingMaterialAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'doi__doi',
         'fileName',
@@ -440,7 +440,7 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.ComputingFacility)
-class ComputingFacilityAdmin(ViewInApiModelAdmin):
+class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'homepage',
         'providedBy__name',
