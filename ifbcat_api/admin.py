@@ -579,7 +579,7 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.ServiceSubmission)
-class ServiceSubmissionAdmin(ViewInApiModelAdmin):
+class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'service__name',
         'authors_firstname',

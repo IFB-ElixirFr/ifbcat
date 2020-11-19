@@ -590,18 +590,11 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for service submissions
-class ServiceSubmissionViewSet(viewsets.ModelViewSet):
+class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating service submissions."""
 
     serializer_class = serializers.ServiceSubmissionSerializer
     queryset = models.ServiceSubmission.objects.all()
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner
-        | permissions.PubliclyReadableEditableBySubmitters
-        | permissions.PubliclyReadableEditableByAuthors,
-        IsAuthenticatedOrReadOnly,
-    )
 
     search_fields = (
         'service__name',
