@@ -598,6 +598,11 @@ class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     autocomplete_fields = ('service',)
 
 
+@admin.register(models.Tool)
+class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    autocomplete_fields = ('name',)
+
+
 class GroupAdminForm(forms.ModelForm):
     """
     https://stackoverflow.com/a/39648244/2144569

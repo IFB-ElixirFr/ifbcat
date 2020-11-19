@@ -1,5 +1,7 @@
 from django.db import models
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic, Doi
 from ifbcat_api.model.tool.collection import Collection
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
@@ -101,3 +103,12 @@ class Tool(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByOwner
+            | permissions.PubliclyReadableEditableBySubmitters
+            | permissions.PubliclyReadableEditableByAuthors,
+            IsAuthenticatedOrReadOnly,
+        )

@@ -620,13 +620,6 @@ class ToolViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ToolSerializer
     queryset = models.Tool.objects.all()
 
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner
-        | permissions.PubliclyReadableEditableBySubmitters
-        | permissions.PubliclyReadableEditableByAuthors,
-        IsAuthenticatedOrReadOnly,
-    )
-
     search_fields = (
         'name',
         'description',
