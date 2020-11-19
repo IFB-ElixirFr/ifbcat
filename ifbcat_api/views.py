@@ -386,14 +386,12 @@ class EventSponsorViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for organisation
-class OrganisationViewSet(viewsets.ModelViewSet):
+class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating organisations."""
 
     serializer_class = serializers.OrganisationSerializer
     queryset = models.Organisation.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""

@@ -314,7 +314,7 @@ class ElixirPlatformAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Organisation)
-class OrganisationAdmin(ViewInApiModelAdmin):
+class OrganisationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
