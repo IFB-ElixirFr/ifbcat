@@ -2,7 +2,9 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from rest_framework.permissions import IsAuthenticated
 
+from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
 from ifbcat_api.model.event import Event
 from ifbcat_api.model.misc import AudienceType, AudienceRole, DifficultyLevelType
@@ -104,8 +106,18 @@ class TrainingEvent(Event):
         related_name='trainingEvents',
         help_text="Computing facilities that the training event uses.",
     )
+
     # databases
     # tools
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByTrainers
+            | permissions.PubliclyReadableEditableByContact
+            | permissions.PubliclyReadableEditableByOwner,
+            IsAuthenticated,
+        )
 
 
 class TrainingEventMetrics(models.Model):

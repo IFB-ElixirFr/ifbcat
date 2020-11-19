@@ -18,7 +18,6 @@ from rest_framework import filters, pagination
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
@@ -224,18 +223,11 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for training events
-class TrainingEventViewSet(EventViewSet):
+class TrainingEventViewSet(PermissionInClassModelViewSet, EventViewSet):
     """Handles creating, reading and updating training events."""
 
     serializer_class = serializers.TrainingEventSerializer
     queryset = models.TrainingEvent.objects.all()
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByTrainers
-        | permissions.PubliclyReadableEditableByContact
-        | permissions.PubliclyReadableEditableByOwner,
-        IsAuthenticated,
-    )
 
     search_fields = EventViewSet.search_fields + (
         'audienceTypes__audienceType',

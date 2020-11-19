@@ -251,7 +251,7 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.TrainingEvent)
-class TrainingEventAdmin(ViewInApiModelAdmin):
+class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     """Enables search, filtering and widgets in Django admin interface."""
 
     search_fields = (
