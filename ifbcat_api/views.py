@@ -221,7 +221,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for training events
-class TrainingEventViewSet(PermissionInClassModelViewSet, EventViewSet):
+class TrainingEventViewSet(EventViewSet):
     """Handles creating, reading and updating training events."""
 
     serializer_class = serializers.TrainingEventSerializer
