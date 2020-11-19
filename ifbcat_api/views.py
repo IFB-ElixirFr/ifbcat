@@ -29,6 +29,15 @@ from ifbcat_api import permissions
 from ifbcat_api import serializers
 
 
+class PermissionInClassModelViewSet:
+    class Meta:
+        abstract = True
+
+    @property
+    def permission_classes(self):
+        return self.queryset.model.get_permission_classes()
+
+
 class SourceInfoViewSet(viewsets.ViewSet):
     def list(self, request):
         try:
