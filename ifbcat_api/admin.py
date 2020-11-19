@@ -600,7 +600,7 @@ class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 @admin.register(models.Tool)
 class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    autocomplete_fields = ('name',)
+    search_fields = ('name',)
 
 
 class GroupAdminForm(forms.ModelForm):
