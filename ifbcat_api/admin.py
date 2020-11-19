@@ -497,7 +497,7 @@ class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.BioinformaticsTeam)
-class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
+class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     ordering = (Unaccent("name"),)
     search_fields = (
         'name',
