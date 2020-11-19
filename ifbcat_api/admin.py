@@ -116,8 +116,8 @@ class UserProfileAdmin(PermissionInClassModelAdmin, UserAdmin):
         'expertise__topic',
     )
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('firstname', 'lastname', 'orcidid', 'homepage', 'expertise')}),
+        ('Password', {'fields': ('password',)}),
+        ('Personal info', {'fields': ('email', 'firstname', 'lastname', 'orcidid', 'homepage', 'expertise')}),
         (
             'Permissions',
             {
@@ -138,6 +138,47 @@ class UserProfileAdmin(PermissionInClassModelAdmin, UserAdmin):
             },
         ),
     )
+    filter_horizontal = ("user_permissions",)
+    autocomplete_fields = (
+        "expertise",
+        "groups",
+    )
+
+    def can_manager_user(self, request, obj):
+        return business_logic.can_edit_user(request.user, obj)
+
+    def has_change_permission(self, request, obj=None):
+        return (
+            request.user.is_superuser
+            or self.can_manager_user(request=request, obj=obj)
+            or super().has_change_permission(request=request, obj=obj)
+        )
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request=request, obj=obj)
+        if not request.user.is_superuser:
+            readonly_fields += (
+                "last_login",
+                "is_superuser",
+                "user_permissions",
+            )
+            if not self.can_manager_user(request=request, obj=obj):
+                readonly_fields += ("groups",)
+            if request.user != obj:
+                readonly_fields += ("password",)
+        return readonly_fields
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request=request, obj=obj)
+        ret = []
+        for k, f in fieldsets:
+            if request.user.is_superuser or (
+                self.can_manager_user(request=request, obj=obj)
+                and k != 'Permissions'
+                and (request.user == obj or k != "Password")
+            ):
+                ret.append((k, f))
+        return ret
 
 
 # admin.site.register(models.UserProfile)
