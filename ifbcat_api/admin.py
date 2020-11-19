@@ -326,8 +326,8 @@ class EventSponsorAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     autocomplete_fields = ('organisationId',)
 
 
-@admin.register(models.Community)
-class CommunityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+@admin.register(models.Certification)
+class CertificationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
