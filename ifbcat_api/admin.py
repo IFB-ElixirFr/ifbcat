@@ -1,12 +1,16 @@
+from django import forms
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models.functions import Upper
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 from django.utils.translation import ugettext
 
-from ifbcat_api import models
+from ifbcat_api import models, business_logic
 from ifbcat_api.permissions import simple_override_method
 
 
@@ -549,6 +553,68 @@ class ServiceSubmissionAdmin(ViewInApiModelAdmin):
     )
 
     autocomplete_fields = ('service',)
+
+
+class GroupAdminForm(forms.ModelForm):
+    """
+    https://stackoverflow.com/a/39648244/2144569
+    """
+
+    class Meta:
+        model = Group
+        exclude = []
+
+    # Add the users field.
+    users = forms.ModelMultipleChoiceField(
+        queryset=get_user_model().objects.all(),
+        required=False,
+        # Use the pretty 'filter_horizontal widget'.
+        widget=FilteredSelectMultiple('users', False),
+    )
+
+    def __init__(self, *args, **kwargs):
+        # Do the normal form initialisation.
+        super(GroupAdminForm, self).__init__(*args, **kwargs)
+        # If it is an existing group (saved objects have a pk).
+        if self.instance.pk:
+            # Populate the users field with the current Group users.
+            self.fields['users'].initial = self.instance.user_set.all()
+
+    def save_m2m(self):
+        # Add the users to the Group.
+        self.instance.user_set.set(self.cleaned_data['users'])
+
+    def save(self, *args, **kwargs):
+        # Default save
+        instance = super(GroupAdminForm, self).save()
+        # Save many-to-many data
+        self.save_m2m()
+        return instance
+
+
+# Unregister the original Group admin.
+admin.site.unregister(Group)
+
+
+# Create a new Group admin.
+@admin.register(Group)
+class GroupAdmin(GroupAdmin):
+    # Use our custom form.
+    form = GroupAdminForm
+    # Filter permissions horizontal as well.
+    filter_horizontal = ['permissions']
+
+    readonly_fields = (
+        "name",
+        "permissions",
+    )
+
+    def has_delete_permission(self, request, obj=None):
+        if obj is None:
+            return super().has_delete_permission(request)
+        return obj.name not in [
+            business_logic.get_user_manager_group_name(),
+        ]
 
 
 # register all models that are not registered yet
