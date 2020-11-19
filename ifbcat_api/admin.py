@@ -346,7 +346,7 @@ class CommunityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.ElixirPlatform)
-class ElixirPlatformAdmin(ViewInApiModelAdmin):
+class ElixirPlatformAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
