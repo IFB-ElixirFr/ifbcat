@@ -151,13 +151,10 @@ class TestViewSet(viewsets.ViewSet):
 # They're wired to a serializer class, and a query set is provided so it knows which objects
 # in the DB are managed through this ViewSet
 # Django REST takes care of create, list, update etc. functions on the ViewSet
-class UserProfileViewSet(viewsets.ModelViewSet):
+class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handle creating and updating user profiles."""
 
     queryset = models.UserProfile.objects.all()
-
-    # permission_classes set how user has gets permission to do certain things.
-    permission_classes = (permissions.UpdateOwnProfile,)
 
     # filter_backends adds ability to search profiles by name or email (via filtering)
     # search_fields specifies which fields are searchable by this filter.

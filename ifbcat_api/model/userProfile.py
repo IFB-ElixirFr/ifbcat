@@ -6,6 +6,7 @@ from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
+from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic
 from ifbcat_api.validators import validate_orcid
 
@@ -136,6 +137,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """Return string representation of our user."""
         return self.email
+
+    # permission_classes set how user has gets permission to do certain things.
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.UpdateOwnProfile,)
 
 
 # News item model

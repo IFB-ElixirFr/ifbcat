@@ -97,7 +97,7 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.UserProfile)
-class UserProfileAdmin(UserAdmin):
+class UserProfileAdmin(PermissionInClassModelAdmin, UserAdmin):
     # Enables search, filtering and widgets in Django admin interface.
     ordering = ("email",)
     list_display = (
