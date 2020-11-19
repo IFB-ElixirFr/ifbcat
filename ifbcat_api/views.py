@@ -520,11 +520,6 @@ class TeamViewSet(viewsets.ModelViewSet):
     queryset = models.Team.objects.all()
     lookup_field = 'name'
 
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
-
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
@@ -575,17 +570,12 @@ class BioinformaticsTeamViewSet(TeamViewSet):
 
 
 # Model ViewSet for services
-class ServiceViewSet(viewsets.ModelViewSet):
+class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating services."""
 
     serializer_class = serializers.ServiceSerializer
     queryset = models.Service.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
 
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (

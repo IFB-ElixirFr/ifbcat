@@ -2,9 +2,11 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from ifbcat_api.model.community import Community
+from ifbcat_api import permissions
 from ifbcat_api.model.certification import Certification
+from ifbcat_api.model.community import Community
 from ifbcat_api.model.misc import Keyword, Field, Topic, Doi
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
@@ -146,3 +148,10 @@ class Team(models.Model):
     def __str__(self):
         """Return the Team model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
+            IsAuthenticatedOrReadOnly,
+        )

@@ -459,7 +459,7 @@ class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Team)
-class TeamAdmin(ViewInApiModelAdmin):
+class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     ordering = (Upper(Unaccent("name")),)
     search_fields = (
         'name',
@@ -559,7 +559,7 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Service)
-class ServiceAdmin(ViewInApiModelAdmin):
+class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',

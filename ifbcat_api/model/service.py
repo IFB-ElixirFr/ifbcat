@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.misc import Doi
 from ifbcat_api.model.trainingEvent import TrainingEvent
@@ -60,3 +62,10 @@ class Service(models.Model):
     def __str__(self):
         """Return the Service model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
+            IsAuthenticatedOrReadOnly,
+        )
