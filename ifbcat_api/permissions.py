@@ -105,3 +105,11 @@ class simple_override_method:
     def __exit__(self, *args, **kwarg):
         self.request.method = self.request.former_method
         delattr(self.request, "former_method")
+
+
+class PubliclyReadableByUsersEditableBySuperuser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_superuser or request.method in permissions.SAFE_METHODS

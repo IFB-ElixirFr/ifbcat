@@ -74,6 +74,10 @@ class AudienceType(models.Model):
         """Return the AudienceType model as a string."""
         return self.audienceType
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+
 
 class AudienceRole(models.Model):
     """
@@ -92,6 +96,10 @@ class AudienceRole(models.Model):
     def __str__(self):
         """Return the AudienceRole model as a string."""
         return self.audienceRole
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
 
 
 class DifficultyLevelType(models.TextChoices):

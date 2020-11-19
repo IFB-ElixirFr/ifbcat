@@ -51,6 +51,10 @@ class EventCost(models.Model):
         """Return the EventCost model as a string."""
         return self.cost
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+
 
 # Event sponsor model
 class EventSponsor(models.Model):
