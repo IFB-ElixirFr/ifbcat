@@ -183,16 +183,11 @@ class UserLoginApiView(ObtainAuthToken):
 
 
 # Model ViewSet for events
-class EventViewSet(viewsets.ModelViewSet):
+class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByContact,
-        IsAuthenticatedOrReadOnly,
-    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""

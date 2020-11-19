@@ -185,7 +185,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, UserAdmin):
 # "list_filter" adds fields to Django admin filter box
 # "filter_horizontal" adds widgets for item selection from lists
 @admin.register(models.Event)
-class EventAdmin(ViewInApiModelAdmin):
+class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     """Enables search, filtering and widgets in Django admin interface."""
 
     search_fields = (

@@ -3,7 +3,9 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.community import Community
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
@@ -11,7 +13,6 @@ from ifbcat_api.model.misc import Topic, Keyword
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
 from ifbcat_api.model.userProfile import UserProfile
-from ifbcat_api.validators import validate_can_be_looked_up
 
 
 # Event prerequisite model
@@ -214,6 +215,13 @@ class Event(models.Model):
     def __str__(self):
         """Return the Event model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByContact,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 # Event date model
