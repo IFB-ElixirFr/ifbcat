@@ -55,13 +55,13 @@ class PubliclyReadableEditableBySomething(permissions.BasePermission):
 class PubliclyReadableByUsers(permissions.BasePermission):
     """Allow everyone to see, but no one to update/delete."""
 
+    def has_permission(self, request, view):
+        """Check the user is trying to update their own object."""
+        return request.method in permissions.SAFE_METHODS
+
     def has_object_permission(self, request, view, obj):
         """Check the user is trying to update their own object."""
-
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return False
+        return request.method in permissions.SAFE_METHODS
 
 
 class PubliclyReadableEditableByOwner(PubliclyReadableEditableBySomething):

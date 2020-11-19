@@ -1,8 +1,13 @@
+import logging
+
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
+from ifbcat_api import permissions
 from ifbcat_api.model.userProfile import UserProfile
+
+logger = logging.getLogger(__name__)
 
 __USER_MANAGER_GRP_NAME = "User manager"
 
@@ -44,3 +49,21 @@ def set_user_manager(user, status: bool):
 
 def can_edit_user(acting_user, edited_user):
     return acting_user.groups.filter(name=__USER_MANAGER_GRP_NAME).exists()
+
+
+###############################################################################
+# Permission classes
+###############################################################################
+__missing_permission_classes = set()
+__default_perm = permissions.PubliclyReadableByUsers
+
+
+def get_permission_classes(model):
+    try:
+        return model.get_permission_classes()
+    except AttributeError:
+        name = str(model.__name__)
+        if name not in __missing_permission_classes:
+            __missing_permission_classes.add(name)
+            logger.info(f'No permission set in class for "{name}", ' f'using by default {__default_perm.__name__}')
+        return (__default_perm,)

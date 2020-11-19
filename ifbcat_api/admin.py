@@ -20,7 +20,7 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
 
     def has_permission_for_methods(self, *, request, methods: list, obj=None):
         # similar to rest_framework/views.py:APIView.check_permissions#L326
-        for perm in self.model.get_permission_classes():
+        for perm in business_logic.get_permission_classes(self.model):
             for method in methods:
                 with simple_override_method(request=request, method=method) as request:
                     if obj is None:
