@@ -1,30 +1,14 @@
 from django.db import models
 
-# from database.model.resource import *
-# from database.model.keyword import *
-
-from ifbcat_api.model.tool.toolType import ToolType
-
-# from database.model.tool.language import *
-# from ifbcat_api.model.tool.topic import *
-# from database.model.tool_model.publication import *
-# from database.model.tool.elixirPlatform import *
-# from database.model.tool.elixirNode import *
-from ifbcat_api.model.tool.operatingSystem import OperatingSystem
-from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
+from ifbcat_api.model.misc import Topic, Doi
 from ifbcat_api.model.tool.collection import Collection
+from ifbcat_api.model.tool.operatingSystem import OperatingSystem
+from ifbcat_api.model.tool.toolCredit import ToolCredit
+from ifbcat_api.model.tool.toolType import ToolType
 from ifbcat_api.models import Keyword
 
 
-# from ifbcat_api.model.tool.function import *
-
-# from database.model.platform_model.platform import *
-
-from ifbcat_api.model.misc import Topic, Doi
-
-
 class Tool(models.Model):
-
     name = models.CharField(
         unique=True,
         blank=False,
