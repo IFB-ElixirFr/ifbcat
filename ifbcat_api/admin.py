@@ -283,16 +283,18 @@ class EventPrerequisiteAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Topic)
-class TopicAdmin(ViewInApiModelAdmin):
+class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['topic']
 
 
 @admin.register(models.EventCost)
-class EventCostAdmin(ViewInApiModelAdmin):
+class EventCostAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['cost']
 
 
-admin.site.register(models.EventDate)
+@admin.register(models.EventDate)
+class EventDateAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    pass
 
 
 @admin.register(models.Trainer)
@@ -375,7 +377,7 @@ class OrganisationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Field)
-class FieldAdmin(ViewInApiModelAdmin):
+class FieldAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ('field',)
 
 
@@ -406,12 +408,12 @@ class ProjectAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.AudienceRole)
-class AudienceRoleAdmin(ViewInApiModelAdmin):
+class AudienceRoleAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['audienceRole']
 
 
 @admin.register(models.AudienceType)
-class AudienceTypeAdmin(ViewInApiModelAdmin):
+class AudienceTypeAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['audienceType']
 
 
