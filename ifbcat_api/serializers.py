@@ -124,31 +124,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-# News item serializer
-class NewsItemSerializer(serializers.ModelSerializer):
-    """Serializes a news item (NewsItem object)."""
-
-    # news and created_on are mandatory
-
-    # news (no further validation needed)
-    # created_on (no further validation needed)
-
-    class Meta:
-        model = models.NewsItem
-        # By default, Django adds a primary key ID ('id') to all models that are created.
-        # It's read-only by default and gets an integer value that's incremented from the corresponding database table.
-        # The other fields come from NewsItem.
-        # NB. "created_on" is also auto-created (and thus read-only)
-        # Don't want users to be able to set the user profile when creating a news item!
-        # It must be set to the autheticated user.  Thus it's read-only.
-        # Set read-only fields using the shortcut "read_only_fields" rather than extra_kwargs:
-        #   extra_kwargs = {
-        #      'user_profile': {'read_only': True}}
-
-        fields = ('id', 'user_profile', 'news', 'created_on')
-        read_only_fields = ['user_profile']
-
-
 # Model serializer for event keyword
 class KeywordSerializer(serializers.ModelSerializer):
     """Serializes a keyword (Keyword object)."""

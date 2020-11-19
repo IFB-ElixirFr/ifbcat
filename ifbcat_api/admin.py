@@ -181,12 +181,6 @@ class UserProfileAdmin(PermissionInClassModelAdmin, UserAdmin):
         return ret
 
 
-# admin.site.register(models.UserProfile)
-
-
-admin.site.register(models.NewsItem)
-
-
 # "search_fields" defines the searchable 'fields'
 # "list_filter" adds fields to Django admin filter box
 # "filter_horizontal" adds widgets for item selection from lists

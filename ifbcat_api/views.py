@@ -182,38 +182,6 @@ class UserLoginApiView(ObtainAuthToken):
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
-# Model ViewSet for news item
-class NewsItemViewSet(viewsets.ModelViewSet):
-    """Handles creating, reading and updating news items."""
-
-    serializer_class = serializers.NewsItemSerializer
-    queryset = models.NewsItem.objects.all()
-
-    #  This ensures users can only create news items when the user profile is assigned to them.
-    # i.e. they cannot update news items of other users in the system.
-    # "IsAuthenticatedOrReadOnly" (imported above) permission ensures users must be autheticated to perform any request that is not a read request
-    # i.e. they cannot create new feed items when they're not autheticated.
-    # NB. Could instead use "IsAuthenticated" to restrict access of the entire endpoint to autheticated users.
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
-
-    # Set the user_profile to read-only
-    # "perform_create" is a convenience function for customising object creation through a model ViewSet.
-    # When a request is made to the ViewSet, it gets passed to the serializer, is validated, then the
-    # (because it's a ModelSerializer) a serializer.save function is called, which saves the content of
-    # the serializer to an object in the database.
-    #
-    # "serializer.save" is called manually below, and we pass in user_profile
-    # "request" object is passed into all ViewSets whenever a request is made.
-    # Because we added TokenAuthentication to the ViewSet, if the user has autheticated, then the request
-    # will have a user associatd with it.
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('news',)
-
-
 # Model ViewSet for events
 class EventViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""

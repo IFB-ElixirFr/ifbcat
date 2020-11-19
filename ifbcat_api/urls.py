@@ -3,6 +3,7 @@
 # "DefaultRouter" is used to generate different routes (endpoints) for any ViewSets
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from ifbcat_api import views
 
 # A router is used to register required endpoints for API ViewSets
@@ -13,7 +14,6 @@ from ifbcat_api import views
 router = DefaultRouter()
 # router.register('testviewset', views.TestViewSet, basename='testviewset')
 router.register('userprofile', views.UserProfileViewSet)
-router.register('news', views.NewsItemViewSet)
 router.register('event', views.EventViewSet)
 router.register('keyword', views.KeywordViewSet)
 router.register('eventprerequisite', views.EventPrerequisiteViewSet)
