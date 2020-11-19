@@ -90,3 +90,18 @@ class PubliclyReadableEditableByAuthors(PubliclyReadableEditableBySomething):
 
 class PubliclyReadableEditableBySubmitters(PubliclyReadableEditableBySomething):
     target = 'submitters'
+
+
+class simple_override_method:
+    def __init__(self, request, method):
+        self.request = request
+        self.method = method
+
+    def __enter__(self):
+        setattr(self.request, "former_method", self.request.method)
+        self.request.method = self.method
+        return self.request
+
+    def __exit__(self, *args, **kwarg):
+        self.request.method = self.request.former_method
+        delattr(self.request, "former_method")
