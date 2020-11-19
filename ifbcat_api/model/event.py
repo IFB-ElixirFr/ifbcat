@@ -30,6 +30,10 @@ class EventPrerequisite(models.Model):
         """Return the EventPrerequisite model as a string."""
         return self.prerequisite
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+
 
 # Event cost model
 class EventCost(models.Model):

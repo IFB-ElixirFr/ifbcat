@@ -273,12 +273,12 @@ class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Keyword)
-class KeywordAdmin(ViewInApiModelAdmin):
+class KeywordAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['keyword']
 
 
 @admin.register(models.EventPrerequisite)
-class EventPrerequisiteAdmin(ViewInApiModelAdmin):
+class EventPrerequisiteAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['prerequisite']
 
 
@@ -327,7 +327,15 @@ class EventSponsorAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Community)
-class CommunityAdmin(ViewInApiModelAdmin):
+class CommunityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'description',
+    )
+
+
+@admin.register(models.Community)
+class CommunityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',

@@ -238,14 +238,13 @@ class TrainingEventViewSet(PermissionInClassModelViewSet, EventViewSet):
 
 
 # Model ViewSet for keywords
-class KeywordViewSet(viewsets.ModelViewSet):
+class KeywordViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating keywords."""
 
     serializer_class = serializers.KeywordSerializer
     queryset = models.Keyword.objects.all()
-    # lookup_field = 'keyword__unaccent__iexact'
 
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+    # lookup_field = 'keyword__unaccent__iexact'
 
     def perform_create(self, serializer):
         """Saves the serializer."""
@@ -256,13 +255,11 @@ class KeywordViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for event prerequisites
-class EventPrerequisiteViewSet(viewsets.ModelViewSet):
+class EventPrerequisiteViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating event prerequisites."""
 
     serializer_class = serializers.EventPrerequisiteSerializer
     queryset = models.EventPrerequisite.objects.all()
-
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
     def perform_create(self, serializer):
         """Saves the serializer."""
@@ -374,15 +371,13 @@ class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         return super().list(*args, **kwargs)
 
 
-class CertificationViewSet(viewsets.ModelViewSet):
+class CertificationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating organisations."""
 
     serializer_class = serializers.CertificationSerializer
     queryset = models.Certification.objects.all()
     # We can't use name if we want to keeep "CATI / CTAI" certification
     # lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
     filter_backends = (filters.SearchFilter,)
     search_fields = (
@@ -421,14 +416,12 @@ class ElixirPlatformViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for elixirPlatform
-class CommunityViewSet(viewsets.ModelViewSet):
+class CommunityViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating elixirPlatforms."""
 
     serializer_class = serializers.CommunitySerializer
     queryset = models.Community.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""

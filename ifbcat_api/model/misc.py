@@ -3,7 +3,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
 
 
@@ -48,6 +50,10 @@ class Keyword(models.Model):
         qs = Keyword.objects.filter(keyword__unaccent__iexact=self.keyword).filter(~Q(pk=self.pk))
         if qs.exists():
             raise ValidationError("Keyword \"%s\" already exists as \"%s\"" % (self.keyword, qs.get().keyword))
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
 
 
 class AudienceType(models.Model):
