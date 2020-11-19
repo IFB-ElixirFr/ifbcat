@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
@@ -34,6 +34,10 @@ class Trainer(models.Model):
     def __str__(self):
         """Return the Trainer model as a string."""
         return self.trainerEmail.__str__()
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
 
 class TrainingEvent(Event):
@@ -148,3 +152,7 @@ class TrainingEventMetrics(models.Model):
     def __str__(self):
         """Return the TrainingEventMetrics model as a string."""
         return self.dateStart.__str__()
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)

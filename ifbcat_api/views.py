@@ -270,13 +270,11 @@ class EventPrerequisiteViewSet(PermissionInClassModelViewSet, viewsets.ModelView
 
 
 # Model ViewSet for trainer
-class TrainerViewSet(viewsets.ModelViewSet):
+class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating trainers."""
 
     serializer_class = serializers.TrainerSerializer
     queryset = models.Trainer.objects.all()
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -291,13 +289,11 @@ class TrainerViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for training event metrics
-class TrainingEventMetricsViewSet(viewsets.ModelViewSet):
+class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating training event metrics."""
 
     serializer_class = serializers.TrainingEventMetricsSerializer
     queryset = models.TrainingEventMetrics.objects.all()
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -314,14 +310,12 @@ class TrainingEventMetricsViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for event sponsors
-class EventSponsorViewSet(viewsets.ModelViewSet):
+class EventSponsorViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating event sponsors."""
 
     serializer_class = serializers.EventSponsorSerializer
     queryset = models.EventSponsor.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""

@@ -75,6 +75,10 @@ class EventSponsor(models.Model):
         """Return the EventSponsor model as a string."""
         return self.name
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+
 
 class Event(models.Model):
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""

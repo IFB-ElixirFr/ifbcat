@@ -296,7 +296,7 @@ admin.site.register(models.EventDate)
 
 
 @admin.register(models.Trainer)
-class TrainerAdmin(ViewInApiModelAdmin):
+class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'trainerName',
         'trainerEmail',
@@ -306,7 +306,7 @@ class TrainerAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.TrainingEventMetrics)
-class TrainingEventMetricsAdmin(ViewInApiModelAdmin):
+class TrainingEventMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'dateStart',
         'dateEnd',
@@ -318,7 +318,7 @@ class TrainingEventMetricsAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.EventSponsor)
-class EventSponsorAdmin(ViewInApiModelAdmin):
+class EventSponsorAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'organisationId__name',
