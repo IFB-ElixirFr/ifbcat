@@ -1,3 +1,8 @@
+import json
+import logging
+from json.decoder import JSONDecodeError
+
+import urllib3
 from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -5,9 +10,11 @@ from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic, Doi
 from ifbcat_api.model.tool.collection import Collection
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
-from ifbcat_api.model.tool.toolCredit import ToolCredit
+from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
 from ifbcat_api.model.tool.toolType import ToolType
 from ifbcat_api.models import Keyword
+
+logger = logging.getLogger(__name__)
 
 
 class Tool(models.Model):
@@ -110,3 +117,93 @@ class Tool(models.Model):
             permissions.PubliclyReadableByUsers | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
+
+    def update_information_from_biotool(self):
+        http = urllib3.PoolManager()
+        req = http.request('GET', f'https://bio.tools/api/{self.biotoolsID}?format=json')
+        try:
+            entry = json.loads(req.data.decode('utf-8'))
+        except JSONDecodeError as e:
+            logger.error("Json decode error for " + str(req.data.decode('utf-8')))
+            return
+        self.update_information_from_json(entry)
+
+    def update_information_from_json(self, tool: dict):
+        # insert in DB tool table here
+        self.name = tool['name']
+        self.description = tool['description']
+        self.homepage = tool['homepage']
+        self.biotoolsID = tool['biotoolsID']
+        # publication=tool['publication']
+        # operating_system = tool['operatingSystem']
+        # topic = tool['topic']
+        # link = tool['link']
+        self.biotoolsCURIE = tool['biotoolsCURIE']
+        # software_version = tool['version']
+        # downloads = tool['download']
+        self.tool_license = tool['license']
+        # language = tool['language']
+        # otherID = tool['otherID']
+        self.maturity = tool['maturity']
+        # collectionID = tool['collectionID']
+        # credit = tool['credit']
+        # elixirPlatform = tool['elixirPlatform']
+        # elixirNode = tool['elixirNode']
+        self.cost = tool['cost']
+        # accessibility = tool['accessibility']
+        # function = tool['function']
+        # relation = tool['relation']
+
+        for destination_field, names in [
+            (self.tool_type, tool['toolType']),
+            (self.operating_system, tool['operatingSystem']),
+            (self.collection, tool['collectionID']),
+        ]:
+            for name in names:
+                instance, _ = destination_field.model.objects.get_or_create(name=name)
+                destination_field.add(instance)
+
+        # entry for publications DOI
+        for publication in tool['publication']:
+            if 'Primary' in publication['type']:
+                doi = None
+
+                if publication['doi'] != None:
+                    doi = publication['doi']
+                if publication['doi'] == None and publication['pmid'] != None:
+                    doi = Doi.get_doi_from_pmid(publication['pmid'])
+                    # print('*Get DOI from PMID: ' + str(doi))
+                if publication['doi'] == None and publication['pmcid'] != None:
+                    doi = Doi.get_doi_from_pmid(publication['pmcid'])
+
+                if doi != None:
+                    doi_entry, created = Doi.objects.get_or_create(doi=doi)
+                    doi_entry.save()
+                    self.primary_publication.add(doi_entry.id)
+
+        # insert or get DB topic entry table here
+        for topic in tool['topic']:
+            topic_entry, created = Topic.objects.get_or_create(topic=topic['uri'])
+            topic_entry.save()
+            self.scientific_topics.add(topic_entry.id)
+
+        # entry for toolCredit
+        for credit in tool['credit']:
+            toolCredit_entry, created = ToolCredit.objects.get_or_create(
+                name=credit['name'],
+                email=credit['email'],
+                url=credit['url'],
+                orcidid=credit['orcidid'],
+                gridid=credit['gridid'],
+                typeEntity=credit['typeEntity'],
+                note=credit['note'],
+            )
+            toolCredit_entry.save()
+            self.tool_credit.add(toolCredit_entry.id)
+
+            # add typerole entry
+            for type_role in credit['typeRole']:
+                typeRole_entry, created = TypeRole.objects.get_or_create(name=type_role)
+                typeRole_entry.save()
+                toolCredit_entry.type_role.add(typeRole_entry.id)
+        self.save()
