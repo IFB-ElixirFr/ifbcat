@@ -615,6 +615,14 @@ class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'operating_system',
     )
 
+    actions = [
+        'update_information_from_biotool',
+    ]
+
+    def update_information_from_biotool(self, request, queryset):
+        for o in queryset:
+            o.update_information_from_biotool()
+
     def get_fields(self, request, obj=None):
         if obj is None:
             return ('biotoolsID',)
