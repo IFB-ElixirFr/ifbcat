@@ -22,8 +22,7 @@ class AllUsePermFromClassTestCase(TestCase):
         ]
 
     def assertIsSubClass(self, c, cls, msg=None):
-        """Same as self.assertTrue(isinstance(obj, cls)), with a nicer
-        default message."""
+        """Same as self.assertIsInstance"""
         if not issubclass(c, cls):
             standardMsg = '%s is not a subclass of %r' % (safe_repr(c), cls)
             self.fail(self._formatMessage(msg, standardMsg))
