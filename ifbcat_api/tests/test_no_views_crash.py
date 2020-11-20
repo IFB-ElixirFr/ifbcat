@@ -1,5 +1,8 @@
 import logging
 
+from django.apps import apps
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.core import management
 from django.urls import reverse, NoReverseMatch
 
@@ -58,6 +61,16 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         f, _ = Field.objects.get_or_create(field="django")
         add_everywhere(f)
 
+        self.superuser, _ = get_user_model().objects.get_or_create(
+            is_superuser=True,
+            is_staff=True,
+            defaults=dict(
+                firstname="superuser",
+                lastname="ifb",
+                email='superuser@ifb.fr',
+            ),
+        )
+
     def test_all_at_once_to_spare_resource(self):
         #######################################################################
         # def test_list(self):
@@ -100,3 +113,36 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 )
                 cpt += 1
         self.assertGreater(cpt, 0)
+
+        #######################################################################
+        # def test_admin_list(self):
+        #######################################################################
+        self.client.force_login(self.superuser)
+        for ifbcat_api_model in apps.get_app_config('ifbcat_api').get_models():
+            content_type = ContentType.objects.get_for_model(ifbcat_api_model)
+
+            url_list = reverse("admin:%s_%s_changelist" % (content_type.app_label, content_type.model))
+            response = self.client.get(url_list)
+            status_code = 200
+            self.assertEqual(
+                response.status_code,
+                status_code,
+                f'failed while opening admin list view for {ifbcat_api_model} ({url_list}), '
+                f'expected {status_code} got {response.status_code}',
+            )
+
+        #######################################################################
+        # def test_admin_detail(self):
+        #######################################################################
+        for ifbcat_api_model in apps.get_app_config('ifbcat_api').get_models():
+            content_type = ContentType.objects.get_for_model(ifbcat_api_model)
+            for o in ifbcat_api_model.objects.all()[:20]:
+                url_detail = reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(o.id,))
+                response = self.client.get(url_detail)
+                status_code = 200
+                self.assertEqual(
+                    response.status_code,
+                    status_code,
+                    f'failed while opening admin detail view for {ifbcat_api_model} (pk={o.id}) ({url_detail}), '
+                    f'expected {status_code} got {response.status_code}',
+                )
