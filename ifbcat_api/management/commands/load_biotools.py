@@ -21,11 +21,11 @@ class Command(BaseCommand):
         collection_id = 'elixir-fr-sdp-2019'
 
         # clean tool table
-        Tool.objects.all().delete()
-        ToolType.objects.all().delete()
-        OperatingSystem.objects.all().delete()
-        ToolCredit.objects.all().delete()
-        Collection.objects.all().delete()
+        # Tool.objects.all().delete()
+        # ToolType.objects.all().delete()
+        # OperatingSystem.objects.all().delete()
+        # ToolCredit.objects.all().delete()
+        # Collection.objects.all().delete()
 
         http = urllib3.PoolManager()
         try:
