@@ -708,9 +708,14 @@ class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
 # register all models that are not registered yet
 from django.apps import apps
 
+
+class DefaultPermissionInClassModelAdmin(PermissionInClassModelAdmin):
+    pass
+
+
 models = apps.get_app_config('ifbcat_api').get_models()
 for model in models:
     try:
-        admin.site.register(model)
+        admin.site.register(model, DefaultPermissionInClassModelAdmin)
     except admin.sites.AlreadyRegistered:
         pass
