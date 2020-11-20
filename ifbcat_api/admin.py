@@ -628,11 +628,6 @@ class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
             return ('biotoolsID',)
         return super().get_fields(request=request, obj=obj)
 
-    def save_model(self, request, obj, form, change):
-        if obj.pk is None:
-            obj.name = obj.biotoolsID
-        return super().save_model(request, obj, form, change)
-
 
 class GroupAdminForm(forms.ModelForm):
     """

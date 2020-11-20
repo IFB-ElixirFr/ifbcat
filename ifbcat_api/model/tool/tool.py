@@ -154,6 +154,8 @@ class Tool(models.Model):
         # function = tool['function']
         # relation = tool['relation']
 
+        self.save()
+
         for destination_field, names in [
             (self.tool_type, tool['toolType']),
             (self.operating_system, tool['operatingSystem']),
@@ -206,4 +208,13 @@ class Tool(models.Model):
                 typeRole_entry, created = TypeRole.objects.get_or_create(name=type_role)
                 typeRole_entry.save()
                 toolCredit_entry.type_role.add(typeRole_entry.id)
-        self.save()
+
+    def save(self, *args, **kwargs):
+        need_update = False
+        if self.pk is None and self.biotoolsID is not None and self.biotoolsID != "":
+            self.name = self.biotoolsID
+            need_update = True
+        instance = super().save(*args, **kwargs)
+        if need_update:
+            self.update_information_from_biotool()
+        return instance
