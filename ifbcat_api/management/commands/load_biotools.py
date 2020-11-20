@@ -17,9 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    def crawl_tools(self, limit):
-        collection_id = 'elixir-fr-sdp-2019'
-
+    def crawl_tools(self, limit, collection_id):
         # clean tool table
         # Tool.objects.all().delete()
         # ToolType.objects.all().delete()
@@ -152,9 +150,16 @@ class Command(BaseCommand):
         parser.add_argument(
             '-l', '--limit', help='Number of tools to import (-1 to retrieve all)', type=int, default=-1
         )
+        parser.add_argument(
+            '-c',
+            '--collection_id',
+            help='Number of tools to import (-1 to retrieve all)',
+            type=str,
+            default='elixir-fr-sdp-2019',
+        )
 
     def handle(self, *args, **options):
         """
         Call the function to import data
         """
-        self.crawl_tools(options['limit'])
+        self.crawl_tools(limit=options['limit'], collection_id=options['collection_id'])
