@@ -141,3 +141,7 @@ class Doi(models.Model):
     def __str__(self):
         """Return the Doi model as a string."""
         return self.doi
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)

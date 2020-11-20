@@ -381,6 +381,11 @@ class FieldAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ('field',)
 
 
+@admin.register(models.Doi)
+class DoiAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    search_fields = ('doi',)
+
+
 @admin.register(models.Project)
 class ProjectAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
