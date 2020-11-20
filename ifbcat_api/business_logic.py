@@ -59,6 +59,8 @@ __default_perm = permissions.PubliclyReadableByUsers
 
 
 def get_permission_classes(model):
+    if model == Group:
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
     try:
         return model.get_permission_classes()
     except AttributeError:
