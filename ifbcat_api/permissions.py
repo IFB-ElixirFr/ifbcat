@@ -113,3 +113,19 @@ class PubliclyReadableByUsersEditableBySuperuser(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return request.user.is_superuser or request.method in permissions.SAFE_METHODS
+
+
+class UserCanAddNew(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS + ("PUT",)
+
+    def has_object_permission(self, request, view, obj):
+        return obj is None
+
+
+class SuperuserCanDelete(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser and request.method == "DELETE"
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_superuser and request.method == "DELETE"

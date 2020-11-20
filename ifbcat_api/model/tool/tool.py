@@ -107,8 +107,6 @@ class Tool(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner
-            | permissions.PubliclyReadableEditableBySubmitters
-            | permissions.PubliclyReadableEditableByAuthors,
+            permissions.PubliclyReadableByUsers | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
