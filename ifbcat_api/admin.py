@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
+from django.db.models import Count
 from django.db.models.functions import Upper
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
@@ -653,23 +654,55 @@ admin.site.unregister(Group)
 
 # Create a new Group admin.
 @admin.register(Group)
-class GroupAdmin(GroupAdmin):
+class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
     # Use our custom form.
     form = GroupAdminForm
     # Filter permissions horizontal as well.
     filter_horizontal = ['permissions']
 
-    readonly_fields = (
-        "name",
-        "permissions",
+    list_display = (
+        'name',
+        'permissions_count',
+        'users_count',
     )
 
+    actions = [
+        'init_specific_groups',
+    ]
+    specific_groups = (
+        business_logic.get_user_manager_group_name(),
+        business_logic.get_no_restriction_on_catalog_models_name(),
+    )
+
+    def init_specific_groups(self, request, queryset):
+        if queryset.filter(name__in=self.specific_groups).exists():
+            business_logic.init_business_logic()
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(Count('permissions', distinct=True), Count('user', distinct=True))
+
+    def permissions_count(self, obj):
+        return obj.permissions__count
+
+    permissions_count.admin_order_field = 'permissions__count'
+
+    def users_count(self, obj):
+        return obj.user__count
+
+    users_count.admin_order_field = 'user__count'
+
     def has_delete_permission(self, request, obj=None):
-        if obj is None:
-            return super().has_delete_permission(request)
-        return obj.name not in [
-            business_logic.get_user_manager_group_name(),
-        ]
+        return super().has_delete_permission(request=request, obj=obj) and (
+            obj is None or obj.name not in self.specific_groups
+        )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None or obj.name not in self.specific_groups:
+            return super().get_readonly_fields(request)
+        return (
+            "name",
+            "permissions",
+        )
 
 
 # register all models that are not registered yet
