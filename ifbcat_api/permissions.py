@@ -55,13 +55,13 @@ class PubliclyReadableEditableBySomething(permissions.BasePermission):
 class PubliclyReadableByUsers(permissions.BasePermission):
     """Allow everyone to see, but no one to update/delete."""
 
+    def has_permission(self, request, view):
+        """Check the user is trying to update their own object."""
+        return request.method in permissions.SAFE_METHODS
+
     def has_object_permission(self, request, view, obj):
         """Check the user is trying to update their own object."""
-
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return False
+        return request.method in permissions.SAFE_METHODS
 
 
 class PubliclyReadableEditableByOwner(PubliclyReadableEditableBySomething):
@@ -90,3 +90,42 @@ class PubliclyReadableEditableByAuthors(PubliclyReadableEditableBySomething):
 
 class PubliclyReadableEditableBySubmitters(PubliclyReadableEditableBySomething):
     target = 'submitters'
+
+
+class simple_override_method:
+    def __init__(self, request, method):
+        self.request = request
+        self.method = method
+
+    def __enter__(self):
+        setattr(self.request, "former_method", self.request.method)
+        self.request.method = self.method
+        return self.request
+
+    def __exit__(self, *args, **kwarg):
+        self.request.method = self.request.former_method
+        delattr(self.request, "former_method")
+
+
+class PubliclyReadableByUsersEditableBySuperuser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_superuser or request.method in permissions.SAFE_METHODS
+
+
+class UserCanAddNew(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS + ("PUT",)
+
+    def has_object_permission(self, request, view, obj):
+        return obj is None
+
+
+class SuperuserCanDelete(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser and request.method == "DELETE"
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_superuser and request.method == "DELETE"

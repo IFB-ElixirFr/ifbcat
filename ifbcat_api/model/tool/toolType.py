@@ -1,5 +1,7 @@
 from django.db import models
 
+from ifbcat_api import permissions
+
 
 class ToolType(models.Model):
     TOOLTYPE_CHOICES = (
@@ -33,3 +35,7 @@ class ToolType(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)

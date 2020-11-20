@@ -1,11 +1,11 @@
 # Imports
 # BaseUserManager is the default user manager that comes with Django
-from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
+from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic
 from ifbcat_api.validators import validate_orcid
 
@@ -137,30 +137,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         """Return string representation of our user."""
         return self.email
 
-
-# News item model
-# Users can create News items; a NewsItem object is associated with the user who created it.
-class NewsItem(models.Model):
-    """NewsItem model: a news item created by a user."""
-
-    # Foreign key is used to associate this model to the UserProfile model.
-    # This sets up a foreign key relationship in the backend database, ensuring integrity
-    # (so a news item cannot be created for user profile that doesn't exist)
-    #
-    # NB. "settings.AUTH_USER_MODEL" is used to retrieve the auth user model from settings.py
-    # Could instead have hardcoded UserProfile but that wouldn't be good practice
-    #  (e.g. in case in future we wanted to revert back to using the default Django model)
-    #
-    # NB. "on_delete=models.CASCADE," means that if the user profile is removed,
-    # then the associated news items are also deleted.
-    # Could set the field to SET_NULL instead (if we wanted to preserve the news items) - then "null=True" must also be set
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    # news and created_on are mandatory
-    # "auto_now_add=True" means that the date/time stamp gets added automatically when the item is created.
-    news = models.CharField(max_length=255, help_text="Some news provided by a user.")
-    created_on = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        """Return the NewsItem model as a string."""
-        return self.news
+    # permission_classes set how user has gets permission to do certain things.
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.UpdateOwnProfile,)

@@ -3,7 +3,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
 
 
@@ -49,6 +51,10 @@ class Keyword(models.Model):
         if qs.exists():
             raise ValidationError("Keyword \"%s\" already exists as \"%s\"" % (self.keyword, qs.get().keyword))
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+
 
 class AudienceType(models.Model):
     """
@@ -68,6 +74,10 @@ class AudienceType(models.Model):
         """Return the AudienceType model as a string."""
         return self.audienceType
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+
 
 class AudienceRole(models.Model):
     """
@@ -86,6 +96,10 @@ class AudienceRole(models.Model):
     def __str__(self):
         """Return the AudienceRole model as a string."""
         return self.audienceRole
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
 
 
 class DifficultyLevelType(models.TextChoices):
@@ -127,3 +141,7 @@ class Doi(models.Model):
     def __str__(self):
         """Return the Doi model as a string."""
         return self.doi
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)

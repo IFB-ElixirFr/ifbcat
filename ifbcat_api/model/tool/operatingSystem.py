@@ -1,5 +1,7 @@
 from django.db import models
 
+from ifbcat_api import permissions
+
 
 class OperatingSystem(models.Model):
     OPERATING_SYSTEM_CHOICES = (('LINUX', 'Linux'), ('WINDOWS', 'Windows'), ('MAC', 'Mac'))
@@ -11,6 +13,10 @@ class OperatingSystem(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
 
 
 # class OperatingSystem(models.Model):
