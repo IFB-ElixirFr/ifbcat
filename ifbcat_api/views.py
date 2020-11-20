@@ -380,7 +380,7 @@ class CertificationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet)
 
 
 # Model ViewSet for elixirPlatform
-class ElixirPlatformViewSet(viewsets.ModelViewSet):
+class ElixirPlatformViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating elixirPlatforms."""
 
     serializer_class = serializers.ElixirPlatformSerializer
@@ -509,7 +509,7 @@ class TrainingMaterialViewSet(ResourceViewSet):
 
 
 # Model ViewSet for teams
-class TeamViewSet(viewsets.ModelViewSet):
+class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating teams."""
 
     serializer_class = serializers.TeamSerializer
@@ -609,7 +609,7 @@ class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelView
 
 
 # Model ViewSet for tools
-class ToolViewSet(viewsets.ModelViewSet):
+class ToolViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
     """Handles creating, reading and updating tools."""
 
