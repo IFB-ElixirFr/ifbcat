@@ -609,6 +609,11 @@ class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 @admin.register(models.Tool)
 class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ('name',)
+    list_filter = (
+        'tool_type',
+        'collection',
+        'operating_system',
+    )
 
     def get_fields(self, request, obj=None):
         if obj is None:
