@@ -1,48 +1,25 @@
+import json
 import logging
-
-from django.core.management import BaseCommand
-from django.core.management import call_command
-
-from ifbcat_api.model.tool.tool import *
-
-from ifbcat_api.model.tool.toolType import ToolType
-from ifbcat_api.model.tool.operatingSystem import OperatingSystem
-
-# from database.models import Language
-# from database.models import Topic
-# from database.models import OperatingSystem
-# from ifbcat_api.model.tool_model.publication import *
-# from ifbcat_api.model.tool_model.link import *
-from ifbcat_api.model.tool.toolCredit import *
-
-# from ifbcat_api.model.tool_model.function import *
-# from ifbcat_api.model.tool_model.documentation import *
-
-# from database.models import Download
-# from database.models import Relation
-
-from ifbcat_api.model.tool.collection import Collection
-
-# from database.models import OtherID
-# from database.models import Version
-
-# from database.models import ElixirPlatform
-# from database.models import ElixirNode
-# from database.models import Accessibility
-# from database.models import ToolCredit
-
-from ifbcat_api.model.misc import Topic
-
+from json.decoder import JSONDecodeError
 
 import urllib3
-import json
 from Bio import Entrez
+from django.core.management import BaseCommand
+from tqdm import tqdm
+
+from ifbcat_api.model.misc import Topic, Doi
+from ifbcat_api.model.tool.collection import Collection
+from ifbcat_api.model.tool.operatingSystem import OperatingSystem
+from ifbcat_api.model.tool.tool import Tool
+from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
+from ifbcat_api.model.tool.toolType import ToolType
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
     def crawl_tools(self, limit):
+        collection_id = 'elixir-fr-sdp-2019'
 
         # clean tool table
         Tool.objects.all().delete()
@@ -53,130 +30,124 @@ class Command(BaseCommand):
 
         http = urllib3.PoolManager()
         try:
-            req = http.request('GET', 'https://bio.tools/api/tool/?page=1&format=json')
+            req = http.request('GET', f'https://bio.tools/api/tool/?collectionID={collection_id}&page=1&format=json')
             countJson = json.loads(req.data.decode('utf-8'))
             count = int(countJson['count'])
-            print(str(count) + " available BioTools entries")
+            print(f"{count} available BioTools entries for collection {collection_id}")
 
-            i = 1
-            nbTools = 1
-            hasNextPage = True
-            while hasNextPage:
-                req = http.request('GET', 'https://bio.tools/api/tool/?page=' + str(i) + '&format=json')
+            page = 1
+            has_next_page = True
+            progress_bar = tqdm()
+            while has_next_page and (limit == -1 or progress_bar.n < limit):
+                req = http.request(
+                    'GET', f'https://bio.tools/api/tool/?collectionID={collection_id}&page={page}&format=json'
+                )
                 try:
                     entry = json.loads(req.data.decode('utf-8'))
                 except JSONDecodeError as e:
                     print("Json decode error for " + str(req.data.decode('utf-8')))
                     break
 
-                hasNextPage = entry['next'] != None
-                # print("Processing page "+str(i)+ " hasNext="+str(hasNextPage
+                has_next_page = entry['next'] != None
+                # print("Processing page "+str(page)+ " hasNext="+str(has_next_page
                 for tool in entry['list']:
                     # print(json.dumps(tool, indent=4))
 
                     # if 'FR' in tool['collectionID']:
-                    if 'elixir-fr-sdp-2019' in tool['collectionID']:
-                        # if True:
+                    # JSONLD url FROM biotools API
+                    logger.debug("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
 
-                        # JSONLD url FROM biotools API
-                        print("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
+                    # insert in DB tool table here
+                    tool_entry, created = Tool.objects.get_or_create(
+                        name=tool['name'],
+                        description=tool['description'],
+                        homepage=tool['homepage'],
+                        biotoolsID=tool['biotoolsID'],
+                        # publication=tool['publication'],
+                        # operating_system = tool['operatingSystem'],
+                        # topic = tool['topic'],
+                        # link = tool['link'],
+                        biotoolsCURIE=tool['biotoolsCURIE'],
+                        # software_version = tool['version'],
+                        # downloads = tool['download'],
+                        tool_license=tool['license'],
+                        # language = tool['language'],
+                        # otherID = tool['otherID'],
+                        maturity=tool['maturity'],
+                        # collectionID = tool['collectionID'],
+                        # credit = tool['credit'],
+                        # elixirPlatform = tool['elixirPlatform'],
+                        # elixirNode = tool['elixirNode'],
+                        cost=tool['cost'],
+                        # accessibility = tool['accessibility'],
+                        # function = tool['function'],
+                        # relation = tool['relation'],
+                    )
 
-                        # insert in DB tool table here
-                        tool_entry, created = Tool.objects.get_or_create(
-                            name=tool['name'],
-                            description=tool['description'],
-                            homepage=tool['homepage'],
-                            biotoolsID=tool['biotoolsID'],
-                            # publication=tool['publication'],
-                            # operating_system = tool['operatingSystem'],
-                            # topic = tool['topic'],
-                            # link = tool['link'],
-                            biotoolsCURIE=tool['biotoolsCURIE'],
-                            # software_version = tool['version'],
-                            # downloads = tool['download'],
-                            tool_license=tool['license'],
-                            # language = tool['language'],
-                            # otherID = tool['otherID'],
-                            maturity=tool['maturity'],
-                            # collectionID = tool['collectionID'],
-                            # credit = tool['credit'],
-                            # elixirPlatform = tool['elixirPlatform'],
-                            # elixirNode = tool['elixirNode'],
-                            cost=tool['cost'],
-                            # accessibility = tool['accessibility'],
-                            # function = tool['function'],
-                            # relation = tool['relation'],
+                    # insert or get DB tooltype table here
+                    self.add_many_to_many_entry_array(tool_entry, tool_entry.tool_type, tool['toolType'], ToolType)
+
+                    # insert accessibility entry
+                    self.add_many_to_many_entry_array(
+                        tool_entry, tool_entry.operating_system, tool['operatingSystem'], OperatingSystem
+                    )
+
+                    # insert collectionID entry
+                    self.add_many_to_many_entry_array(
+                        tool_entry, tool_entry.collection, tool['collectionID'], Collection
+                    )
+
+                    # # insert or get doi
+                    # self.add_many_to_many_entry_array(tool_entry, tool_entry.tool_type, tool['toolType'], ToolType)
+
+                    # entry for publications DOI
+                    for publication in tool['publication']:
+                        if 'Primary' in publication['type']:
+                            doi = None
+
+                            if publication['doi'] != None:
+                                doi = publication['doi']
+                            if publication['doi'] == None and publication['pmid'] != None:
+                                doi = self.get_doi_from_pmid(publication['pmid'])
+                                # print('*Get DOI from PMID: ' + str(doi))
+                            if publication['doi'] == None and publication['pmcid'] != None:
+                                doi = self.get_doi_from_pmid(publication['pmcid'])
+
+                            if doi != None:
+                                doi_entry, created = Doi.objects.get_or_create(doi=doi)
+                                doi_entry.save()
+                                tool_entry.primary_publication.add(doi_entry.id)
+
+                    # insert or get DB topic entry table here
+                    for topic in tool['topic']:
+                        topic_entry, created = Topic.objects.get_or_create(topic=topic['uri'])
+                        topic_entry.save()
+                        tool_entry.scientific_topics.add(topic_entry.id)
+
+                    tool_entry.save()
+
+                    # entry for toolCredit
+                    for credit in tool['credit']:
+                        toolCredit_entry, created = ToolCredit.objects.get_or_create(
+                            name=credit['name'],
+                            email=credit['email'],
+                            url=credit['url'],
+                            orcidid=credit['orcidid'],
+                            gridid=credit['gridid'],
+                            typeEntity=credit['typeEntity'],
+                            note=credit['note'],
                         )
+                        toolCredit_entry.save()
+                        tool_entry.tool_credit.add(toolCredit_entry.id)
 
-                        # insert or get DB tooltype table here
-                        self.add_many_to_many_entry_array(tool_entry, tool_entry.tool_type, tool['toolType'], ToolType)
+                        # add typerole entry
+                        for type_role in credit['typeRole']:
+                            typeRole_entry, created = TypeRole.objects.get_or_create(name=type_role)
+                            typeRole_entry.save()
+                            toolCredit_entry.type_role.add(typeRole_entry.id)
 
-                        # insert accessibility entry
-                        self.add_many_to_many_entry_array(
-                            tool_entry, tool_entry.operating_system, tool['operatingSystem'], OperatingSystem
-                        )
-
-                        # insert collectionID entry
-                        self.add_many_to_many_entry_array(
-                            tool_entry, tool_entry.collection, tool['collectionID'], Collection
-                        )
-
-                        # # insert or get doi
-                        # self.add_many_to_many_entry_array(tool_entry, tool_entry.tool_type, tool['toolType'], ToolType)
-
-                        # entry for publications DOI
-                        for publication in tool['publication']:
-                            if 'Primary' in publication['type']:
-                                doi = None
-
-                                if publication['doi'] != None:
-                                    doi = publication['doi']
-                                if publication['doi'] == None and publication['pmid'] != None:
-                                    doi = self.get_doi_from_pmid(publication['pmid'])
-                                    # print('*Get DOI from PMID: ' + str(doi))
-                                if publication['doi'] == None and publication['pmcid'] != None:
-                                    doi = self.get_doi_from_pmid(publication['pmcid'])
-
-                                if doi != None:
-                                    doi_entry, created = Doi.objects.get_or_create(doi=doi)
-                                    doi_entry.save()
-                                    tool_entry.primary_publication.add(doi_entry.id)
-
-                        # insert or get DB topic entry table here
-                        for topic in tool['topic']:
-                            topic_entry, created = Topic.objects.get_or_create(topic=topic['uri'])
-                            topic_entry.save()
-                            tool_entry.scientific_topics.add(topic_entry.id)
-
-                        tool_entry.save()
-
-                        # entry for toolCredit
-                        for credit in tool['credit']:
-                            toolCredit_entry, created = ToolCredit.objects.get_or_create(
-                                name=credit['name'],
-                                email=credit['email'],
-                                url=credit['url'],
-                                orcidid=credit['orcidid'],
-                                gridid=credit['gridid'],
-                                typeEntity=credit['typeEntity'],
-                                note=credit['note'],
-                            )
-                            toolCredit_entry.save()
-                            tool_entry.tool_credit.add(toolCredit_entry.id)
-
-                            # add typerole entry
-                            for type_role in credit['typeRole']:
-                                typeRole_entry, created = TypeRole.objects.get_or_create(name=type_role)
-                                typeRole_entry.save()
-                                toolCredit_entry.type_role.add(typeRole_entry.id)
-
-                        nbTools += 1
-                        progress = nbTools * 100 / count
-                        if nbTools % 500 == 0:
-                            print(str(round(progress)) + " % done")
-                        if (limit != -1) and (nbTools >= limit + 1):
-                            return
-                i += 1
+                    progress_bar.update()
+                page += 1
         except urllib3.exceptions.HTTPError as e:
             print("Connection error")
             print(e)
