@@ -3,7 +3,6 @@ import logging
 from json.decoder import JSONDecodeError
 
 import urllib3
-from Bio import Entrez
 from django.core.management import BaseCommand
 from tqdm import tqdm
 
@@ -84,21 +83,14 @@ class Command(BaseCommand):
                         # relation = tool['relation'],
                     )
 
-                    # insert or get DB tooltype table here
-                    self.add_many_to_many_entry_array(tool_entry, tool_entry.tool_type, tool['toolType'], ToolType)
-
-                    # insert accessibility entry
-                    self.add_many_to_many_entry_array(
-                        tool_entry, tool_entry.operating_system, tool['operatingSystem'], OperatingSystem
-                    )
-
-                    # insert collectionID entry
-                    self.add_many_to_many_entry_array(
-                        tool_entry, tool_entry.collection, tool['collectionID'], Collection
-                    )
-
-                    # # insert or get doi
-                    # self.add_many_to_many_entry_array(tool_entry, tool_entry.tool_type, tool['toolType'], ToolType)
+                    for destination_field, names in [
+                        (tool_entry.tool_type, tool['toolType']),
+                        (tool_entry.operating_system, tool['operatingSystem']),
+                        (tool_entry.collection, tool['collectionID']),
+                    ]:
+                        for name in names:
+                            instance, _ = destination_field.model.objects.get_or_create(name=name)
+                            destination_field.add(instance)
 
                     # entry for publications DOI
                     for publication in tool['publication']:
@@ -152,19 +144,6 @@ class Command(BaseCommand):
             print("Connection error")
             print(e)
             return None
-
-    def get_doi_from_pmid(self, pmid):
-        with Entrez.efetch(db="pubmed", id=str(pmid), rettype="xml", retmode="text") as handle:
-            d = Entrez.read(handle)
-            for article_id in d["PubmedArticle"][0]["PubmedData"]["ArticleIdList"]:
-                if article_id[:2] == "10":
-                    return article_id
-
-    def add_many_to_many_entry_array(self, tool_entry, tool_to_field, tool_field, field_class):
-        for field_value in tool_field:
-            field_entry, created = field_class.objects.get_or_create(name=field_value)
-            field_entry.save()
-            tool_to_field.add(field_entry.id)
 
     def add_arguments(self, parser):
         """
