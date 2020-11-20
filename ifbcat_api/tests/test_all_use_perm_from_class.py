@@ -31,7 +31,7 @@ class AllUsePermFromClassTestCase(TestCase):
     def test_all_admin_use_perm_from_class(self):
         for model in apps.get_app_config('ifbcat_api').get_models():
             if model in self.model_admin_allowed_to_not_inherite_from_PermissionInClassModelAdmin:
-                pass
+                continue
             model_admin = contrib_admin.site._registry[model]
             self.assertIsInstance(
                 model_admin,
@@ -44,9 +44,9 @@ class AllUsePermFromClassTestCase(TestCase):
     def test_all_viewset_use_perm_from_class(self):
         for _, viewset, _ in urls.router.registry:
             if not issubclass(viewset, viewsets.ModelViewSet):
-                pass
-            if viewset.queryset.model in self.viewset_allowed_to_not_inherite_from_PermissionInClassModelViewSet:
-                pass
+                continue
+            if viewset in self.viewset_allowed_to_not_inherite_from_PermissionInClassModelViewSet:
+                continue
             self.assertIsSubClass(
                 viewset,
                 views.PermissionInClassModelViewSet,
@@ -54,4 +54,3 @@ class AllUsePermFromClassTestCase(TestCase):
                 f'views.PermissionInClassModelViewSet for security reason. Refer to documentation, '
                 f'or observe how it is done for Organisation model',
             )
-            # print(viewset, issubclass(viewset, views.PermissionInClassModelViewSet))
