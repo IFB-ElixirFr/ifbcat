@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 __USER_MANAGER_GRP_NAME = "User manager"
 
-__NO_RESTRICTION = "Grant access to all models of the catalog"
+__NO_RESTRICTION = "Grant access to all actions for all models of the catalog"
 
 
 def __get_user_manager_group():
