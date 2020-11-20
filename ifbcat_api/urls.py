@@ -11,33 +11,30 @@ from ifbcat_api import views
 # 'testviewset' is the URL we're regstering - the router will create URLs for us, so don't need to give a trailing '/'
 # "base_name" is used if/wehn URLs are retrieved using URL-retrieving function provided by Django
 # NB. don't need to specify base_name for userprofile (Model ViewSet) - it includes the queryset object (so Django can figure out the name)
+
 router = DefaultRouter()
-# router.register('testviewset', views.TestViewSet, basename='testviewset')
-router.register('userprofile', views.UserProfileViewSet)
+router.register('bioinformaticsteam', views.BioinformaticsTeamViewSet)
+router.register('certification', views.CertificationViewSet)
+router.register('community', views.CommunityViewSet)
+router.register('computingfacility', views.ComputingFacilityViewSet)
+router.register('elixirplatform', views.ElixirPlatformViewSet)
+router.register('eventprerequisite', views.EventPrerequisiteViewSet)
+router.register('eventsponsor', views.EventSponsorViewSet)
 router.register('event', views.EventViewSet)
 router.register('keyword', views.KeywordViewSet)
-router.register('eventprerequisite', views.EventPrerequisiteViewSet)
 router.register('organisation', views.OrganisationViewSet)
-router.register('certification', views.CertificationViewSet)
-router.register('elixirplatform', views.ElixirPlatformViewSet)
-router.register('community', views.CommunityViewSet)
 router.register('project', views.ProjectViewSet)
-router.register('computingfacility', views.ComputingFacilityViewSet)
+router.register('servicesubmission', views.ServiceSubmissionViewSet)
+router.register('service', views.ServiceViewSet)
+router.register('source_info', views.SourceInfoViewSet, basename='source_info')
+router.register('team', views.TeamViewSet)
+router.register('tool', views.ToolViewSet)
 router.register('trainer', views.TrainerViewSet)
 router.register('trainingeventmetrics', views.TrainingEventMetricsViewSet)
-router.register('eventsponsor', views.EventSponsorViewSet)
 router.register('trainingevent', views.TrainingEventViewSet)
 router.register('trainingmaterial', views.TrainingMaterialViewSet)
-router.register('team', views.TeamViewSet)
-router.register('bioinformaticsteam', views.BioinformaticsTeamViewSet)
-router.register('service', views.ServiceViewSet)
-router.register('servicesubmission', views.ServiceSubmissionViewSet)
-router.register('tool', views.ToolViewSet)
-router.register('source_info', views.SourceInfoViewSet, basename='source_info')
+router.register('userprofile', views.UserProfileViewSet)
 
-# APIView ("testapiview" below) endpoints are registered differently than API ViewSet
-# "include" function is used to include a list of URLS into the URL pattern
-# It figures out the URLs for all the functions ("list" etc.) defined in views.py for the ViewSet - hence the blank string as 1st arg.
 urlpatterns = [
     # path('testapiview/', views.TestApiView.as_view()),
     path('login/', views.UserLoginApiView.as_view()),
