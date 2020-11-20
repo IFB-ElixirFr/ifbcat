@@ -108,10 +108,10 @@ class Command(BaseCommand):
                             if publication['doi'] != None:
                                 doi = publication['doi']
                             if publication['doi'] == None and publication['pmid'] != None:
-                                doi = self.get_doi_from_pmid(publication['pmid'])
+                                doi = Doi.get_doi_from_pmid(publication['pmid'])
                                 # print('*Get DOI from PMID: ' + str(doi))
                             if publication['doi'] == None and publication['pmcid'] != None:
-                                doi = self.get_doi_from_pmid(publication['pmcid'])
+                                doi = Doi.get_doi_from_pmid(publication['pmcid'])
 
                             if doi != None:
                                 doi_entry, created = Doi.objects.get_or_create(doi=doi)

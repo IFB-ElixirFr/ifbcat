@@ -1,4 +1,4 @@
-# Imports
+from Bio import Entrez
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
@@ -145,3 +145,11 @@ class Doi(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+
+    @classmethod
+    def get_doi_from_pmid(cls, pmid):
+        with Entrez.efetch(db="pubmed", id=str(pmid), rettype="xml", retmode="text") as handle:
+            d = Entrez.read(handle)
+            for article_id in d["PubmedArticle"][0]["PubmedData"]["ArticleIdList"]:
+                if article_id[:2] == "10":
+                    return article_id
