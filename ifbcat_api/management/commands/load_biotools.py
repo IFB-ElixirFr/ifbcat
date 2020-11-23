@@ -42,11 +42,13 @@ class Command(BaseCommand):
 
                 has_next_page = entry['next'] is not None
                 for tool in entry['list']:
-                    logger.warning("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
-                    tool_entry, created = Tool.objects.get_or_create(
-                        biotoolsID=tool['biotoolsID'],
-                    )
-                    tool_entry.update_information_from_json(tool)
+                    logger.info("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
+                    tool_entry = Tool.objects.filter(biotoolsID__iexact=tool['biotoolsID']).first()
+                    if tool_entry is None:
+                        tool_entry = Tool.objects.create(
+                            biotoolsID=tool['biotoolsID'],
+                        )
+                        tool_entry.update_information_from_json(tool)
 
                     progress_bar.update()
                 page += 1
