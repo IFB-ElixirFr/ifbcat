@@ -45,6 +45,12 @@ class Command(BaseCommand):
                     logger.info("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
                     tool_entry = Tool.objects.filter(biotoolsID__iexact=tool['biotoolsID']).first()
                     if tool_entry is None:
+                        tool_entry = Tool.objects.filter(name__iexact=tool['name']).first()
+                        if tool_entry is not None and (tool_entry.biotoolsID is None or tool_entry.biotoolsID == ""):
+                            tool_entry.biotoolsID = tool['biotoolsID']
+                            tool_entry.save()
+                            tool_entry.update_information_from_json(tool)
+                    if tool_entry is None:
                         tool_entry = Tool.objects.create(
                             biotoolsID=tool['biotoolsID'],
                         )
