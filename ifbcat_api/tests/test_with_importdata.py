@@ -2,11 +2,8 @@ import logging
 import os
 from unittest.case import skipIf
 
-from django.core import management
+from django.contrib.auth import get_user_model
 from django.test import TestCase
-
-from ifbcat_api.model.organisation import Organisation
-from ifbcat_api.model.team import Team
 
 logger = logging.getLogger(__name__)
 
@@ -36,3 +33,13 @@ class EnsureImportDataAreHere(TestCase):
                 os.system('cd %s && git pull' % self.import_data)
             else:
                 os.system('git clone git@github.com:IFB-ElixirFr/ifbcat-importdata.git %s' % self.import_data)
+
+        self.superuser, _ = get_user_model().objects.get_or_create(
+            is_superuser=True,
+            is_staff=True,
+            defaults=dict(
+                firstname="superuser",
+                lastname="ifb",
+                email='superuser@ifb.fr',
+            ),
+        )

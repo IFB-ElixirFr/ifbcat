@@ -1,7 +1,6 @@
 import logging
 
 from django.apps import apps
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import management
 from django.urls import reverse, NoReverseMatch
@@ -60,16 +59,6 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         add_everywhere(t)
         f, _ = Field.objects.get_or_create(field="django")
         add_everywhere(f)
-
-        self.superuser, _ = get_user_model().objects.get_or_create(
-            is_superuser=True,
-            is_staff=True,
-            defaults=dict(
-                firstname="superuser",
-                lastname="ifb",
-                email='superuser@ifb.fr',
-            ),
-        )
 
     def test_all_at_once_to_spare_resource(self):
         #######################################################################
