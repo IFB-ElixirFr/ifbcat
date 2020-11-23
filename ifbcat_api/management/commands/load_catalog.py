@@ -18,7 +18,7 @@ class Command(BaseCommand):
         call_command('load_databases', os.path.join(self.import_data, "databases.csv"))
         call_command('load_tools', os.path.join(self.import_data, "tools.csv"))
         # call_command('load_services')
-        # call_command('load_training')
+        call_command('load_training', os.path.join(self.import_data, "training.csv"))
         # call_command('load_training_material')
         call_command('load_events', os.path.join(self.import_data, "events.csv"))
         # call_command('load_infrastructure')

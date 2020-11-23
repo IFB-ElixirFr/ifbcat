@@ -6,6 +6,8 @@ import os
 import pytz
 from django.core.management import BaseCommand
 from django.utils.timezone import make_aware
+from django.contrib.auth import get_user_model
+
 from tqdm import tqdm
 
 from ifbcat_api.model.event import *
@@ -28,11 +30,20 @@ class Command(BaseCommand):
             data_file.seek(0)
             next(data)
             # do the work
+            type_mapping_drupal_to_api = {
+                'Formation': 'Training course',
+                'Réunion': 'Meeting',
+                'Atelier': 'Workshop',
+                'Conférence': 'Conference',
+                'Autre': 'Other',
+                '': 'Other',
+            }
+
             for data_object in tqdm(data, total=data_len):
                 if data_object == []:
                     continue  # Check for empty lines
                 event_name = data_object[0]
-                event_type = data_object[1]
+                event_type = type_mapping_drupal_to_api[data_object[1]]
                 event_description = data_object[2]
                 if data_object[3]:
                     if "to" in data_object[3]:
@@ -58,6 +69,8 @@ class Command(BaseCommand):
                 event_sponsors = data_object[7]
                 event_logo = data_object[8]
 
+                print(get_user_model().objects.filter(is_superuser=True).first())
+
                 try:
                     event, created = Event.objects.get_or_create(
                         name=event_name,
@@ -67,6 +80,7 @@ class Command(BaseCommand):
                         # city is only a subset of event_location for the moment
                         city=event_location,
                         homepage=event_link,
+                        accessibility='Public',
                     )
 
                     dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
@@ -94,6 +108,13 @@ class Command(BaseCommand):
                     #    elif EventSponsor.objects.filter(name=sponsor).exists():
                     #        organisation=EventSponsor.objects.get(name=sponsor)
                     #        event.sponsoredBy.add(organisation)
+                    #
+
+                    # TODO: Fill required field using
+                    # get_user_model().objects.filter(is_superuser=True).first()
+                    # then uncommend validation below:
+                    # event.full_clean()
+                    event.save()
 
                 except Exception as e:
                     logger.error(data_object)
