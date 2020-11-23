@@ -4,6 +4,8 @@ from json.decoder import JSONDecodeError
 
 import urllib3
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
 
@@ -208,12 +210,8 @@ class Tool(models.Model):
                 typeRole_entry.save()
                 toolCredit_entry.type_role.add(typeRole_entry.id)
 
-    def save(self, *args, **kwargs):
-        need_update = False
-        if self.pk is None and self.biotoolsID is not None and self.biotoolsID != "":
-            self.name = self.biotoolsID
-            need_update = True
-        instance = super().save(*args, **kwargs)
-        if need_update:
-            self.update_information_from_biotool()
-        return instance
+
+@receiver(post_save, sender=Tool)
+def update_information_from_biotool(sender, instance, created, **kwargs):
+    if created and instance.biotoolsID is not None and instance.biotoolsID != "":
+        instance.update_information_from_biotool()
