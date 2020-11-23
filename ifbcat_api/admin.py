@@ -5,8 +5,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
-from django.db.models import Count
-from django.db.models.functions import Upper
+from django.db.models import Count, Q, When, Value, BooleanField, Case
+from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 from django.utils.translation import ugettext
@@ -608,19 +608,59 @@ class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 @admin.register(models.Tool)
 class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    search_fields = ('name',)
+    search_fields = (
+        'name',
+        'biotoolsID',
+        'description',
+    )
     list_filter = (
         'tool_type',
         'collection',
         'operating_system',
     )
+    list_display_links = (
+        'name',
+        'biotoolsID',
+    )
+    list_display = (
+        'name',
+        'biotoolsID',
+        'update_needed',
+    )
 
     actions = [
         'update_information_from_biotool',
+        'update_information_from_biotool_when_needed',
     ]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(name_len=Length('name'))
+            .annotate(
+                update_needed=Case(
+                    When(Q(name_len=0), then=True),
+                    When(Q(name="None"), then=True),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+        )
+
+    def update_needed(self, obj):
+        return obj.update_needed
+
+    update_needed.boolean = True
+
+    update_needed.admin_order_field = 'update_needed'
 
     def update_information_from_biotool(self, request, queryset):
         for o in queryset:
+            o.update_information_from_biotool()
+
+    def update_information_from_biotool_when_needed(self, request, queryset):
+        for o in queryset.filter(update_needed=True):
             o.update_information_from_biotool()
 
     def get_fields(self, request, obj=None):
