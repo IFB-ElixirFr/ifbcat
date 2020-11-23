@@ -154,6 +154,7 @@ class Tool(models.Model):
         # accessibility = tool['accessibility']
         # function = tool['function']
         # relation = tool['relation']
+        self.last_update = tool['lastUpdate']
 
         self.save()
 
