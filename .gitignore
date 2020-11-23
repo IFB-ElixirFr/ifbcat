@@ -145,3 +145,6 @@ settings.ini
 # folder where data are git cloned
 ./import_data
 import_data
+
+# Virtual Studio Code settings
+.vscode

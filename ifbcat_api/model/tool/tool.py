@@ -13,6 +13,7 @@ from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
 from ifbcat_api.model.tool.toolType import ToolType
 from ifbcat_api.models import Keyword
+from ifbcat_api.models import Team
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +70,19 @@ class Tool(models.Model):
     prerequisites = models.TextField(blank=True, null=True)
     # operating_system = models.CharField(max_length=50, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
     # topic = models.CharField(max_length=1000, blank=True, null=True)
-    # downloads = models.CharField(max_length=1000, blank=True, null=True)
+    downloads = models.CharField(max_length=1000, blank=True, null=True)
 
     annual_visits = models.IntegerField(blank=True, null=True)
     unique_visits = models.IntegerField(blank=True, null=True)
 
     # many_to_many
     # platform = models.ManyToManyField(Platform, blank=True)
-
+    team = models.ManyToManyField(
+        Team,
+        blank=True,
+        related_name='ToolsTeams',
+        help_text="Team developping the tool.",
+    )
     # language = models.ManyToManyField(Language, blank=True)
 
     # elixir_platform = models.ManyToManyField(ElixirPlatform, blank=True)
