@@ -1,4 +1,5 @@
 # Imports
+from django.contrib.auth import get_user_model
 from django.db.models import ManyToManyField
 from rest_framework import permissions
 
@@ -68,6 +69,10 @@ class PubliclyReadableEditableByOwner(PubliclyReadableEditableBySomething):
     target = 'user_profile'
 
 
+class PubliclyReadableEditableByUser(PubliclyReadableEditableBySomething):
+    target = 'user'
+
+
 class PubliclyReadableEditableByCoordinator(PubliclyReadableEditableBySomething):
     target = 'coordinator'
 
@@ -113,6 +118,20 @@ class PubliclyReadableByUsersEditableBySuperuser(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return request.user.is_superuser or request.method in permissions.SAFE_METHODS
+
+
+class PubliclyReadableEditableByUserManager(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_superuser
+
+    def has_object_permission(self, request, view, obj):
+        from ifbcat_api import business_logic
+
+        return (
+            business_logic.is_user_manager(request.user)
+            or (isinstance(obj, get_user_model()) and business_logic.can_edit_user(request.user, obj))
+            or request.method in permissions.SAFE_METHODS
+        )
 
 
 class UserCanAddNew(permissions.BasePermission):

@@ -10,6 +10,7 @@ from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 from django.utils.translation import ugettext
+from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
 from ifbcat_api.permissions import simple_override_method
@@ -761,6 +762,32 @@ class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
             "name",
             "permissions",
         )
+
+
+# Unregister the original Token admin.
+admin.site.unregister(Token)
+
+
+@admin.register(Token)
+class TokenAdmin(PermissionInClassModelAdmin, admin.ModelAdmin):
+    list_display = ('key', 'user', 'created')
+    fields = ('user',)
+    ordering = ('-created',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser and not business_logic.is_user_manager(None, request=request):
+            qs = qs.filter(user=request.user)
+        return qs
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request=request, obj=obj, **kwargs)
+        if not request.user.is_superuser and not business_logic.is_user_manager(None, request=request):
+            form.base_fields['user'].queryset = form.base_fields['user'].queryset.filter(pk=request.user.pk)
+        return form
+
+    def get_changeform_initial_data(self, request):
+        return dict(user=request.user)
 
 
 # register all models that are not registered yet

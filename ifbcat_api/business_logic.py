@@ -4,9 +4,10 @@ from django.apps import apps
 from django.contrib.auth import get_permission_codename, get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from rest_framework.authtoken.models import Token
 
+from ifbcat_api import models
 from ifbcat_api import permissions
-from ifbcat_api.model.userProfile import UserProfile
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +22,8 @@ def __get_user_manager_group():
         for action in ["view", "add", "change"]:
             g.permissions.add(
                 Permission.objects.get(
-                    codename=get_permission_codename(action, UserProfile._meta),
-                    content_type=ContentType.objects.get_for_model(UserProfile),
+                    codename=get_permission_codename(action, models.UserProfile._meta),
+                    content_type=ContentType.objects.get_for_model(models.UserProfile),
                 )
             )
     return g
@@ -36,20 +37,25 @@ def __get_no_restriction_on_catalog_models_group():
 def init_business_logic():
     __get_user_manager_group()
     no_restriction = __get_no_restriction_on_catalog_models_group()
-    ifbcat_api_models = apps.get_app_config('ifbcat_api').get_models()
-    for model in ifbcat_api_models:
-        if model == get_user_model():
-            continue
-        for p in Permission.objects.filter(
-            content_type=ContentType.objects.get_for_model(model),
-        ):
-            no_restriction.permissions.add(p)
+    for app_label in [
+        'ifbcat_api',
+        'authtoken',
+    ]:
+        ifbcat_api_models = apps.get_app_config(app_label).get_models()
+        for model in ifbcat_api_models:
+            if model == get_user_model():
+                continue
+            for p in Permission.objects.filter(
+                content_type=ContentType.objects.get_for_model(model),
+            ):
+                no_restriction.permissions.add(p)
 
 
 ###############################################################################
 # User manager
 ###############################################################################
 def is_user_manager(user, request=None):
+    user = user or request.user
     return user.groups.filter(name=__USER_MANAGER_GRP_NAME).exists()
 
 
@@ -96,6 +102,12 @@ __default_perm = permissions.PubliclyReadableByUsers
 def get_permission_classes(model):
     if model == Group:
         return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+    if model == Token:
+        return (
+            permissions.PubliclyReadableEditableByUser
+            | permissions.PubliclyReadableEditableByUserManager
+            | permissions.UserCanAddNew,
+        )
     try:
         return model.get_permission_classes()
     except AttributeError:
