@@ -690,6 +690,7 @@ class GroupAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         # Do the normal form initialisation.
         super(GroupAdminForm, self).__init__(*args, **kwargs)
+        self.fields['users'].queryset = get_user_model().objects.filter(is_active=True)
         # If it is an existing group (saved objects have a pk).
         if self.instance.pk:
             # Populate the users field with the current Group users.
