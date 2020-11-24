@@ -43,6 +43,7 @@ def add_everywhere(instance):
 
 class TestNoViewsCrash(EnsureImportDataAreHere):
     def setUp(self):
+        super().setUp()
         # which view do not return 200 and it is normal
         self.status_code_not_200 = {
             "trainingevent-list": 403,
