@@ -11,6 +11,7 @@
 import json
 
 from django.core.cache import cache
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
@@ -44,6 +45,28 @@ class SourceInfoViewSet(viewsets.ViewSet):
                 return Response(info)
         except FileNotFoundError as e:
             return Response(str(e))
+
+
+class MultipleFieldLookupMixin:
+    """
+    https://stackoverflow.com/a/63779871/2144569
+    Apply this mixin to any view or viewset to get multiple field filtering
+    based on a `lookup_fields` attribute, instead of the default single field filtering.
+
+    Source: https://www.django-rest-framework.org/api-guide/generic-views/#creating-custom-mixins
+    Modified to not error out for not providing all fields in the url.
+    """
+
+    def get_object(self):
+        queryset = self.get_queryset()  # Get the base queryset
+        queryset = self.filter_queryset(queryset)  # Apply any filter backends
+        filter = {}
+        for field in self.lookup_fields:
+            if self.kwargs.get(field):  # Ignore empty fields.
+                filter[field] = self.kwargs[field]
+        obj = get_object_or_404(queryset, **filter)  # Lookup the object
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 # TestApiView is just a test API View - not currently used but kept in case it's needed later.
@@ -609,12 +632,13 @@ class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelView
 
 
 # Model ViewSet for tools
-class ToolViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
     """Handles creating, reading and updating tools."""
 
     serializer_class = serializers.ToolSerializer
     queryset = models.Tool.objects.all()
+    lookup_fields = ['pk', 'biotoolsID']
 
     search_fields = (
         'name',
