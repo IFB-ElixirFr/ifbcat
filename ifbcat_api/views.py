@@ -62,8 +62,11 @@ class MultipleFieldLookupMixin:
         queryset = self.filter_queryset(queryset)  # Apply any filter backends
         filter = {}
         for field in self.lookup_fields:
-            if self.kwargs.get(field):  # Ignore empty fields.
-                filter[field] = self.kwargs[field]
+            field_key = field
+            if field[-8:] == "__iexact":
+                field_key = field[:-8]
+            if self.kwargs.get(field_key):  # Ignore empty fields.
+                filter[field] = self.kwargs[field_key]
         obj = get_object_or_404(queryset, **filter)  # Lookup the object
         self.check_object_permissions(self.request, obj)
         return obj
@@ -638,7 +641,7 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
 
     serializer_class = serializers.ToolSerializer
     queryset = models.Tool.objects.all()
-    lookup_fields = ['pk', 'biotoolsID']
+    lookup_fields = ['pk', 'biotoolsID__iexact']
 
     search_fields = (
         'name',
