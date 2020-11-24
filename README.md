@@ -52,6 +52,11 @@ sudo docker-compose run -v /var/ifbcat-importdata:/import_data web python manage
 sudo docker-compose run -v /var/ifbcat-importdata:/import_data web python manage.py load_biotools
 ```
 
+Or all imports :
+```
+sudo docker-compose run -v /var/ifbcat-importdata:/code/import_data web python manage.py load_catalog
+```
+
 # How to generate graph models
 
 To export the models to an image, you hav to:
