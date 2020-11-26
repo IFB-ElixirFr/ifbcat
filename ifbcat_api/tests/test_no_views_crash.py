@@ -56,7 +56,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         # create some instance to add everywhere, allows to test all HyperlinkedModelSerializer and *SlugRelatedField
         k, _ = Keyword.objects.get_or_create(keyword="café")
         add_everywhere(k)
-        t, _ = Topic.objects.get_or_create(topic="http://edamontology.org/topic_0091")
+        t, _ = Topic.objects.get_or_create(uri="http://edamontology.org/topic_0091")
         add_everywhere(t)
         f, _ = Field.objects.get_or_create(field="django")
         add_everywhere(f)

@@ -187,7 +187,7 @@ class Tool(models.Model):
 
         # insert or get DB topic entry table here
         for topic in tool['topic']:
-            topic_entry, created = Topic.objects.get_or_create(topic=topic['uri'])
+            topic_entry, created = Topic.objects.get_or_create(uri=topic['uri'])
             topic_entry.save()
             self.scientific_topics.add(topic_entry.id)
 

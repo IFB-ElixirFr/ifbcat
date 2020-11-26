@@ -187,7 +187,7 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'lastname',
         'email',
         'orcidid',
-        'expertise__topic',
+        'expertise__uri',
     )
 
     def get_serializer_class(self):
@@ -226,7 +226,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'city',
         'country',
         'costs_cost',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
         'accessibility',
@@ -469,7 +469,7 @@ class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'name',
         'homepage',
         'description',
-        'topics__topic',
+        'topics__uri',
         'team__name',
         'hostedBy__name',
         'fundedBy__name',
@@ -524,7 +524,7 @@ class TrainingMaterialViewSet(ResourceViewSet):
     search_fields = ResourceViewSet.search_fields + (
         'doi__doi',
         'fileName',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
@@ -551,7 +551,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields = (
         'name',
         'description',
-        'expertise__topic',
+        'expertise__uri',
         'leader__firstname',
         'leader__lastname',
         'deputies__firstname',
@@ -585,7 +585,7 @@ class BioinformaticsTeamViewSet(TeamViewSet):
     queryset = models.BioinformaticsTeam.objects.all()
 
     search_fields = TeamViewSet.search_fields + (
-        'edamTopics__topic',
+        'edamTopics__uri',
         'ifbMembership',
         'platforms__name',
     )

@@ -13,7 +13,7 @@ class Topic(models.Model):
     """Event topic model: URI of EDAM Topic term describing scope or expertise."""
 
     # topic is mandatory
-    topic = models.CharField(
+    uri = models.CharField(
         max_length=255,
         unique=True,
         help_text="URI of EDAM Topic term describing scope or expertise.",
