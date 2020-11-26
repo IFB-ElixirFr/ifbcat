@@ -55,7 +55,7 @@ class Topic(models.Model):
 
     def __str__(self):
         """Return the Topic model as a string."""
-        return self.uri
+        return f'{self.label} ({self.uri})'
 
     @classmethod
     def get_permission_classes(cls):
