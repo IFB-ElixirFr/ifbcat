@@ -293,11 +293,12 @@ class EventPrerequisiteAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 @admin.register(models.Topic)
 class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    search_fields = ['uri']
+    search_fields = ['uri', 'label', 'description', 'synonyms']
     list_display = (
         'label',
         'uri',
     )
+    readonly_fields = ('label', 'description', 'synonyms')
 
     actions = [
         'update_information_from_ebi_ols',
