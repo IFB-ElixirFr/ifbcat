@@ -10,6 +10,7 @@ from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 from django.utils.translation import ugettext
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
@@ -67,9 +68,15 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         return self.has_permission_for_methods(request=request, obj=obj, methods=["DELETE"])
 
 
-class ViewInApiModelAdmin(admin.ModelAdmin):
+class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
     class Media:
-        css = {'all': ('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',)}
+        js = ("js/django_better_admin_arrayfield.min.js",)
+        css = {
+            "all": (
+                "css/django_better_admin_arrayfield.min.css",
+                'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+            )
+        }
 
     slug_name = "pk"
 
@@ -286,7 +293,20 @@ class EventPrerequisiteAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 @admin.register(models.Topic)
 class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    search_fields = ['topic']
+    search_fields = ['uri']
+    list_display = (
+        'label',
+        'uri',
+    )
+
+    actions = [
+        'update_information_from_ebi_ols',
+        # 'update_information_from_ebi_ols_when_needed',
+    ]
+
+    def update_information_from_ebi_ols(self, request, queryset):
+        for o in queryset:
+            o.update_information_from_ebi_ols()
 
 
 @admin.register(models.EventCost)

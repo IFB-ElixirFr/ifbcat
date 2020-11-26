@@ -1,12 +1,21 @@
+import json
+import logging
+
 from Bio import Entrez
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, DataError
 from django.db.models import Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+from django_better_admin_arrayfield.models.fields import ArrayField
+from pip._vendor import requests
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
+
+logger = logging.getLogger(__name__)
 
 
 class Topic(models.Model):
@@ -22,9 +31,74 @@ class Topic(models.Model):
         ],
     )
 
+    label = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    description = models.TextField(
+        max_length=255,
+        blank=True,
+        help_text="Definition of the EDAM term",
+    )
+
+    # https://docs.djangoproject.com/fr/3.1/ref/contrib/postgres/fields/
+    synonyms = ArrayField(
+        base_field=models.CharField(
+            max_length=255,
+        ),
+        size=8,
+        help_text="Narrow synonyms",
+        blank=True,
+        null=True,
+    )
+
     def __str__(self):
         """Return the Topic model as a string."""
-        return self.topic
+        return self.uri
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.PubliclyReadableByUsersEditableBySuperuser, IsAuthenticatedOrReadOnly)
+
+    def update_information_from_ebi_ols(self):
+        url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}'
+        response = requests.get(url).json()
+        term = response["_embedded"]["terms"][0]
+        if term["iri"] != self.uri:
+            logger.error(f"Searched for {self.uri} but got a a response term {term['iri']} aborting update")
+            return
+        self.label = term["label"]
+        self.description = term["description"][0] if isinstance(term["description"], list) else term["description"]
+        self.synonyms = term["synonyms"]
+        try:
+            self.save()
+        except DataError as e:
+            logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
+            raise
+        # code use to pre-load topics, and spare rest calls later
+        filepath = "./import_data/topics.json"
+        try:
+            with open(filepath) as f:
+                topics = json.load(f)
+        except FileNotFoundError:
+            topics = []
+        topics.append(
+            dict(
+                label=self.label,
+                description=self.description,
+                synonyms=self.synonyms,
+                uri=self.uri,
+            )
+        )
+        with open(filepath, 'w') as f:
+            json.dump(topics, f)
+
+
+@receiver(post_save, sender=Topic)
+def update_information_from_ebi_ols(sender, instance, created, **kwargs):
+    if created and (instance.label is None or instance.label == ""):
+        instance.update_information_from_ebi_ols()
 
 
 class Keyword(models.Model):

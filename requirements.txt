@@ -11,4 +11,5 @@ uritemplate
 urllib3
 Unidecode
 tqdm
+django-better-admin-arrayfield
 #end of file
