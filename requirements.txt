@@ -1,14 +1,14 @@
 biopython
-django==3.0.7
+Django==3.0.7
 djangorestframework==3.11.0
 python-decouple
 psycopg2
 psycopg2-binary
 gunicorn
 pandas
-pyyaml
+PyYAML
 uritemplate
 urllib3
-unidecode
+Unidecode
 tqdm
 #end of file
