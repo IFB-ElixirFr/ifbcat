@@ -32,12 +32,16 @@ sudo service ifbcat restart
 ```
 
 ## Pull the latest sources and restart
+ * Restart stop the service, flush old images from disk, rebuild images and start the service. It clean up the server and helps in case of server full error 
 ```
 cd /var/ifbcat-src
 sudo git pull
 sudo service ifbcat restart
 ```
-
+ * Reload will rebuild the service before restarting it, it does not remove old image. It is faster
+```
+cd /var/ifbcat-src/ && sudo git pull && sudo service ifbcat reload
+```
 ## Create a superuser
 ```
 cd /var/ifbcat-src
