@@ -136,7 +136,7 @@ class PubliclyReadableEditableByUserManager(permissions.BasePermission):
 
 class UserCanAddNew(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS + ("PUT",)
+        return request.method in permissions.SAFE_METHODS + ("PUT", "POST")
 
     def has_object_permission(self, request, view, obj):
         return obj is None
