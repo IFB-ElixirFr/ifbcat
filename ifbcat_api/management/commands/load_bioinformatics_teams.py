@@ -90,7 +90,7 @@ class Command(BaseCommand):
                 for p in find_persons(row["Equipe"]):
                     bt.members.add(p)
                 for certification in row['Certificat(s)'].strip().split('\n'):
-                    certification = certification.strip()
+                    certification = certification.strip().replace('/', '-')
                     if certification == "Non renseigné":
                         continue
                     try:
