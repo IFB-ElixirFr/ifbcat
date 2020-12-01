@@ -22,15 +22,18 @@ pre-commit run black
 ```
 docker-compose run db
 ```
+
 2. Install the requirements, *eg* with:
 ```
 pip install -r requirements.txt
 ```
+
 3. Retrieve data and run tests:
 ```
 python manage.py test
 ```
 Note this step requires read access to ifbcat-importdata. Currently, you should expect to see some "ERROR" but tests should be "OK" in the end of the log. 
+
 4. Do migrations, superuser creation, some imports and start the test server
 ```
 python manage.py migrate
@@ -38,7 +41,8 @@ python manage.py createsuperuser
 python manage.py load_catalog
 python manage.py runserver
 ```
-5. You can do more imports using commands available in `ifbcat_api/management/commands`. Not all are currently working properly.
+
+5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working properly.
 
 # How to manage the server
 
