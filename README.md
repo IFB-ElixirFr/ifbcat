@@ -53,9 +53,10 @@ python manage.py load_catalog
 python manage.py runserver
 ```
 
-5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working properly. Note that `load_catalog` should work.
+5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working properly but at least these ones below should.
 ```
 python manage.py load_catalog
+python manage.py load_biotools
 ```
 
 # How to manage the server
