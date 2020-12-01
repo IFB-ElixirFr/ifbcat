@@ -18,6 +18,12 @@ pre-commit run black
 
 ## Run the API locally
 
+0. Have a virtual env ready, [docker](https://docs.docker.com/get-docker/) and [docker-compose](https://docs.docker.com/compose/install/) installed
+```
+virtualenv .venv -p python3
+. .venv/bin/activate
+```
+
 1. Run the DB locally:
 ```
 docker-compose run db
@@ -42,7 +48,10 @@ python manage.py load_catalog
 python manage.py runserver
 ```
 
-5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working properly.
+5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working properly. Note that `load_catalog` should work.
+```
+python manage.py load_catalog
+```
 
 # How to manage the server
 
