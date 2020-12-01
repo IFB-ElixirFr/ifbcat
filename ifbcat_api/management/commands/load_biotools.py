@@ -44,7 +44,8 @@ class Command(BaseCommand):
                 for tool in entry['list']:
                     logger.warning("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
                     tool_entry, created = Tool.objects.get_or_create(
-                        biotoolsID=tool['biotoolsID'],
+                        name=tool['name'],
+                        # biotoolsID=tool['biotoolsID'],
                     )
                     tool_entry.update_information_from_json(tool)
 
