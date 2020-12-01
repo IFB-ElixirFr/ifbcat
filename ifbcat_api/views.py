@@ -394,8 +394,7 @@ class CertificationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet)
 
     serializer_class = serializers.CertificationSerializer
     queryset = models.Certification.objects.all()
-    # We can't use name if we want to keeep "CATI / CTAI" certification
-    # lookup_field = 'name'
+    lookup_field = 'name'
 
     filter_backends = (filters.SearchFilter,)
     search_fields = (
