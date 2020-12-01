@@ -11,6 +11,7 @@
 import json
 
 from django.core.cache import cache
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
@@ -44,6 +45,31 @@ class SourceInfoViewSet(viewsets.ViewSet):
                 return Response(info)
         except FileNotFoundError as e:
             return Response(str(e))
+
+
+class MultipleFieldLookupMixin:
+    """
+    https://stackoverflow.com/a/63779871/2144569
+    Apply this mixin to any view or viewset to get multiple field filtering
+    based on a `lookup_fields` attribute, instead of the default single field filtering.
+
+    Source: https://www.django-rest-framework.org/api-guide/generic-views/#creating-custom-mixins
+    Modified to not error out for not providing all fields in the url.
+    """
+
+    def get_object(self):
+        queryset = self.get_queryset()  # Get the base queryset
+        queryset = self.filter_queryset(queryset)  # Apply any filter backends
+        filter = {}
+        for field in self.lookup_fields:
+            field_key = field
+            if field[-8:] == "__iexact":
+                field_key = field[:-8]
+            if self.kwargs.get(field_key):  # Ignore empty fields.
+                filter[field] = self.kwargs[field_key]
+        obj = get_object_or_404(queryset, **filter)  # Lookup the object
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 # TestApiView is just a test API View - not currently used but kept in case it's needed later.
@@ -161,7 +187,7 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'lastname',
         'email',
         'orcidid',
-        'expertise__topic',
+        'expertise__uri',
     )
 
     def get_serializer_class(self):
@@ -200,7 +226,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'city',
         'country',
         'costs_cost',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
         'accessibility',
@@ -443,7 +469,7 @@ class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'name',
         'homepage',
         'description',
-        'topics__topic',
+        'topics__uri',
         'team__name',
         'hostedBy__name',
         'fundedBy__name',
@@ -498,7 +524,7 @@ class TrainingMaterialViewSet(ResourceViewSet):
     search_fields = ResourceViewSet.search_fields + (
         'doi__doi',
         'fileName',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
@@ -525,7 +551,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields = (
         'name',
         'description',
-        'expertise__topic',
+        'expertise__uri',
         'leader__firstname',
         'leader__lastname',
         'deputies__firstname',
@@ -559,7 +585,7 @@ class BioinformaticsTeamViewSet(TeamViewSet):
     queryset = models.BioinformaticsTeam.objects.all()
 
     search_fields = TeamViewSet.search_fields + (
-        'edamTopics__topic',
+        'edamTopics__uri',
         'ifbMembership',
         'platforms__name',
     )
@@ -609,12 +635,13 @@ class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelView
 
 
 # Model ViewSet for tools
-class ToolViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
     """Handles creating, reading and updating tools."""
 
     serializer_class = serializers.ToolSerializer
     queryset = models.Tool.objects.all()
+    lookup_fields = ['pk', 'biotoolsID__iexact']
 
     search_fields = (
         'name',

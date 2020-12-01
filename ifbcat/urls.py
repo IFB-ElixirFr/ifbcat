@@ -33,7 +33,11 @@ urlpatterns = [
     ),
     path(
         'openapi',
-        get_schema_view(title="Your Project", description="API for all things …", version="1.0.0"),
+        get_schema_view(
+            title="IFB Catalog",
+            description="A catalog of bioinformatics resources such as software, database, organisation, training, ...",
+            version="1.0.0b",
+        ),
         name='openapi-schema',
     ),
 ]

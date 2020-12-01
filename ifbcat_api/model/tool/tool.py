@@ -4,7 +4,10 @@ from json.decoder import JSONDecodeError
 
 import urllib3
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from urllib3.exceptions import MaxRetryError
 
 from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic, Doi
@@ -18,6 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 class Tool(models.Model):
+    class Meta:
+        ordering = ('name', 'biotoolsID')
+
     name = models.CharField(
         unique=True,
         blank=False,
@@ -106,7 +112,7 @@ class Tool(models.Model):
 
     # metadata
     addition_date = models.DateTimeField(blank=True, null=True)
-    last_update = models.DateTimeField(auto_now=True)
+    last_update = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -119,12 +125,12 @@ class Tool(models.Model):
         )
 
     def update_information_from_biotool(self):
-        http = urllib3.PoolManager()
-        req = http.request('GET', f'https://bio.tools/api/{self.biotoolsID}?format=json')
         try:
+            http = urllib3.PoolManager()
+            req = http.request('GET', f'https://bio.tools/api/{self.biotoolsID}?format=json')
             entry = json.loads(req.data.decode('utf-8'))
-        except JSONDecodeError as e:
-            logger.error("Json decode error for " + str(req.data.decode('utf-8')))
+        except (JSONDecodeError, MaxRetryError) as e:
+            logger.error(f"Error with {self.biotoolsID}")
             return
         self.update_information_from_json(entry)
 
@@ -148,6 +154,7 @@ class Tool(models.Model):
         # accessibility = tool['accessibility']
         # function = tool['function']
         # relation = tool['relation']
+        self.last_update = tool['lastUpdate']
 
         self.save()
 
@@ -180,7 +187,7 @@ class Tool(models.Model):
 
         # insert or get DB topic entry table here
         for topic in tool['topic']:
-            topic_entry, created = Topic.objects.get_or_create(topic=topic['uri'])
+            topic_entry, created = Topic.objects.get_or_create(uri=topic['uri'])
             topic_entry.save()
             self.scientific_topics.add(topic_entry.id)
 
@@ -204,12 +211,8 @@ class Tool(models.Model):
                 typeRole_entry.save()
                 toolCredit_entry.type_role.add(typeRole_entry.id)
 
-    def save(self, *args, **kwargs):
-        need_update = False
-        if self.pk is None and self.biotoolsID is not None and self.biotoolsID != "":
-            self.name = self.biotoolsID
-            need_update = True
-        instance = super().save(*args, **kwargs)
-        if need_update:
-            self.update_information_from_biotool()
-        return instance
+
+@receiver(post_save, sender=Tool)
+def update_information_from_biotool(sender, instance, created, **kwargs):
+    if created and instance.biotoolsID is not None and instance.biotoolsID != "":
+        instance.update_information_from_biotool()

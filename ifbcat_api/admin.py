@@ -5,11 +5,13 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
-from django.db.models import Count
-from django.db.models.functions import Upper
+from django.db.models import Count, Q, When, Value, BooleanField, Case
+from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
 from django.utils.html import format_html
 from django.utils.translation import ugettext
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
+from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
 from ifbcat_api.permissions import simple_override_method
@@ -66,9 +68,15 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         return self.has_permission_for_methods(request=request, obj=obj, methods=["DELETE"])
 
 
-class ViewInApiModelAdmin(admin.ModelAdmin):
+class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
     class Media:
-        css = {'all': ('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',)}
+        js = ("js/django_better_admin_arrayfield.min.js",)
+        css = {
+            "all": (
+                "css/django_better_admin_arrayfield.min.css",
+                'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+            )
+        }
 
     slug_name = "pk"
 
@@ -114,7 +122,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, UserAdmin):
         'lastname',
         'email',
         'orcidid',
-        'expertise__topic',
+        'expertise__uri',
     )
     fieldsets = (
         ('Password', {'fields': ('password',)}),
@@ -198,7 +206,7 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'city',
         'country',
         'costs_cost',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
         'accessibility',
@@ -285,7 +293,21 @@ class EventPrerequisiteAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 @admin.register(models.Topic)
 class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    search_fields = ['topic']
+    search_fields = ['uri', 'label', 'description', 'synonyms']
+    list_display = (
+        'label',
+        'uri',
+    )
+    readonly_fields = ('label', 'description', 'synonyms')
+
+    actions = [
+        'update_information_from_ebi_ols',
+        # 'update_information_from_ebi_ols_when_needed',
+    ]
+
+    def update_information_from_ebi_ols(self, request, queryset):
+        for o in queryset:
+            o.update_information_from_ebi_ols()
 
 
 @admin.register(models.EventCost)
@@ -393,7 +415,7 @@ class ProjectAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'name',
         'homepage',
         'description',
-        'topics__topic',
+        'topics__uri',
         'team__name',
         'hostedBy__name',
         'fundedBy__name',
@@ -428,7 +450,7 @@ class TrainingMaterialAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'doi__doi',
         'fileName',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
@@ -527,7 +549,7 @@ class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'unitId',
         'address',
         'fields',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'ifbMembership',
         'platforms__name',
@@ -608,19 +630,59 @@ class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 @admin.register(models.Tool)
 class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    search_fields = ('name',)
+    search_fields = (
+        'name',
+        'biotoolsID',
+        'description',
+    )
     list_filter = (
         'tool_type',
         'collection',
         'operating_system',
     )
+    list_display_links = (
+        'name',
+        'biotoolsID',
+    )
+    list_display = (
+        'name',
+        'biotoolsID',
+        'update_needed',
+    )
 
     actions = [
         'update_information_from_biotool',
+        'update_information_from_biotool_when_needed',
     ]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(name_len=Length('name'))
+            .annotate(
+                update_needed=Case(
+                    When(Q(name_len=0), then=True),
+                    When(Q(name="None"), then=True),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+        )
+
+    def update_needed(self, obj):
+        return obj.update_needed
+
+    update_needed.boolean = True
+
+    update_needed.admin_order_field = 'update_needed'
 
     def update_information_from_biotool(self, request, queryset):
         for o in queryset:
+            o.update_information_from_biotool()
+
+    def update_information_from_biotool_when_needed(self, request, queryset):
+        for o in queryset.filter(update_needed=True):
             o.update_information_from_biotool()
 
     def get_fields(self, request, obj=None):
@@ -649,6 +711,7 @@ class GroupAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         # Do the normal form initialisation.
         super(GroupAdminForm, self).__init__(*args, **kwargs)
+        self.fields['users'].queryset = get_user_model().objects.filter(is_active=True)
         # If it is an existing group (saved objects have a pk).
         if self.instance.pk:
             # Populate the users field with the current Group users.
@@ -721,6 +784,32 @@ class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
             "name",
             "permissions",
         )
+
+
+# Unregister the original Token admin.
+admin.site.unregister(Token)
+
+
+@admin.register(Token)
+class TokenAdmin(PermissionInClassModelAdmin, admin.ModelAdmin):
+    list_display = ('key', 'user', 'created')
+    fields = ('user',)
+    ordering = ('-created',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser and not business_logic.is_user_manager(None, request=request):
+            qs = qs.filter(user=request.user)
+        return qs
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request=request, obj=obj, **kwargs)
+        if not request.user.is_superuser and not business_logic.is_user_manager(None, request=request):
+            form.base_fields['user'].queryset = form.base_fields['user'].queryset.filter(pk=request.user.pk)
+        return form
+
+    def get_changeform_initial_data(self, request):
+        return dict(user=request.user)
 
 
 # register all models that are not registered yet

@@ -232,7 +232,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="topic",
+        slug_field="uri",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -518,7 +518,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="topic",
+        slug_field="uri",
         queryset=models.Topic.objects.all(),
         required=False,
     )
@@ -619,7 +619,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="topic",
+        slug_field="uri",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -700,7 +700,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     expertise = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="topic",
+        slug_field="uri",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -767,7 +767,7 @@ class BioinformaticsTeamSerializer(TeamSerializer):
     edamTopics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="topic",
+        slug_field="uri",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -890,52 +890,79 @@ class ToolCreditSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Model serializer for tools
+_tool_fields = (
+    'id',
+    'name',
+    'description',
+    'homepage',
+    'logo',
+    'biotoolsID',
+    'biotoolsCURIE',
+    'tool_type',
+    'collection',
+    'scientific_topics',
+    'primary_publication',
+    'operating_system',
+    # 'scientific_operations',
+    'tool_credit',
+    'tool_license',
+    'maturity',
+    'cost',
+    'unique_visits',
+    'access_condition',
+    'citations',
+    'annual_visits',
+    'unique_visits',
+    'last_update',
+    # 'increase_last_update',
+    # 'access_condition',
+    'keywords',
+    # 'platform',
+    # 'language',
+    # 'topic',
+)
+
+
 class ToolSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a tool (Tool object)."""
 
     tool_type = VerboseSlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field="name",
-        queryset=models.ToolType.objects,
         required=False,
     )
     keywords = CreatableSlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field="keyword",
-        queryset=models.Keyword.objects,
         required=False,
     )
     collection = VerboseSlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field="name",
-        queryset=models.Collection.objects,
         required=False,
     )
 
     scientific_topics = serializers.SlugRelatedField(
         many=True,
-        read_only=False,
-        slug_field="topic",
-        queryset=models.Topic.objects,
+        read_only=True,
+        slug_field="uri",
         required=False,
     )
 
     primary_publication = serializers.SlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field="doi",
-        queryset=models.Doi.objects,
         required=False,
     )
 
     operating_system = VerboseSlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field="name",
-        queryset=models.OperatingSystem.objects,
         required=False,
     )
 
@@ -943,34 +970,6 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Tool
-        fields = (
-            'name',
-            'description',
-            'homepage',
-            'logo',
-            'biotoolsID',
-            'biotoolsCURIE',
-            'tool_type',
-            'collection',
-            'scientific_topics',
-            'primary_publication',
-            'operating_system',
-            # 'scientific_operations',
-            'tool_credit',
-            'tool_license',
-            'maturity',
-            'cost',
-            'unique_visits',
-            'access_condition',
-            'citations',
-            'annual_visits',
-            'unique_visits',
-            'last_update',
-            #'increase_last_update',
-            # 'access_condition',
-            'keywords',
-            # 'platform',
-            # 'language',
-            # 'topic',
-        )
+        fields = _tool_fields
+        read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
         # depth = 1

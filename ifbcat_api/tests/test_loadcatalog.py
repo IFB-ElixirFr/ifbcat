@@ -15,7 +15,7 @@ class LoadCatalogTestCase(EnsureImportDataAreHere):
         management.call_command('load_catalog')
         self.assertEqual(
             UserProfile.objects.count(),
-            540,
+            541,
         )
         self.assertEqual(
             Team.objects.count(),

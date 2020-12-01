@@ -1,7 +1,6 @@
 import logging
 
 from django.apps import apps
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import management
 from django.urls import reverse, NoReverseMatch
@@ -44,6 +43,7 @@ def add_everywhere(instance):
 
 class TestNoViewsCrash(EnsureImportDataAreHere):
     def setUp(self):
+        super().setUp()
         # which view do not return 200 and it is normal
         self.status_code_not_200 = {
             "trainingevent-list": 403,
@@ -56,20 +56,10 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         # create some instance to add everywhere, allows to test all HyperlinkedModelSerializer and *SlugRelatedField
         k, _ = Keyword.objects.get_or_create(keyword="café")
         add_everywhere(k)
-        t, _ = Topic.objects.get_or_create(topic="http://edamontology.org/topic_0091")
+        t, _ = Topic.objects.get_or_create(uri="http://edamontology.org/topic_0091")
         add_everywhere(t)
         f, _ = Field.objects.get_or_create(field="django")
         add_everywhere(f)
-
-        self.superuser, _ = get_user_model().objects.get_or_create(
-            is_superuser=True,
-            is_staff=True,
-            defaults=dict(
-                firstname="superuser",
-                lastname="ifb",
-                email='superuser@ifb.fr',
-            ),
-        )
 
     def test_all_at_once_to_spare_resource(self):
         #######################################################################
