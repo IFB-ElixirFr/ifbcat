@@ -18,20 +18,25 @@ pre-commit run black
 
 ## Run the API locally
 
-0. Have a virtual env ready, [docker](https://docs.docker.com/get-docker/) and [docker-compose](https://docs.docker.com/compose/install/) installed
+1. Install requirements:
+
+  * [docker](https://docs.docker.com/get-docker/),
+  * [docker-compose](https://docs.docker.com/compose/install/),
+  * postgresql-devel (libpq-dev in Debian/Ubuntu, libpq-devel on Centos/Cygwin/Babun.),
+  * Virtual env,
+  * requirements.txt
+
 ```
 virtualenv .venv -p python3
 . .venv/bin/activate
-```
-
-1. Run the DB locally:
-```
-docker-compose run db
-```
-
-2. Install the requirements, *eg* with:
-```
 pip install -r requirements.txt
+```
+
+2. Run the DB locally:
+```
+# Copy (and optionally tweak) ini 
+cp resources/default.ini local.ini
+docker-compose run db
 ```
 
 3. Retrieve data and run tests:
