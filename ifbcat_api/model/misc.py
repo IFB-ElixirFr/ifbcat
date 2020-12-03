@@ -1,4 +1,3 @@
-import json
 import logging
 
 from Bio import Entrez
@@ -79,23 +78,23 @@ class Topic(models.Model):
         except DataError as e:
             logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
             raise
-        # code use to pre-load topics, and spare rest calls later
-        filepath = "./import_data/topics.json"
-        try:
-            with open(filepath) as f:
-                topics = json.load(f)
-        except FileNotFoundError:
-            topics = []
-        topics.append(
-            dict(
-                label=self.label,
-                description=self.description,
-                synonyms=self.synonyms,
-                uri=self.uri,
-            )
-        )
-        with open(filepath, 'w') as f:
-            json.dump(topics, f)
+        # # code use to pre-load topics, and spare rest calls later, should remain commented on git
+        # filepath = "./import_data/Topic.json"
+        # try:
+        #     with open(filepath) as f:
+        #         topics = json.load(f)
+        # except FileNotFoundError:
+        #     topics = []
+        # topics.append(
+        #     dict(
+        #         label=self.label,
+        #         description=self.description,
+        #         synonyms=self.synonyms,
+        #         uri=self.uri,
+        #     )
+        # )
+        # with open(filepath, 'w') as f:
+        #     json.dump(topics, f)
 
 
 @receiver(post_save, sender=Topic)
