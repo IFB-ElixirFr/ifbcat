@@ -75,7 +75,7 @@ class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
             "all": (
                 "css/django_better_admin_arrayfield.min.css",
                 # "css/ifbcat_admin.css",
-                'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+                # 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
             )
         }
 
@@ -90,7 +90,7 @@ class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
             return format_html(
                 '<center><a href="'
                 + reverse('%s-detail' % obj.__class__.__name__.lower(), args=[getattr(obj, self.slug_name)])
-                + '"><i class="fa fa-external-link"></i></a><center>'
+                + '"><i class="fa fa-external-link-alt"></i></a><center>'
             )
         except NoReverseMatch:
             return format_html('<center><i class="fa fa-ban"></i></center>')
