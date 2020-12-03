@@ -173,7 +173,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO' if DEBUG else 'WARNING').upper()
 logging.basicConfig(level=LOGLEVEL)
 
-# UI CONFIGURATION
+################################################################################
+# JAZZMIN CONFIGURATION
+################################################################################
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
     "footer_small_text": False,
@@ -195,6 +197,54 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
     "theme": "default",
-    "dark_mode_theme": None,
+    "dark_mode_theme": "darkly",
     "actions_sticky_top": True,
 }
+JAZZMIN_SETTINGS = {
+    # title of the window
+    "site_title": "IFB Catalogue",
+    #
+    # Title on the brand, and the login screen (19 chars max)
+    "site_header": "IFB Catalogue",
+    #
+    # square logo to use for your site, must be present in static files, used for favicon and brand on top left
+    "site_logo": "/img/logo-ifb_small.png",
+    #
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome to the IFB Resources Catalogue",
+    # Copyright on the footer
+    # "copyright": "Acme Library Ltd",
+    #
+    # The model admin to search from the search bar, search bar omitted if excluded
+    # "search_model": "ifbcat_api.Tool",
+    #
+    ############
+    # Top Menu #
+    ############
+    #
+    "topmenu_links": [
+        # Url that gets reversed (Permissions can be added)
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        # external url that opens in a new window (Permissions can be added)
+        {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
+        {"model": "ifbcat_api.Event"},
+        {"model": "ifbcat_api.BioinformaticsTeam"},
+        # {"app": "ifbcat_api"},
+    ],
+    #
+    #################
+    # Related Modal #
+    #################
+    # Use modals instead of popups
+    "related_modal_active": True,
+    #
+    #############
+    # UI Tweaks #
+    #############
+    # Relative paths to custom CSS/JS scripts (must be present in static files)
+    "custom_css": "/css/ifbcat_admin.css",
+    # Whether to show the UI customizer on the sidebar
+    "show_ui_builder": True,
+}
+
+################################################################################

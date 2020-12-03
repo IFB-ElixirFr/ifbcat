@@ -74,7 +74,7 @@ class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
         css = {
             "all": (
                 "css/django_better_admin_arrayfield.min.css",
-                "css/ifbcat_admin.css",
+                # "css/ifbcat_admin.css",
                 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
             )
         }
