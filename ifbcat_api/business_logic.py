@@ -19,13 +19,25 @@ __NO_RESTRICTION = "Grant access to all actions for all models of the catalog"
 def __get_user_manager_group():
     g, created = Group.objects.get_or_create(name=__USER_MANAGER_GRP_NAME)
     if created or not g.permissions.exists():
-        for action in ["view", "add", "change"]:
-            g.permissions.add(
-                Permission.objects.get(
-                    codename=get_permission_codename(action, models.UserProfile._meta),
-                    content_type=ContentType.objects.get_for_model(models.UserProfile),
-                )
+        __init_user_manager_group(g)
+    return g
+
+
+def __init_user_manager_group(g):
+    for action in ["view", "add", "change"]:
+        g.permissions.add(
+            Permission.objects.get(
+                codename=get_permission_codename(action, models.UserProfile._meta),
+                content_type=ContentType.objects.get_for_model(models.UserProfile),
             )
+        )
+    for action in ["view", "add"]:
+        g.permissions.add(
+            Permission.objects.get(
+                codename=get_permission_codename(action, Group._meta),
+                content_type=ContentType.objects.get_for_model(Group),
+            )
+        )
     return g
 
 
@@ -35,7 +47,8 @@ def __get_no_restriction_on_catalog_models_group():
 
 
 def init_business_logic():
-    __get_user_manager_group()
+    user_manager_group = __get_user_manager_group()
+    __init_user_manager_group(user_manager_group)
     no_restriction = __get_no_restriction_on_catalog_models_group()
     for app_label in [
         'ifbcat_api',
