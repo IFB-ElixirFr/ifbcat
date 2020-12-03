@@ -1,3 +1,4 @@
+import json
 import logging
 
 from Bio import Entrez
@@ -66,18 +67,21 @@ class Topic(models.Model):
     def update_information_from_ebi_ols(self):
         url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}'
         response = requests.get(url).json()
-        term = response["_embedded"]["terms"][0]
-        if term["iri"] != self.uri:
-            logger.error(f"Searched for {self.uri} but got a a response term {term['iri']} aborting update")
-            return
-        self.label = term["label"]
-        self.description = term["description"][0] if isinstance(term["description"], list) else term["description"]
-        self.synonyms = term["synonyms"]
         try:
-            self.save()
-        except DataError as e:
-            logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
-            raise
+            term = response["_embedded"]["terms"][0]
+            if term["iri"] != self.uri:
+                logger.error(f"Searched for {self.uri} but got a a response term {term['iri']} aborting update")
+                return
+            self.label = term["label"]
+            self.description = term["description"][0] if isinstance(term["description"], list) else term["description"]
+            self.synonyms = term["synonyms"]
+            try:
+                self.save()
+            except DataError as e:
+                logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
+                raise
+        except KeyError as e:
+            logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}\n{json.dumps(response)}")
         # # code use to pre-load topics, and spare rest calls later, should remain commented on git
         # filepath = "./import_data/Topic.json"
         # try:
