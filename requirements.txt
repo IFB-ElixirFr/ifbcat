@@ -12,4 +12,5 @@ urllib3
 Unidecode
 tqdm
 django-better-admin-arrayfield
+django-jazzmin
 #end of file
