@@ -74,6 +74,7 @@ class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
         css = {
             "all": (
                 "css/django_better_admin_arrayfield.min.css",
+                "css/ifbcat_admin.css",
                 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
             )
         }
@@ -106,7 +107,7 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.UserProfile)
-class UserProfileAdmin(PermissionInClassModelAdmin, UserAdmin):
+class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdmin):
     # Enables search, filtering and widgets in Django admin interface.
     ordering = ("email",)
     list_display = (
