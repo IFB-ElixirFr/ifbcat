@@ -53,10 +53,41 @@ python manage.py load_catalog
 python manage.py runserver
 ```
 
-5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working properly but at least these ones below should.
+5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working
+   properly but at least these ones below should.
+
 ```
 python manage.py load_catalog
 python manage.py load_biotools
+```
+
+## Run the API locally with only docker-compose
+
+You can run the webserver within the docker-compose, it allows you to not have a fully functional virtualenv (without
+psycopg2-binary system library for example). The drawback is that you will not be able to use the debugger of your IDE.
+
+1. Retrieve data
+
+```
+git clone git@github.com:IFB-ElixirFr/ifbcat-importdata.git ./import_data
+```
+
+2. Build and start the whole compose with dev settings
+
+```
+# Copy (and optionally tweak) ini 
+cp resources/default.ini local.ini
+docker-compose build
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+```
+
+The webserver is running at http://0.0.0.0:8080 (the instance on 8000 does not have css served)
+
+3. Create a superuser, do some imports
+
+```
+docker-compose exec web python manage.py createsuperuser
+docker-compose exec web python manage.py load_catalog
 ```
 
 # How to manage the server
@@ -64,6 +95,7 @@ python manage.py load_biotools
 *All of this consider that you already are on the server and you are sudoer*
 
 ## Restart the service
+
 ```
 sudo service ifbcat restart
 ```
