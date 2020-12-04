@@ -86,6 +86,10 @@ class UserProfileManager(BaseUserManager):
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """UserProfile model: a user in the system."""
 
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+
     # firstname, lastname and email are mandatory
     firstname = models.CharField(max_length=255, help_text="First (or given) name of a person (IFB catalogue user).")
     lastname = models.CharField(max_length=255, help_text="Last (or family) name of a person (IFB catalogue user).")
