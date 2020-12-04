@@ -248,6 +248,16 @@ JAZZMIN_SETTINGS = {
     "custom_css": "/css/ifbcat_admin.css",
     # Whether to show the UI customizer on the sidebar
     "show_ui_builder": True,
+    ###############
+    # Change view #
+    ###############
+    # Render out the change view as a single form, or in tabs, current options are
+    # - single
+    # - horizontal_tabs (default)
+    # - vertical_tabs
+    # - collapsible
+    # - carousel
+    "changeform_format": "horizontal_tabs",
 }
 
 ################################################################################
