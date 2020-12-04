@@ -232,7 +232,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
         {"model": "ifbcat_api.Event"},
         {"model": "ifbcat_api.BioinformaticsTeam"},
-        # {"app": "ifbcat_api"},
+        {"app": "ifbcat_api"},
     ],
     #
     #################
