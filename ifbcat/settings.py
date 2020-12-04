@@ -230,6 +230,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         # external url that opens in a new window (Permissions can be added)
         {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
+        {"model": "ifbcat_api.UserProfile"},
         {"model": "ifbcat_api.Event"},
         {"model": "ifbcat_api.BioinformaticsTeam"},
         {"app": "ifbcat_api"},
