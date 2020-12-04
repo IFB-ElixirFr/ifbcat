@@ -203,15 +203,6 @@ JAZZMIN_UI_TWEAKS = {
     "dark_mode_theme": "darkly",
     "actions_sticky_top": True,
 }
-if config('USE_IFB_THEME', False, cast=bool):
-    JAZZMIN_UI_TWEAKS.update(
-        {
-            "brand_colour": "navbar-white navbar-light",
-            "navbar": "navbar-white navbar-light",
-            "sidebar": "sidebar-light-primary",
-            "sidebar_fixed": False,
-        }
-    )
 JAZZMIN_SETTINGS = {
     # title of the window
     "site_title": "IFB Catalogue",
@@ -268,5 +259,19 @@ JAZZMIN_SETTINGS = {
     # - carousel
     "changeform_format": "horizontal_tabs",
 }
+if config('USE_IFB_THEME', False, cast=bool):
+    JAZZMIN_UI_TWEAKS.update(
+        {
+            "brand_colour": "navbar-white navbar-light",
+            "navbar": "navbar-white navbar-light",
+            "sidebar": "sidebar-light-primary",
+            "sidebar_fixed": False,
+        }
+    )
+    JAZZMIN_SETTINGS.update(
+        {
+            "show_ui_builder": False,
+        }
+    )
 
 ################################################################################
