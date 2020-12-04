@@ -49,10 +49,10 @@ body.theme-default{
     margin-left: 0.5em;
 }
 .theme-default .navbar-white.main-header .navbar-nav .nav-item .nav-link{
-    padding-top: 24px;
+    padding-top: 22px;
     padding-bottom: 30px;
 }
-.theme-default .layout-navbar-fixed .wrapper .main-header {
+.theme-default.layout-navbar-fixed .wrapper .main-header {
     z-index: 1039;
 }
 /**/
