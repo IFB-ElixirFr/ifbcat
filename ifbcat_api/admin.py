@@ -1,3 +1,5 @@
+import itertools
+
 from django import forms
 from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -126,8 +128,8 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         'expertise__uri',
     )
     fieldsets = (
-        ('Password', {'fields': ('password',)}),
         ('Personal info', {'fields': ('email', 'firstname', 'lastname', 'orcidid', 'homepage', 'expertise')}),
+        ('Password', {'fields': ('password',)}),
         (
             'Permissions',
             {
@@ -165,17 +167,27 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         )
 
     def get_readonly_fields(self, request, obj=None):
-        readonly_fields = super().get_readonly_fields(request=request, obj=obj)
+        readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
         if not request.user.is_superuser:
-            readonly_fields += (
-                "last_login",
-                "is_superuser",
-                "user_permissions",
-            )
-            if not self.can_manager_user(request=request, obj=obj):
-                readonly_fields += ("groups",)
-            if request.user != obj:
-                readonly_fields += ("password",)
+            readonly_fields |= set(itertools.chain(*[d['fields'] for _, d in self.fieldsets]))
+            if request.user == obj:
+                readonly_fields.discard("email")
+                readonly_fields.discard("password")
+                readonly_fields.discard("firstname")
+                readonly_fields.discard("lastname")
+                readonly_fields.discard("homepage")
+                readonly_fields.discard("orcidid")
+                readonly_fields.discard("expertise")
+            if self.can_manager_user(request=request, obj=obj):
+                readonly_fields.discard("firstname")
+                readonly_fields.discard("lastname")
+                readonly_fields.discard("homepage")
+                readonly_fields.discard("orcidid")
+                readonly_fields.discard("expertise")
+                if not obj.is_superuser:
+                    readonly_fields.discard("groups")
+                    readonly_fields.discard("is_active")
+                    readonly_fields.discard("is_staff")
         return readonly_fields
 
     def get_fieldsets(self, request, obj=None):
