@@ -24,7 +24,7 @@
     color: #278bc7;
 }
 .theme-default .sidebar-light-primary .sidebar .nav-item a.nav-link.active {
-    color: #72b04a !important;
+    color: #61963f !important;
     background-color: #eff4fb !important;
     box-shadow:none !important;
     border-radius:none !important;
@@ -48,12 +48,12 @@
     border-style: solid;
 }
 .theme-default .navbar-white.main-header .nav-item a.nav-link.active {
-    color: #72b04a;
+    color: #61963f;
     background-color: #eff4fb;
     border-width: 0px;
     border-bottom-width: 4px;
     border-style: solid;
-    border-color: #72b04a;
+    border-color: #61963f;
 }
 .theme-default .navbar-white.main-header .navbar-nav{
     margin-left: 0.5em;
@@ -116,11 +116,11 @@
     color: #11346f;
 }
 .theme-default .sidebar-light-primary+.content-wrapper .btn-success {
-    background-color: #72b04a;
-    border-color: #72b04a;
+    background-color: #61963f;
+    border-color: #61963f;
 }
 .theme-default .sidebar-light-primary+.content-wrapper .bg-success {
-    background-color: #72b04a !important;
+    background-color: #61963f !important;
 }
 .theme-default .sidebar-light-primary+.content-wrapper .btn-outline-info {
     color: #278bc7;
