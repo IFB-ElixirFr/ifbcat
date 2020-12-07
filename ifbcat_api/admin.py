@@ -150,11 +150,11 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
             },
         ),
     )
-    filter_horizontal = ("user_permissions",)
-    autocomplete_fields = (
-        "expertise",
+    filter_horizontal = (
+        "user_permissions",
         "groups",
     )
+    autocomplete_fields = ("expertise",)
 
     def can_manager_user(self, request, obj):
         return business_logic.can_edit_user(request.user, obj)
