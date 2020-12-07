@@ -103,10 +103,23 @@
     border-bottom-right-radius: 30px;
     box-shadow: 2px 2px 8px #8dbce1;
 }
+.theme-default .sidebar-light-primary+.content-wrapper .card-body .card-body{
+    padding:1.25rem!important;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card+.card{
+    margin-top: 2em!important;
+}
 .theme-default .sidebar-light-primary+.content-wrapper .card .card{
     border-radius: 0;
     border-bottom-right-radius: 30px;
+    border: 1px solid rgba(0,0,0,.125);
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .tab-pane>.card{
+    border-top: 0px ;
     box-shadow: none;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card *:not(.tab-pane)>.card{
+    border-top: 1px solid #278bc7;
 }
 .theme-default .sidebar-light-primary+.content-wrapper .card-primary.card-outline {
     border-top: 3px solid #278bc7;
