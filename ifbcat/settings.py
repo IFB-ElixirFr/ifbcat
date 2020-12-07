@@ -298,6 +298,9 @@ JAZZMIN_SETTINGS = {
     # - collapsible
     # - carousel
     "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {
+        "ifbcat_api.UserProfile": "single",
+    },
 }
 if config('USE_IFB_THEME', False, cast=bool):
     JAZZMIN_UI_TWEAKS.update(

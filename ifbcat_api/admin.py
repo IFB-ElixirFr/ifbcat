@@ -195,12 +195,17 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         ret = []
         for k, f in fieldsets:
             if request.user.is_superuser or (
-                self.can_manager_user(request=request, obj=obj)
+                (self.can_manager_user(request=request, obj=obj) or request.user == obj)
                 and k != 'Permissions'
                 and (request.user == obj or k != "Password")
             ):
                 ret.append((k, f))
         return ret
+
+    def get_queryset(self, request):
+        if request.user.is_superuser or business_logic.is_user_manager(user=request.user):
+            return super().get_queryset(request)
+        return super().get_queryset(request).filter(pk=request.user.pk)
 
 
 # "search_fields" defines the searchable 'fields'
