@@ -42,6 +42,7 @@ except UndefinedValueError:
 # 3) our ifbcat_api app
 
 INSTALLED_APPS = [
+    'jazzmin_patch',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
