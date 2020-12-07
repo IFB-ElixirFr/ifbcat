@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:100,200,300,400,500,600,700,800,900%7CComfortaa:100,200,300,400,500,600,700,800,900%7CComfortaa:100,200,300,400,500,600,700,800,900&display=swap");
 .brand-image{
     box-shadow:none !important;
 }
@@ -12,6 +13,11 @@
 
 .sidebar {
     /*background-color: #edf4f1;*/
+}
+
+.theme-default .navbar-white.navbar-light .nav-link,
+.theme-default .sidebar-light-primary .nav-link {
+    font-family: 'Comfortaa';
 }
 
 .theme-default .sidebar-light-primary .sidebar .nav-item a.nav-link {
@@ -67,6 +73,7 @@
 .theme-default .sidebar-light-primary .brand-link{
     padding-bottom: 0.2em;
     height:57px;
+    font-family: 'Comfortaa';
 }
 .theme-default .sidebar-light-primary .brand-link .brand-image{
     opacity: 1!important;
@@ -103,6 +110,10 @@
 }
 .theme-default .sidebar-light-primary+.content-wrapper .card-primary.card-outline {
     border-top: 3px solid #278bc7;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card-header{
+    font-family: 'Comfortaa';
+    color: #11346f;
 }
 .theme-default .sidebar-light-primary+.content-wrapper .btn-success {
     background-color: #72b04a;
