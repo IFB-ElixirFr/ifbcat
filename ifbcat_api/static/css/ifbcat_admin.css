@@ -131,4 +131,15 @@
     background-color: #278bc7;
     border-color: #278bc7;
 }
+.sidebar-mini.sidebar-collapse .sidebar-light-primary .nav-sidebar .nav-header {
+    display: initial;
+}
+.sidebar-mini.sidebar-collapse .sidebar-light-primary .nav-sidebar .nav-header::after {
+    content: '';
+    height: 1.5em;
+    width: 20px;
+    background: -webkit-linear-gradient(left,rgba(255,0,0,0) 0,white 100%);
+    position: absolute;
+    left: calc( 100% - 20px );
+}
 /**/
