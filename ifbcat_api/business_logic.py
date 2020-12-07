@@ -63,6 +63,83 @@ def init_business_logic():
             ):
                 no_restriction.permissions.add(p)
 
+    event_related = [
+        models.EventCost,
+        models.EventDate,
+        models.EventPrerequisite,
+        models.EventSponsor,
+        models.Event,
+    ]
+    team_and_more_related = [
+        models.BioinformaticsTeam,
+        models.Certification,
+        models.Team,
+        models.Community,
+        models.ElixirPlatform,
+        models.Organisation,
+        models.Project,
+    ]
+    tool_related = [
+        models.Collection,
+        models.ToolCredit,
+        models.ToolType,
+        models.Tool,
+        models.OperatingSystem,
+        models.TypeRole,
+    ]
+    service_related = [
+        models.Service,
+        models.ComputingFacility,
+        models.ServiceSubmission,
+    ]
+    training_related = [
+        models.AudienceRole,
+        models.AudienceType,
+        models.Trainer,
+        models.TrainingEventMetrics,
+        models.TrainingEvent,
+        models.TrainingMaterial,
+    ]
+    needed_by_all = [
+        models.Doi,
+        models.Field,
+        models.Keyword,
+        models.Topic,
+    ]
+
+    _BASIC_PERMISSION = "Basic permissions for all admin"
+    _do_grants(_BASIC_PERMISSION, needed_by_all, ["view", "add", "change", "delete"])
+    _do_grants(_BASIC_PERMISSION, [models.UserProfile], ["view", "change", "delete"])
+    for some_models in [
+        needed_by_all,
+        training_related,
+        service_related,
+        tool_related,
+        team_and_more_related,
+        event_related,
+    ]:
+        _do_grants(_BASIC_PERMISSION, some_models, ["view"])
+    _do_grants("Training manager", training_related, ["view", "add", "change", "delete"])
+    _do_grants("Service manager", service_related, ["view", "add", "change", "delete"])
+    _do_grants("Tool manager", tool_related, ["view", "add", "change", "delete"])
+    _do_grants(
+        "Community, Organisation, Project, Team manager", team_and_more_related, ["view", "add", "change", "delete"]
+    )
+    _do_grants("Event manager", event_related, ["view", "add", "change", "delete"])
+
+
+def _do_grants(group_name, models_concerned, actions):
+    g, created = Group.objects.get_or_create(name=group_name)
+    for m in models_concerned:
+        content_type = ContentType.objects.get_for_model(m)
+        for action in actions:
+            g.permissions.add(
+                Permission.objects.get(
+                    codename=get_permission_codename(action, m._meta),
+                    content_type=content_type,
+                )
+            )
+
 
 ###############################################################################
 # User manager
