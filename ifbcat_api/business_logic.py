@@ -12,7 +12,12 @@ from ifbcat_api import permissions
 logger = logging.getLogger(__name__)
 
 __USER_MANAGER_GRP_NAME = "User manager"
-
+__EVENT_GRP_NAME = "Event manager"
+__TEAM_AND_MORE_GRP_NAME = "Community, Organisation, Project, Team manager"
+__TOOL_GRP_NAME = "Tool manager"
+__SERVICE_GRP_NAME = "Service manager"
+__TRAINING_GRP_NAME = "Training manager"
+__BASIC_PERMISSION_GRP_NAME = "Basic permissions for all admin"
 __NO_RESTRICTION = "Grant access to all actions for all models of the catalog"
 
 
@@ -107,9 +112,8 @@ def init_business_logic():
         models.Topic,
     ]
 
-    _BASIC_PERMISSION = "Basic permissions for all admin"
-    _do_grants(_BASIC_PERMISSION, needed_by_all, ["view", "add", "change", "delete"])
-    _do_grants(_BASIC_PERMISSION, [models.UserProfile], ["view", "change", "delete"])
+    _do_grants(__BASIC_PERMISSION_GRP_NAME, needed_by_all, ["view", "add", "change", "delete"])
+    _do_grants(__BASIC_PERMISSION_GRP_NAME, [models.UserProfile], ["view", "change", "delete"])
     for some_models in [
         needed_by_all,
         training_related,
@@ -118,14 +122,12 @@ def init_business_logic():
         team_and_more_related,
         event_related,
     ]:
-        _do_grants(_BASIC_PERMISSION, some_models, ["view"])
-    _do_grants("Training manager", training_related, ["view", "add", "change", "delete"])
-    _do_grants("Service manager", service_related, ["view", "add", "change", "delete"])
-    _do_grants("Tool manager", tool_related, ["view", "add", "change", "delete"])
-    _do_grants(
-        "Community, Organisation, Project, Team manager", team_and_more_related, ["view", "add", "change", "delete"]
-    )
-    _do_grants("Event manager", event_related, ["view", "add", "change", "delete"])
+        _do_grants(__BASIC_PERMISSION_GRP_NAME, some_models, ["view"])
+    _do_grants(__TRAINING_GRP_NAME, training_related, ["view", "add", "change", "delete"])
+    _do_grants(__SERVICE_GRP_NAME, service_related, ["view", "add", "change", "delete"])
+    _do_grants(__TOOL_GRP_NAME, tool_related, ["view", "add", "change", "delete"])
+    _do_grants(__TEAM_AND_MORE_GRP_NAME, team_and_more_related, ["view", "add", "change", "delete"])
+    _do_grants(__EVENT_GRP_NAME, event_related, ["view", "add", "change", "delete"])
 
 
 def _do_grants(group_name, models_concerned, actions):
@@ -206,3 +208,19 @@ def get_permission_classes(model):
             __missing_permission_classes.add(name)
             logger.info(f'No permission set in class for "{name}", ' f'using by default {__default_perm.__name__}')
         return (__default_perm,)
+
+
+###############################################################################
+# Permission classes
+###############################################################################
+def get_not_to_be_deleted_group_names():
+    return (
+        __USER_MANAGER_GRP_NAME,
+        __EVENT_GRP_NAME,
+        __TEAM_AND_MORE_GRP_NAME,
+        __TOOL_GRP_NAME,
+        __SERVICE_GRP_NAME,
+        __TRAINING_GRP_NAME,
+        __BASIC_PERMISSION_GRP_NAME,
+        __NO_RESTRICTION,
+    )

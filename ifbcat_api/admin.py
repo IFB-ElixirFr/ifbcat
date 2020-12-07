@@ -768,14 +768,9 @@ class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
     actions = [
         'init_specific_groups',
     ]
-    specific_groups = (
-        business_logic.get_user_manager_group_name(),
-        business_logic.get_no_restriction_on_catalog_models_name(),
-    )
 
     def init_specific_groups(self, request, queryset):
-        if queryset.filter(name__in=self.specific_groups).exists():
-            business_logic.init_business_logic()
+        business_logic.init_business_logic()
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(Count('permissions', distinct=True), Count('user', distinct=True))
@@ -792,11 +787,11 @@ class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return super().has_delete_permission(request=request, obj=obj) and (
-            obj is None or obj.name not in self.specific_groups
+            obj is None or obj.name not in business_logic.get_not_to_be_deleted_group_names()
         )
 
     def get_readonly_fields(self, request, obj=None):
-        if obj is None or obj.name not in self.specific_groups:
+        if obj is None or obj.name not in business_logic.get_not_to_be_deleted_group_names():
             return super().get_readonly_fields(request)
         return (
             "name",
