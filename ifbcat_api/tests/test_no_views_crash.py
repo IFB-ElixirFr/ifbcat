@@ -76,6 +76,18 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 status_code,
                 f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}',
             )
+            url_list += "?search=tralala"
+            msg = f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}'
+            try:
+                response = self.client.get(url_list)
+            except FieldError as e:
+                self.assertTrue(False, msg + str(e))
+            status_code = self.status_code_not_200.get(url_instance.name, 200)
+            self.assertEqual(
+                response.status_code,
+                status_code,
+                msg,
+            )
             cpt += 1
         self.assertGreater(cpt, 0)
 

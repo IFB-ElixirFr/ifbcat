@@ -225,14 +225,14 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'venue',
         'city',
         'country',
-        'costs_cost',
+        'costs__cost',
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
         'accessibility',
         'accessibilityNote',
         'contactName',
-        'contactId__name',
+        'contactId__email',
         'contactEmail',
         'market',
         'elixirPlatforms__name',
@@ -308,7 +308,9 @@ class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields = (
         'trainerName',
         'trainerEmail',
-        'trainerId__name',
+        'trainerId__email',
+        'trainerId__firstname',
+        'trainerId__lastname',
     )
 
 
@@ -475,7 +477,7 @@ class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'fundedBy__name',
         'communities__name',
         'elixirPlatforms__name',
-        'uses_name',
+        'uses__name',
     )
 
 
@@ -620,10 +622,10 @@ class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelView
 
     search_fields = (
         'service__name',
-        'authors_firstname',
-        'authors_lastname',
-        'submitters_firstname',
-        'submitters_lastname',
+        'authors__firstname',
+        'authors__lastname',
+        'submitters__firstname',
+        'submitters__lastname',
         'year',
         'motivation',
         'scope',
