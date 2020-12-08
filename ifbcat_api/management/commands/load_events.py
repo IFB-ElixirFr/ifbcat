@@ -2,6 +2,7 @@ import csv
 import datetime
 import logging
 import os
+import pandas as pd
 
 import pytz
 from django.core.management import BaseCommand
@@ -12,16 +13,31 @@ from tqdm import tqdm
 
 from ifbcat_api.model.event import *
 from ifbcat_api.model.organisation import Organisation
+from ifbcat_api.model.team import Team
+from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        parser.add_argument("file", type=str, help="Path to the CSV source file")
+        parser.add_argument(
+            "--events",
+            default="import_data/events.csv",
+            type=str,
+            help="Path to the CSV source file",
+        )
+        parser.add_argument(
+            "--mapping-organisations",
+            default="import_data/manual_curation/mapping_organisations.csv",
+            type=str,
+            help="Path to the CSV file containing mapping between Drupal names and Ifbcat ones.",
+        )
 
     def handle(self, *args, **options):
-        with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
+        mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
+
+        with open(os.path.join(options["events"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
             # skip first line as there is always a header
             next(data)
@@ -89,12 +105,28 @@ class Command(BaseCommand):
 
                     for organizer in event_organizer.split(','):
                         organizer = organizer.strip()
-
                         if organizer == '':
                             logger.debug(f'No organizer for {event_name}')
                         elif Organisation.objects.filter(name=organizer).exists():
                             organisation = Organisation.objects.get(name=organizer)
                             event.organisedByOrganisations.add(organisation)
+                        elif organizer in mapping_organisations['drupal_name'].tolist():
+                            organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == organizer]
+                            if not organizer_row['orgid'].isna().iloc[0]:
+                                print(organizer_row['orgid'])
+                                organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
+                            elif not organizer_row['ifbcat_name'].isna().iloc[0]:
+                                print(organizer_row['orgid'])
+                                organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                                # TODO Need to load organisations without gridid first.
+                            event.organisedByOrganisations.add(organisation)
+
+                        elif BioinformaticsTeam.objects.filter(name=organizer).exists():
+                            team = BioinformaticsTeam.objects.get(name=organizer)
+                            event.organisedByBioinformaticsTeams.add(team)
+                        elif Team.objects.filter(name=organizer).exists():
+                            team = Team.objects.get(name=organizer)
+                            event.organisedByTeams.add(team)
                         else:
                             logger.error(f'{organizer} is not an organisation in the DB.')
 
