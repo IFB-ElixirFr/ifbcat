@@ -43,12 +43,15 @@ class PubliclyReadableEditableBySomething(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # Check that the user owns the object, i.e. the user_profile associated
-        # with the object is assigned to the user making the request.
-        # (returns True if the object being updated etc. has a user profile id that matches the request)
+        # check if __ is in the target, if so we use the queryset to filter and check if the object is still accessible
+        if '__' in self.target:
+            return obj._meta.model.objects.filter(**{self.target: request.user, "id": obj.id}).exists()
+        # we get the target attribute
         target_attr = getattr(obj, self.target)
+        # if it is a ManyToMany we test if the user on of them
         if isinstance(obj._meta.get_field(self.target), ManyToManyField):
             return target_attr.filter(id=request.user.id).exists()
+        # otherwise we test is the user is the target
         return target_attr is not None and target_attr.id == request.user.id
 
 
@@ -95,6 +98,30 @@ class PubliclyReadableEditableByAuthors(PubliclyReadableEditableBySomething):
 
 class PubliclyReadableEditableBySubmitters(PubliclyReadableEditableBySomething):
     target = 'submitters'
+
+
+class PubliclyReadableEditableByTeamLeader(PubliclyReadableEditableBySomething):
+    target = 'team__leader'
+
+
+class PubliclyReadableEditableByTeamsLeader(PubliclyReadableEditableBySomething):
+    target = 'organisedByTeams__leader'
+
+
+class PubliclyReadableEditableByBioinformaticsTeamsLeader(PubliclyReadableEditableBySomething):
+    target = 'organisedByBioinformaticsTeams__leader'
+
+
+class PubliclyReadableEditableByTeamsDeputies(PubliclyReadableEditableBySomething):
+    target = 'organisedByTeams__deputies'
+
+
+class PubliclyReadableEditableByBioinformaticsTeamsDeputies(PubliclyReadableEditableBySomething):
+    target = 'organisedByBioinformaticsTeams__deputies'
+
+
+class PubliclyReadableEditableByOrganisationsLeader(PubliclyReadableEditableBySomething):
+    target = 'organisedByOrganisations__user_profile'
 
 
 class simple_override_method:

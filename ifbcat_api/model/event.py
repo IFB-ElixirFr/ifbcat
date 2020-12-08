@@ -231,7 +231,14 @@ class Event(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByContact,
+            permissions.PubliclyReadableEditableByOwner
+            # | permissions.PubliclyReadableByUsersEditableBySuperuser
+            | permissions.PubliclyReadableEditableByContact
+            | permissions.PubliclyReadableEditableByTeamsLeader
+            | permissions.PubliclyReadableEditableByTeamsDeputies
+            | permissions.PubliclyReadableEditableByBioinformaticsTeamsLeader
+            | permissions.PubliclyReadableEditableByBioinformaticsTeamsDeputies
+            | permissions.PubliclyReadableEditableByOrganisationsLeader,
             IsAuthenticatedOrReadOnly,
         )
 
