@@ -234,8 +234,12 @@ class Event(models.Model):
     def get_permission_classes(cls):
         return (
             functools.reduce(lambda a, b: a | b, cls.get_edition_permission_classes()),
-            IsAuthenticatedOrReadOnly,
+            functools.reduce(lambda a, b: a | b, cls.get_default_permission_classes()),
         )
+
+    @classmethod
+    def get_default_permission_classes(cls):
+        return (IsAuthenticatedOrReadOnly,)
 
     @classmethod
     def get_edition_permission_classes(cls):
