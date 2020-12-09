@@ -110,6 +110,7 @@ def init_business_logic():
         models.Field,
         models.Keyword,
         models.Topic,
+        Token,
     ]
 
     _do_grants(__BASIC_PERMISSION_GRP_NAME, needed_by_all, ["view", "add", "change", "delete"])
