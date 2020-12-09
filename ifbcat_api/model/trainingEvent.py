@@ -115,13 +115,16 @@ class TrainingEvent(Event):
     # tools
 
     @classmethod
-    def get_permission_classes(cls):
-        return (
-            permissions.PubliclyReadableEditableByTrainers
-            | permissions.PubliclyReadableEditableByContact
-            | permissions.PubliclyReadableEditableByOwner,
-            IsAuthenticated,
+    def get_edition_permission_classes(cls):
+        return super().get_edition_permission_classes() + (
+            permissions.PubliclyReadableEditableByTrainers,
+            permissions.PubliclyReadableEditableByContact,
+            permissions.PubliclyReadableEditableByOwner,
         )
+
+    @classmethod
+    def get_default_permission_classes(cls):
+        return (IsAuthenticated,)
 
 
 class TrainingEventMetrics(models.Model):
