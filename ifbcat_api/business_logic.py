@@ -52,6 +52,9 @@ def __get_no_restriction_on_catalog_models_group():
 
 
 def init_business_logic():
+    for group_name in get_not_to_be_deleted_group_names():
+        g, created = Group.objects.get_or_create(name=group_name)
+        g.permissions.clear()
     user_manager_group = __get_user_manager_group()
     __init_user_manager_group(user_manager_group)
     no_restriction = __get_no_restriction_on_catalog_models_group()
