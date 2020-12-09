@@ -37,7 +37,7 @@ class Trainer(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)
 
 
 class TrainingEvent(Event):
@@ -117,9 +117,9 @@ class TrainingEvent(Event):
     @classmethod
     def get_edition_permission_classes(cls):
         return super().get_edition_permission_classes() + (
-            permissions.PubliclyReadableEditableByTrainers,
-            permissions.PubliclyReadableEditableByContact,
-            permissions.PubliclyReadableEditableByOwner,
+            permissions.ReadWriteByTrainers,
+            permissions.ReadWriteByContact,
+            permissions.ReadWriteByOwner,
         )
 
     @classmethod
@@ -158,4 +158,5 @@ class TrainingEventMetrics(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+        # TODO let trainer and/or bio team edit it ?
+        return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)

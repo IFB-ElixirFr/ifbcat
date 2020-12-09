@@ -86,8 +86,9 @@ class TrainingMaterial(Resource):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner
-            | permissions.PubliclyReadableEditableByProvidedByBioinformaticsTeamsLeader
-            | permissions.PubliclyReadableEditableByProvidedByBioinformaticsTeamsDeputies,
+            permissions.ReadOnly
+            | permissions.ReadWriteByOwner
+            | permissions.ReadWriteByProvidedByLeader
+            | permissions.ReadWriteByProvidedByDeputies,
             IsAuthenticatedOrReadOnly,
         )

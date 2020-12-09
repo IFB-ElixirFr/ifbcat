@@ -51,4 +51,7 @@ class Organisation(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+        return (
+            permissions.ReadOnly | permissions.ReadWriteByOwner | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )

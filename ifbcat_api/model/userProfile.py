@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic
@@ -144,4 +145,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # permission_classes set how user has gets permission to do certain things.
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.UpdateOwnProfile,)
+        return (
+            permissions.ReadOnly | permissions.UpdateOwnProfile,
+            IsAuthenticatedOrReadOnly,
+        )

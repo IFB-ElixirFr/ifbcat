@@ -754,6 +754,10 @@ class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
     form = GroupAdminForm
     # Filter permissions horizontal as well.
     filter_horizontal = ['permissions']
+    search_fields = (
+        'user__email',
+        'permissions__codename',
+    )
 
     list_display = (
         'name',

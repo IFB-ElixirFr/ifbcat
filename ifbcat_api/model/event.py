@@ -34,7 +34,7 @@ class EventPrerequisite(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly, IsAuthenticatedOrReadOnly)
 
 
 # Event cost model
@@ -55,7 +55,7 @@ class EventCost(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
 
 
 # Event sponsor model
@@ -83,7 +83,7 @@ class EventSponsor(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)
 
 
 class Event(models.Model):
@@ -244,14 +244,14 @@ class Event(models.Model):
     @classmethod
     def get_edition_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner,
-            #  permissions.PubliclyReadableByUsersEditableBySuperuser,
-            permissions.PubliclyReadableEditableByContact,
-            permissions.PubliclyReadableEditableByTeamsLeader,
-            permissions.PubliclyReadableEditableByTeamsDeputies,
-            permissions.PubliclyReadableEditableByBioinformaticsTeamsLeader,
-            permissions.PubliclyReadableEditableByBioinformaticsTeamsDeputies,
-            permissions.PubliclyReadableEditableByOrganisationsLeader,
+            permissions.ReadOnly,
+            permissions.ReadWriteByOwner,
+            permissions.ReadWriteByContact,
+            permissions.ReadWriteByOrgByTeamsLeader,
+            permissions.ReadWriteByOrgByTeamsDeputies,
+            permissions.ReadWriteByOrgByBioinformaticsTeamsLeader,
+            permissions.ReadWriteByOrgByBioinformaticsTeamsDeputies,
+            permissions.ReadWriteByOrgByOrganisationsLeader,
         )
 
 

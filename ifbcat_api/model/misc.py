@@ -60,7 +60,7 @@ class Topic(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableByUsers | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -133,7 +133,7 @@ class Keyword(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly, IsAuthenticatedOrReadOnly)
 
 
 class AudienceType(models.Model):
@@ -156,7 +156,7 @@ class AudienceType(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
 
 
 class AudienceRole(models.Model):
@@ -179,7 +179,10 @@ class AudienceRole(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 class DifficultyLevelType(models.TextChoices):
@@ -205,6 +208,13 @@ class Field(models.Model):
         """Return the Field model as a string."""
         return self.field
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
+
 
 class Doi(models.Model):
     """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
@@ -224,7 +234,10 @@ class Doi(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            IsAuthenticatedOrReadOnly,
+        )
 
     @classmethod
     def get_doi_from_pmid(cls, pmid):

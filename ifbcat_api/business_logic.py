@@ -192,18 +192,14 @@ def set_no_restriction_on_catalog_models(user, status: bool):
 # Permission classes
 ###############################################################################
 __missing_permission_classes = set()
-__default_perm = permissions.PubliclyReadableByUsers
+__default_perm = permissions.ReadOnly
 
 
 def get_permission_classes(model):
     if model == Group:
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
     if model == Token:
-        return (
-            permissions.PubliclyReadableEditableByUser
-            | permissions.PubliclyReadableEditableByUserManager
-            | permissions.UserCanAddNew,
-        )
+        return (permissions.ReadWriteByUser | permissions.ReadWriteByUserManager | permissions.UserCanAddNew,)
     try:
         return model.get_permission_classes()
     except AttributeError:

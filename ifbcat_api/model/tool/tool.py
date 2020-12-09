@@ -120,7 +120,7 @@ class Tool(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableByUsers | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
 
