@@ -22,7 +22,7 @@ class UpdateOwnProfile(permissions.BasePermission):
 
 
 # Custom permissions class for updating object
-class PubliclyReadableEditableBySomething(permissions.BasePermission):
+class ReadWriteBySomething(permissions.BasePermission):
     class Meta:
         abstract = True
 
