@@ -112,12 +112,12 @@ class PubliclyReadableEditableByTeamsLeader(PubliclyReadableEditableBySomething)
     target = 'organisedByTeams__leader'
 
 
-class PubliclyReadableEditableByBioinformaticsTeamsLeader(PubliclyReadableEditableBySomething):
-    target = 'organisedByBioinformaticsTeams__leader'
-
-
 class PubliclyReadableEditableByTeamsDeputies(PubliclyReadableEditableBySomething):
     target = 'organisedByTeams__deputies'
+
+
+class PubliclyReadableEditableByBioinformaticsTeamsLeader(PubliclyReadableEditableBySomething):
+    target = 'organisedByBioinformaticsTeams__leader'
 
 
 class PubliclyReadableEditableByBioinformaticsTeamsDeputies(PubliclyReadableEditableBySomething):
@@ -126,6 +126,14 @@ class PubliclyReadableEditableByBioinformaticsTeamsDeputies(PubliclyReadableEdit
 
 class PubliclyReadableEditableByOrganisationsLeader(PubliclyReadableEditableBySomething):
     target = 'organisedByOrganisations__user_profile'
+
+
+class PubliclyReadableEditableByProvidedByBioinformaticsTeamsLeader(PubliclyReadableEditableBySomething):
+    target = 'providedBy__leader'
+
+
+class PubliclyReadableEditableByProvidedByBioinformaticsTeamsDeputies(PubliclyReadableEditableBySomething):
+    target = 'providedBy__deputies'
 
 
 class simple_override_method:
