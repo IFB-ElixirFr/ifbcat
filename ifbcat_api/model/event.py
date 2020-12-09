@@ -1,4 +1,6 @@
 # Imports
+import functools
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -231,15 +233,21 @@ class Event(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner
-            # | permissions.PubliclyReadableByUsersEditableBySuperuser
-            | permissions.PubliclyReadableEditableByContact
-            | permissions.PubliclyReadableEditableByTeamsLeader
-            | permissions.PubliclyReadableEditableByTeamsDeputies
-            | permissions.PubliclyReadableEditableByBioinformaticsTeamsLeader
-            | permissions.PubliclyReadableEditableByBioinformaticsTeamsDeputies
-            | permissions.PubliclyReadableEditableByOrganisationsLeader,
+            functools.reduce(lambda a, b: a | b, cls.get_edition_permission_classes()),
             IsAuthenticatedOrReadOnly,
+        )
+
+    @classmethod
+    def get_edition_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByOwner,
+            #  permissions.PubliclyReadableByUsersEditableBySuperuser,
+            permissions.PubliclyReadableEditableByContact,
+            permissions.PubliclyReadableEditableByTeamsLeader,
+            permissions.PubliclyReadableEditableByTeamsDeputies,
+            permissions.PubliclyReadableEditableByBioinformaticsTeamsLeader,
+            permissions.PubliclyReadableEditableByBioinformaticsTeamsDeputies,
+            permissions.PubliclyReadableEditableByOrganisationsLeader,
         )
 
 

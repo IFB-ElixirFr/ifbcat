@@ -1,4 +1,6 @@
 # Imports
+import functools
+
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -152,6 +154,13 @@ class Team(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
+            functools.reduce(lambda a, b: a | b, cls.get_edition_permission_classes()),
             IsAuthenticatedOrReadOnly,
+        )
+
+    @classmethod
+    def get_edition_permission_classes(cls):
+        return (
+            permissions.PubliclyReadableEditableByOwner,
+            permissions.PubliclyReadableEditableByMembers,
         )
