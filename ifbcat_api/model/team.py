@@ -162,5 +162,6 @@ class Team(models.Model):
     def get_edition_permission_classes(cls):
         return (
             permissions.PubliclyReadableEditableByOwner,
-            permissions.PubliclyReadableEditableByMembers,
+            permissions.PubliclyReadableEditableByLeader,
+            permissions.PubliclyReadableEditableByDeputies,
         )

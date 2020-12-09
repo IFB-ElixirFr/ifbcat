@@ -84,8 +84,12 @@ class PubliclyReadableEditableByTrainers(PubliclyReadableEditableBySomething):
     target = 'trainers'
 
 
-class PubliclyReadableEditableByMembers(PubliclyReadableEditableBySomething):
-    target = 'members'
+class PubliclyReadableEditableByLeader(PubliclyReadableEditableBySomething):
+    target = 'leader'
+
+
+class PubliclyReadableEditableByDeputies(PubliclyReadableEditableBySomething):
+    target = 'deputies'
 
 
 class PubliclyReadableEditableByContact(PubliclyReadableEditableBySomething):
