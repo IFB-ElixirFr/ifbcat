@@ -133,7 +133,7 @@ class Keyword(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
 
 
 class AudienceType(models.Model):
