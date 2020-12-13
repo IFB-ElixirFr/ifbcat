@@ -148,3 +148,7 @@ import_data
 
 # Virtual Studio Code settings
 .vscode
+
+# Grid (downloaded by load_organisations_from_grid.py)
+grid*/
+grid*.zip

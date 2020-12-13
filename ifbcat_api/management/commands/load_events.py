@@ -31,11 +31,18 @@ class Command(BaseCommand):
             "--mapping-organisations",
             default="import_data/manual_curation/mapping_organisations.csv",
             type=str,
-            help="Path to the CSV file containing mapping between Drupal names and Ifbcat ones.",
+            help="Path to the CSV file containing mapping for organisations between Drupal names and Ifbcat ones.",
+        )
+        parser.add_argument(
+            "--mapping-teams",
+            default="import_data/manual_curation/mapping_teams.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for teams between Drupal names and Ifbcat ones.",
         )
 
     def handle(self, *args, **options):
         mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
+        mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
 
         with open(os.path.join(options["events"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
@@ -118,15 +125,20 @@ class Command(BaseCommand):
                             elif not organizer_row['ifbcat_name'].isna().iloc[0]:
                                 print(organizer_row['orgid'])
                                 organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
-                                # TODO Need to load organisations without gridid first.
                             event.organisedByOrganisations.add(organisation)
 
-                        elif BioinformaticsTeam.objects.filter(name=organizer).exists():
-                            team = BioinformaticsTeam.objects.get(name=organizer)
-                            event.organisedByBioinformaticsTeams.add(team)
+                        # elif BioinformaticsTeam.objects.filter(name=organizer).exists():
+                        #    team = BioinformaticsTeam.objects.get(name=organizer)
+                        #    event.organisedByBioinformaticsTeams.add(team)
+
                         elif Team.objects.filter(name=organizer).exists():
                             team = Team.objects.get(name=organizer)
                             event.organisedByTeams.add(team)
+                        elif organizer in mapping_teams['drupal_name'].tolist():
+                            organizer_row = mapping_teams[mapping_teams['drupal_name'] == organizer]
+                            team = Team.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                            event.organisedByTeams.add(team)
+
                         else:
                             logger.error(f'{organizer} is not an organisation in the DB.')
 
