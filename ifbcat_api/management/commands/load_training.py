@@ -26,10 +26,13 @@ class Command(BaseCommand):
                 formation_name = data_object[0]
                 formation_type = data_object[2]
                 formation_description = data_object[4]
-                formation_keywords = data_object[5].split("\n")
+                formation_keywords = data_object[5].split(",")
                 formation_keywords_list = []
                 formation_keyword = ""
                 for keyword in formation_keywords:
+                    keyword = keyword.strip()
+                    if keyword == 'Aucun des termes ci-dessus ne convient':
+                        continue
                     if len(keyword) > 2:
 
                         try:
@@ -39,7 +42,7 @@ class Command(BaseCommand):
                             )
                             formation_keyword.save()
                             formation_keywords_list.append(formation_keyword)
-                            display_format = "\nKeyword, {}, has been saved."
+                            display_format = '\nKeyword "{}" has been saved.'
                             print(display_format.format(formation_keyword))
                         except Exception as ex:
                             print(str(ex))
@@ -128,6 +131,8 @@ class Command(BaseCommand):
                         # satisfaction_rate=formation_satisfaction_rate,
                         # platform = formation_platform,
                     )
+
+                    print(formation_organizer)
 
                     if created:
                         # formation.full_clean()
