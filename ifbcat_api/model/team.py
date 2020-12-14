@@ -24,6 +24,18 @@ class Team(models.Model):
 
         CERTIFICATE1 = 'Certificate 1', _('Certificate 1')
 
+    # name, description, homepage, members & maintainers are mandatory
+    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Name of the team.",
+        validators=[
+            validate_can_be_looked_up,
+        ],
+    )
+    description = models.TextField(help_text="Description of the team.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
     logo_url = models.URLField(max_length=512, help_text="URL of logo of the team.", blank=True, null=True)
     fields = models.ManyToManyField(
         Field,
@@ -37,18 +49,6 @@ class Team(models.Model):
         related_name='teamsKeywords',
         help_text="A keyword (beyond EDAM ontology scope) describing the team.",
     )
-    # name, description, homepage, members & maintainers are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        help_text="Name of the team.",
-        validators=[
-            validate_can_be_looked_up,
-        ],
-    )
-    description = models.TextField(help_text="Description of the team.")
-    homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
     expertise = models.ManyToManyField(
         Topic,
         related_name='teamsExpertise',
