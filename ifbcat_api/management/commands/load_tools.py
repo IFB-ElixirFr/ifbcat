@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 tool_description = data_object[5]
                 tool_link = data_object[8]
                 tool_keywords_bis = data_object[9]
-                tool_keywords = tool_keywords_bis.split(",")
+                tool_keywords = tool_keywords_bis.split("\n")
                 tool_keywords_list = []
                 tool_keyword = ""
                 for keyword in tool_keywords:

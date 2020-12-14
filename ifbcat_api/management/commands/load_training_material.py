@@ -30,7 +30,7 @@ class Command(BaseCommand):
                         training_material_name = data_object[0]
                         training_material_description = data_object[1]
                         training_material_file_name = data_object[2]
-                        training_material_keywords = data_object[3].split(",")
+                        training_material_keywords = data_object[3].split("\n")
                         training_material_keywords_list = []
                         training_material_keyword = ""
                         for keyword in training_material_keywords:
