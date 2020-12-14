@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
-            "--trainings",
+            "--training",
             default="import_data/training.csv",
             type=str,
             help="Path to the CSV source file",
@@ -41,7 +41,7 @@ class Command(BaseCommand):
         mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
 
-        with open(os.path.join(options["trainings"]), encoding='utf-8') as data_file:
+        with open(os.path.join(options["training"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
             # skip first line as there is always a header
             next(data)
@@ -158,7 +158,6 @@ class Command(BaseCommand):
                         # platform = training_platform,
                     )
 
-                    print(training_organizer)
                     for organizer in training_organizer.split(','):
                         organizer = organizer.strip()
                         if organizer == '':
@@ -169,10 +168,8 @@ class Command(BaseCommand):
                         elif organizer in mapping_organisations['drupal_name'].tolist():
                             organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == organizer]
                             if not organizer_row['orgid'].isna().iloc[0]:
-                                print(organizer_row['orgid'])
                                 organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
                             elif not organizer_row['ifbcat_name'].isna().iloc[0]:
-                                print(organizer_row['orgid'])
                                 organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
                             training.organisedByOrganisations.add(organisation)
 
@@ -195,8 +192,7 @@ class Command(BaseCommand):
                         # training.full_clean()
                         training.save()
 
-                        display_format = "\ntraining, {}, has been saved."
-                        print(display_format.format(training))
+                        display_format = '\nTraining "{}" has been saved.'
                         for keyword in training_keywords_list:
                             training.keywords.add(keyword)
 
