@@ -169,4 +169,5 @@ class Team(models.Model):
             permissions.ReadWriteByOwner,
             permissions.ReadWriteByLeader,
             permissions.ReadWriteByDeputies,
+            permissions.ReadWriteByMaintainers,
         )

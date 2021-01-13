@@ -82,6 +82,10 @@ class ReadWriteByDeputies(ReadWriteBySomething):
     target = 'deputies'
 
 
+class ReadWriteByMaintainers(ReadWriteBySomething):
+    target = 'maintainers'
+
+
 class ReadWriteByContact(ReadWriteBySomething):
     target = 'contactId'
 
