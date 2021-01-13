@@ -4,3 +4,4 @@ services:
   web:
     volumes:
       - .:/code # for dev purpose only !!!
+      - ./import_data:/code/import_data # for dev purpose only !!!
