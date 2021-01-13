@@ -71,16 +71,19 @@ class Team(models.Model):
         UserProfile,
         related_name='teamsDeputies',
         help_text="Deputy leader(s) of the team.",
+        null=True,
     )
     scientificLeaders = models.ManyToManyField(
         UserProfile,
         related_name='teamsScientificLeaders',
         help_text="Scientific leader(s) of the team.",
+        null=True,
     )
     technicalLeaders = models.ManyToManyField(
         UserProfile,
         related_name='teamsTechnicalLeaders',
         help_text="Technical leader(s) of the team.",
+        null=True,
     )
     members = models.ManyToManyField(
         UserProfile,
@@ -91,6 +94,7 @@ class Team(models.Model):
         UserProfile,
         related_name='teamsMaintainers',
         help_text="Maintainer(s) of the team metadata in IFB catalogue.",
+        null=True,
     )
     unitId = models.CharField(
         max_length=255,
