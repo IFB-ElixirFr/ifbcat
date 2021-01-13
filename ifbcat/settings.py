@@ -303,7 +303,7 @@ JAZZMIN_SETTINGS = {
         "ifbcat_api.UserProfile": "single",
     },
 }
-if config('USE_IFB_THEME', False, cast=bool):
+if config('USE_IFB_THEME', True, cast=bool):
     JAZZMIN_UI_TWEAKS.update(
         {
             "brand_colour": "navbar-white navbar-light",
