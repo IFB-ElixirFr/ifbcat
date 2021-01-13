@@ -184,7 +184,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
                 readonly_fields.discard("homepage")
                 readonly_fields.discard("orcidid")
                 readonly_fields.discard("expertise")
-                if not obj.is_superuser:
+                if obj is not None and not obj.is_superuser:
                     readonly_fields.discard("groups")
                     readonly_fields.discard("is_active")
                     readonly_fields.discard("is_staff")
