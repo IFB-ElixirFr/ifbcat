@@ -601,6 +601,7 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.Service.objects.all()
     lookup_field = 'name'
 
+    filter_backends = (filters.SearchFilter,)
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (
         'name',
@@ -620,6 +621,7 @@ class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelView
     serializer_class = serializers.ServiceSubmissionSerializer
     queryset = models.ServiceSubmission.objects.all()
 
+    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'service__name',
         'authors__firstname',
@@ -645,6 +647,7 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
     queryset = models.Tool.objects.all()
     lookup_fields = ['pk', 'biotoolsID__iexact']
 
+    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'name',
         'description',
