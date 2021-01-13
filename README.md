@@ -39,13 +39,18 @@ cp resources/default.ini local.ini
 docker-compose run db
 ```
 
-3. Retrieve data and run tests:
+3. Retrieve import data (ask access to private repository if needed):
+```
+git clone git@github.com:IFB-ElixirFr/ifbcat-importdata.git import_data
+```
+
+4. Run tests:
 ```
 python manage.py test
 ```
-Note this step requires read access to ifbcat-importdata. Currently, you should expect to see some "ERROR" but tests should be "OK" in the end of the log. 
+Currently, you should expect to see some "ERROR" but tests should be "OK" in the end of the log. 
 
-4. Do migrations, superuser creation, some imports and start the test server
+5. Do migrations, superuser creation, some imports and start the test server:
 ```
 python manage.py migrate
 python manage.py createsuperuser
@@ -53,7 +58,7 @@ python manage.py load_catalog
 python manage.py runserver
 ```
 
-5. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working
+6. You can do more imports using commands available in `ifbcat_api/management/commands`. Some are not currently working
    properly but at least these ones below should.
 
 ```
