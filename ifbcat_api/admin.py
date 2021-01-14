@@ -7,9 +7,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
-from django.db.models import Count, Q, When, Value, BooleanField, Case
+from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
 from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
+from django.utils import dateformat
 from django.utils.html import format_html
 from django.utils.translation import ugettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
@@ -237,7 +238,7 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
-    list_display = ('short_name_or_name', 'contactName')
+    list_display = ('short_name_or_name_trim', 'date_range')
     list_filter = (
         'type',
         'costs',
@@ -260,16 +261,44 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'sponsoredBy',
     )
 
-    # date_hierarchy = 'dates'
+    date_hierarchy = 'dates__dateStart'
 
-    def short_name_or_name(self, obj):
-        if obj.shortName is None or obj.shortName == "":
-            if len(obj.name) <= 35:
-                return obj.name
-            return "%.32s..." % obj.name
-        return obj.shortName
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                short_name_or_name=Case(
+                    When(shortName='', then=F('name')),
+                    When(shortName__isnull=True, then=F('name')),
+                    default='shortName',
+                    output_field=CharField(),
+                )
+            )
+        )
 
-    short_name_or_name.short_description = "Name"
+    def short_name_or_name_trim(self, obj):
+        if len(obj.short_name_or_name) <= 35:
+            return obj.short_name_or_name
+        return "%.32s..." % obj.short_name_or_name
+
+    short_name_or_name_trim.short_description = "Name"
+    short_name_or_name_trim.admin_order_field = 'short_name_or_name'
+
+    def date_range(self, obj):
+        start, end = (
+            type(obj)
+            .objects.filter(pk=obj.pk)
+            .annotate(min=Min('dates__dateStart'), max=Max('dates__dateEnd'))
+            .values_list('min', 'max')
+            .get()
+        )
+        if end is None:
+            return dateformat.format(start, "Y-m-d")
+        return f'{dateformat.format(start, "Y-m-d")} - {dateformat.format(end, "Y-m-d")}'
+
+    date_range.short_description = "Period"
+    date_range.admin_order_field = 'dates__dateStart'
 
 
 @admin.register(models.TrainingEvent)
