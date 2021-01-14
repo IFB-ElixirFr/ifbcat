@@ -4,11 +4,11 @@ from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
-from ifbcat_api.model.misc import Field
-from ifbcat_api.validators import validate_grid_or_ror_id, validate_can_be_looked_up
+from ifbcat_api.model.misc import Field, WithGridIdOrRORId
+from ifbcat_api.validators import validate_can_be_looked_up
 
 
-class Organisation(models.Model):
+class Organisation(WithGridIdOrRORId, models.Model):
     """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
 
     # name, description & homepage are mandatory
@@ -23,19 +23,6 @@ class Organisation(models.Model):
     )
     description = models.TextField(help_text="Short description of the organisation.")
     homepage = models.URLField(max_length=255, help_text="Homepage of the organisation.")
-
-    # orgid is not mandatory, but if specified must be unique, so we cannot have blank=True.
-    # Two NULL values do not equate to being the same, whereas two blank values would!
-    orgid = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        unique=True,
-        help_text="Organisation ID (GRID or ROR ID) of the organisation.",
-        validators=[
-            validate_grid_or_ror_id,
-        ],
-    )
     fields = models.ManyToManyField(
         Field,
         blank=True,

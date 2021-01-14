@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
+from ifbcat_api.validators import validate_grid_or_ror_id
 
 logger = logging.getLogger(__name__)
 
@@ -246,3 +247,19 @@ class Doi(models.Model):
             for article_id in d["PubmedArticle"][0]["PubmedData"]["ArticleIdList"]:
                 if article_id[:2] == "10":
                     return article_id
+
+
+class WithGridIdOrRORId(models.Model):
+    class Meta:
+        abstract = True
+
+    orgid = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text="Organisation ID (GRID or ROR ID)",
+        validators=[
+            validate_grid_or_ror_id,
+        ],
+    )

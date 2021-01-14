@@ -9,15 +9,14 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from ifbcat_api import permissions
 from ifbcat_api.model.certification import Certification
 from ifbcat_api.model.community import Community
-from ifbcat_api.model.misc import Keyword, Field, Topic, Doi
+from ifbcat_api.model.misc import Keyword, Field, Topic, Doi, WithGridIdOrRORId
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
 from ifbcat_api.model.userProfile import UserProfile
 from ifbcat_api.validators import validate_can_be_looked_up
-from ifbcat_api.validators import validate_grid_or_ror_id
 
 
-class Team(models.Model):
+class Team(WithGridIdOrRORId, models.Model):
     """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
 
     # CertificationType: Controlled vocabulary of type of certification of bioinformatics teams.
@@ -104,17 +103,6 @@ class Team(models.Model):
     address = models.TextField(blank=True, help_text="Postal address of the team.")
     city = models.CharField(max_length=255, blank=True, help_text="City where the team is located.")
     country = models.CharField(max_length=255, blank=True, help_text="country where the team is located.")
-    # orgid, ifbMembership & fundedBy are mandatory.
-    orgid = models.CharField(
-        max_length=255,
-        unique=True,
-        help_text="Organisation ID (GRID or ROR ID) of the team.",
-        validators=[
-            validate_grid_or_ror_id,
-        ],
-        null=True,
-        blank=True,
-    )
     communities = models.ManyToManyField(
         Community,
         blank=True,
