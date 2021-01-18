@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 database_citations = data_object[4]
                 database_citations = int(database_citations) if database_citations != '' else None
                 database_link_data = data_object[5]
-                database_keywords = [x.strip() for x in data_object[6].split(",")]
+                database_keywords = [x.strip() for x in data_object[6].split("\n")]
                 database_keywords_list = []
                 database_keyword = ""
                 for keyword in database_keywords:
