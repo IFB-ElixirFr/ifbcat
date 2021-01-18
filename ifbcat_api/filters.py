@@ -10,7 +10,7 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import Q, ManyToManyField
+from django.db.models import Q, ManyToManyField, ManyToOneRel
 from django_filters import rest_framework as django_filters
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -24,12 +24,14 @@ class AutoSubsetFilterSet(django_filters.FilterSet):
             except FieldDoesNotExist:
                 # additional filter field cannot be found in class
                 continue
-            print(type(model_field), field_name)
-            if not isinstance(model_field, ManyToManyField):
-                continue
-            self.filters[field_name].queryset = self.filters[field_name].queryset.filter(
-                ~Q(**{f'{model_field.related_query_name()}__isnull': True})
-            )
+            if isinstance(model_field, ManyToOneRel):
+                self.filters[field_name].queryset = self.filters[field_name].queryset.filter(
+                    ~Q(**{f'{model_field.remote_field.name}__isnull': True})
+                )
+            if isinstance(model_field, ManyToManyField):
+                self.filters[field_name].queryset = self.filters[field_name].queryset.filter(
+                    ~Q(**{f'{model_field.related_query_name()}__isnull': True})
+                )
             if not self.filters[field_name].queryset.exists():
                 del self.filters[field_name]
 
