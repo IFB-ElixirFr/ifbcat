@@ -189,7 +189,13 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'orcidid',
         'expertise__uri',
     )
-    filterset_fields = ('expertise',)
+    filterset_fields = (
+        'expertise',
+        'teamLeader',
+        'teamsMembers',
+        'elixirPlatformDeputies',
+        'elixirPlatformCoordinator',
+    )
 
     def get_serializer_class(self):
         if self.action == "list":
