@@ -167,7 +167,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.SearchFilter',
-        'django_filters.rest_framework.DjangoFilterBackend',
+        'ifbcat_api.filters.DjangoFilterAutoSubsetBackend',
     ),
 }
 # From https://gist.github.com/davewongillies/6897161#gistcomment-3017261

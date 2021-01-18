@@ -10,9 +10,7 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
-from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -28,6 +26,7 @@ from rest_framework.views import APIView
 
 from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
+from ifbcat_api.filters import AutoSubsetFilterSet
 
 
 class PermissionInClassModelViewSet:
@@ -207,29 +206,9 @@ class UserLoginApiView(ObtainAuthToken):
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
-class EventFilter(django_filters.FilterSet):
+class EventFilter(AutoSubsetFilterSet):
     min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
     max_start = django_filters.NumberFilter(field_name="dates__dateStart", lookup_expr='lte')
-    contactId = django_filters.ModelChoiceFilter(
-        field_name='contactId', queryset=get_user_model().objects.filter(~Q(eventContactId__pk__isnull=True))
-    )
-    hostedBy = django_filters.ModelChoiceFilter(
-        field_name='hostedBy', queryset=models.Organisation.objects.filter(~Q(events__pk__isnull=True))
-    )
-    organisedByTeams = django_filters.ModelChoiceFilter(
-        field_name='organisedByTeams', queryset=models.Team.objects.filter(~Q(organized_events__pk__isnull=True))
-    )
-    organisedByBioinformaticsTeams = django_filters.ModelChoiceFilter(
-        field_name='organisedByBioinformaticsTeams',
-        queryset=models.BioinformaticsTeam.objects.filter(~Q(organized_events_as_bioinfo__pk__isnull=True)),
-    )
-    organisedByOrganisations = django_filters.ModelChoiceFilter(
-        field_name='organisedByOrganisations',
-        queryset=models.Organisation.objects.filter(~Q(organized_events__pk__isnull=True)),
-    )
-    sponsoredBy = django_filters.ModelChoiceFilter(
-        field_name='sponsoredBy', queryset=models.EventSponsor.objects.filter(~Q(events__pk__isnull=True))
-    )
 
     class Meta:
         model = models.Event
