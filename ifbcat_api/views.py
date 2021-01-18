@@ -210,11 +210,6 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'name',
         'shortName',
@@ -243,6 +238,10 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'sponsoredBy__organisationId__name',
     )
 
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
 
 # Model ViewSet for training events
 class TrainingEventViewSet(EventViewSet):
@@ -265,14 +264,12 @@ class KeywordViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     serializer_class = serializers.KeywordSerializer
     queryset = models.Keyword.objects.all()
-
     # lookup_field = 'keyword__unaccent__iexact'
+    search_fields = ('keyword',)
 
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
-
-    search_fields = ('keyword',)
 
 
 # Model ViewSet for event prerequisites
@@ -281,12 +278,11 @@ class EventPrerequisiteViewSet(PermissionInClassModelViewSet, viewsets.ModelView
 
     serializer_class = serializers.EventPrerequisiteSerializer
     queryset = models.EventPrerequisite.objects.all()
+    search_fields = ('prerequisite',)
 
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
-
-    search_fields = ('prerequisite',)
 
 
 # Model ViewSet for trainer
@@ -295,11 +291,6 @@ class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     serializer_class = serializers.TrainerSerializer
     queryset = models.Trainer.objects.all()
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'trainerName',
         'trainerEmail',
@@ -308,6 +299,10 @@ class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'trainerId__lastname',
     )
 
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
 
 # Model ViewSet for training event metrics
 class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
@@ -315,11 +310,6 @@ class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelV
 
     serializer_class = serializers.TrainingEventMetricsSerializer
     queryset = models.TrainingEventMetrics.objects.all()
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'dateStart',
         'dateEnd',
@@ -327,6 +317,10 @@ class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelV
         'trainingEvent__shortName',
         'trainingEvent__description',
     )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for event sponsors
@@ -336,15 +330,14 @@ class EventSponsorViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.EventSponsorSerializer
     queryset = models.EventSponsor.objects.all()
     lookup_field = 'name'
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'name',
         'organisationId__name',
     )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for organisation
@@ -354,6 +347,14 @@ class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.OrganisationSerializer
     queryset = models.Organisation.objects.all()
     lookup_field = 'name'
+    search_fields = (
+        'name',
+        'description',
+        'homepage',
+        'orgid',
+        'fields__field',
+        'city',
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -367,15 +368,6 @@ class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         super().perform_destroy(instance)
         cache.clear()
-
-    search_fields = (
-        'name',
-        'description',
-        'homepage',
-        'orgid',
-        'fields__field',
-        'city',
-    )
 
     @method_decorator(cache_page(60 * 60 * 0.5))
     @method_decorator(vary_on_cookie)
@@ -404,11 +396,6 @@ class ElixirPlatformViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet
     serializer_class = serializers.ElixirPlatformSerializer
     queryset = models.ElixirPlatform.objects.all()
     lookup_field = 'name'
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'name',
         'description',
@@ -421,6 +408,10 @@ class ElixirPlatformViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet
         'deputies__email',
     )
 
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
 
 # Model ViewSet for elixirPlatform
 class CommunityViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
@@ -429,17 +420,16 @@ class CommunityViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.CommunitySerializer
     queryset = models.Community.objects.all()
     lookup_field = 'name'
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'name',
         'description',
         'homepage',
         'organisations__name',
     )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for projects
@@ -449,11 +439,6 @@ class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.ProjectSerializer
     queryset = models.Project.objects.all()
     lookup_field = 'name'
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'name',
         'homepage',
@@ -467,23 +452,26 @@ class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'uses__name',
     )
 
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
 
 # Model ViewSet for resources
 class ResourceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating resources."""
 
     lookup_field = 'name'
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     search_fields = (
         'name',
         'description',
         'communities__name',
         'elixirPlatforms__name',
     )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for computing facilities
@@ -492,7 +480,6 @@ class ComputingFacilityViewSet(ResourceViewSet):
 
     serializer_class = serializers.ComputingFacilitySerializer
     queryset = models.ComputingFacility.objects.all()
-
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy__name',
@@ -508,7 +495,6 @@ class TrainingMaterialViewSet(ResourceViewSet):
 
     serializer_class = serializers.TrainingMaterialSerializer
     queryset = models.TrainingMaterial.objects.all()
-
     search_fields = ResourceViewSet.search_fields + (
         'doi__doi',
         'fileName',
@@ -529,11 +515,6 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.TeamSerializer
     queryset = models.Team.objects.all()
     lookup_field = 'name'
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (
         'name',
@@ -563,6 +544,10 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'keywords__keyword',
     )
 
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
 
 # Model ViewSet for teams
 class BioinformaticsTeamViewSet(TeamViewSet):
@@ -570,7 +555,6 @@ class BioinformaticsTeamViewSet(TeamViewSet):
 
     serializer_class = serializers.BioinformaticsTeamSerializer
     queryset = models.BioinformaticsTeam.objects.all()
-
     search_fields = TeamViewSet.search_fields + (
         'edamTopics__uri',
         'ifbMembership',
