@@ -10,11 +10,14 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
+from django_filters import rest_framework as django_filters
 from rest_framework import pagination
 from rest_framework import status
 from rest_framework import viewsets
@@ -178,7 +181,6 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handle creating and updating user profiles."""
 
     queryset = models.UserProfile.objects.all()
-
     # filter_backends adds ability to search profiles by name or email (via filtering)
     # search_fields specifies which fields are searchable by this filter.
     search_fields = (
@@ -188,6 +190,7 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'orcidid',
         'expertise__uri',
     )
+    filterset_fields = ('expertise',)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -202,6 +205,51 @@ class UserLoginApiView(ObtainAuthToken):
     """Handle creating user authentication tokens."""
 
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class EventFilter(django_filters.FilterSet):
+    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
+    max_start = django_filters.NumberFilter(field_name="dates__dateStart", lookup_expr='lte')
+    contactId = django_filters.ModelChoiceFilter(
+        field_name='contactId', queryset=get_user_model().objects.filter(~Q(eventContactId__pk__isnull=True))
+    )
+    hostedBy = django_filters.ModelChoiceFilter(
+        field_name='hostedBy', queryset=models.Organisation.objects.filter(~Q(events__pk__isnull=True))
+    )
+    organisedByTeams = django_filters.ModelChoiceFilter(
+        field_name='organisedByTeams', queryset=models.Team.objects.filter(~Q(organized_events__pk__isnull=True))
+    )
+    organisedByBioinformaticsTeams = django_filters.ModelChoiceFilter(
+        field_name='organisedByBioinformaticsTeams',
+        queryset=models.BioinformaticsTeam.objects.filter(~Q(organized_events_as_bioinfo__pk__isnull=True)),
+    )
+    organisedByOrganisations = django_filters.ModelChoiceFilter(
+        field_name='organisedByOrganisations',
+        queryset=models.Organisation.objects.filter(~Q(organized_events__pk__isnull=True)),
+    )
+    sponsoredBy = django_filters.ModelChoiceFilter(
+        field_name='sponsoredBy', queryset=models.EventSponsor.objects.filter(~Q(events__pk__isnull=True))
+    )
+
+    class Meta:
+        model = models.Event
+        fields = [
+            'type',
+            'min_start',
+            'max_start',
+            'costs',
+            'topics',
+            'keywords',
+            'prerequisites',
+            'contactId',
+            'elixirPlatforms',
+            'communities',
+            'hostedBy',
+            'organisedByTeams',
+            'organisedByBioinformaticsTeams',
+            'organisedByOrganisations',
+            'sponsoredBy',
+        ]
 
 
 # Model ViewSet for events
@@ -237,6 +285,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
+    filterset_class = EventFilter
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -355,6 +404,7 @@ class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'fields__field',
         'city',
     )
+    filterset_fields = ('fields',)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -407,6 +457,10 @@ class ElixirPlatformViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet
         'deputies__lastname',
         'deputies__email',
     )
+    filterset_fields = (
+        'coordinator',
+        'deputies',
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -426,6 +480,7 @@ class CommunityViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'homepage',
         'organisations__name',
     )
+    filterset_fields = ('organisations',)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -451,6 +506,14 @@ class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'elixirPlatforms__name',
         'uses__name',
     )
+    filterset_fields = (
+        'topics',
+        'team',
+        'hostedBy',
+        'fundedBy',
+        'communities',
+        'elixirPlatforms',
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -467,6 +530,10 @@ class ResourceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'description',
         'communities__name',
         'elixirPlatforms__name',
+    )
+    filterset_fields = (
+        'communities',
+        'elixirPlatforms',
     )
 
     def perform_create(self, serializer):
@@ -487,6 +554,10 @@ class ComputingFacilityViewSet(ResourceViewSet):
         'accessibility',
         'serverDescription',
     )
+    filterset_fields = ResourceViewSet.filterset_fields + (
+        'team',
+        'accessibility',
+    )
 
 
 # Model ViewSet for training materials
@@ -504,6 +575,15 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
+        'license',
+    )
+    filterset_fields = ResourceViewSet.filterset_fields + (
+        'topics',
+        'keywords',
+        'audienceTypes',
+        'audienceRoles',
+        'difficultyLevel',
+        'providedBy',
         'license',
     )
 
@@ -543,6 +623,19 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'publications__doi',
         'keywords__keyword',
     )
+    filterset_fields = (
+        'expertise',
+        'leader',
+        'deputies',
+        'scientificLeaders',
+        'technicalLeaders',
+        'members',
+        'fields',
+        'communities',
+        'projects',
+        'fundedBy',
+        'keywords',
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -559,6 +652,11 @@ class BioinformaticsTeamViewSet(TeamViewSet):
         'edamTopics__uri',
         'ifbMembership',
         'platforms__name',
+    )
+    filterset_fields = TeamViewSet.search_fields + (
+        'edamTopics',
+        'ifbMembership',
+        'platforms',
     )
 
 
@@ -578,6 +676,10 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'trainingEvents__name',
         'trainingMaterials__name',
         'publications__doi',
+    )
+    filterset_fields = (
+        'bioinformaticsTeams',
+        'computingFacilities',
     )
 
 
@@ -600,6 +702,10 @@ class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelView
         'qaqc',
         'usage',
         'sustainability',
+    )
+    filterset_fields = (
+        'service',
+        'year',
     )
 
 
