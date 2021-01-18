@@ -13,4 +13,5 @@ Unidecode
 tqdm
 django-better-admin-arrayfield
 django-jazzmin
+django-filter
 #end of file

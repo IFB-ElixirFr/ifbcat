@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_templates_patch',
     'rest_framework',
+    'django_filters',
     'rest_framework.authtoken',
     'django_better_admin_arrayfield',
     'ifbcat_api',
@@ -166,7 +167,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.SearchFilter',
-        '',
+        'django_filters.rest_framework.DjangoFilterBackend',
     ),
 }
 # From https://gist.github.com/davewongillies/6897161#gistcomment-3017261
