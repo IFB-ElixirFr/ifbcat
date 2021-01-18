@@ -33,7 +33,7 @@ class AutoSubsetFilterSet(django_filters.FilterSet):
                     ~Q(**{f'{model_field.related_query_name()}__isnull': True})
                 )
             if not self.filters[field_name].queryset.exists():
-                del self.filters[field_name]
+                self.filters[field_name].field.widget.attrs["disabled"] = True
 
     def get_auto_subset_fields(self):
         return self._meta.fields
