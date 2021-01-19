@@ -32,4 +32,7 @@ class Certification(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly, IsAuthenticatedOrReadOnly)
+        return (
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            IsAuthenticatedOrReadOnly,
+        )
