@@ -128,6 +128,12 @@
     font-family: 'Comfortaa';
     color: #11346f;
 }
+.theme-default .sidebar-light-primary+.content-wrapper .card .card-header{
+    border-bottom:none;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card-header+.card-body{
+    border-top: 1px solid rgba(0,0,0,.125);
+}
 .theme-default .sidebar-light-primary+.content-wrapper .btn-success {
     background-color: #61963f;
     border-color: #61963f;
