@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static jazzmin %}
+{% load i18n static jazzmin jazzmin_patch %}
 
 {% block bodyclass %}{{ block.super }} dashboard{% endblock %}
 
@@ -14,12 +14,21 @@
 
 
 {% block content %}
+{% if "jazzmin/admin__content.html"|template_exists %}
+    {% include "jazzmin/admin_content.html"%}
+{%else%}
     {% get_side_menu using="app_list" as dashboard_list %}
     {% if dashboard_list %}
         {% widthratio dashboard_list|length 2 1 as middle %}
     {% endif %}
 
     <div class="col-lg-9 col-12">
+        {% if "jazzmin/admin__content__pre_dashboard_list.html"|template_exists %}
+            {% include "jazzmin/admin__content__pre_dashboard_list.html"%}
+        {%endif%}
+        {% if "jazzmin/admin__content__dashboard_list.html"|template_exists %}
+            {% include "jazzmin/admin__content__dashboard_list.html"%}
+        {%else%}
         <div class="row">
             <div class="col-md-6 col-sm-12">
                 {% for app in dashboard_list %}
@@ -64,7 +73,7 @@
                 {% endfor %}
                 </div>
         </div>
-
+        {% endif %}
     </div>
     <div class="col-lg-3 col-12">
         <div id="content-related">
@@ -129,4 +138,5 @@
         </div>
     </div>
 
+{% endif %}
 {% endblock %}
