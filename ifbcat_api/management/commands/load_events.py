@@ -156,7 +156,7 @@ class Command(BaseCommand):
 
                     # TODO: Fill required field using
                     # get_user_model().objects.filter(is_superuser=True).first()
-                    # then uncommend validation below:
+                    # then uncomment validation below:
                     # event.full_clean()
                     event.save()
 

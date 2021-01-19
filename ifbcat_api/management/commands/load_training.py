@@ -94,7 +94,7 @@ class Command(BaseCommand):
                 else:
                     training_start_date = None
                     training_end_date = None
-                training_acces_condition = data_object[8]
+                training_access_condition = data_object[8]
                 training_link = data_object[9]
                 training_location = data_object[10]
                 training_organizer = data_object[11]
@@ -141,7 +141,7 @@ class Command(BaseCommand):
                         # start_date=training_start_date,
                         # end_date=training_end_date,
                         city=training_location,
-                        # access_conditions=training_acces_condition,
+                        # access_conditions=training_access_condition,
                         homepage=training_link,
                         # organizer=training_organizer,
                         # sponsors=training_sponsors,
