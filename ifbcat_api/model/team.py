@@ -158,4 +158,5 @@ class Team(WithGridIdOrRORId, models.Model):
             permissions.ReadWriteByLeader,
             permissions.ReadWriteByDeputies,
             permissions.ReadWriteByMaintainers,
+            permissions.ReadWriteBySuperEditor,
         )

@@ -69,6 +69,7 @@ class Service(models.Model):
             permissions.ReadOnly
             | permissions.ReadWriteByOwner
             | permissions.ReadWriteByBioinformaticsTeamsLeader
-            | permissions.ReadWriteByBioinformaticsTeamsDeputies,
+            | permissions.ReadWriteByBioinformaticsTeamsDeputies
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

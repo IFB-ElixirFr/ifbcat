@@ -12,6 +12,7 @@ from ifbcat_api import permissions
 logger = logging.getLogger(__name__)
 
 __USER_MANAGER_GRP_NAME = "User manager"
+__SUPER_EDITOR_GRP_NAME = "Supereditor (superuser that can also edit many things)"
 __EVENT_GRP_NAME = "Event manager"
 __TEAM_AND_MORE_GRP_NAME = "Community, Organisation, Project, Team manager"
 __TOOL_GRP_NAME = "Tool manager"
@@ -189,6 +190,14 @@ def set_no_restriction_on_catalog_models(user, status: bool):
 
 
 ###############################################################################
+# Super editor
+###############################################################################
+def is_super_editor(user, request=None):
+    user = user or request.user
+    return user.is_superuser and user.groups.filter(name=__SUPER_EDITOR_GRP_NAME).exists()
+
+
+###############################################################################
 # Permission classes
 ###############################################################################
 __missing_permission_classes = set()
@@ -216,6 +225,7 @@ def get_permission_classes(model):
 def get_not_to_be_deleted_group_names():
     return (
         __USER_MANAGER_GRP_NAME,
+        __SUPER_EDITOR_GRP_NAME,
         __EVENT_GRP_NAME,
         __TEAM_AND_MORE_GRP_NAME,
         __TOOL_GRP_NAME,

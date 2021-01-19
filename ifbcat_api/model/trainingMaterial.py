@@ -89,6 +89,7 @@ class TrainingMaterial(Resource):
             permissions.ReadOnly
             | permissions.ReadWriteByOwner
             | permissions.ReadWriteByProvidedByLeader
-            | permissions.ReadWriteByProvidedByDeputies,
+            | permissions.ReadWriteByProvidedByDeputies
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

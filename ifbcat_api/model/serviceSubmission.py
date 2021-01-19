@@ -61,6 +61,7 @@ class ServiceSubmission(models.Model):
             permissions.ReadOnly
             | permissions.ReadWriteByOwner
             | permissions.ReadWriteBySubmitters
-            | permissions.ReadWriteByAuthors,
+            | permissions.ReadWriteByAuthors
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

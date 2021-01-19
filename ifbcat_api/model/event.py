@@ -252,6 +252,7 @@ class Event(models.Model):
             permissions.ReadWriteByOrgByBioinformaticsTeamsLeader,
             permissions.ReadWriteByOrgByBioinformaticsTeamsDeputies,
             permissions.ReadWriteByOrgByOrganisationsLeader,
+            permissions.ReadWriteBySuperEditor,
         )
 
 
