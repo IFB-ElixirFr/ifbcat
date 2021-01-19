@@ -286,6 +286,12 @@ JAZZMIN_SETTINGS = {
     #################
     # Use modals instead of popups
     "related_modal_active": True,
+    # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
+    "order_with_respect_to": [
+        "ifbcat_api",
+        "authtoken",
+        "auth",
+    ],
     #
     #############
     # UI Tweaks #
