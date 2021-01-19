@@ -917,7 +917,7 @@ _tool_fields = (
     # 'increase_last_update',
     # 'access_condition',
     'keywords',
-    # 'platform',
+    'team',
     # 'language',
     # 'topic',
 )
@@ -973,3 +973,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         fields = _tool_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
         # depth = 1
+
+        extra_kwargs = {
+            'team': {'lookup_field': 'name'},
+        }

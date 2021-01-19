@@ -109,8 +109,8 @@ class Command(BaseCommand):
                     print(data_object)
                     raise e
 
-                # if object_platform:
-                #    database.platform.add(object_platform)
+                if object_platform:
+                    database.team.add(object_platform)
 
                 display_format = "\nDatabase, {}, has been saved."
                 # print(display_format.format(database))
