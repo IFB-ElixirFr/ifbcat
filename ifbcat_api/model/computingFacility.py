@@ -124,6 +124,10 @@ class ComputingFacility(Resource):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
+            permissions.ReadOnly
+            | permissions.ReadWriteByOwner
+            | permissions.ReadWriteByTeamLeader
+            | permissions.ReadWriteByTeamDeputies
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

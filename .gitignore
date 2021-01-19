@@ -137,7 +137,7 @@ dmypy.json
 
 # End of https://www.gitignore.io/api/python,vagrant
 eb-package.zip
-static/
+/static/
 
 local.ini
 settings.ini
@@ -152,3 +152,5 @@ import_data
 # Grid (downloaded by load_organisations_from_grid.py)
 grid*/
 grid*.zip
+
+source_info.json

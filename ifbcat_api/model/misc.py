@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
+from ifbcat_api.validators import validate_grid_or_ror_id
 
 logger = logging.getLogger(__name__)
 
@@ -60,42 +61,45 @@ class Topic(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableByUsers | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
 
     def update_information_from_ebi_ols(self):
         url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}'
         response = requests.get(url).json()
-        term = response["_embedded"]["terms"][0]
-        if term["iri"] != self.uri:
-            logger.error(f"Searched for {self.uri} but got a a response term {term['iri']} aborting update")
-            return
-        self.label = term["label"]
-        self.description = term["description"][0] if isinstance(term["description"], list) else term["description"]
-        self.synonyms = term["synonyms"]
         try:
-            self.save()
-        except DataError as e:
-            logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
-            raise
-        # code use to pre-load topics, and spare rest calls later
-        filepath = "./import_data/topics.json"
-        try:
-            with open(filepath) as f:
-                topics = json.load(f)
-        except FileNotFoundError:
-            topics = []
-        topics.append(
-            dict(
-                label=self.label,
-                description=self.description,
-                synonyms=self.synonyms,
-                uri=self.uri,
-            )
-        )
-        with open(filepath, 'w') as f:
-            json.dump(topics, f)
+            term = response["_embedded"]["terms"][0]
+            if term["iri"] != self.uri:
+                logger.error(f"Searched for {self.uri} but got a a response term {term['iri']} aborting update")
+                return
+            self.label = term["label"]
+            self.description = term["description"][0] if isinstance(term["description"], list) else term["description"]
+            self.synonyms = term["synonyms"]
+            try:
+                self.save()
+            except DataError as e:
+                logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
+                raise
+        except KeyError as e:
+            logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}\n{json.dumps(response)}")
+        # # code use to pre-load topics, and spare rest calls later, should remain commented on git
+        # filepath = "./import_data/Topic.json"
+        # try:
+        #     with open(filepath) as f:
+        #         topics = json.load(f)
+        # except FileNotFoundError:
+        #     topics = []
+        # topics.append(
+        #     dict(
+        #         label=self.label,
+        #         description=self.description,
+        #         synonyms=self.synonyms,
+        #         uri=self.uri,
+        #     )
+        # )
+        # with open(filepath, 'w') as f:
+        #     json.dump(topics, f)
 
 
 @receiver(post_save, sender=Topic)
@@ -130,7 +134,7 @@ class Keyword(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
 
 
 class AudienceType(models.Model):
@@ -153,7 +157,7 @@ class AudienceType(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
 
 
 class AudienceRole(models.Model):
@@ -176,7 +180,10 @@ class AudienceRole(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 class DifficultyLevelType(models.TextChoices):
@@ -202,6 +209,13 @@ class Field(models.Model):
         """Return the Field model as a string."""
         return self.field
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
+
 
 class Doi(models.Model):
     """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
@@ -221,7 +235,10 @@ class Doi(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            IsAuthenticatedOrReadOnly,
+        )
 
     @classmethod
     def get_doi_from_pmid(cls, pmid):
@@ -230,3 +247,19 @@ class Doi(models.Model):
             for article_id in d["PubmedArticle"][0]["PubmedData"]["ArticleIdList"]:
                 if article_id[:2] == "10":
                     return article_id
+
+
+class WithGridIdOrRORId(models.Model):
+    class Meta:
+        abstract = True
+
+    orgid = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text="Organisation ID (GRID or ROR ID)",
+        validators=[
+            validate_grid_or_ror_id,
+        ],
+    )

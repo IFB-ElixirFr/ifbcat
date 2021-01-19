@@ -3,6 +3,7 @@ import logging
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.core import management
+from django.core.exceptions import FieldError
 from django.urls import reverse, NoReverseMatch
 
 from ifbcat_api.model.misc import Topic, Keyword, Field
@@ -75,6 +76,18 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 status_code,
                 f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}',
             )
+            url_list += "?search=tralala"
+            msg = f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}'
+            try:
+                response = self.client.get(url_list)
+            except FieldError as e:
+                self.assertTrue(False, msg + str(e))
+            status_code = self.status_code_not_200.get(url_instance.name, 200)
+            self.assertEqual(
+                response.status_code,
+                status_code,
+                msg,
+            )
             cpt += 1
         self.assertGreater(cpt, 0)
 
@@ -119,6 +132,21 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 status_code,
                 f'failed while opening admin list view for {ifbcat_api_model} ({url_list}), '
                 f'expected {status_code} got {response.status_code}',
+            )
+            url_list += "?q=tralala"
+            msg = (
+                f'failed while opening admin list view for {ifbcat_api_model} ({url_list}), '
+                f'expected {status_code} got {response.status_code}'
+            )
+            try:
+                response = self.client.get(url_list)
+            except FieldError:
+                self.assertTrue(False, msg)
+            status_code = 200
+            self.assertEqual(
+                response.status_code,
+                status_code,
+                msg,
             )
 
         #######################################################################

@@ -1,0 +1,164 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:100,200,300,400,500,600,700,800,900%7CComfortaa:100,200,300,400,500,600,700,800,900%7CComfortaa:100,200,300,400,500,600,700,800,900&display=swap");
+.brand-image{
+    box-shadow:none !important;
+}
+.select2.select2-container.select2-container--admin-autocomplete
+{
+    width:100%!important;
+}
+
+.theme-default .sidebar-light-primary+.content-wrapper{
+    background-color: #eff4fb;
+}
+
+.sidebar {
+    /*background-color: #edf4f1;*/
+}
+
+.theme-default .navbar-white.navbar-light .nav-link,
+.theme-default .sidebar-light-primary .nav-link {
+    font-family: 'Comfortaa';
+}
+
+.theme-default .sidebar-light-primary .sidebar .nav-item a.nav-link {
+    color: #278bc7;
+}
+.theme-default .sidebar-light-primary .sidebar .nav-item a.nav-link.active {
+    color: #61963f !important;
+    background-color: #eff4fb !important;
+    box-shadow:none !important;
+    border-radius:none !important;
+}
+
+.theme-default .navbar-white.main-header.navbar {
+    padding:0px;
+}
+.theme-default .navbar-white.main-header .nav-item a.nav-link {
+    color: #278bc7;
+    font-size: 15px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 20px;
+    font-weight: 900;
+    transition-duration: .2s;
+    padding-top: 10px;
+    border-width: 0px;
+    border-bottom-width: 4px;
+    border-color: white;
+    border-style: solid;
+}
+.theme-default .navbar-white.main-header .nav-item a.nav-link.active {
+    color: #61963f;
+    background-color: #eff4fb;
+    border-width: 0px;
+    border-bottom-width: 4px;
+    border-style: solid;
+    border-color: #61963f;
+}
+.theme-default .navbar-white.main-header .navbar-nav{
+    margin-left: 0.5em;
+}
+.theme-default .navbar-white.main-header .navbar-nav .nav-item .nav-link{
+    padding-top: 22px;
+    padding-bottom: 30px;
+}
+.theme-default.layout-navbar-fixed .wrapper .main-header {
+    z-index: 1039;
+}
+.theme-default .sidebar-light-primary .brand-text{
+    font-size: 15px;
+    font-weight: 900!important;
+    color: #278bc7;
+}
+.theme-default .sidebar-light-primary .brand-link{
+    padding-bottom: 0.2em;
+    height:57px;
+    font-family: 'Comfortaa';
+}
+.theme-default .sidebar-light-primary .brand-link .brand-image{
+    opacity: 1!important;
+    max-height: calc( 57px - 0.4em );
+    height: calc( 57px - 0.4em );
+    margin-top: -0.6em;
+    content:url("https://www.france-bioinformatique.fr/wp-content/uploads/logo-ifb_small.png");
+    border-radius:0!important;
+}
+.theme-default.sidebar-collapse .sidebar-light-primary .brand-link .brand-image{
+    margin-top: -0.63em;
+    margin-left: .5rem;
+    max-height: 200px;
+    height: 52px;
+    content:url("https://avatars0.githubusercontent.com/u/24292199?s=200&v=4");
+}
+.theme-default .sidebar-light-primary+.content-wrapper .timeline-item .timeline-header:last-child{
+    border-bottom:0;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .timeline-item{
+    border-radius: 0;
+    border-bottom-right-radius: 10px;
+    box-shadow: 1px 1px 4px #8dbce1;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card{
+    border-radius: 0;
+    border-bottom-right-radius: 30px;
+    box-shadow: 2px 2px 8px #8dbce1;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card-body .card-body{
+    padding:1.25rem!important;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card+.card{
+    margin-top: 2em!important;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card{
+    border-radius: 0;
+    border-bottom-right-radius: 30px;
+    border: 1px solid rgba(0,0,0,.125);
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .tab-pane>.card{
+    border-top: 0px ;
+    box-shadow: none;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card *:not(.tab-pane)>.card{
+    border-top: 1px solid #278bc7;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card-primary.card-outline {
+    border-top: 3px solid #278bc7;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card-header{
+    font-family: 'Comfortaa';
+    color: #11346f;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card-header{
+    border-bottom:none;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .card .card-header+.card-body{
+    border-top: 1px solid rgba(0,0,0,.125);
+}
+.theme-default .sidebar-light-primary+.content-wrapper .btn-success {
+    background-color: #61963f;
+    border-color: #61963f;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .bg-success {
+    background-color: #61963f !important;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .btn-outline-info {
+    color: #278bc7;
+    border-color: #278bc7;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .btn-outline-info:hover {
+    color: #fff;
+    background-color: #278bc7;
+    border-color: #278bc7;
+}
+.sidebar-mini.sidebar-collapse .sidebar-light-primary .nav-sidebar .nav-header {
+    display: initial;
+}
+.sidebar-mini.sidebar-collapse .sidebar-light-primary .nav-sidebar .nav-header::after {
+    content: '';
+    height: 1.5em;
+    width: 20px;
+    background: -webkit-linear-gradient(left,rgba(255,0,0,0) 0,white 100%);
+    position: absolute;
+    left: calc( 100% - 20px );
+}
+/**/

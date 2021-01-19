@@ -11,7 +11,7 @@ Restart=always
 
 ExecStartPre=/bin/bash -c "/bin/systemctl set-environment CI_COMMIT_SHA=$(cd /var/ifbcat-src && git rev-parse HEAD)"
 ExecStartPre=/bin/bash -c "/bin/systemctl set-environment CI_COMMIT_DATE=\"$(cd /var/ifbcat-src && git log -1 --format="%%ai")\""
-ExecStartPre=/usr/bin/docker image prune -a  --force --filter "until=24h"
+ExecStartPre=/usr/bin/docker image prune -a  --force --filter "until=672h"
 ExecStartPre=/usr/bin/docker-compose pull --quiet --ignore-pull-failures
 ExecStartPre=/usr/bin/docker-compose build --pull --build-arg CI_COMMIT_SHA=${CI_COMMIT_SHA} --build-arg CI_COMMIT_DATE="${CI_COMMIT_DATE}" web db adminer nginx nginx-https
 

@@ -15,7 +15,7 @@ class TypeRole(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
 
 
 class ToolCredit(models.Model):
@@ -36,4 +36,4 @@ class ToolCredit(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.PubliclyReadableByUsersEditableBySuperuser,)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)

@@ -58,8 +58,10 @@ class ServiceSubmission(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.PubliclyReadableEditableByOwner
-            | permissions.PubliclyReadableEditableBySubmitters
-            | permissions.PubliclyReadableEditableByAuthors,
+            permissions.ReadOnly
+            | permissions.ReadWriteByOwner
+            | permissions.ReadWriteBySubmitters
+            | permissions.ReadWriteByAuthors
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

@@ -42,6 +42,8 @@ except UndefinedValueError:
 # 3) our ifbcat_api app
 
 INSTALLED_APPS = [
+    'jazzmin_patch',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_templates_patch',
     'rest_framework',
+    'django_filters',
     'rest_framework.authtoken',
     'django_better_admin_arrayfield',
     'ifbcat_api',
@@ -67,6 +70,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 ROOT_URLCONF = 'ifbcat.urls'
 
@@ -160,6 +165,10 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20,
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.SearchFilter',
+        'ifbcat_api.filters.DjangoFilterAutoSubsetBackend',
+    ),
 }
 # From https://gist.github.com/davewongillies/6897161#gistcomment-3017261
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -169,3 +178,155 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ################################################################################
 LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO' if DEBUG else 'WARNING').upper()
 logging.basicConfig(level=LOGLEVEL)
+
+################################################################################
+# JAZZMIN CONFIGURATION
+################################################################################
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-dark",
+    # "brand_colour": "navbar-white navbar-light",
+    "accent": "accent-primary",
+    "navbar": "navbar-gray-dark navbar-dark",
+    # "navbar": "navbar-white navbar-light",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    # "sidebar": "sidebar-light-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "default",
+    "dark_mode_theme": "darkly",
+    "actions_sticky_top": True,
+}
+JAZZMIN_SETTINGS = {
+    # title of the window
+    "site_title": "IFB Catalogue",
+    #
+    # Title on the brand, and the login screen (19 chars max)
+    "site_header": "IFB Catalogue",
+    #
+    # square logo to use for your site, must be present in static files, used for favicon and brand on top left
+    "site_logo": "/img/logo-ifb_small.png",
+    #
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome to the IFB Resources Catalogue",
+    # Copyright on the footer
+    # "copyright": "Acme Library Ltd",
+    #
+    # The model admin to search from the search bar, search bar omitted if excluded
+    # "search_model": "ifbcat_api.Tool",
+    #
+    ############
+    # Top Menu #
+    ############
+    #
+    "topmenu_links": [
+        # Url that gets reversed (Permissions can be added)
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        # external url that opens in a new window (Permissions can be added)
+        {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
+        {"model": "ifbcat_api.UserProfile"},
+        {"model": "ifbcat_api.Event"},
+        {"model": "ifbcat_api.BioinformaticsTeam"},
+        {"app": "ifbcat_api"},
+    ],
+    # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free
+    # for a list of icon classes
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.Group": "fas fa-users",
+        "authtoken.Token": "fas fa-key",
+        "ifbcat_api.AudienceRole": "fas fa-circle",
+        "ifbcat_api.AudienceType": "fas fa-circle",
+        "ifbcat_api.BioinformaticsTeam": "fas fa-users",
+        "ifbcat_api.Certification": "fas fa-circle",
+        "ifbcat_api.Collection": "fas fa-circle",
+        "ifbcat_api.Community": "fas fa-broadcast-tower",
+        "ifbcat_api.ComputingFacility": "fas fa-circle",
+        "ifbcat_api.Doi": "fas fa-file-alt",
+        "ifbcat_api.ElixirPlatform": "fas fa-circle",
+        "ifbcat_api.EventCost": "fas fa-circle",
+        "ifbcat_api.EventDate": "fas fa-circle",
+        "ifbcat_api.EventPrerequisite": "fas fa-circle",
+        "ifbcat_api.EventSponsor": "fas fa-circle",
+        "ifbcat_api.Event": "fas fa-calendar-alt",
+        "ifbcat_api.Field": "fas fa-circle",
+        "ifbcat_api.Keyword": "fas fa-circle",
+        "ifbcat_api.OperatingSystem": "fas fa-robot",
+        "ifbcat_api.Organisation": "fas fa-sitemap",
+        "ifbcat_api.Project": "fas fa-project-diagram",
+        "ifbcat_api.ServiceSubmission": "fas fa-circle",
+        "ifbcat_api.Service": "fas fa-circle",
+        "ifbcat_api.Team": "fas fa-users",
+        "ifbcat_api.ToolCredit": "fas fa-circle",
+        "ifbcat_api.ToolType": "fas fa-circle",
+        "ifbcat_api.Tool": "fas fa-tools",
+        "ifbcat_api.Topic": "fas fa-circle",
+        "ifbcat_api.Trainer": "fas fa-chalkboard-teacher",
+        "ifbcat_api.TrainingEventMetrics": "fas fa-circle",
+        "ifbcat_api.TrainingEvent": "fas fa-school",
+        "ifbcat_api.TrainingMaterial": "fas fa-book",
+        "ifbcat_api.TypeRole": "fas fa-circle",
+        "ifbcat_api.UserProfile": "fas fa-user",
+    },
+    #
+    #################
+    # Related Modal #
+    #################
+    # Use modals instead of popups
+    "related_modal_active": True,
+    # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
+    "order_with_respect_to": [
+        "ifbcat_api",
+        "authtoken",
+        "auth",
+    ],
+    #
+    #############
+    # UI Tweaks #
+    #############
+    # Relative paths to custom CSS/JS scripts (must be present in static files)
+    "custom_css": "/css/ifbcat_admin.css",
+    # Whether to show the UI customizer on the sidebar
+    "show_ui_builder": True,
+    ###############
+    # Change view #
+    ###############
+    # Render out the change view as a single form, or in tabs, current options are
+    # - single
+    # - horizontal_tabs (default)
+    # - vertical_tabs
+    # - collapsible
+    # - carousel
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {
+        "ifbcat_api.UserProfile": "single",
+    },
+}
+if config('USE_IFB_THEME', True, cast=bool):
+    JAZZMIN_UI_TWEAKS.update(
+        {
+            "brand_colour": "navbar-white navbar-light",
+            "navbar": "navbar-white navbar-light",
+            "sidebar": "sidebar-light-primary",
+            "sidebar_fixed": False,
+        }
+    )
+    JAZZMIN_SETTINGS.update(
+        {
+            "show_ui_builder": False,
+        }
+    )
+
+################################################################################

@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic
@@ -86,6 +87,10 @@ class UserProfileManager(BaseUserManager):
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """UserProfile model: a user in the system."""
 
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+
     # firstname, lastname and email are mandatory
     firstname = models.CharField(max_length=255, help_text="First (or given) name of a person (IFB catalogue user).")
     lastname = models.CharField(max_length=255, help_text="Last (or family) name of a person (IFB catalogue user).")
@@ -140,4 +145,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # permission_classes set how user has gets permission to do certain things.
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.UpdateOwnProfile,)
+        return (
+            permissions.ReadOnly | permissions.UpdateOwnProfile,
+            IsAuthenticatedOrReadOnly,
+        )
