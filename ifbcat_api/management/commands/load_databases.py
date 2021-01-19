@@ -29,6 +29,9 @@ class Command(BaseCommand):
             data_file.seek(0)
             next(data)
             # do the work
+
+            database_tool_type, created = ToolType.objects.get_or_create(name="Database portal")
+
             for data_object in tqdm(data, total=data_len):
                 if data_object == []:
                     continue  # Check for empty lines
@@ -116,6 +119,8 @@ class Command(BaseCommand):
                 # print(display_format.format(database))
                 for keyword in database_keywords_list:
                     database.keywords.add(keyword)
+
+                database.tool_type.add(database_tool_type)
 
                 # biotoolsCURIE and biotoolsID are missing for validation
                 # database.full_clean()
