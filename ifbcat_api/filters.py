@@ -19,6 +19,7 @@ class AutoSubsetFilterSet(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name in self.get_auto_subset_fields() or []:
+            check_qs = False
             try:
                 model_field = self._meta.model._meta.get_field(field_name)
             except FieldDoesNotExist:
@@ -28,11 +29,13 @@ class AutoSubsetFilterSet(django_filters.FilterSet):
                 self.filters[field_name].queryset = self.filters[field_name].queryset.filter(
                     ~Q(**{f'{model_field.remote_field.name}__isnull': True})
                 )
+                check_qs = True
             if isinstance(model_field, ManyToManyField):
                 self.filters[field_name].queryset = self.filters[field_name].queryset.filter(
                     ~Q(**{f'{model_field.related_query_name()}__isnull': True})
                 )
-            if not self.filters[field_name].queryset.exists():
+                check_qs = True
+            if check_qs and not self.filters[field_name].queryset.exists():
                 self.filters[field_name].field.widget.attrs["disabled"] = True
 
     def get_auto_subset_fields(self):
