@@ -4,6 +4,7 @@ import logging
 import os
 
 import pytz
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.management import BaseCommand
 from django.utils.timezone import make_aware
 from tqdm import tqdm
@@ -63,7 +64,11 @@ class Command(BaseCommand):
                         homepage=event_link,
                     )
 
-                    dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
+                    try:
+                        dates, created = event.dates.get_or_create(dateStart=event_start_date, dateEnd=event_end_date)
+                    except MultipleObjectsReturned:
+                        event.dates.all().delete()
+                        dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
 
                     event.dates.add(dates)
 
