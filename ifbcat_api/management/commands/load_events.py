@@ -3,10 +3,8 @@ import datetime
 import logging
 import os
 
-import pytz
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.management import BaseCommand
-from django.utils.timezone import make_aware
 from tqdm import tqdm
 
 from ifbcat_api.model.event import *
@@ -99,6 +97,7 @@ class Command(BaseCommand):
                     raise e
 
     def parse_date(self, date_string):
-        event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")  # .strftime("%Y-%m-%d")
-        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+        event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")
+        # event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+        event_start_date = event_start_date.strftime("%Y-%m-%d")
         return event_start_date
