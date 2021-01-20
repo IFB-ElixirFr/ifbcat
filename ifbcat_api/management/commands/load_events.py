@@ -13,6 +13,13 @@ from ifbcat_api.model.organisation import Organisation
 logger = logging.getLogger(__name__)
 
 
+def parse_date(date_string):
+    event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")
+    # event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+    event_start_date = event_start_date.strftime("%Y-%m-%d")
+    return event_start_date
+
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("file", type=str, help="Path to the CSV source file")
@@ -36,10 +43,10 @@ class Command(BaseCommand):
                 if data_object[3]:
                     if "to" in data_object[3]:
                         data_object[3] = data_object[3].split(" to ")
-                        event_start_date = self.parse_date(data_object[3][0])
-                        event_end_date = self.parse_date(data_object[3][1])
+                        event_start_date = parse_date(data_object[3][0])
+                        event_end_date = parse_date(data_object[3][1])
                     else:
-                        event_start_date = self.parse_date(data_object[3])
+                        event_start_date = parse_date(data_object[3])
                         event_end_date = None
                 else:
                     event_start_date = None
@@ -95,9 +102,3 @@ class Command(BaseCommand):
                 except Exception as e:
                     logger.error(data_object)
                     raise e
-
-    def parse_date(self, date_string):
-        event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")
-        # event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
-        event_start_date = event_start_date.strftime("%Y-%m-%d")
-        return event_start_date
