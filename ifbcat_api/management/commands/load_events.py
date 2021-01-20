@@ -27,7 +27,7 @@ class Command(BaseCommand):
             data_len = len(list(data))
             data_file.seek(0)
             next(data)
-            # do the work
+            # do the work#
             for data_object in tqdm(data, total=data_len):
                 if data_object == []:
                     continue  # Check for empty lines
@@ -36,17 +36,11 @@ class Command(BaseCommand):
                 event_description = data_object[2]
                 if data_object[3]:
                     if "to" in data_object[3]:
-                        event_start_date = datetime.datetime.strptime(
-                            data_object[3].split(" to ")[0], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
-                        event_end_date = datetime.datetime.strptime(data_object[3].split(" to ")[1], "%d-%m-%Y")
-                        event_end_date = make_aware(event_end_date, timezone=pytz.timezone('Europe/Paris'))
+                        data_object[3] = data_object[3].split(" to ")
+                        event_start_date = self.parse_date(data_object[3][0])
+                        event_end_date = self.parse_date(data_object[3][1])
                     else:
-                        event_start_date = datetime.datetime.strptime(
-                            data_object[3], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+                        event_start_date = self.parse_date(data_object[3])
                         event_end_date = None
                 else:
                     event_start_date = None
@@ -98,3 +92,8 @@ class Command(BaseCommand):
                 except Exception as e:
                     logger.error(data_object)
                     raise e
+
+    def parse_date(self, date_string):
+        event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")  # .strftime("%Y-%m-%d")
+        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+        return event_start_date
