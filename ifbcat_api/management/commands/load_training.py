@@ -8,6 +8,9 @@ from django.db.transaction import atomic
 from django.utils.timezone import make_aware
 import datetime
 from django.core.management import BaseCommand
+from ifbcat_api.models import EventCost
+from ifbcat_api.models import EventPrerequisite
+from ifbcat_api.model.event import EventDate
 from ifbcat_api.models import TrainingEvent
 from ifbcat_api.models import Keyword
 from ifbcat_api.model.organisation import Organisation
@@ -141,7 +144,7 @@ class Command(BaseCommand):
                         # start_date=training_start_date,
                         # end_date=training_end_date,
                         city=training_location,
-                        # access_conditions=training_access_condition,
+                        accessibilityNote=training_access_condition,
                         homepage=training_link,
                         # organizer=training_organizer,
                         # sponsors=training_sponsors,
@@ -188,16 +191,37 @@ class Command(BaseCommand):
                         else:
                             logger.error(f'{organizer} is not an organisation in the DB.')
 
-                    if created:
-                        # training.full_clean()
-                        training.save()
+                    for keyword in training_keywords_list:
+                        training.keywords.add(keyword)
 
-                        display_format = '\nTraining "{}" has been saved.'
-                        for keyword in training_keywords_list:
-                            training.keywords.add(keyword)
+                    event_cost, created = EventCost.objects.get_or_create(cost=training_participation)
+                    training.costs.add(event_cost)
 
-                        training.save()
+                    # Need to check this chunk with Bryan
+                    # (1
+                    if training_start_date:
+                        dates = EventDate.objects.filter(dateStart=training_start_date, dateEnd=training_end_date)[0]
+                        if not dates:
+                            dates = EventDate.objects.create(dateStart=training_start_date, dateEnd=training_end_date)
 
+                        # get() returned more than one EventDate -- it returned 2!
+                        # dates, created = EventDate.objects.get_or_create(dateStart=training_start_date, dateEnd=training_end_date)
+
+                        training.dates.add(dates)
+                    # 1)
+
+                    if training_training_level:
+                        prerequisite, created = EventPrerequisite.objects.get_or_create(
+                            prerequisite=training_training_level
+                        )
+                        training.prerequisites.add(prerequisite)
+
+                    # if created:
+                    # training.full_clean()
+                    training.save()
+
+                    display_format = '\nTraining "{}" has been saved.'
+                    print(display_format.format(training))
                 except Exception as ex:
                     print(str(ex))
                     msg = "\n\nSomething went wrong saving this training: {}\n{}".format(training, str(ex))
