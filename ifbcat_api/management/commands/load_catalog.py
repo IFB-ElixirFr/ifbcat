@@ -26,8 +26,8 @@ class Command(BaseCommand):
         call_command('load_organisations_from_gridid')
         call_command('load_events', '--event', os.path.join(self.import_data, "events.csv"))
         call_command('load_training', '--training', os.path.join(self.import_data, "training.csv"))
-        # call_command('load_infrastructure')
         # call_command('load_training_material')
+        # call_command('load_infrastructure')
         # call_command('load_services')
 
     def handle(self, *args, **options):
