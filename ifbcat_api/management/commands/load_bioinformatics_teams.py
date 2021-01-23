@@ -82,6 +82,14 @@ class Command(BaseCommand):
                 bt.address = address
                 bt.country = address.split('\n')[-1]
                 bt.city = city
+                # This plateform has no working website
+                # and homepage field do not allow for none.
+                # Hence this "better than nothing URL"
+                if row["Nom de la plateforme"] == "PRABI-HCL":
+                    homepage = "https://lbbe.univ-lyon1.fr/-90-PRABI-.html?lang=fr"
+                else:
+                    homepage = str(row["Website"])
+                bt.homepage = homepage
                 bt.logo_url = to_none_when_appropriate(str(row["Chemin"]))
                 for p in find_persons(row["Responsable scientifique"]):
                     bt.scientificLeaders.add(p)
@@ -106,9 +114,10 @@ class Command(BaseCommand):
                     except Exception as e:
                         print("Failed with %s" % certification)
                         print(e)
-                for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(","):
+                affiliated_with = row["Affiliation"] + "," + row["Structure"]
+                for affiliation in affiliated_with.replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
-                    if affiliation == "Unité : \nNon renseignée":
+                    if affiliation in ["Unité : \nNon renseignée", "Non renseignée"]:
                         continue
                     # FIXME, adding dummy contents because description and homepage are missing
                     try:
