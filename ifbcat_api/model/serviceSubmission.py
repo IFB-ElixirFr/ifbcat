@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.service import Service
 from ifbcat_api.model.userProfile import UserProfile
 
@@ -52,3 +54,14 @@ class ServiceSubmission(models.Model):
     sustainability = models.TextField(
         help_text="Service funding and sustainability plan, including past and future funding commitments, and number of FTE engaged during the last four years and next year."
     )
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly
+            | permissions.ReadWriteByOwner
+            | permissions.ReadWriteBySubmitters
+            | permissions.ReadWriteByAuthors
+            | permissions.ReadWriteBySuperEditor,
+            IsAuthenticatedOrReadOnly,
+        )

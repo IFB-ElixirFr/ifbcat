@@ -11,22 +11,31 @@
 import json
 
 from django.core.cache import cache
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
-from rest_framework import filters, pagination
+from django_filters import rest_framework as django_filters
+from rest_framework import pagination
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
-from ifbcat_api import models
-from ifbcat_api import permissions
+from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
+from ifbcat_api.filters import AutoSubsetFilterSet
+
+
+class PermissionInClassModelViewSet:
+    class Meta:
+        abstract = True
+
+    @property
+    def permission_classes(self):
+        return business_logic.get_permission_classes(self.queryset.model)
 
 
 class SourceInfoViewSet(viewsets.ViewSet):
@@ -38,6 +47,31 @@ class SourceInfoViewSet(viewsets.ViewSet):
                 return Response(info)
         except FileNotFoundError as e:
             return Response(str(e))
+
+
+class MultipleFieldLookupMixin:
+    """
+    https://stackoverflow.com/a/63779871/2144569
+    Apply this mixin to any view or viewset to get multiple field filtering
+    based on a `lookup_fields` attribute, instead of the default single field filtering.
+
+    Source: https://www.django-rest-framework.org/api-guide/generic-views/#creating-custom-mixins
+    Modified to not error out for not providing all fields in the url.
+    """
+
+    def get_object(self):
+        queryset = self.get_queryset()  # Get the base queryset
+        queryset = self.filter_queryset(queryset)  # Apply any filter backends
+        filter = {}
+        for field in self.lookup_fields:
+            field_key = field
+            if field[-8:] == "__iexact":
+                field_key = field[:-8]
+            if self.kwargs.get(field_key):  # Ignore empty fields.
+                filter[field] = self.kwargs[field_key]
+        obj = get_object_or_404(queryset, **filter)  # Lookup the object
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 # TestApiView is just a test API View - not currently used but kept in case it's needed later.
@@ -142,23 +176,25 @@ class TestViewSet(viewsets.ViewSet):
 # They're wired to a serializer class, and a query set is provided so it knows which objects
 # in the DB are managed through this ViewSet
 # Django REST takes care of create, list, update etc. functions on the ViewSet
-class UserProfileViewSet(viewsets.ModelViewSet):
+class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handle creating and updating user profiles."""
 
     queryset = models.UserProfile.objects.all()
-
-    # permission_classes set how user has gets permission to do certain things.
-    permission_classes = (permissions.UpdateOwnProfile,)
-
     # filter_backends adds ability to search profiles by name or email (via filtering)
     # search_fields specifies which fields are searchable by this filter.
-    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'firstname',
         'lastname',
         'email',
         'orcidid',
-        'expertise__topic',
+        'expertise__uri',
+    )
+    filterset_fields = (
+        'expertise',
+        'teamLeader',
+        'teamsMembers',
+        'elixirPlatformDeputies',
+        'elixirPlatformCoordinator',
     )
 
     def get_serializer_class(self):
@@ -176,55 +212,37 @@ class UserLoginApiView(ObtainAuthToken):
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
-# Model ViewSet for news item
-class NewsItemViewSet(viewsets.ModelViewSet):
-    """Handles creating, reading and updating news items."""
+class EventFilter(AutoSubsetFilterSet):
+    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
+    max_start = django_filters.NumberFilter(field_name="dates__dateStart", lookup_expr='lte')
 
-    serializer_class = serializers.NewsItemSerializer
-    queryset = models.NewsItem.objects.all()
-
-    #  This ensures users can only create news items when the user profile is assigned to them.
-    # i.e. they cannot update news items of other users in the system.
-    # "IsAuthenticatedOrReadOnly" (imported above) permission ensures users must be autheticated to perform any request that is not a read request
-    # i.e. they cannot create new feed items when they're not autheticated.
-    # NB. Could instead use "IsAuthenticated" to restrict access of the entire endpoint to autheticated users.
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
-
-    # Set the user_profile to read-only
-    # "perform_create" is a convenience function for customising object creation through a model ViewSet.
-    # When a request is made to the ViewSet, it gets passed to the serializer, is validated, then the
-    # (because it's a ModelSerializer) a serializer.save function is called, which saves the content of
-    # the serializer to an object in the database.
-    #
-    # "serializer.save" is called manually below, and we pass in user_profile
-    # "request" object is passed into all ViewSets whenever a request is made.
-    # Because we added TokenAuthentication to the ViewSet, if the user has autheticated, then the request
-    # will have a user associatd with it.
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('news',)
+    class Meta:
+        model = models.Event
+        fields = [
+            'type',
+            'min_start',
+            'max_start',
+            'costs',
+            'topics',
+            'keywords',
+            'prerequisites',
+            'contactId',
+            'elixirPlatforms',
+            'communities',
+            'hostedBy',
+            'organisedByTeams',
+            'organisedByBioinformaticsTeams',
+            'organisedByOrganisations',
+            'sponsoredBy',
+        ]
 
 
 # Model ViewSet for events
-class EventViewSet(viewsets.ModelViewSet):
+class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByContact,
-        IsAuthenticatedOrReadOnly,
-    )
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'name',
         'shortName',
@@ -233,14 +251,14 @@ class EventViewSet(viewsets.ModelViewSet):
         'venue',
         'city',
         'country',
-        'costs_cost',
-        'topics__topic',
+        'costs__cost',
+        'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
         'accessibility',
         'accessibilityNote',
         'contactName',
-        'contactId__name',
+        'contactId__email',
         'contactEmail',
         'market',
         'elixirPlatforms__name',
@@ -252,6 +270,11 @@ class EventViewSet(viewsets.ModelViewSet):
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
+    filterset_class = EventFilter
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for training events
@@ -260,13 +283,6 @@ class TrainingEventViewSet(EventViewSet):
 
     serializer_class = serializers.TrainingEventSerializer
     queryset = models.TrainingEvent.objects.all()
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByTrainers
-        | permissions.PubliclyReadableEditableByContact
-        | permissions.PubliclyReadableEditableByOwner,
-        IsAuthenticated,
-    )
 
     search_fields = EventViewSet.search_fields + (
         'audienceTypes__audienceType',
@@ -277,75 +293,57 @@ class TrainingEventViewSet(EventViewSet):
 
 
 # Model ViewSet for keywords
-class KeywordViewSet(viewsets.ModelViewSet):
+class KeywordViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating keywords."""
 
     serializer_class = serializers.KeywordSerializer
     queryset = models.Keyword.objects.all()
     # lookup_field = 'keyword__unaccent__iexact'
-
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+    search_fields = ('keyword',)
 
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('keyword',)
-
 
 # Model ViewSet for event prerequisites
-class EventPrerequisiteViewSet(viewsets.ModelViewSet):
+class EventPrerequisiteViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating event prerequisites."""
 
     serializer_class = serializers.EventPrerequisiteSerializer
     queryset = models.EventPrerequisite.objects.all()
-
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+    search_fields = ('prerequisite',)
 
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('prerequisite',)
-
 
 # Model ViewSet for trainer
-class TrainerViewSet(viewsets.ModelViewSet):
+class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating trainers."""
 
     serializer_class = serializers.TrainerSerializer
     queryset = models.Trainer.objects.all()
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    search_fields = (
+        'trainerName',
+        'trainerEmail',
+        'trainerId__email',
+        'trainerId__firstname',
+        'trainerId__lastname',
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = (
-        'trainerName',
-        'trainerEmail',
-        'trainerId__name',
-    )
-
 
 # Model ViewSet for training event metrics
-class TrainingEventMetricsViewSet(viewsets.ModelViewSet):
+class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating training event metrics."""
 
     serializer_class = serializers.TrainingEventMetricsSerializer
     queryset = models.TrainingEventMetrics.objects.all()
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'dateStart',
         'dateEnd',
@@ -354,37 +352,44 @@ class TrainingEventMetricsViewSet(viewsets.ModelViewSet):
         'trainingEvent__description',
     )
 
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
 
 # Model ViewSet for event sponsors
-class EventSponsorViewSet(viewsets.ModelViewSet):
+class EventSponsorViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating event sponsors."""
 
     serializer_class = serializers.EventSponsorSerializer
     queryset = models.EventSponsor.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'name',
         'organisationId__name',
     )
 
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
+
 
 # Model ViewSet for organisation
-class OrganisationViewSet(viewsets.ModelViewSet):
+class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating organisations."""
 
     serializer_class = serializers.OrganisationSerializer
     queryset = models.Organisation.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
+    search_fields = (
+        'name',
+        'description',
+        'homepage',
+        'orgid',
+        'fields__field',
+        'city',
+    )
+    filterset_fields = ('fields',)
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -399,33 +404,19 @@ class OrganisationViewSet(viewsets.ModelViewSet):
         super().perform_destroy(instance)
         cache.clear()
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = (
-        'name',
-        'description',
-        'homepage',
-        'orgid',
-        'fields__field',
-        'city',
-    )
-
     @method_decorator(cache_page(60 * 60 * 0.5))
     @method_decorator(vary_on_cookie)
     def list(self, *args, **kwargs):
         return super().list(*args, **kwargs)
 
 
-class CertificationViewSet(viewsets.ModelViewSet):
+class CertificationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating organisations."""
 
     serializer_class = serializers.CertificationSerializer
     queryset = models.Certification.objects.all()
     # We can't use name if we want to keeep "CATI / CTAI" certification
     # lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
-
-    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'name',
         'description',
@@ -434,20 +425,12 @@ class CertificationViewSet(viewsets.ModelViewSet):
 
 
 # Model ViewSet for elixirPlatform
-class ElixirPlatformViewSet(viewsets.ModelViewSet):
+class ElixirPlatformViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating elixirPlatforms."""
 
     serializer_class = serializers.ElixirPlatformSerializer
     queryset = models.ElixirPlatform.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableEditableByCoordinator, IsAuthenticatedOrReadOnly)
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'name',
         'description',
@@ -459,81 +442,88 @@ class ElixirPlatformViewSet(viewsets.ModelViewSet):
         'deputies__lastname',
         'deputies__email',
     )
-
-
-# Model ViewSet for elixirPlatform
-class CommunityViewSet(viewsets.ModelViewSet):
-    """Handles creating, reading and updating elixirPlatforms."""
-
-    serializer_class = serializers.CommunitySerializer
-    queryset = models.Community.objects.all()
-    lookup_field = 'name'
-
-    permission_classes = (permissions.PubliclyReadableByUsers, IsAuthenticatedOrReadOnly)
+    filterset_fields = (
+        'coordinator',
+        'deputies',
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
 
-    filter_backends = (filters.SearchFilter,)
+
+# Model ViewSet for elixirPlatform
+class CommunityViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    """Handles creating, reading and updating elixirPlatforms."""
+
+    serializer_class = serializers.CommunitySerializer
+    queryset = models.Community.objects.all()
+    lookup_field = 'name'
     search_fields = (
         'name',
         'description',
         'homepage',
         'organisations__name',
     )
+    filterset_fields = ('organisations',)
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for projects
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating projects."""
 
     serializer_class = serializers.ProjectSerializer
     queryset = models.Project.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
     search_fields = (
         'name',
         'homepage',
         'description',
-        'topics__topic',
+        'topics__uri',
         'team__name',
         'hostedBy__name',
         'fundedBy__name',
         'communities__name',
         'elixirPlatforms__name',
-        'uses_name',
+        'uses__name',
     )
-
-
-# Model ViewSet for resources
-class ResourceViewSet(viewsets.ModelViewSet):
-    """Handles creating, reading and updating resources."""
-
-    permission_classes = (permissions.PubliclyReadableEditableByOwner, IsAuthenticatedOrReadOnly)
-    lookup_field = 'name'
+    filterset_fields = (
+        'topics',
+        'team',
+        'hostedBy',
+        'fundedBy',
+        'communities',
+        'elixirPlatforms',
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
 
-    filter_backends = (filters.SearchFilter,)
+
+# Model ViewSet for resources
+class ResourceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    """Handles creating, reading and updating resources."""
+
+    lookup_field = 'name'
     search_fields = (
         'name',
         'description',
         'communities__name',
         'elixirPlatforms__name',
     )
+    filterset_fields = (
+        'communities',
+        'elixirPlatforms',
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for computing facilities
@@ -542,17 +532,16 @@ class ComputingFacilityViewSet(ResourceViewSet):
 
     serializer_class = serializers.ComputingFacilitySerializer
     queryset = models.ComputingFacility.objects.all()
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
-
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy__name',
         'team__name',
         'accessibility',
         'serverDescription',
+    )
+    filterset_fields = ResourceViewSet.filterset_fields + (
+        'team',
+        'accessibility',
     )
 
 
@@ -562,11 +551,10 @@ class TrainingMaterialViewSet(ResourceViewSet):
 
     serializer_class = serializers.TrainingMaterialSerializer
     queryset = models.TrainingMaterial.objects.all()
-
     search_fields = ResourceViewSet.search_fields + (
         'doi__doi',
         'fileName',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
@@ -574,31 +562,29 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'providedBy__name',
         'license',
     )
+    filterset_fields = ResourceViewSet.filterset_fields + (
+        'topics',
+        'keywords',
+        'audienceTypes',
+        'audienceRoles',
+        'difficultyLevel',
+        'providedBy',
+        'license',
+    )
 
 
 # Model ViewSet for teams
-class TeamViewSet(viewsets.ModelViewSet):
+class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating teams."""
 
     serializer_class = serializers.TeamSerializer
     queryset = models.Team.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-    filter_backends = (filters.SearchFilter,)
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (
         'name',
         'description',
-        'expertise__topic',
+        'expertise__uri',
         'leader__firstname',
         'leader__lastname',
         'deputies__firstname',
@@ -622,6 +608,23 @@ class TeamViewSet(viewsets.ModelViewSet):
         'publications__doi',
         'keywords__keyword',
     )
+    filterset_fields = (
+        'expertise',
+        'leader',
+        'deputies',
+        'scientificLeaders',
+        'technicalLeaders',
+        'members',
+        'fields',
+        'communities',
+        'projects',
+        'fundedBy',
+        'keywords',
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged-in user."""
+        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for teams
@@ -630,27 +633,25 @@ class BioinformaticsTeamViewSet(TeamViewSet):
 
     serializer_class = serializers.BioinformaticsTeamSerializer
     queryset = models.BioinformaticsTeam.objects.all()
-
     search_fields = TeamViewSet.search_fields + (
-        'edamTopics__topic',
+        'edamTopics__uri',
         'ifbMembership',
         'platforms__name',
+    )
+    filterset_fields = TeamViewSet.search_fields + (
+        'edamTopics',
+        'ifbMembership',
+        'platforms',
     )
 
 
 # Model ViewSet for services
-class ServiceViewSet(viewsets.ModelViewSet):
+class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating services."""
 
     serializer_class = serializers.ServiceSerializer
     queryset = models.Service.objects.all()
     lookup_field = 'name'
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner | permissions.PubliclyReadableEditableByMembers,
-        IsAuthenticatedOrReadOnly,
-    )
-
     # TODO: : add to "search_fields" below:   'team', 'providedBy'
     search_fields = (
         'name',
@@ -661,28 +662,24 @@ class ServiceViewSet(viewsets.ModelViewSet):
         'trainingMaterials__name',
         'publications__doi',
     )
+    filterset_fields = (
+        'bioinformaticsTeams',
+        'computingFacilities',
+    )
 
 
 # Model ViewSet for service submissions
-class ServiceSubmissionViewSet(viewsets.ModelViewSet):
+class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating service submissions."""
 
     serializer_class = serializers.ServiceSubmissionSerializer
     queryset = models.ServiceSubmission.objects.all()
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner
-        | permissions.PubliclyReadableEditableBySubmitters
-        | permissions.PubliclyReadableEditableByAuthors,
-        IsAuthenticatedOrReadOnly,
-    )
-
     search_fields = (
         'service__name',
-        'authors_firstname',
-        'authors_lastname',
-        'submitters_firstname',
-        'submitters_lastname',
+        'authors__firstname',
+        'authors__lastname',
+        'submitters__firstname',
+        'submitters__lastname',
         'year',
         'motivation',
         'scope',
@@ -691,25 +688,30 @@ class ServiceSubmissionViewSet(viewsets.ModelViewSet):
         'usage',
         'sustainability',
     )
+    filterset_fields = (
+        'service',
+        'year',
+    )
 
 
 # Model ViewSet for tools
-class ToolViewSet(viewsets.ModelViewSet):
+class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
     """Handles creating, reading and updating tools."""
 
     serializer_class = serializers.ToolSerializer
     queryset = models.Tool.objects.all()
-
-    permission_classes = (
-        permissions.PubliclyReadableEditableByOwner
-        | permissions.PubliclyReadableEditableBySubmitters
-        | permissions.PubliclyReadableEditableByAuthors,
-        IsAuthenticatedOrReadOnly,
-    )
-
+    lookup_fields = ['pk', 'biotoolsID__iexact']
     search_fields = (
         'name',
         'description',
         'tool_type__name',
+    )
+    filterset_fields = (
+        'tool_type',
+        'scientific_topics',
+        'keywords',
+        'operating_system',
+        'tool_credit',
+        'collection',
     )

@@ -1,7 +1,9 @@
 # Imports
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType, Doi
 from ifbcat_api.model.resource import Resource
@@ -68,8 +70,8 @@ class TrainingMaterial(Resource):
         related_name='trainingMaterials',
         help_text="The bioinformatics team that provides the training material.",
     )
-    dateCreation = models.DateField(blank=True, help_text="Date when the training material was created.")
-    dateUpdate = models.DateField(blank=True, help_text="Date when the training material was updated.")
+    dateCreation = models.DateField(blank=True, null=True, help_text="Date when the training material was created.")
+    dateUpdate = models.DateField(blank=True, null=True, help_text="Date when the training material was updated.")
     license = models.CharField(
         max_length=255,
         choices=TrainingMaterialLicenseName.choices,
@@ -80,3 +82,14 @@ class TrainingMaterial(Resource):
     def __str__(self):
         """Return the TrainingMaterial model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly
+            | permissions.ReadWriteByOwner
+            | permissions.ReadWriteByProvidedByLeader
+            | permissions.ReadWriteByProvidedByDeputies
+            | permissions.ReadWriteBySuperEditor,
+            IsAuthenticatedOrReadOnly,
+        )

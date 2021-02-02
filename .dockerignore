@@ -2,5 +2,6 @@
 */settings.ini
 local.ini
 source_info.json
+./import_data/
 
 #END OF FILE

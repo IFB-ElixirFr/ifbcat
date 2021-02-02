@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 from django.contrib.postgres.lookups import Unaccent
 from django.core.management import BaseCommand
-from django.db.models import Value, Q
+from django.db.models import Value, Q, Case, When, IntegerField
 from django.db.models.functions import Upper, Concat, Replace
 
 from ifbcat_api import models
@@ -39,6 +39,22 @@ class Command(BaseCommand):
                     bt = models.UserProfile()
                     bt.firstname = row["firstname"].strip()
                     bt.lastname = row["lastname"].strip()
+                except models.UserProfile.MultipleObjectsReturned:
+                    bt = (
+                        models.UserProfile.objects.filter(
+                            firstname__unaccent__iexact=row["firstname"].strip(),
+                            lastname__unaccent__iexact=row["lastname"].strip(),
+                        )
+                        .annotate(
+                            same_email=Case(
+                                When(Q(email__iexact=row["email"].strip()), then=1),
+                                default=Value(0),
+                                output_field=IntegerField(),
+                            )
+                        )
+                        .order_by("-same_email")
+                        .first()
+                    )
                 email = row["email"].strip()
                 if email != "todo@todo.com":
                     bt.email = row["email"].strip()

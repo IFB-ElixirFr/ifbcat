@@ -1,6 +1,9 @@
 import logging
 
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.core import management
+from django.core.exceptions import FieldError
 from django.urls import reverse, NoReverseMatch
 
 from ifbcat_api.model.misc import Topic, Keyword, Field
@@ -41,6 +44,7 @@ def add_everywhere(instance):
 
 class TestNoViewsCrash(EnsureImportDataAreHere):
     def setUp(self):
+        super().setUp()
         # which view do not return 200 and it is normal
         self.status_code_not_200 = {
             "trainingevent-list": 403,
@@ -53,7 +57,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         # create some instance to add everywhere, allows to test all HyperlinkedModelSerializer and *SlugRelatedField
         k, _ = Keyword.objects.get_or_create(keyword="café")
         add_everywhere(k)
-        t, _ = Topic.objects.get_or_create(topic="http://edamontology.org/topic_0091")
+        t, _ = Topic.objects.get_or_create(uri="http://edamontology.org/topic_0091")
         add_everywhere(t)
         f, _ = Field.objects.get_or_create(field="django")
         add_everywhere(f)
@@ -71,6 +75,18 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 response.status_code,
                 status_code,
                 f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}',
+            )
+            url_list += "?search=tralala"
+            msg = f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}'
+            try:
+                response = self.client.get(url_list)
+            except FieldError as e:
+                self.assertTrue(False, msg + str(e))
+            status_code = self.status_code_not_200.get(url_instance.name, 200)
+            self.assertEqual(
+                response.status_code,
+                status_code,
+                msg,
             )
             cpt += 1
         self.assertGreater(cpt, 0)
@@ -100,3 +116,51 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 )
                 cpt += 1
         self.assertGreater(cpt, 0)
+
+        #######################################################################
+        # def test_admin_list(self):
+        #######################################################################
+        self.client.force_login(self.superuser)
+        for ifbcat_api_model in apps.get_app_config('ifbcat_api').get_models():
+            content_type = ContentType.objects.get_for_model(ifbcat_api_model)
+
+            url_list = reverse("admin:%s_%s_changelist" % (content_type.app_label, content_type.model))
+            response = self.client.get(url_list)
+            status_code = 200
+            self.assertEqual(
+                response.status_code,
+                status_code,
+                f'failed while opening admin list view for {ifbcat_api_model} ({url_list}), '
+                f'expected {status_code} got {response.status_code}',
+            )
+            url_list += "?q=tralala"
+            msg = (
+                f'failed while opening admin list view for {ifbcat_api_model} ({url_list}), '
+                f'expected {status_code} got {response.status_code}'
+            )
+            try:
+                response = self.client.get(url_list)
+            except FieldError:
+                self.assertTrue(False, msg)
+            status_code = 200
+            self.assertEqual(
+                response.status_code,
+                status_code,
+                msg,
+            )
+
+        #######################################################################
+        # def test_admin_detail(self):
+        #######################################################################
+        for ifbcat_api_model in apps.get_app_config('ifbcat_api').get_models():
+            content_type = ContentType.objects.get_for_model(ifbcat_api_model)
+            for o in ifbcat_api_model.objects.all()[:20]:
+                url_detail = reverse("admin:%s_%s_change" % (content_type.app_label, content_type.model), args=(o.id,))
+                response = self.client.get(url_detail)
+                status_code = 200
+                self.assertEqual(
+                    response.status_code,
+                    status_code,
+                    f'failed while opening admin detail view for {ifbcat_api_model} (pk={o.id}) ({url_detail}), '
+                    f'expected {status_code} got {response.status_code}',
+                )

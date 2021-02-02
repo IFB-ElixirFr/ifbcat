@@ -1,6 +1,8 @@
 # Imports
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from ifbcat_api import permissions
 
 
 class Certification(models.Model):
@@ -27,3 +29,10 @@ class Certification(models.Model):
     def __str__(self):
         """Return the Certification model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            IsAuthenticatedOrReadOnly,
+        )

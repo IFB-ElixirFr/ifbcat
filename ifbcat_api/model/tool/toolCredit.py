@@ -1,5 +1,7 @@
 from django.db import models
 
+from ifbcat_api import permissions
+
 
 class TypeRole(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
@@ -10,6 +12,10 @@ class TypeRole(models.Model):
     def __str__(self):
         """Return the TypeRole model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
 
 
 class ToolCredit(models.Model):
@@ -27,3 +33,7 @@ class ToolCredit(models.Model):
 
     def __str__(self):
         return str(self.name)
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)

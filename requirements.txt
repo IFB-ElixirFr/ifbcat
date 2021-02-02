@@ -1,14 +1,17 @@
 biopython
-django==3.0.7
-djangorestframework==3.11.0
+Django==3.0.11
+djangorestframework==3.11.2
 python-decouple
 psycopg2
 psycopg2-binary
 gunicorn
 pandas
-pyyaml
+PyYAML
 uritemplate
 urllib3
-unidecode
+Unidecode
 tqdm
+django-better-admin-arrayfield
+django-jazzmin
+django-filter
 #end of file

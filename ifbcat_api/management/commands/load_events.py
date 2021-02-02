@@ -1,14 +1,16 @@
 import csv
 import datetime
+import logging
 import os
 
-import pytz
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.management import BaseCommand
-from django.utils.timezone import make_aware
 from tqdm import tqdm
 
 from ifbcat_api.model.event import *
 from ifbcat_api.model.organisation import Organisation
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -17,7 +19,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
-            print(data_file.name)
             data = csv.reader(data_file)
             # skip first line as there is always a header
             next(data)
@@ -25,7 +26,7 @@ class Command(BaseCommand):
             data_len = len(list(data))
             data_file.seek(0)
             next(data)
-            # do the work
+            # do the work#
             for data_object in tqdm(data, total=data_len):
                 if data_object == []:
                     continue  # Check for empty lines
@@ -34,17 +35,11 @@ class Command(BaseCommand):
                 event_description = data_object[2]
                 if data_object[3]:
                     if "to" in data_object[3]:
-                        event_start_date = datetime.datetime.strptime(
-                            data_object[3].split(" to ")[0], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
-                        event_end_date = datetime.datetime.strptime(data_object[3].split(" to ")[1], "%d-%m-%Y")
-                        event_end_date = make_aware(event_end_date, timezone=pytz.timezone('Europe/Paris'))
+                        data_object[3] = data_object[3].split(" to ")
+                        event_start_date = self.parse_date(data_object[3][0])
+                        event_end_date = self.parse_date(data_object[3][1])
                     else:
-                        event_start_date = datetime.datetime.strptime(
-                            data_object[3], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+                        event_start_date = self.parse_date(data_object[3])
                         event_end_date = None
                 else:
                     event_start_date = None
@@ -67,7 +62,11 @@ class Command(BaseCommand):
                         homepage=event_link,
                     )
 
-                    dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
+                    try:
+                        dates, created = event.dates.get_or_create(dateStart=event_start_date, dateEnd=event_end_date)
+                    except MultipleObjectsReturned:
+                        event.dates.all().delete()
+                        dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
 
                     event.dates.add(dates)
 
@@ -75,26 +74,30 @@ class Command(BaseCommand):
                         organizer = organizer.strip()
 
                         if organizer == '':
-                            print('No organizer for ' + event_name)
-
+                            logger.debug(f'No organizer for {event_name}')
                         elif Organisation.objects.filter(name=organizer).exists():
                             organisation = Organisation.objects.get(name=organizer)
                             event.organisedByOrganisations.add(organisation)
-
                         else:
-                            print(organizer + 'is not an organisation in the DB.')
+                            logger.error(f'{organizer} is not an organisation in the DB.')
 
                     # EventSponsors should be created before to be able to add them here to events
                     # for sponsor in event_sponsors.split(','):
                     #    sponsor=sponsor.strip()
 
                     #    if sponsor == '':
-                    #        print('No sponsor for '+event_name)
+                    #        logger.debug(f'No sponsor for {sponsor}')
 
                     #    elif EventSponsor.objects.filter(name=sponsor).exists():
                     #        organisation=EventSponsor.objects.get(name=sponsor)
                     #        event.sponsoredBy.add(organisation)
 
                 except Exception as e:
-                    print(data_object)
+                    logger.error(data_object)
                     raise e
+
+    def parse_date(self, date_string):
+        event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")
+        # event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+        event_start_date = event_start_date.strftime("%Y-%m-%d")
+        return event_start_date

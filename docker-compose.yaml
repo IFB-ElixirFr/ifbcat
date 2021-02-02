@@ -28,7 +28,6 @@ services:
       - ./resources/default.ini
       - ./local.ini
     volumes:
-#      - .:/code # for dev purpose !!!
       - /var/ifbcat/static:/code/static
     ports:
       - "8000:8000"

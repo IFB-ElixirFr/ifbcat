@@ -1,17 +1,86 @@
+import itertools
+
+from django import forms
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
-from django.db.models.functions import Upper
+from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
+from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
+from django.utils import dateformat
 from django.utils.html import format_html
 from django.utils.translation import ugettext
+from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
+from rest_framework.authtoken.models import Token
 
-from ifbcat_api import models
+from ifbcat_api import models, business_logic
+from ifbcat_api.permissions import simple_override_method
 
 
-class ViewInApiModelAdmin(admin.ModelAdmin):
+class PermissionInClassModelAdmin(admin.ModelAdmin):
+    class Meta:
+        abstract = True
+
+    def has_permission_for_methods(self, *, request, methods: list, obj=None):
+        # similar to rest_framework/views.py:APIView.check_permissions#L326
+        for perm in business_logic.get_permission_classes(self.model):
+            for method in methods:
+                with simple_override_method(request=request, method=method) as request:
+                    if obj is None:
+                        if not perm().has_permission(request=request, view=None):
+                            return False
+                    else:
+                        if not perm().has_object_permission(request=request, view=None, obj=obj):
+                            return False
+        return True
+
+    def has_view_permission(self, request, obj=None):
+        from_super = super().has_view_permission(request=request, obj=obj)
+        if not from_super:
+            return False
+        if obj is None:
+            return from_super
+
+        return self.has_permission_for_methods(request=request, obj=obj, methods=["GET"])
+
+    def has_add_permission(self, request):
+        from_super = super().has_add_permission(request=request)
+        if not from_super:
+            return False
+
+        return self.has_permission_for_methods(request=request, methods=["PUT"])
+
+    def has_change_permission(self, request, obj=None):
+        from_super = super().has_change_permission(request=request, obj=obj)
+        if not from_super:
+            return False
+        if obj is None:
+            return from_super
+
+        return self.has_permission_for_methods(request=request, obj=obj, methods=["POST", "PUT"])
+
+    def has_delete_permission(self, request, obj=None):
+        from_super = super().has_delete_permission(request=request, obj=obj)
+        if not from_super:
+            return False
+        if obj is None:
+            return from_super
+        return self.has_permission_for_methods(request=request, obj=obj, methods=["DELETE"])
+
+
+class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
     class Media:
-        css = {'all': ('https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',)}
+        js = ("js/django_better_admin_arrayfield.min.js",)
+        css = {
+            "all": (
+                "css/django_better_admin_arrayfield.min.css",
+                # "css/ifbcat_admin.css",
+                # 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
+            )
+        }
 
     slug_name = "pk"
 
@@ -24,7 +93,7 @@ class ViewInApiModelAdmin(admin.ModelAdmin):
             return format_html(
                 '<center><a href="'
                 + reverse('%s-detail' % obj.__class__.__name__.lower(), args=[getattr(obj, self.slug_name)])
-                + '"><i class="fa fa-external-link"></i></a><center>'
+                + '"><i class="fa fa-external-link-alt"></i></a><center>'
             )
         except NoReverseMatch:
             return format_html('<center><i class="fa fa-ban"></i></center>')
@@ -41,7 +110,7 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.UserProfile)
-class UserProfileAdmin(UserAdmin):
+class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdmin):
     # Enables search, filtering and widgets in Django admin interface.
     ordering = ("email",)
     list_display = (
@@ -57,11 +126,11 @@ class UserProfileAdmin(UserAdmin):
         'lastname',
         'email',
         'orcidid',
-        'expertise__topic',
+        'expertise__uri',
     )
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('firstname', 'lastname', 'orcidid', 'homepage', 'expertise')}),
+        ('Personal info', {'fields': ('email', 'firstname', 'lastname', 'orcidid', 'homepage', 'expertise')}),
+        ('Password', {'fields': ('password',)}),
         (
             'Permissions',
             {
@@ -82,19 +151,69 @@ class UserProfileAdmin(UserAdmin):
             },
         ),
     )
+    filter_horizontal = (
+        "user_permissions",
+        "groups",
+    )
+    autocomplete_fields = ("expertise",)
 
+    def can_manager_user(self, request, obj):
+        return business_logic.can_edit_user(request.user, obj)
 
-# admin.site.register(models.UserProfile)
+    def has_change_permission(self, request, obj=None):
+        return (
+            request.user.is_superuser
+            or self.can_manager_user(request=request, obj=obj)
+            or super().has_change_permission(request=request, obj=obj)
+        )
 
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
+        if not request.user.is_superuser:
+            readonly_fields |= set(itertools.chain(*[d['fields'] for _, d in self.fieldsets]))
+            if request.user == obj:
+                readonly_fields.discard("email")
+                readonly_fields.discard("password")
+                readonly_fields.discard("firstname")
+                readonly_fields.discard("lastname")
+                readonly_fields.discard("homepage")
+                readonly_fields.discard("orcidid")
+                readonly_fields.discard("expertise")
+            if self.can_manager_user(request=request, obj=obj):
+                readonly_fields.discard("firstname")
+                readonly_fields.discard("lastname")
+                readonly_fields.discard("homepage")
+                readonly_fields.discard("orcidid")
+                readonly_fields.discard("expertise")
+                if obj is not None and not obj.is_superuser:
+                    readonly_fields.discard("groups")
+                    readonly_fields.discard("is_active")
+                    readonly_fields.discard("is_staff")
+        return readonly_fields
 
-admin.site.register(models.NewsItem)
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request=request, obj=obj)
+        ret = []
+        for k, f in fieldsets:
+            if request.user.is_superuser or (
+                (self.can_manager_user(request=request, obj=obj) or request.user == obj)
+                and k != 'Permissions'
+                and (request.user == obj or k != "Password")
+            ):
+                ret.append((k, f))
+        return ret
+
+    def get_queryset(self, request):
+        if request.user.is_superuser or business_logic.is_user_manager(user=request.user):
+            return super().get_queryset(request)
+        return super().get_queryset(request).filter(pk=request.user.pk)
 
 
 # "search_fields" defines the searchable 'fields'
 # "list_filter" adds fields to Django admin filter box
 # "filter_horizontal" adds widgets for item selection from lists
 @admin.register(models.Event)
-class EventAdmin(ViewInApiModelAdmin):
+class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     """Enables search, filtering and widgets in Django admin interface."""
 
     search_fields = (
@@ -105,26 +224,21 @@ class EventAdmin(ViewInApiModelAdmin):
         'venue',
         'city',
         'country',
-        'costs_cost',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        'accessibility',
         'accessibilityNote',
         'contactName',
-        'contactId__name',
+        'contactId__email',
         'contactEmail',
         'market',
-        'elixirPlatforms__name',
-        'communities__name',
-        'hostedBy__name',
         'organisedByTeams__name',
         'organisedByBioinformaticsTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
-    list_display = ('short_name_or_name', 'contactName')
+    list_display = ('short_name_or_name_trim', 'date_range')
     list_filter = (
         'type',
         'costs',
@@ -147,20 +261,48 @@ class EventAdmin(ViewInApiModelAdmin):
         'sponsoredBy',
     )
 
-    # date_hierarchy = 'dates'
+    date_hierarchy = 'dates__dateStart'
 
-    def short_name_or_name(self, obj):
-        if obj.shortName is None or obj.shortName == "":
-            if len(obj.name) <= 35:
-                return obj.name
-            return "%.32s..." % obj.name
-        return obj.shortName
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(
+                short_name_or_name=Case(
+                    When(shortName='', then=F('name')),
+                    When(shortName__isnull=True, then=F('name')),
+                    default='shortName',
+                    output_field=CharField(),
+                )
+            )
+        )
 
-    short_name_or_name.short_description = "Name"
+    def short_name_or_name_trim(self, obj):
+        if len(obj.short_name_or_name) <= 35:
+            return obj.short_name_or_name
+        return "%.32s..." % obj.short_name_or_name
+
+    short_name_or_name_trim.short_description = "Name"
+    short_name_or_name_trim.admin_order_field = 'short_name_or_name'
+
+    def date_range(self, obj):
+        start, end = (
+            type(obj)
+            .objects.filter(pk=obj.pk)
+            .annotate(min=Min('dates__dateStart'), max=Max('dates__dateEnd'))
+            .values_list('min', 'max')
+            .get()
+        )
+        if end is None:
+            return dateformat.format(start, "Y-m-d")
+        return f'{dateformat.format(start, "Y-m-d")} - {dateformat.format(end, "Y-m-d")}'
+
+    date_range.short_description = "Period"
+    date_range.admin_order_field = 'dates__dateStart'
 
 
 @admin.register(models.TrainingEvent)
-class TrainingEventAdmin(ViewInApiModelAdmin):
+class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     """Enables search, filtering and widgets in Django admin interface."""
 
     search_fields = (
@@ -182,40 +324,58 @@ class TrainingEventAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Keyword)
-class KeywordAdmin(ViewInApiModelAdmin):
+class KeywordAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['keyword']
 
 
 @admin.register(models.EventPrerequisite)
-class EventPrerequisiteAdmin(ViewInApiModelAdmin):
+class EventPrerequisiteAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['prerequisite']
 
 
 @admin.register(models.Topic)
-class TopicAdmin(ViewInApiModelAdmin):
-    search_fields = ['topic']
+class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    search_fields = ['uri', 'label', 'description', 'synonyms']
+    list_display = (
+        'label',
+        'uri',
+    )
+    readonly_fields = ('label', 'description', 'synonyms')
+
+    actions = [
+        'update_information_from_ebi_ols',
+        # 'update_information_from_ebi_ols_when_needed',
+    ]
+
+    def update_information_from_ebi_ols(self, request, queryset):
+        for o in queryset:
+            o.update_information_from_ebi_ols()
 
 
 @admin.register(models.EventCost)
-class EventCostAdmin(ViewInApiModelAdmin):
+class EventCostAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['cost']
 
 
-admin.site.register(models.EventDate)
+@admin.register(models.EventDate)
+class EventDateAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    pass
 
 
 @admin.register(models.Trainer)
-class TrainerAdmin(ViewInApiModelAdmin):
+class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'trainerName',
         'trainerEmail',
-        'trainerId__name',
+        'trainerId__email',
+        'trainerId__firstname',
+        'trainerId__lastname',
     )
     autocomplete_fields = ('trainerId',)
 
 
 @admin.register(models.TrainingEventMetrics)
-class TrainingEventMetricsAdmin(ViewInApiModelAdmin):
+class TrainingEventMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'dateStart',
         'dateEnd',
@@ -227,7 +387,7 @@ class TrainingEventMetricsAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.EventSponsor)
-class EventSponsorAdmin(ViewInApiModelAdmin):
+class EventSponsorAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'organisationId__name',
@@ -235,8 +395,16 @@ class EventSponsorAdmin(ViewInApiModelAdmin):
     autocomplete_fields = ('organisationId',)
 
 
+@admin.register(models.Certification)
+class CertificationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'description',
+    )
+
+
 @admin.register(models.Community)
-class CommunityAdmin(ViewInApiModelAdmin):
+class CommunityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
@@ -247,7 +415,7 @@ class CommunityAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.ElixirPlatform)
-class ElixirPlatformAdmin(ViewInApiModelAdmin):
+class ElixirPlatformAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
@@ -262,7 +430,7 @@ class ElixirPlatformAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Organisation)
-class OrganisationAdmin(ViewInApiModelAdmin):
+class OrganisationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
@@ -276,23 +444,28 @@ class OrganisationAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Field)
-class FieldAdmin(ViewInApiModelAdmin):
+class FieldAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ('field',)
 
 
+@admin.register(models.Doi)
+class DoiAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    search_fields = ('doi',)
+
+
 @admin.register(models.Project)
-class ProjectAdmin(ViewInApiModelAdmin):
+class ProjectAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'homepage',
         'description',
-        'topics__topic',
+        'topics__uri',
         'team__name',
         'hostedBy__name',
         'fundedBy__name',
         'communities__name',
         'elixirPlatforms__name',
-        'uses_name',
+        'uses__name',
     )
     list_filter = ('elixirPlatforms', 'communities', 'hostedBy', 'uses')
     autocomplete_fields = (
@@ -307,21 +480,21 @@ class ProjectAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.AudienceRole)
-class AudienceRoleAdmin(ViewInApiModelAdmin):
+class AudienceRoleAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['audienceRole']
 
 
 @admin.register(models.AudienceType)
-class AudienceTypeAdmin(ViewInApiModelAdmin):
+class AudienceTypeAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['audienceType']
 
 
 @admin.register(models.TrainingMaterial)
-class TrainingMaterialAdmin(ViewInApiModelAdmin):
+class TrainingMaterialAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'doi__doi',
         'fileName',
-        'topics__topic',
+        'topics__uri',
         'keywords__keyword',
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
@@ -341,7 +514,7 @@ class TrainingMaterialAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.ComputingFacility)
-class ComputingFacilityAdmin(ViewInApiModelAdmin):
+class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'homepage',
         'providedBy__name',
@@ -360,12 +533,12 @@ class ComputingFacilityAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Team)
-class TeamAdmin(ViewInApiModelAdmin):
+class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     ordering = (Upper(Unaccent("name")),)
     search_fields = (
         'name',
         'description',
-        'expertise',
+        'expertise__uri',
         'leader__firstname',
         'leader__lastname',
         'deputies__firstname',
@@ -398,12 +571,12 @@ class TeamAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.BioinformaticsTeam)
-class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
+class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     ordering = (Unaccent("name"),)
     search_fields = (
         'name',
         'description',
-        'expertise',
+        'expertise__uri',
         'leader__firstname',
         'leader__lastname',
         'deputies__firstname',
@@ -419,8 +592,7 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
         'orgid',
         'unitId',
         'address',
-        'fields',
-        'topics__topic',
+        'fields__field',
         'keywords__keyword',
         'ifbMembership',
         'platforms__name',
@@ -460,7 +632,7 @@ class BioinformaticsTeamAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.Service)
-class ServiceAdmin(ViewInApiModelAdmin):
+class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
@@ -480,13 +652,13 @@ class ServiceAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.ServiceSubmission)
-class ServiceSubmissionAdmin(ViewInApiModelAdmin):
+class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'service__name',
-        'authors_firstname',
-        'authors_lastname',
-        'submitters_firstname',
-        'submitters_lastname',
+        'authors__firstname',
+        'authors__lastname',
+        'submitters__firstname',
+        'submitters__lastname',
         'year',
         'motivation',
         'scope',
@@ -499,12 +671,200 @@ class ServiceSubmissionAdmin(ViewInApiModelAdmin):
     autocomplete_fields = ('service',)
 
 
+@admin.register(models.Tool)
+class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    search_fields = (
+        'name',
+        'biotoolsID',
+        'description',
+    )
+    list_filter = (
+        'tool_type',
+        'collection',
+        'operating_system',
+    )
+    list_display_links = (
+        'name',
+        'biotoolsID',
+    )
+    list_display = (
+        'name',
+        'biotoolsID',
+        'update_needed',
+    )
+
+    actions = [
+        'update_information_from_biotool',
+        'update_information_from_biotool_when_needed',
+    ]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(name_len=Length('name'))
+            .annotate(
+                update_needed=Case(
+                    When(Q(name_len=0), then=True),
+                    When(Q(name="None"), then=True),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+        )
+
+    def update_needed(self, obj):
+        return obj.update_needed
+
+    update_needed.boolean = True
+
+    update_needed.admin_order_field = 'update_needed'
+
+    def update_information_from_biotool(self, request, queryset):
+        for o in queryset:
+            o.update_information_from_biotool()
+
+    def update_information_from_biotool_when_needed(self, request, queryset):
+        for o in queryset.filter(update_needed=True):
+            o.update_information_from_biotool()
+
+    def get_fields(self, request, obj=None):
+        if obj is None:
+            return ('biotoolsID',)
+        return super().get_fields(request=request, obj=obj)
+
+
+class GroupAdminForm(forms.ModelForm):
+    """
+    https://stackoverflow.com/a/39648244/2144569
+    """
+
+    class Meta:
+        model = Group
+        exclude = []
+
+    # Add the users field.
+    users = forms.ModelMultipleChoiceField(
+        queryset=get_user_model().objects.all(),
+        required=False,
+        # Use the pretty 'filter_horizontal widget'.
+        widget=FilteredSelectMultiple('users', False),
+    )
+
+    def __init__(self, *args, **kwargs):
+        # Do the normal form initialisation.
+        super(GroupAdminForm, self).__init__(*args, **kwargs)
+        self.fields['users'].queryset = get_user_model().objects.filter(is_active=True)
+        # If it is an existing group (saved objects have a pk).
+        if self.instance.pk:
+            # Populate the users field with the current Group users.
+            self.fields['users'].initial = self.instance.user_set.all()
+
+    def save_m2m(self):
+        # Add the users to the Group.
+        self.instance.user_set.set(self.cleaned_data['users'])
+
+    def save(self, *args, **kwargs):
+        # Default save
+        instance = super(GroupAdminForm, self).save()
+        # Save many-to-many data
+        self.save_m2m()
+        return instance
+
+
+# Unregister the original Group admin.
+admin.site.unregister(Group)
+
+
+# Create a new Group admin.
+@admin.register(Group)
+class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
+    # Use our custom form.
+    form = GroupAdminForm
+    # Filter permissions horizontal as well.
+    filter_horizontal = ['permissions']
+    search_fields = (
+        'user__email',
+        'permissions__codename',
+    )
+
+    list_display = (
+        'name',
+        'permissions_count',
+        'users_count',
+    )
+
+    actions = [
+        'init_specific_groups',
+    ]
+
+    def init_specific_groups(self, request, queryset):
+        business_logic.init_business_logic()
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(Count('permissions', distinct=True), Count('user', distinct=True))
+
+    def permissions_count(self, obj):
+        return obj.permissions__count
+
+    permissions_count.admin_order_field = 'permissions__count'
+
+    def users_count(self, obj):
+        return obj.user__count
+
+    users_count.admin_order_field = 'user__count'
+
+    def has_delete_permission(self, request, obj=None):
+        return super().has_delete_permission(request=request, obj=obj) and (
+            obj is None or obj.name not in business_logic.get_not_to_be_deleted_group_names()
+        )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None or obj.name not in business_logic.get_not_to_be_deleted_group_names():
+            return super().get_readonly_fields(request)
+        return (
+            "name",
+            "permissions",
+        )
+
+
+# Unregister the original Token admin.
+admin.site.unregister(Token)
+
+
+@admin.register(Token)
+class TokenAdmin(PermissionInClassModelAdmin, admin.ModelAdmin):
+    list_display = ('key', 'user', 'created')
+    fields = ('user',)
+    ordering = ('-created',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser and not business_logic.is_user_manager(None, request=request):
+            qs = qs.filter(user=request.user)
+        return qs
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request=request, obj=obj, **kwargs)
+        if not request.user.is_superuser and not business_logic.is_user_manager(None, request=request):
+            form.base_fields['user'].queryset = form.base_fields['user'].queryset.filter(pk=request.user.pk)
+        return form
+
+    def get_changeform_initial_data(self, request):
+        return dict(user=request.user)
+
+
 # register all models that are not registered yet
 from django.apps import apps
+
+
+class DefaultPermissionInClassModelAdmin(PermissionInClassModelAdmin):
+    pass
+
 
 models = apps.get_app_config('ifbcat_api').get_models()
 for model in models:
     try:
-        admin.site.register(model)
+        admin.site.register(model, DefaultPermissionInClassModelAdmin)
     except admin.sites.AlreadyRegistered:
         pass

@@ -2,8 +2,11 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.resource import Resource
+
 
 # from ifbcat_api.model.team import Team
 
@@ -117,3 +120,14 @@ class ComputingFacility(Resource):
     def __str__(self):
         """Return the ComputingFacility model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly
+            | permissions.ReadWriteByOwner
+            | permissions.ReadWriteByTeamLeader
+            | permissions.ReadWriteByTeamDeputies
+            | permissions.ReadWriteBySuperEditor,
+            IsAuthenticatedOrReadOnly,
+        )

@@ -137,7 +137,7 @@ dmypy.json
 
 # End of https://www.gitignore.io/api/python,vagrant
 eb-package.zip
-static/
+/static/
 
 local.ini
 settings.ini
@@ -145,3 +145,4 @@ settings.ini
 # folder where data are git cloned
 ./import_data
 import_data
+source_info.json

@@ -1,9 +1,13 @@
 # Imports
+import functools
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
+from ifbcat_api import permissions
 from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.community import Community
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
@@ -11,7 +15,6 @@ from ifbcat_api.model.misc import Topic, Keyword
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
 from ifbcat_api.model.userProfile import UserProfile
-from ifbcat_api.validators import validate_can_be_looked_up
 
 
 # Event prerequisite model
@@ -29,6 +32,10 @@ class EventPrerequisite(models.Model):
         """Return the EventPrerequisite model as a string."""
         return self.prerequisite
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.ReadOnly, IsAuthenticatedOrReadOnly)
+
 
 # Event cost model
 class EventCost(models.Model):
@@ -45,6 +52,10 @@ class EventCost(models.Model):
     def __str__(self):
         """Return the EventCost model as a string."""
         return self.cost
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
 
 
 # Event sponsor model
@@ -69,6 +80,10 @@ class EventSponsor(models.Model):
     def __str__(self):
         """Return the EventSponsor model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)
 
 
 class Event(models.Model):
@@ -214,6 +229,31 @@ class Event(models.Model):
     def __str__(self):
         """Return the Event model as a string."""
         return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            functools.reduce(lambda a, b: a | b, cls.get_edition_permission_classes()),
+            functools.reduce(lambda a, b: a | b, cls.get_default_permission_classes()),
+        )
+
+    @classmethod
+    def get_default_permission_classes(cls):
+        return (IsAuthenticatedOrReadOnly,)
+
+    @classmethod
+    def get_edition_permission_classes(cls):
+        return (
+            permissions.ReadOnly,
+            permissions.ReadWriteByOwner,
+            permissions.ReadWriteByContact,
+            permissions.ReadWriteByOrgByTeamsLeader,
+            permissions.ReadWriteByOrgByTeamsDeputies,
+            permissions.ReadWriteByOrgByBioinformaticsTeamsLeader,
+            permissions.ReadWriteByOrgByBioinformaticsTeamsDeputies,
+            permissions.ReadWriteByOrgByOrganisationsLeader,
+            permissions.ReadWriteBySuperEditor,
+        )
 
 
 # Event date model

@@ -1,17 +1,29 @@
-# Imports
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.db.models import Q
-from django.utils.translation import gettext_lazy as _
+import json
+import logging
 
+from Bio import Entrez
+from django.core.exceptions import ValidationError
+from django.db import models, DataError
+from django.db.models import Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
+from django_better_admin_arrayfield.models.fields import ArrayField
+from pip._vendor import requests
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+from ifbcat_api import permissions
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
+from ifbcat_api.validators import validate_grid_or_ror_id
+
+logger = logging.getLogger(__name__)
 
 
 class Topic(models.Model):
     """Event topic model: URI of EDAM Topic term describing scope or expertise."""
 
     # topic is mandatory
-    topic = models.CharField(
+    uri = models.CharField(
         max_length=255,
         unique=True,
         help_text="URI of EDAM Topic term describing scope or expertise.",
@@ -20,9 +32,80 @@ class Topic(models.Model):
         ],
     )
 
+    label = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    description = models.TextField(
+        max_length=255,
+        blank=True,
+        help_text="Definition of the EDAM term",
+    )
+
+    # https://docs.djangoproject.com/fr/3.1/ref/contrib/postgres/fields/
+    synonyms = ArrayField(
+        base_field=models.CharField(
+            max_length=255,
+        ),
+        size=8,
+        help_text="Narrow synonyms",
+        blank=True,
+        null=True,
+    )
+
     def __str__(self):
         """Return the Topic model as a string."""
-        return self.topic
+        return f'{self.label} ({self.uri})'
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            IsAuthenticatedOrReadOnly,
+        )
+
+    def update_information_from_ebi_ols(self):
+        url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}'
+        response = requests.get(url).json()
+        try:
+            term = response["_embedded"]["terms"][0]
+            if term["iri"] != self.uri:
+                logger.error(f"Searched for {self.uri} but got a a response term {term['iri']} aborting update")
+                return
+            self.label = term["label"]
+            self.description = term["description"][0] if isinstance(term["description"], list) else term["description"]
+            self.synonyms = term["synonyms"]
+            try:
+                self.save()
+            except DataError as e:
+                logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
+                raise
+        except KeyError as e:
+            logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}\n{json.dumps(response)}")
+        # # code use to pre-load topics, and spare rest calls later, should remain commented on git
+        # filepath = "./import_data/Topic.json"
+        # try:
+        #     with open(filepath) as f:
+        #         topics = json.load(f)
+        # except FileNotFoundError:
+        #     topics = []
+        # topics.append(
+        #     dict(
+        #         label=self.label,
+        #         description=self.description,
+        #         synonyms=self.synonyms,
+        #         uri=self.uri,
+        #     )
+        # )
+        # with open(filepath, 'w') as f:
+        #     json.dump(topics, f)
+
+
+@receiver(post_save, sender=Topic)
+def update_information_from_ebi_ols(sender, instance, created, **kwargs):
+    if created and (instance.label is None or instance.label == ""):
+        instance.update_information_from_ebi_ols()
 
 
 class Keyword(models.Model):
@@ -49,6 +132,10 @@ class Keyword(models.Model):
         if qs.exists():
             raise ValidationError("Keyword \"%s\" already exists as \"%s\"" % (self.keyword, qs.get().keyword))
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
+
 
 class AudienceType(models.Model):
     """
@@ -68,6 +155,10 @@ class AudienceType(models.Model):
         """Return the AudienceType model as a string."""
         return self.audienceType
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
+
 
 class AudienceRole(models.Model):
     """
@@ -86,6 +177,13 @@ class AudienceRole(models.Model):
     def __str__(self):
         """Return the AudienceRole model as a string."""
         return self.audienceRole
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 class DifficultyLevelType(models.TextChoices):
@@ -111,6 +209,13 @@ class Field(models.Model):
         """Return the Field model as a string."""
         return self.field
 
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
+
 
 class Doi(models.Model):
     """Digital object identifier model: A digital object identifier (DOI) of a publication or training material."""
@@ -127,3 +232,34 @@ class Doi(models.Model):
     def __str__(self):
         """Return the Doi model as a string."""
         return self.doi
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            IsAuthenticatedOrReadOnly,
+        )
+
+    @classmethod
+    def get_doi_from_pmid(cls, pmid):
+        with Entrez.efetch(db="pubmed", id=str(pmid), rettype="xml", retmode="text") as handle:
+            d = Entrez.read(handle)
+            for article_id in d["PubmedArticle"][0]["PubmedData"]["ArticleIdList"]:
+                if article_id[:2] == "10":
+                    return article_id
+
+
+class WithGridIdOrRORId(models.Model):
+    class Meta:
+        abstract = True
+
+    orgid = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        unique=True,
+        help_text="Organisation ID (GRID or ROR ID)",
+        validators=[
+            validate_grid_or_ror_id,
+        ],
+    )
