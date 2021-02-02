@@ -39,3 +39,5 @@ jobs:
       # Runs a script that creates a PostgreSQL client, populates
       # the client with data, and retrieves data
       run: python manage.py test
+      env:
+        POSTGRES_PASSWORD: the_super_password
