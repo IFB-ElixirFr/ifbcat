@@ -19,6 +19,11 @@ jobs:
         cp resources/default.ini local.ini
         docker-compose build
         docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+        
+        rm -rf ifbcat_api/migrations
+        docker-compose exec -T web python manage.py makemigrations
+        ls ifbcat_api/migrations
+        
         docker-compose exec -T web python manage.py migrate
         docker-compose exec -T -e DJANGO_SUPERUSER_PASSWORD web python manage.py createsuperuser --no-input --email super.user@test.com --firstname super --lastname user
         docker-compose exec -T web python manage.py test
