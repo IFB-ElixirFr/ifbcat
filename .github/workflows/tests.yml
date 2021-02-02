@@ -17,10 +17,12 @@ jobs:
     - name: Run the DB locally
       run: |
         cp resources/default.ini local.ini
+        
+        rm -rf ifbcat_api/migrations
+        
         docker-compose build
         docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
         
-        rm -rf ifbcat_api/migrations
         docker-compose exec -T web python manage.py makemigrations
         ls ifbcat_api/migrations
         
