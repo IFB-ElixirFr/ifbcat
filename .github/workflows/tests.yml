@@ -29,7 +29,7 @@ jobs:
     - name: Run the DB locally
       run: |
         cp resources/default.ini local.ini
-        docker-compose run db
+        docker-compose up -d db
     - name: Some checks for dev
       run: |
         ls
