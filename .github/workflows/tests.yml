@@ -19,7 +19,7 @@ jobs:
         cp resources/default.ini local.ini
         docker-compose build
         docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
-        docker-compose exec -e DJANGO_SUPERUSER_PASSWORD -e DJANGO_SUPERUSER_USERNAME -e DJANGO_SUPERUSER_EMAIL web python manage.py createsuperuser --no-input
+        docker-compose exec -T -e DJANGO_SUPERUSER_PASSWORD -e DJANGO_SUPERUSER_USERNAME -e DJANGO_SUPERUSER_EMAIL web python manage.py createsuperuser --no-input
         docker-compose exec web python manage.py test
       env:
         DJANGO_SUPERUSER_PASSWORD: test_password
