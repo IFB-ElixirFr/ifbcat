@@ -12,6 +12,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Run the DB locally
+      run: |
+        cp resources/default.ini local.ini
+        docker-compose run -d db
     - uses: actions/checkout@v2
       with:
         repository:  IFB-ElixirFr/ifbcat-importdata
@@ -26,10 +30,6 @@ jobs:
         python -m pip install --upgrade pip
         # pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Run the DB locally
-      run: |
-        cp resources/default.ini local.ini
-        docker-compose up -d db
     - name: Some checks for dev
       run: |
         ls
