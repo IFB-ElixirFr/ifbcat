@@ -12,32 +12,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Run the DB locally
-      run: |
-        cp resources/default.ini local.ini
-        docker-compose run -d db
     - uses: actions/checkout@v2
       with:
         repository:  IFB-ElixirFr/ifbcat-importdata
         token: ${{ secrets.ACCESS_TOKEN }}
         path: 'import_data'
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Run the DB locally
       run: |
-        python -m pip install --upgrade pip
-        # pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Some checks for dev
-      run: |
-        ls
-        pwd
-        ls import_data
-    - name: Run tests
-      # Runs a script that creates a PostgreSQL client, populates
-      # the client with data, and retrieves data
-      run: python manage.py test
+        cp resources/default.ini local.ini
+        docker-compose build
+        docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+        docker-compose exec -e DJANGO_SUPERUSER_PASSWORD -e DJANGO_SUPERUSER_USERNAME -e DJANGO_SUPERUSER_EMAIL web python manage.py createsuperuser --no-input
+        docker-compose exec web python manage.py test
       env:
-        POSTGRES_PASSWORD: the_super_password
+        DJANGO_SUPERUSER_PASSWORD: test_password
+        DJANGO_SUPERUSER_USERNAME: test_username
+        DJANGO_SUPERUSER_EMAIL: test_email
