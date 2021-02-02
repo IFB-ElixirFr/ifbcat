@@ -9,7 +9,26 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-        
+
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+               
     steps:
     - uses: actions/checkout@v2
     - uses: actions/checkout@v2
@@ -31,4 +50,14 @@ jobs:
         ls
         pwd
         ls import_data
-        
+    - name: Run tests
+      # Runs a script that creates a PostgreSQL client, populates
+      # the client with data, and retrieves data
+      run: python manage.py test
+      # Environment variable used by the `client.js` script to create
+      # a new PostgreSQL client.
+      env:
+        # The hostname used to communicate with the PostgreSQL service container
+        POSTGRES_HOST: localhost
+        # The default PostgreSQL port
+        POSTGRES_PORT: 5432
