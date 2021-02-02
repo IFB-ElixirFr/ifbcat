@@ -6,13 +6,29 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+        
     steps:
     - uses: actions/checkout@v2
     - uses: actions/checkout@v2
       with:
         repository:  IFB-ElixirFr/ifbcat-importdata
         token: ${{ secrets.ACCESS_TOKEN }}
-        #ssh-key: ${{ secrets.DEPLOY_KEY }}
         path: 'import_data'
-    - run: ls; pwd
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Some checks for dev
+      run: |
+        ls
+        pwd
+        ls import_data
+        
