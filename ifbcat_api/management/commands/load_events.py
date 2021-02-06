@@ -4,11 +4,8 @@ import logging
 import os
 import pandas as pd
 
-import pytz
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.management import BaseCommand
-from django.utils.timezone import make_aware
-from django.contrib.auth import get_user_model
-
 from tqdm import tqdm
 
 from ifbcat_api.model.event import *
@@ -70,17 +67,11 @@ class Command(BaseCommand):
                 event_description = data_object[2]
                 if data_object[3]:
                     if "to" in data_object[3]:
-                        event_start_date = datetime.datetime.strptime(
-                            data_object[3].split(" to ")[0], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
-                        event_end_date = datetime.datetime.strptime(data_object[3].split(" to ")[1], "%d-%m-%Y")
-                        event_end_date = make_aware(event_end_date, timezone=pytz.timezone('Europe/Paris'))
+                        data_object[3] = data_object[3].split(" to ")
+                        event_start_date = self.parse_date(data_object[3][0])
+                        event_end_date = self.parse_date(data_object[3][1])
                     else:
-                        event_start_date = datetime.datetime.strptime(
-                            data_object[3], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+                        event_start_date = self.parse_date(data_object[3])
                         event_end_date = None
                 else:
                     event_start_date = None
@@ -106,7 +97,11 @@ class Command(BaseCommand):
                         accessibility='Public',
                     )
 
-                    dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
+                    try:
+                        dates, created = event.dates.get_or_create(dateStart=event_start_date, dateEnd=event_end_date)
+                    except MultipleObjectsReturned:
+                        event.dates.all().delete()
+                        dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
 
                     event.dates.add(dates)
 
@@ -163,3 +158,9 @@ class Command(BaseCommand):
                 except Exception as e:
                     logger.error(data_object)
                     raise e
+
+    def parse_date(self, date_string):
+        event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")
+        # event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+        event_start_date = event_start_date.strftime("%Y-%m-%d")
+        return event_start_date
