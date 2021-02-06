@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 event_sponsors = data_object[7]
                 event_logo = data_object[8]
 
-                print(get_user_model().objects.filter(is_superuser=True).first())
+                # print(get_user_model().objects.filter(is_superuser=True).first())
 
                 try:
                     event, created = Event.objects.get_or_create(
