@@ -644,6 +644,13 @@ class TrainingMaterialSerializer(ResourceSerializer):
         queryset=models.AudienceRole.objects,
         required=False,
     )
+    doi = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="doi",
+        queryset=models.Doi.objects,
+        required=False,
+    )
 
     class Meta:
         model = models.TrainingMaterial
