@@ -135,7 +135,7 @@ class Command(BaseCommand):
                             event.organisedByTeams.add(team)
 
                         else:
-                            logger.error(f'{organizer} is not an organisation in the DB.')
+                            logger.warning(f'{organizer} is not an organisation in the DB.')
 
                     # EventSponsors should be created before to be able to add them here to events
                     # for sponsor in event_sponsors.split(','):

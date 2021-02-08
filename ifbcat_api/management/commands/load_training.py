@@ -189,7 +189,7 @@ class Command(BaseCommand):
                             training.organisedByTeams.add(team)
 
                         else:
-                            logger.error(f'{organizer} is not an organisation in the DB.')
+                            logger.warning(f'{organizer} is not an organisation in the DB.')
 
                     for keyword in training_keywords_list:
                         training.keywords.add(keyword)
