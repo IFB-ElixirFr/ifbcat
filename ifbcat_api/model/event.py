@@ -270,3 +270,10 @@ class EventDate(models.Model):
     def __str__(self):
         """Return the EventDate model as a string."""
         return self.dateStart.__str__()
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.SuperuserCanDelete | permissions.UserCanAddNew,
+            IsAuthenticatedOrReadOnly,
+        )
