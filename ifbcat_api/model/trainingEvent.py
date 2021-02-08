@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
@@ -122,9 +122,9 @@ class TrainingEvent(Event):
             permissions.ReadWriteByOwner | permissions.ReadWriteBySuperEditor,
         )
 
-    @classmethod
-    def get_default_permission_classes(cls):
-        return (IsAuthenticated,)
+    # @classmethod
+    # def get_default_permission_classes(cls):
+    #     return (IsAuthenticated,)
 
 
 class TrainingEventMetrics(models.Model):
