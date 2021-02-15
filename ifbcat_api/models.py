@@ -28,7 +28,6 @@ from .model.community import *
 from .model.resource import *
 from .model.trainingMaterial import *
 from .model.team import *
-from .model.bioinformaticsTeam import *
 from .model.computingFacility import *
 from .model.project import *
 from .model.trainingEvent import *

@@ -8,8 +8,8 @@ from django.db.models import Value
 from django.db.models.functions import Replace
 
 from ifbcat_api import models
-from ifbcat_api.models import Organisation
 from ifbcat_api.models import Certification
+from ifbcat_api.models import Organisation
 
 logger = logging.getLogger(__name__)
 
@@ -71,11 +71,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         df = pd.read_csv(options["file"], sep=",")
-        # models.BioinformaticsTeam.objects.all().delete()
+        # models.Team.objects.all().delete()
         # models.Organisation.objects.all().delete()
         for index, row in df.iterrows():
             try:
-                bt, _ = models.BioinformaticsTeam.objects.get_or_create(name=row["Nom de la plateforme"])
+                bt, _ = models.Team.objects.get_or_create(name=row["Nom de la plateforme"])
                 address = row["Adresse postale"]
                 zip_city = address.split('\n')[-2]
                 city = zip_city.split(' ')[-1]

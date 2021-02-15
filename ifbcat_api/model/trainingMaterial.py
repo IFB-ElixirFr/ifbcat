@@ -4,9 +4,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
-from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType, Doi
 from ifbcat_api.model.resource import Resource
+from ifbcat_api.model.team import Team
 
 
 class TrainingMaterial(Resource):
@@ -65,10 +65,10 @@ class TrainingMaterial(Resource):
         help_text="The required experience and skills of the expected audience of the training material.",
     )
     providedBy = models.ManyToManyField(
-        BioinformaticsTeam,
+        Team,
         blank=True,
         related_name='trainingMaterials',
-        help_text="The bioinformatics team that provides the training material.",
+        help_text="The team that provides the training material.",
     )
     dateCreation = models.DateField(blank=True, null=True, help_text="Date when the training material was created.")
     dateUpdate = models.DateField(blank=True, null=True, help_text="Date when the training material was updated.")

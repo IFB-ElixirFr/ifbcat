@@ -231,7 +231,6 @@ class EventFilter(AutoSubsetFilterSet):
             'communities',
             'hostedBy',
             'organisedByTeams',
-            'organisedByBioinformaticsTeams',
             'organisedByOrganisations',
             'sponsoredBy',
         ]
@@ -265,7 +264,6 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'communities__name',
         'hostedBy__name',
         'organisedByTeams__name',
-        'organisedByBioinformaticsTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
@@ -620,6 +618,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'projects',
         'fundedBy',
         'keywords',
+        'platforms',
     )
 
     def perform_create(self, serializer):
@@ -649,22 +648,22 @@ class TeamCNPViewSet(TeamViewSet):
         return super().list(*args, **kwargs)
 
 
-# Model ViewSet for teams
-class BioinformaticsTeamViewSet(TeamViewSet):
-    """Handles creating, reading and updating bioinformatics teams."""
-
-    serializer_class = serializers.BioinformaticsTeamSerializer
-    queryset = models.BioinformaticsTeam.objects.all()
-    search_fields = TeamViewSet.search_fields + (
-        'edamTopics__uri',
-        'ifbMembership',
-        'platforms__name',
-    )
-    filterset_fields = TeamViewSet.search_fields + (
-        'edamTopics',
-        'ifbMembership',
-        'platforms',
-    )
+# # Model ViewSet for teams
+# class BioinformaticsTeamViewSet(TeamViewSet):
+#     """Handles creating, reading and updating bioinformatics teams."""
+#
+#     serializer_class = serializers.BioinformaticsTeamSerializer
+#     queryset = models.BioinformaticsTeam.objects.all()
+#     search_fields = TeamViewSet.search_fields + (
+#         'edamTopics__uri',
+#         'ifbMembership',
+#         'platforms__name',
+#     )
+#     filterset_fields = TeamViewSet.search_fields + (
+#         'edamTopics',
+#         'ifbMembership',
+#         'platforms',
+#     )
 
 
 # Model ViewSet for services
@@ -678,14 +677,14 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields = (
         'name',
         'description',
-        'bioinformaticsTeams__name',
         'computingFacilities__name',
+        'teams__name',
         'trainingEvents__name',
         'trainingMaterials__name',
         'publications__doi',
     )
     filterset_fields = (
-        'bioinformaticsTeams',
+        'teams',
         'computingFacilities',
     )
 

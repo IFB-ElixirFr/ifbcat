@@ -12,7 +12,6 @@ from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
 from django.utils.html import format_html
-from django.utils.translation import ugettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
@@ -233,7 +232,6 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'contactEmail',
         'market',
         'organisedByTeams__name',
-        'organisedByBioinformaticsTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
@@ -570,65 +568,63 @@ class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     )
 
 
-@admin.register(models.BioinformaticsTeam)
-class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    ordering = (Unaccent("name"),)
-    search_fields = (
-        'name',
-        'description',
-        'expertise__uri',
-        'leader__firstname',
-        'leader__lastname',
-        'deputies__firstname',
-        'deputies__lastname',
-        'scientificLeaders__firstname',
-        'scientificLeaders__lastname',
-        'technicalLeaders__firstname',
-        'technicalLeaders__lastname',
-        'members__firstname',
-        'members__lastname',
-        'maintainers__firstname',
-        'maintainers__lastname',
-        'orgid',
-        'unitId',
-        'address',
-        'fields__field',
-        'keywords__keyword',
-        'ifbMembership',
-        'platforms__name',
-        'communities__name',
-        'projects__name',
-        'fundedBy__name',
-        'publications__doi',
-        'certifications__name',
-    )
-
-    list_filter = ('fields',)
-
-    autocomplete_fields = (
-        'fields',
-        'platforms',
-        'communities',
-        'projects',
-    )
-    filter_horizontal = (
-        'scientificLeaders',
-        'technicalLeaders',
-        'members',
-        'maintainers',
-        'deputies',
-    )
-    list_display = (
-        'name',
-        'logo',
-    )
-
-    def logo(self, obj):
-        if obj.logo_url:
-            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
-        return format_html('<center style="margin: -8px;">-<center>')
-
-    logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
+# @admin.register(models.BioinformaticsTeam)
+# class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+#     ordering = (Unaccent("name"),)
+#     search_fields = (
+#         'name',
+#         'description',
+#         'expertise__uri',
+#         'leader__firstname',
+#         'leader__lastname',
+#         'deputies__firstname',
+#         'deputies__lastname',
+#         'scientificLeaders__firstname',
+#         'scientificLeaders__lastname',
+#         'technicalLeaders__firstname',
+#         'technicalLeaders__lastname',
+#         'members__firstname',
+#         'members__lastname',
+#         'maintainers__firstname',
+#         'maintainers__lastname',
+#         'orgid',
+#         'unitId',
+#         'address',
+#         'fields__field',
+#         'keywords__keyword',
+#         'communities__name',
+#         'projects__name',
+#         'fundedBy__name',
+#         'publications__doi',
+#         'certifications__name',
+#     )
+#
+#     list_filter = ('fields',)
+#
+#     autocomplete_fields = (
+#         'fields',
+#         'platforms',
+#         'communities',
+#         'projects',
+#     )
+#     filter_horizontal = (
+#         'scientificLeaders',
+#         'technicalLeaders',
+#         'members',
+#         'maintainers',
+#         'deputies',
+#     )
+#     list_display = (
+#         'name',
+#         'logo',
+#     )
+#
+#     def logo(self, obj):
+#         if obj.logo_url:
+#             return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+#         return format_html('<center style="margin: -8px;">-<center>')
+#
+#     logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
 @admin.register(models.Service)
@@ -636,7 +632,7 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
-        'bioinformaticsTeams__name',
+        'teams__name',
         'computingFacilities__name',
         'trainingEvents__name',
         'trainingMaterials__name',
@@ -644,10 +640,10 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     )
 
     autocomplete_fields = (
-        'bioinformaticsTeams',
         'computingFacilities',
         'trainingEvents',
         'trainingMaterials',
+        'teams',
     )
 
 

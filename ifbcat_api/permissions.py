@@ -114,22 +114,6 @@ class ReadWriteByOrgByTeamsDeputies(ReadWriteBySomething):
     target = 'organisedByTeams__deputies'
 
 
-class ReadWriteByOrgByBioinformaticsTeamsLeader(ReadWriteBySomething):
-    target = 'organisedByBioinformaticsTeams__leader'
-
-
-class ReadWriteByOrgByBioinformaticsTeamsDeputies(ReadWriteBySomething):
-    target = 'organisedByBioinformaticsTeams__deputies'
-
-
-class ReadWriteByBioinformaticsTeamsLeader(ReadWriteBySomething):
-    target = 'bioinformaticsTeams__leader'
-
-
-class ReadWriteByBioinformaticsTeamsDeputies(ReadWriteBySomething):
-    target = 'bioinformaticsTeams__deputies'
-
-
 class ReadWriteByOrgByOrganisationsLeader(ReadWriteBySomething):
     target = 'organisedByOrganisations__user_profile'
 

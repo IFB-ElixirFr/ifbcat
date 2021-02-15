@@ -24,15 +24,8 @@ class ComputingFacility(Resource):
 
     # homepage & accessibility are mandatory
     homepage = models.URLField(max_length=255, help_text="URL where the computing facility can be accessed.")
-
-    # Quotes around 'BioinformaticsTeam' are essential as a workound to a circular dependency:
-    # ''ComputingFacility'' includes a ``BioinformaticsTeam`` field which  includes a ``Project``
-    # field which includes a ''ComputingFacility'' field.
-    # See https://stackoverflow.com/questions/7684408/django-cannot-import-name-x
-    # See https://docs.djangoproject.com/en/dev/ref/models/fields/#foreignkey
-
     providedBy = models.ForeignKey(
-        'BioinformaticsTeam',
+        'Team',
         related_name='computingFacilityProvidedBy',
         null=True,
         on_delete=models.SET_NULL,

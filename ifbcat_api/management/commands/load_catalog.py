@@ -14,7 +14,7 @@ class Command(BaseCommand):
             os.path.join(self.import_data, "persons.csv"),
             os.path.join(self.import_data, "drupal_db_dump", "users.txt"),
         )
-        call_command('load_bioinformatics_teams', os.path.join(self.import_data, "platforms.csv"))
+        call_command('load_teams', os.path.join(self.import_data, "platforms.csv"))
         call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
         call_command('load_databases', os.path.join(self.import_data, "databases.csv"))
         call_command('load_biotools', cache_dir=self.import_data)

@@ -2,6 +2,7 @@
 import functools
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -9,6 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from ifbcat_api import permissions
 from ifbcat_api.model.certification import Certification
 from ifbcat_api.model.community import Community
+from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Keyword, Field, Topic, Doi, WithGridIdOrRORId
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
@@ -139,6 +141,28 @@ class Team(WithGridIdOrRORId, models.Model):
         help_text="Organisation(s) to which the team is affiliated.",
     )
 
+    #############################
+    # BioTeam related attributes
+    #############################
+
+    class IfbMembershipType(models.TextChoices):
+        IFB_PLATFORM = 'IFB platform', _('IFB platform')
+        IFB_ASSOCIATED_TEAM = 'IFB-associated team', _('IFB-associated team')
+        NOT_A_MEMBER = 'Not a member', _('Not a member')
+
+    ifbMembership = models.CharField(
+        max_length=255,
+        choices=IfbMembershipType.choices,
+        help_text="Type of membership the bioinformatics team has to IFB.",
+        default='Not a member',
+    )
+    platforms = models.ManyToManyField(
+        ElixirPlatform,
+        blank=True,
+        related_name='teamsPlatforms',
+        help_text="ELIXIR Platform(s) in which the bioinformatics team is involved.",
+    )
+
     def __str__(self):
         """Return the Team model as a string."""
         return self.name
@@ -160,3 +184,14 @@ class Team(WithGridIdOrRORId, models.Model):
             permissions.ReadWriteByMaintainers,
             permissions.ReadWriteBySuperEditor,
         )
+
+    def clean(self):
+        super().clean()
+        if self.ifbMembership != 'Not a member':
+            errors = {}
+            if self.expertise.count() == 0:
+                errors.setdefault('expertise', []).append("expertise is required form IFB Teams")
+            if self.platforms.count() == 0:
+                errors.setdefault('platforms', []).append("platforms is required form IFB Teams")
+            if len(errors) > 0:
+                raise ValidationError(errors)

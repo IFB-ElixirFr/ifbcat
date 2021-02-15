@@ -7,7 +7,7 @@ from django.db.models import Value, Q, Case, When, IntegerField
 from django.db.models.functions import Upper, Concat, Replace
 
 from ifbcat_api import models
-from ifbcat_api.management.commands.load_bioinformatics_teams import to_none_when_appropriate
+from ifbcat_api.management.commands.load_teams import to_none_when_appropriate
 
 logger = logging.getLogger(__name__)
 

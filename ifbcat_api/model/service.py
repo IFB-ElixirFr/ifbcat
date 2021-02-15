@@ -3,8 +3,8 @@ from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
-from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.misc import Doi
+from ifbcat_api.model.team import Team
 from ifbcat_api.model.trainingEvent import TrainingEvent
 from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.validators import validate_can_be_looked_up
@@ -15,7 +15,6 @@ class Service(models.Model):
 
     user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
-    # name, description, dateEstablished & bioinformaticsTeam are mandatory
     name = models.CharField(
         max_length=255,
         unique=True,
@@ -26,13 +25,13 @@ class Service(models.Model):
     )
     description = models.TextField(help_text="Short description of the service.")
     dateEstablished = models.DateField(help_text="Date when the service was first established and started operating.")
-    bioinformaticsTeams = models.ManyToManyField(
-        BioinformaticsTeam,
+    teams = models.ManyToManyField(
+        Team,
         related_name='services',
         help_text="The bioinformatics team(s) that provides this service.",
     )
     computingFacilities = models.ManyToManyField(
-        BioinformaticsTeam,
+        Team,
         blank=True,
         related_name='servicesComputingFacilities',
         help_text="Computing facilities provided by the service.",
@@ -66,10 +65,6 @@ class Service(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly
-            | permissions.ReadWriteByOwner
-            | permissions.ReadWriteByBioinformaticsTeamsLeader
-            | permissions.ReadWriteByBioinformaticsTeamsDeputies
-            | permissions.ReadWriteBySuperEditor,
+            permissions.ReadOnly | permissions.ReadWriteByOwner | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

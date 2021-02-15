@@ -248,7 +248,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
         {"model": "ifbcat_api.UserProfile"},
         {"model": "ifbcat_api.Event"},
-        {"model": "ifbcat_api.BioinformaticsTeam"},
+        {"model": "ifbcat_api.Team"},
         {"app": "ifbcat_api"},
     ],
     # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free
@@ -259,7 +259,6 @@ JAZZMIN_SETTINGS = {
         "authtoken.Token": "fas fa-key",
         "ifbcat_api.AudienceRole": "fas fa-circle",
         "ifbcat_api.AudienceType": "fas fa-circle",
-        "ifbcat_api.BioinformaticsTeam": "fas fa-users",
         "ifbcat_api.Certification": "fas fa-circle",
         "ifbcat_api.Collection": "fas fa-circle",
         "ifbcat_api.Community": "fas fa-broadcast-tower",

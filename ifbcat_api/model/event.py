@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
-from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 from ifbcat_api.model.community import Community
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Topic, Keyword
@@ -206,11 +205,11 @@ class Event(models.Model):
         related_name='organized_events',
         help_text="A Team that is organizing the event.",
     )
-    organisedByBioinformaticsTeams = models.ManyToManyField(
-        BioinformaticsTeam,
+    organisedByTeams = models.ManyToManyField(
+        Team,
         blank=True,
         related_name='organized_events_as_bioinfo',
-        help_text="A BioInformaticsTeam that is organizing the event.",
+        help_text="A Team that is organizing the event.",
     )
     organisedByOrganisations = models.ManyToManyField(
         Organisation,
@@ -249,8 +248,6 @@ class Event(models.Model):
             permissions.ReadWriteByContact,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,
-            permissions.ReadWriteByOrgByBioinformaticsTeamsLeader,
-            permissions.ReadWriteByOrgByBioinformaticsTeamsDeputies,
             permissions.ReadWriteByOrgByOrganisationsLeader,
             permissions.ReadWriteBySuperEditor,
         )

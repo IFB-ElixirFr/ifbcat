@@ -294,7 +294,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'sponsoredBy',
             'organisedByOrganisations',
             'organisedByTeams',
-            'organisedByBioinformaticsTeams',
             'logo_url',
         )
 
@@ -315,7 +314,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             # 'organisedBy': {'lookup_field': 'name'},
             'organisedByOrganisations': {'lookup_field': 'name'},
             'organisedByTeams': {'lookup_field': 'name'},
-            'organisedByBioinformaticsTeams': {'lookup_field': 'name'},
         }
 
     def update(self, instance, validated_data):
@@ -678,22 +676,6 @@ class TrainingMaterialSerializer(ResourceSerializer):
         }
 
 
-class OrganisationInlineSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.Organisation
-        fields = [
-            'id',
-            'name',
-            'url',
-        ]
-
-    url = serializers.HyperlinkedIdentityField(
-        read_only=True,
-        view_name='organisation-detail',
-        lookup_field='name',
-    )
-
-
 # Model serializer for team
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
@@ -768,51 +750,53 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'technicalLeaders',
             'members',
             'maintainers',
+            'ifbMembership',
+            'platforms',
         )
         read_only_fields = ['user_profile']
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
         extra_kwargs = {
-            **{
-                'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-                'keywords': {'lookup_field': 'keyword'},
-                'affiliatedWith': {'lookup_field': 'name'},
-                'certifications': {'lookup_field': 'name'},
-                'communities': {'lookup_field': 'name'},
-                'projects': {'lookup_field': 'name'},
-                'fundedBy': {'lookup_field': 'name'},
-            },
+            'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'keywords': {'lookup_field': 'keyword'},
+            'affiliatedWith': {'lookup_field': 'name'},
+            'certifications': {'lookup_field': 'name'},
+            'communities': {'lookup_field': 'name'},
+            'projects': {'lookup_field': 'name'},
+            'fundedBy': {'lookup_field': 'name'},
+            'platforms': {'lookup_field': 'name'},
         }
 
 
-# Model serializer for bioinformatics team
-class BioinformaticsTeamSerializer(TeamSerializer):
-    """Serializes a bioinformatics team (BioinformaticsTeam object)."""
-
-    edamTopics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="uri",
-        queryset=models.Topic.objects,
-        required=False,
-    )
-
-    class Meta(TeamSerializer.Meta):
-        model = models.BioinformaticsTeam
-
-        fields = TeamSerializer.Meta.fields + (
-            'edamTopics',
-            'ifbMembership',
-            'platforms',
-        )
-
-        # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
-        extra_kwargs = {
-            **TeamSerializer.Meta.extra_kwargs,
-            **{
-                'platforms': {'lookup_field': 'name'},
-            },
-        }
+#
+# # Model serializer for bioinformatics team
+# class BioinformaticsTeamSerializer(TeamSerializer):
+#     """Serializes a bioinformatics team (BioinformaticsTeam object)."""
+#
+#     edamTopics = CreatableSlugRelatedField(
+#         many=True,
+#         read_only=False,
+#         slug_field="uri",
+#         queryset=models.Topic.objects,
+#         required=False,
+#     )
+#
+#     class Meta(TeamSerializer.Meta):
+#         model = models.BioinformaticsTeam
+#
+#         fields = TeamSerializer.Meta.fields + (
+#             'edamTopics',
+#             'ifbMembership',
+#             'platforms',
+#         )
+#
+#         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
+#         extra_kwargs = {
+#             **TeamSerializer.Meta.extra_kwargs,
+#             **{
+#                 'platforms': {'lookup_field': 'name'},
+#             },
+#         }
 
 
 # Model serializer for service
@@ -836,7 +820,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'name',
             'description',
             'dateEstablished',
-            'bioinformaticsTeams',
+            'teams',
             'computingFacilities',
             'trainingEvents',
             'trainingMaterials',
@@ -847,7 +831,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'bioinformaticsTeams': {'lookup_field': 'name'},
+            'teams': {'lookup_field': 'name'},
             'computingFacilities': {'lookup_field': 'name'},
             # 'trainingEvents': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},

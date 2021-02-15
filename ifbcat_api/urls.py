@@ -13,7 +13,6 @@ from ifbcat_api import views
 # NB. don't need to specify base_name for userprofile (Model ViewSet) - it includes the queryset object (so Django can figure out the name)
 
 router = DefaultRouter()
-router.register('bioinformaticsteam', views.BioinformaticsTeamViewSet)
 router.register('certification', views.CertificationViewSet)
 router.register('community', views.CommunityViewSet)
 router.register('computingfacility', views.ComputingFacilityViewSet)
