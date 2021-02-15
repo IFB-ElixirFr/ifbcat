@@ -61,12 +61,14 @@ class Command(BaseCommand):
                 try:
                     event, created = Event.objects.get_or_create(
                         name=event_name,
-                        logo_url=event_logo,
-                        type=event_type,
-                        description=event_description,
-                        # city is only a subset of event_location for the moment
-                        city=event_location,
-                        homepage=event_link,
+                        defaults=dict(
+                            logo_url=event_logo,
+                            type=event_type,
+                            description=event_description,
+                            # city is only a subset of event_location for the moment
+                            city=event_location,
+                            homepage=event_link,
+                        ),
                     )
 
                     try:
