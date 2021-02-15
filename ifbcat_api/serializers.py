@@ -254,6 +254,12 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=False,
     )
+    elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+    communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
+    hostedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
+    organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    organisedByOrganisations = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),

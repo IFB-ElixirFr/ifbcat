@@ -19,6 +19,22 @@ class OrganisationInlineSerializer(serializers.HyperlinkedModelSerializer):
     )
 
 
+class CommunityInlineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Community
+        fields = [
+            'id',
+            'name',
+            'url',
+        ]
+
+    url = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='community-detail',
+        lookup_field='name',
+    )
+
+
 class ElixirPlatformInlineSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.ElixirPlatform
@@ -31,5 +47,37 @@ class ElixirPlatformInlineSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         read_only=True,
         view_name='elixirplatform-detail',
+        lookup_field='name',
+    )
+
+
+class TeamInlineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Team
+        fields = [
+            'id',
+            'name',
+            'url',
+        ]
+
+    url = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='team-detail',
+        lookup_field='name',
+    )
+
+
+class EventSponsorInlineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.EventSponsor
+        fields = [
+            'id',
+            'name',
+            'url',
+        ]
+
+    url = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='eventsponsor-detail',
         lookup_field='name',
     )
