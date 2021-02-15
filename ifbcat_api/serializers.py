@@ -678,6 +678,22 @@ class TrainingMaterialSerializer(ResourceSerializer):
         }
 
 
+class OrganisationInlineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Organisation
+        fields = [
+            'id',
+            'name',
+            'url',
+        ]
+
+    url = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='organisation-detail',
+        lookup_field='name',
+    )
+
+
 # Model serializer for team
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
@@ -718,6 +734,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.Certification.objects,
         required=False,
     )
+    affiliatedWith = OrganisationInlineSerializer(many=True, read_only=True)
+    fundedBy = OrganisationInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Team
