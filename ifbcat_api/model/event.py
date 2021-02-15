@@ -205,12 +205,6 @@ class Event(models.Model):
         related_name='organized_events',
         help_text="A Team that is organizing the event.",
     )
-    organisedByTeams = models.ManyToManyField(
-        Team,
-        blank=True,
-        related_name='organized_events_as_bioinfo',
-        help_text="A Team that is organizing the event.",
-    )
     organisedByOrganisations = models.ManyToManyField(
         Organisation,
         blank=True,
