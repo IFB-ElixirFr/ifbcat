@@ -245,7 +245,7 @@ class UserLoginApiView(ObtainAuthToken):
 
 class EventFilter(AutoSubsetFilterSet):
     min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
-    max_start = django_filters.NumberFilter(field_name="dates__dateStart", lookup_expr='lte')
+    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
 
     class Meta:
         model = models.Event
