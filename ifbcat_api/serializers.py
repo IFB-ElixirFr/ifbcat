@@ -6,7 +6,7 @@ from django.utils.encoding import smart_str
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ifbcat_api import models
+from ifbcat_api import models, inlineSerializers
 
 
 # This is just for testing serialization
@@ -716,8 +716,9 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.Certification.objects,
         required=False,
     )
-    affiliatedWith = OrganisationInlineSerializer(many=True, read_only=True)
-    fundedBy = OrganisationInlineSerializer(many=True, read_only=True)
+    affiliatedWith = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
+    fundedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
+    platforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Team
