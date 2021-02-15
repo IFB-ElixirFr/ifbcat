@@ -29,6 +29,37 @@ from ifbcat_api import serializers
 from ifbcat_api.filters import AutoSubsetFilterSet
 
 
+class CachedNoPaginationMixin:
+    @property
+    def paginator(self):
+        return None
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        cache.clear()
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        cache.clear()
+
+    @method_decorator(cache_page(60 * 60 * 0.5))
+    @method_decorator(vary_on_cookie)
+    def list(self, *args, **kwargs):
+        return super().list(*args, **kwargs)
+
+
+def CachedNoPaginationFactory(base):
+    class _tmp(CachedNoPaginationMixin, base):
+        pass
+
+    _tmp.__name__ = base.__name__ + "CNP"
+    return _tmp
+
+
 class PermissionInClassModelViewSet:
     class Meta:
         abstract = True
@@ -624,28 +655,6 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
-
-
-class TeamCNPViewSet(TeamViewSet):
-    pagination_class = None
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-        cache.clear()
-
-    def perform_update(self, serializer):
-        super().perform_update(serializer)
-        cache.clear()
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        cache.clear()
-
-    @method_decorator(cache_page(60 * 60 * 0.5))
-    @method_decorator(vary_on_cookie)
-    def list(self, *args, **kwargs):
-        return super().list(*args, **kwargs)
 
 
 # # Model ViewSet for teams

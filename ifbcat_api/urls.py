@@ -11,6 +11,7 @@ from ifbcat_api import views
 # 'testviewset' is the URL we're regstering - the router will create URLs for us, so don't need to give a trailing '/'
 # "base_name" is used if/wehn URLs are retrieved using URL-retrieving function provided by Django
 # NB. don't need to specify base_name for userprofile (Model ViewSet) - it includes the queryset object (so Django can figure out the name)
+from ifbcat_api.views import CachedNoPaginationFactory
 
 router = DefaultRouter()
 router.register('certification', views.CertificationViewSet)
@@ -19,7 +20,8 @@ router.register('computingfacility', views.ComputingFacilityViewSet)
 router.register('elixirplatform', views.ElixirPlatformViewSet, basename='elixirplatform')
 router.register('eventprerequisite', views.EventPrerequisiteViewSet)
 router.register('eventsponsor', views.EventSponsorViewSet, basename='eventsponsor')
-router.register('event', views.EventViewSet)
+router.register('event', views.EventViewSet, basename='event')
+router.register('event-cnp', CachedNoPaginationFactory(views.EventViewSet), basename='event-cnp')
 router.register('keyword', views.KeywordViewSet)
 router.register('organisation', views.OrganisationViewSet, basename='organisation')
 router.register('project', views.ProjectViewSet)
@@ -27,7 +29,7 @@ router.register('servicesubmission', views.ServiceSubmissionViewSet)
 router.register('service', views.ServiceViewSet)
 router.register('source_info', views.SourceInfoViewSet, basename='source_info')
 router.register('team', views.TeamViewSet, basename='team')
-router.register('team-cnp', views.TeamCNPViewSet, basename='team-cnp')
+router.register('team-cnp', CachedNoPaginationFactory(views.TeamViewSet), basename='team-cnp')
 router.register('tool', views.ToolViewSet)
 router.register('trainer', views.TrainerViewSet)
 router.register('trainingeventmetrics', views.TrainingEventMetricsViewSet)
