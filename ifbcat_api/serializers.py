@@ -465,6 +465,10 @@ class OrganisationSerializer(serializers.ModelSerializer):
         model = models.Organisation
         fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
         read_only_fields = ['user_profile']
+        rdf_mapping = dict(
+            name="http://i-dont-know.org#name",
+            description="http://i-dont-know.org#desc",
+        )
 
 
 class CertificationSerializer(serializers.HyperlinkedModelSerializer):
