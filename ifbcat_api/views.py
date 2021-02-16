@@ -46,7 +46,7 @@ class CachedNoPaginationMixin:
         super().perform_destroy(instance)
         cache.clear()
 
-    @method_decorator(cache_page(60 * 60 * 0.5))
+    @method_decorator(cache_page(int(60 * 60 * 0.5)))
     @method_decorator(vary_on_cookie)
     def list(self, *args, **kwargs):
         return super().list(*args, **kwargs)
@@ -423,20 +423,6 @@ class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
-        cache.clear()
-
-    def perform_update(self, serializer):
-        super().perform_update(serializer)
-        cache.clear()
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        cache.clear()
-
-    @method_decorator(cache_page(60 * 60 * 0.5))
-    @method_decorator(vary_on_cookie)
-    def list(self, *args, **kwargs):
-        return super().list(*args, **kwargs)
 
 
 class CertificationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
