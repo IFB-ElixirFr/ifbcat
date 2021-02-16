@@ -7,7 +7,7 @@ from rest_framework.serializers import ListSerializer
 class NTriplesRdfRenderer(renderers.BaseRenderer):
     # media_type = 'text/rdf+txt'
     media_type = 'text/rdf'
-    format = 'txt'
+    format = 'rdf'
     render_style = 'text'
 
     def render(self, data, media_type=None, renderer_context=None):
