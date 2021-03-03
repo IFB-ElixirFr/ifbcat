@@ -196,13 +196,11 @@ class AbstractEvent(models.Model):
     organisedByTeams = models.ManyToManyField(
         Team,
         blank=True,
-        related_name='organized_events',
         help_text="A Team that is organizing the event.",
     )
     organisedByOrganisations = models.ManyToManyField(
         Organisation,
         blank=True,
-        related_name='organized_events',
         help_text="An organisation that is organizing the event.",
     )
     sponsoredBy = models.ManyToManyField(

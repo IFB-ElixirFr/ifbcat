@@ -244,6 +244,8 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'accessibility',
         'elixirPlatforms',
         'communities',
+        'organisedByTeams',
+        'organisedByOrganisations',
     )
     #
     filter_horizontal = ('dates',)
