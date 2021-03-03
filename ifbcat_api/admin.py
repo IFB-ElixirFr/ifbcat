@@ -519,6 +519,7 @@ class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'accessibility',
         'serverDescription',
     )
+    save_as = True
 
     list_filter = ('accessibility',)
 

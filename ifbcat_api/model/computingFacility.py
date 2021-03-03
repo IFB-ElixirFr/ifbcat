@@ -47,10 +47,7 @@ class ComputingFacility(Resource):
         related_name='computingFacilities',
         help_text="Training material for the computing facility.",
     )
-    serverDescription = models.CharField(
-        max_length=255, blank=True, help_text="Description of number and type of servers."
-    )
-    storageTb = models.PositiveSmallIntegerField(
+    storageTb = models.PositiveIntegerField(
         null=True,
         blank=True,
         help_text="Amount of storage (TB) provided by the computing facility.",
@@ -58,7 +55,7 @@ class ComputingFacility(Resource):
             MinValueValidator(1),
         ],
     )
-    cpuCores = models.PositiveSmallIntegerField(
+    cpuCores = models.PositiveIntegerField(
         null=True,
         blank=True,
         help_text="Number of CPU cores provided by the computing facility.",
@@ -66,7 +63,7 @@ class ComputingFacility(Resource):
             MinValueValidator(1),
         ],
     )
-    ramGb = models.PositiveSmallIntegerField(
+    ramGb = models.PositiveIntegerField(
         null=True,
         blank=True,
         help_text="RAM (GB) provided by the computing facility.",
@@ -74,7 +71,7 @@ class ComputingFacility(Resource):
             MinValueValidator(1),
         ],
     )
-    ramPerCoreGb = models.PositiveSmallIntegerField(
+    ramPerCoreGb = models.PositiveIntegerField(
         null=True,
         blank=True,
         help_text="RAM (GB) per CPU core provided by the Platform physical infrastructure.",
@@ -82,7 +79,7 @@ class ComputingFacility(Resource):
             MinValueValidator(1),
         ],
     )
-    cpuHoursYearly = models.PositiveSmallIntegerField(
+    cpuHoursYearly = models.PositiveIntegerField(
         null=True,
         blank=True,
         help_text="Number of CPU hours provided by the computing facility in the last year.",
@@ -90,7 +87,7 @@ class ComputingFacility(Resource):
             MinValueValidator(1),
         ],
     )
-    usersYearly = models.PositiveSmallIntegerField(
+    usersYearly = models.PositiveIntegerField(
         null=True,
         blank=True,
         help_text="Number of users served by the computing facility in the last year.",
