@@ -1,0 +1,10 @@
+{% extends "ifbcat_base.html" %}
+
+{% block title%}IFB catalogue{% endblock title%}
+
+{% block content%}
+<div class="col-12 col-md-4 offset-md-4 col-lg-2 offset-lg-5 mb-4">
+    <a href="{%url 'vfront:team-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Teams</a>
+    <a href="/api/" role="button" class="btn btn-primary btn-lg btn-block">API</a>
+</div>
+{% endblock content%}

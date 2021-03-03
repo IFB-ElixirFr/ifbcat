@@ -1,0 +1,143 @@
+{% extends "ifbcat_base.html" %}
+
+{% block title%}FRENCH PLATFORMS AND ASSOCIATED TEAMS MEMBER OF IFB{% endblock title%}
+
+{% block content%}
+<div class="col-12 mb-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a aria-controls="nav-Information" aria-selected="true" class="nav-item nav-link active" data-toggle="tab"
+               href="#nav-Information" id="nav-Information-tab" role="tab">Information</a>
+            <a aria-controls="nav-Infrastructure" class="nav-item nav-link" data-toggle="tab" href="#nav-Infrastructure"
+               id="nav-Infrastructure-tab" role="tab">Infrastructure</a>
+            <a aria-controls="nav-Data" class="nav-item nav-link" data-toggle="tab" href="#nav-Data" id="nav-Data-tab"
+               role="tab">Data</a>
+            <a aria-controls="nav-Tools" class="nav-item nav-link" data-toggle="tab" href="#nav-Tools"
+               id="nav-Tools-tab" role="tab">Tools</a>
+            <a aria-controls="nav-Expertise" class="nav-item nav-link" data-toggle="tab" href="#nav-Expertise"
+               id="nav-Expertise-tab" role="tab">Expertise</a>
+            <a aria-controls="nav-Trainings" class="nav-item nav-link" data-toggle="tab" href="#nav-Trainings"
+               id="nav-Trainings-tab" role="tab">Trainings</a>
+            <a aria-controls="nav-Collaborations" class="nav-item nav-link" data-toggle="tab" href="#nav-Collaborations"
+               id="nav-Collaborations-tab" role="tab">Collaborations</a>
+            <a aria-controls="nav-Ouverture" class="nav-item nav-link" data-toggle="tab" href="#nav-Ouverture"
+               id="nav-Ouverture-tab" role="tab">Ouverture</a>
+            <a aria-controls="nav-Imports" class="nav-item nav-link" data-toggle="tab" href="#nav-Imports"
+               id="nav-Imports-tab" role="tab">Imports</a>
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div aria-labelledby="nav-Information-tab" class="tab-pane border border-top-0 fade show active"
+             id="nav-Information" role="tabpanel">
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(3, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                <div class="card">
+                    <div class="card-header">Address</div>
+                    <div class="card-body">{{object.address}}</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Structures</div>
+                    <div class="card-body">
+                        <ul>
+                        {%for a in object.affiliatedWith.all%}
+                        <li>{{a.name}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Website</div>
+                    <div class="card-body">
+                        <a href="{{object.homepage}}">[long name missing in model]</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Scientific Leaders</div>
+                    <div class="card-body">
+                        <ul>
+                        {%for a in object.scientificLeaders.all%}
+                        <li>{{a.lastname}} {{a.firstname}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Technical Leaders</div>
+                    <div class="card-body">
+                        <ul>
+                        {%for a in object.technicalLeaders.all%}
+                        <li>{{a.lastname}} {{a.firstname}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Certificats</div>
+                    <div class="card-body">
+                        <ul>
+                        {%for a in object.certifications.all%}
+                        <li>{{a.name}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" style="grid-column: span 3;">
+                    <div class="card-header">Team</div>
+                    <div class="card-body">
+                        <ul style="display: grid;grid-template-columns: repeat(3, 1fr);">
+                        {%for a in object.members.all%}
+                        <li>{{a.lastname}} {{a.firstname}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div aria-labelledby="nav-Infrastructure-tab" class="tab-pane border border-top-0 fade" id="nav-Infrastructure"
+             role="tabpanel">
+            <div class="p-3">
+                Infrastructure
+            </div>
+        </div>
+        <div aria-labelledby="nav-Data-tab" class="tab-pane border border-top-0 fade" id="nav-Data" role="tabpanel">
+            <div class="p-3">
+                Data
+            </div>
+        </div>
+        <div aria-labelledby="nav-Tools-tab" class="tab-pane border border-top-0 fade" id="nav-Tools" role="tabpanel">
+            <div class="p-3">
+                Tools
+            </div>
+        </div>
+        <div aria-labelledby="nav-Expertise-tab" class="tab-pane border border-top-0 fade" id="nav-Expertise"
+             role="tabpanel">
+            <div class="p-3">
+                Expertise
+            </div>
+        </div>
+        <div aria-labelledby="nav-Trainings-tab" class="tab-pane border border-top-0 fade" id="nav-Trainings"
+             role="tabpanel">
+            <div class="p-3">
+                Trainings
+            </div>
+        </div>
+        <div aria-labelledby="nav-Collaborations-tab" class="tab-pane border border-top-0 fade" id="nav-Collaborations"
+             role="tabpanel">
+            <div class="p-3">
+                Collaborations
+            </div>
+        </div>
+        <div aria-labelledby="nav-Ouverture-tab" class="tab-pane border border-top-0 fade" id="nav-Ouverture"
+             role="tabpanel">
+            <div class="p-3">
+                Ouverture
+            </div>
+        </div>
+        <div aria-labelledby="nav-Imports-tab" class="tab-pane border border-top-0 fade" id="nav-Imports"
+             role="tabpanel">
+            <div class="p-3">
+                Imports
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content%}

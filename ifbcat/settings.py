@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_better_admin_arrayfield',
     'ifbcat_api',
+    'ifbcat_vanilla_front',
     'django.contrib.postgres',
 ]
 
