@@ -52,7 +52,7 @@ def get_doi_info(doi: str) -> dict:
         print(json_data)
         raise e
     authors_list = []
-    for author_data in json_data["author"]:
+    for author_data in json_data.get("author", []):
         try:
             if "family" in author_data:
                 authors_list.append("%s %s" % (author_data["family"], author_data.get("given", "")))
