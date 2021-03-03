@@ -84,7 +84,10 @@ class EventSponsor(models.Model):
         return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)
 
 
-class Event(models.Model):
+class AbstractEvent(models.Model):
+    class Meta:
+        abstract = True
+
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
 
     # "on_delete=models.NULL" means that the Event is not deleted if the user profile is deleted.
@@ -236,6 +239,10 @@ class Event(models.Model):
             permissions.ReadWriteByOrgByOrganisationsLeader,
             permissions.ReadWriteBySuperEditor,
         )
+
+
+class Event(AbstractEvent):
+    pass
 
 
 # Event date model
