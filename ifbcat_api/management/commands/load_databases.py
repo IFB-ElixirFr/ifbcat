@@ -1,17 +1,16 @@
+import csv
 import datetime
 import os
-import csv
-from tqdm import tqdm
 
 import pytz
 from django.core.management import BaseCommand
 from django.db.transaction import atomic
 from django.utils.timezone import make_aware
+from tqdm import tqdm
 
-from ifbcat_api.models import Tool
-from ifbcat_api.models import ToolType
 from ifbcat_api.models import Keyword
 from ifbcat_api.models import Team
+from ifbcat_api.models import Tool
 
 
 class Command(BaseCommand):
@@ -46,8 +45,6 @@ class Command(BaseCommand):
                     if len(keyword) > 2:
 
                         try:
-                            print(keyword)
-
                             database_keyword, created = Keyword.objects.get_or_create(
                                 keyword=keyword,
                             )
