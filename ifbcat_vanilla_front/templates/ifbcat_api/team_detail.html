@@ -37,13 +37,18 @@
                     <div class="card-body">{{object.address}}</div>
                 </div>
                 <div class="card">
-                    <div class="card-header">Structures</div>
+                    <div class="card-header">Attachment</div>
                     <div class="card-body">
-                        <ul>
-                        {%for a in object.affiliatedWith.all%}
-                        <li>{{a.name}}</li>
-                        {%endfor%}
-                        </ul>
+                        <dl>
+                            <dt>Structure</dt>
+                            {%for a in object.fundedBy.all%}
+                            <dl>{{a.name}}</dl>
+                            {%endfor%}
+                            <dt>Unit</dt>
+                            {%for a in object.affiliatedWith.all%}
+                            <dl>{{a.name}}</dl>
+                            {%endfor%}
+                        </dl>
                     </div>
                 </div>
                 <div class="card">
