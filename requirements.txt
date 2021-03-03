@@ -15,4 +15,5 @@ django-better-admin-arrayfield
 django-jazzmin
 django-filter
 django-cors-headers
+requests
 #end of file
