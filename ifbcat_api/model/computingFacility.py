@@ -25,15 +25,7 @@ class ComputingFacility(Resource):
     # homepage & accessibility are mandatory
     homepage = models.URLField(max_length=255, help_text="URL where the computing facility can be accessed.")
     providedBy = models.ForeignKey(
-        'Team',
-        related_name='computingFacilityProvidedBy',
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="The bioinformatics team that provides the computing facility.",
-    )
-    team = models.ForeignKey(
         'ifbcat_api.Team',
-        related_name='computingFacilityTeam',
         null=True,
         on_delete=models.SET_NULL,
         help_text="The team which is maintaining the computing facility.",

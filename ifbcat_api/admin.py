@@ -516,7 +516,6 @@ class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'homepage',
         'providedBy__name',
-        'team__name',
         'accessibility',
         'serverDescription',
     )
@@ -525,7 +524,6 @@ class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
     autocomplete_fields = (
         'providedBy',
-        'team',
         'trainingMaterials',
     )
 

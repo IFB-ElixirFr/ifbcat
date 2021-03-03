@@ -595,7 +595,6 @@ class ComputingFacilitySerializer(ResourceSerializer):
         fields = ResourceSerializer.Meta.fields + (
             'homepage',
             'providedBy',
-            'team',
             'accessibility',
             'requestAccount',
             'termsOfUse',
@@ -614,7 +613,6 @@ class ComputingFacilitySerializer(ResourceSerializer):
             **{
                 'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
                 'providedBy': {'lookup_field': 'name'},
-                'team': {'lookup_field': 'name'},
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
