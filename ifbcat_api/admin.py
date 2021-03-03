@@ -449,6 +449,22 @@ class FieldAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 @admin.register(models.Doi)
 class DoiAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ('doi',)
+    list_display = (
+        'doi',
+        'title',
+        'authors_list',
+        'biblio_year',
+    )
+
+    actions = [
+        'update_information',
+    ]
+    readonly_fields = ('title', 'journal_name', 'authors_list', 'biblio_year')
+
+    def update_information(self, request, queryset):
+        for o in queryset:
+            o.fill_from_doi()
+            o.save()
 
 
 @admin.register(models.Project)

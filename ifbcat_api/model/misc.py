@@ -5,14 +5,14 @@ from Bio import Entrez
 from django.core.exceptions import ValidationError
 from django.db import models, DataError
 from django.db.models import Q
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django_better_admin_arrayfield.models.fields import ArrayField
 from pip._vendor import requests
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from ifbcat_api import permissions
+from ifbcat_api import permissions, misc
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
 from ifbcat_api.validators import validate_grid_or_ror_id
 
@@ -228,10 +228,21 @@ class Doi(models.Model):
             validate_doi,
         ],
     )
+    title = models.TextField("Title", null=True, blank=True)
+    journal_name = models.TextField("Journal name", null=True, blank=True)
+    authors_list = models.TextField("Authors list", null=True, blank=True)
+    biblio_year = models.PositiveSmallIntegerField("Year", null=True, blank=True)
 
     def __str__(self):
         """Return the Doi model as a string."""
         return self.doi
+
+    def fill_from_doi(self):
+        info = misc.get_doi_info(str(self.doi))
+        self.title = info["title"]
+        self.journal_name = info["journal_name"]
+        self.authors_list = info["authors_list"]
+        self.biblio_year = info["biblio_year"]
 
     @classmethod
     def get_permission_classes(cls):
@@ -247,6 +258,12 @@ class Doi(models.Model):
             for article_id in d["PubmedArticle"][0]["PubmedData"]["ArticleIdList"]:
                 if article_id[:2] == "10":
                     return article_id
+
+
+@receiver(pre_save, sender=Doi)
+def fetch_info_from_doi(sender, instance, **kwargs):
+    if instance.pk is None and instance.doi is not None and instance.doi != "":
+        instance.fill_from_doi()
 
 
 class WithGridIdOrRORId(models.Model):
