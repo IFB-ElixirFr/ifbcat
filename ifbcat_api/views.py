@@ -548,12 +548,11 @@ class ComputingFacilityViewSet(ResourceViewSet):
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy__name',
-        'team__name',
         'accessibility',
         'serverDescription',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
-        'team',
+        'providedBy',
         'accessibility',
     )
 
