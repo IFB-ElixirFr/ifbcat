@@ -224,7 +224,11 @@
              role="tabpanel">
             <div class="p-3 pb-0">
                 {% for p in object.publications.all %}
-                <p>{{p}}</p>
+                <p>
+                    {{p.title}} <i>{{p.authors_list}}</i>.
+                    {{p.biblio_year}}, {{p.journal_name}}.
+                    <a href="{{p.doi}}" target="_blank">{{p.doi}}</a>
+                </p>
                 {% endfor %}
             </div>
         </div>
