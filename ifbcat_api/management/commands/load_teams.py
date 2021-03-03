@@ -83,6 +83,7 @@ class Command(BaseCommand):
                 bt.country = address.split('\n')[-1]
                 bt.city = city
                 bt.logo_url = to_none_when_appropriate(str(row["Chemin"]))
+                bt.homepage = to_none_when_appropriate(str(row["Website"])) or ''
                 for p in find_persons(row["Responsable scientifique"]):
                     bt.scientificLeaders.add(p)
                 for p in find_persons(row["Responsable technique"]):
