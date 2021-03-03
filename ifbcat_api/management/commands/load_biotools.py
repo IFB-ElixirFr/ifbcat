@@ -50,8 +50,9 @@ class Command(BaseCommand):
                             tool_entry.update_information_from_json(tool)
                     if tool_entry is None:
                         tool_entry = Tool.objects.create(
-                            biotoolsID=tool['biotoolsID'],
+                            name=tool['biotoolsID'],
                         )
+                        tool_entry.biotoolsID = tool['biotoolsID']
                         tool_entry.update_information_from_json(tool)
 
                     progress_bar.update()
