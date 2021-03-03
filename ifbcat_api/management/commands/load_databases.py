@@ -38,10 +38,13 @@ class Command(BaseCommand):
                 database_citations = data_object[4]
                 database_citations = int(database_citations) if database_citations != '' else None
                 database_link_data = data_object[5]
-                database_keywords = [x.strip() for x in data_object[6].split(",")]
+                if '\n' in data_object[6]:
+                    database_keywords = [x.strip() for x in data_object[6].split("\n")]
+                else:
+                    database_keywords = [x.strip() for x in data_object[6].split(",")]
                 database_keywords_list = []
-                database_keyword = ""
                 for keyword in database_keywords:
+                    keyword = keyword.strip()
                     if len(keyword) > 2:
 
                         try:
@@ -50,13 +53,9 @@ class Command(BaseCommand):
                             )
                             database_keyword.save()
                             database_keywords_list.append(database_keyword)
-                            display_format = "\nKeyword, {}, has been saved."
-                            # (display_format.format(database_keyword))
                         except Exception as ex:
                             print(str(ex))
-                            msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(
-                                database_keyword, str(ex)
-                            )
+                            msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(keyword, str(ex))
                             print(msg)
 
                 database_annual_visits = data_object[7].split(" ")[0]
