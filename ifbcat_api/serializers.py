@@ -256,7 +256,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     )
     elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
     communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
-    hostedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     organisedByOrganisations = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
@@ -296,7 +295,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'market',
             'elixirPlatforms',
             'communities',
-            'hostedBy',
             'sponsoredBy',
             'organisedByOrganisations',
             'organisedByTeams',
@@ -315,7 +313,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'venue': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
-            'hostedBy': {'lookup_field': 'name'},
             'sponsoredBy': {'lookup_field': 'name'},
             # 'organisedBy': {'lookup_field': 'name'},
             'organisedByOrganisations': {'lookup_field': 'name'},

@@ -244,7 +244,6 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'accessibility',
         'elixirPlatforms',
         'communities',
-        'hostedBy',
     )
     #
     filter_horizontal = ('dates',)
@@ -255,7 +254,6 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'prerequisites',
         'elixirPlatforms',
         'communities',
-        'hostedBy',
         'sponsoredBy',
     )
 

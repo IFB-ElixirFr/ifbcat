@@ -70,7 +70,6 @@ class EventSponsor(models.Model):
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event sponsor.", blank=True, null=True)
     organisationId = models.ForeignKey(
         Organisation,
-        related_name='eventSponsor',
         null=True,
         on_delete=models.SET_NULL,
         help_text="IFB ID of a event-sponsoring organisation registered in the IFB catalogue.",
@@ -90,7 +89,7 @@ class Event(models.Model):
 
     # "on_delete=models.NULL" means that the Event is not deleted if the user profile is deleted.
     # "null=True" is required in case a user profile IS deleted.
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
+    # user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     # Controlled vocabularies
     # See https://docs.django(project).com/en/dev/ref/models/fields/#enumeration-types
@@ -131,7 +130,6 @@ class Event(models.Model):
 
     dates = models.ManyToManyField(
         "EventDate",
-        related_name='events',
         help_text="Date(s) and optional time periods on which the event takes place.",
     )
     venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
@@ -140,25 +138,21 @@ class Event(models.Model):
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     costs = models.ManyToManyField(
         EventCost,
-        related_name='events',
         blank=True,
         help_text="Monetary cost to attend the event, e.g. 'Free to academics'.",
     )
     topics = models.ManyToManyField(
         Topic,
-        related_name='events',
         blank=True,
         help_text="URIs of EDAM Topic terms describing the scope of the event.",
     )
     keywords = models.ManyToManyField(
         Keyword,
-        related_name='events',
         blank=True,
         help_text="A keyword (beyond EDAM ontology scope) describing the event.",
     )
     prerequisites = models.ManyToManyField(
         EventPrerequisite,
-        related_name='events',
         blank=True,
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
     )
@@ -182,7 +176,6 @@ class Event(models.Model):
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
     contactId = models.ForeignKey(
         UserProfile,
-        related_name='eventContactId',
         null=True,
         on_delete=models.SET_NULL,
         help_text="IFB ID of person to contact about the event.",
@@ -191,14 +184,12 @@ class Event(models.Model):
         max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts."
     )
     elixirPlatforms = models.ManyToManyField(
-        ElixirPlatform, blank=True, related_name='events', help_text="ELIXIR Platform to which the event is relevant."
+        ElixirPlatform, blank=True, help_text="ELIXIR Platform to which the event is relevant."
     )
-    communities = models.ManyToManyField(
-        Community, blank=True, related_name='events', help_text="Community for which the event is relevant."
-    )
-    hostedBy = models.ManyToManyField(
-        Organisation, blank=True, related_name='events', help_text="Organisation which is hosting the event."
-    )
+    communities = models.ManyToManyField(Community, blank=True, help_text="Community for which the event is relevant.")
+    # hostedBy = models.ManyToManyField(
+    #     Organisation, blank=True, help_text="Organisation which is hosting the event."
+    # )
     organisedByTeams = models.ManyToManyField(
         Team,
         blank=True,
@@ -214,7 +205,6 @@ class Event(models.Model):
     sponsoredBy = models.ManyToManyField(
         EventSponsor,
         blank=True,
-        related_name='events',
         help_text="An institutional entity that is sponsoring the event.",
     )
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event.", blank=True, null=True)
@@ -238,7 +228,7 @@ class Event(models.Model):
     def get_edition_permission_classes(cls):
         return (
             permissions.ReadOnly,
-            permissions.ReadWriteByOwner,
+            # permissions.ReadWriteByOwner,
             permissions.ReadWriteByContact,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,

@@ -119,7 +119,7 @@ class TrainingEvent(Event):
         return super().get_edition_permission_classes() + (
             permissions.ReadWriteByTrainers,
             permissions.ReadWriteByContact,
-            permissions.ReadWriteByOwner | permissions.ReadWriteBySuperEditor,
+            permissions.ReadWriteBySuperEditor,
         )
 
     # @classmethod
