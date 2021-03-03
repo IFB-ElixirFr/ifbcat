@@ -1,4 +1,5 @@
 {% extends "ifbcat_base.html" %}
+{% load ifbcat_vanilla_front_tags %}
 
 {% block title%}FRENCH PLATFORMS AND ASSOCIATED TEAMS MEMBER OF IFB{% endblock title%}
 
@@ -22,8 +23,7 @@
                id="nav-Collaborations-tab" role="tab">Collaborations</a>
             <a aria-controls="nav-Ouverture" class="nav-item nav-link" data-toggle="tab" href="#nav-Ouverture"
                id="nav-Ouverture-tab" role="tab">Ouverture</a>
-            <a aria-controls="nav-Imports" class="nav-item nav-link" data-toggle="tab" href="#nav-Imports"
-               id="nav-Imports-tab" role="tab">Imports</a>
+            <a class="nav-item nav-link" href="{{object|get_admin_url}}" target="_blank" id="nav-Manage-tab" role="tab">Manage</a>
         </div>
     </nav>
     <div class="tab-content" id="nav-tabContent">
@@ -130,12 +130,6 @@
              role="tabpanel">
             <div class="p-3">
                 Ouverture
-            </div>
-        </div>
-        <div aria-labelledby="nav-Imports-tab" class="tab-pane border border-top-0 fade" id="nav-Imports"
-             role="tabpanel">
-            <div class="p-3">
-                Imports
             </div>
         </div>
     </div>
