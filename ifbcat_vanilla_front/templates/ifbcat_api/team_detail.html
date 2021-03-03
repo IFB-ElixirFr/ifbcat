@@ -177,8 +177,10 @@
         </div>
         <div aria-labelledby="nav-Collaborations-tab" class="tab-pane border border-top-0 fade" id="nav-Collaborations"
              role="tabpanel">
-            <div class="p-3">
-                Collaborations
+            <div class="p-3 pb-0">
+                {% for p in object.publications.all %}
+                <p>{{p}}</p>
+                {% endfor %}
             </div>
         </div>
         <div aria-labelledby="nav-Ouverture-tab" class="tab-pane border border-top-0 fade" id="nav-Ouverture"
