@@ -107,9 +107,7 @@ class Command(BaseCommand):
                     except Exception as e:
                         print("Failed with %s" % certification)
                         print(e)
-                for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(",") + [
-                    row["Structure"]
-                ]:  # FIXME Structure and Affiliation are not the same thing and should not both be an Organisation
+                for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
                     if affiliation == "Unité : \nNon renseignée":
                         continue
@@ -123,6 +121,22 @@ class Command(BaseCommand):
                             o.full_clean()
                             o.save()
                         bt.affiliatedWith.add(o)
+                    except Exception as e:
+                        print("Failed with %s" % affiliation)
+                for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
+                    affiliation = affiliation.strip()
+                    if affiliation == "Unité : \nNon renseignée":
+                        continue
+                    # FIXME, adding dummy contents because description and homepage are missing
+                    try:
+                        o, created = Organisation.objects.get_or_create(name=affiliation)
+                        if created:
+                            o.name = affiliation
+                            o.description = f"description for {affiliation}"
+                            o.homepage = f"http://nothing.org"
+                            o.full_clean()
+                            o.save()
+                        bt.fundedBy.add(o)
                     except Exception as e:
                         print("Failed with %s" % affiliation)
                 bt.save()
