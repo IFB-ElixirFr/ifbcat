@@ -110,8 +110,33 @@
         </div>
         <div aria-labelledby="nav-Expertise-tab" class="tab-pane border border-top-0 fade" id="nav-Expertise"
              role="tabpanel">
-            <div class="p-3">
-                Expertise
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(1, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                <div class="card" style="grid-column: span 3;">
+                    <div class="card-header">Domains of activity</div>
+                    <div class="card-body">
+                        <ul style="display: grid;grid-template-columns: repeat(3, 1fr);">
+                        {%for a in object.fields.all%}
+                        <li>{{a.field}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" style="grid-column: span 3;">
+                    <div class="card-header">Description of expertise domains</div>
+                    <div class="card-body">
+                        {{object.description|linebreaksbr}}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Keywords</div>
+                    <div class="card-body">
+                        <ul style="display: grid;grid-template-columns: repeat(3, 1fr);grid-column-gap: 1em;">
+                        {%for a in object.keywords.all%}
+                        <li>{{a.keyword}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
         <div aria-labelledby="nav-Trainings-tab" class="tab-pane border border-top-0 fade" id="nav-Trainings"
