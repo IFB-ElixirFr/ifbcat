@@ -93,16 +93,13 @@ class Command(BaseCommand):
                         else:
                             logger.error(f'{organizer} is not an organisation not team in the DB.')
 
-                    # EventSponsors should be created before to be able to add them here to events
-                    # for sponsor in event_sponsors.split(','):
-                    #    sponsor=sponsor.strip()
-
-                    #    if sponsor == '':
-                    #        logger.debug(f'No sponsor for {sponsor}')
-
-                    #    elif EventSponsor.objects.filter(name=sponsor).exists():
-                    #        organisation=EventSponsor.objects.get(name=sponsor)
-                    #        event.sponsoredBy.add(organisation)
+                    for sponsor in event_sponsors.split(','):
+                        sponsor = sponsor.strip()
+                        if sponsor == '':
+                            logger.debug(f'No organizer for {event_name}')
+                            continue
+                        sponsor_instance, created = EventSponsor.objects.get_or_create(name=sponsor)
+                        event.sponsoredBy.add(sponsor_instance)
 
                 except Exception as e:
                     logger.error(data_object)
