@@ -94,8 +94,38 @@
         </div>
         <div aria-labelledby="nav-Infrastructure-tab" class="tab-pane border border-top-0 fade" id="nav-Infrastructure"
              role="tabpanel">
-            <div class="p-3">
-                Infrastructure
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                {%for c in object.computingfacility_set.all%}
+                <div class="card" style="grid-column: span 2;">
+                    <div class="card-body h3 text-center p-2 mb-0">{{c.name}}</div>
+                </div>
+                <div class="card" style="grid-row: span 2;">
+                    <div class="card-body"><dl>
+                        <dt>accessibility</dt>
+                        <dd>{{c.accessibility}}</dd>
+                        <dt>storageTb</dt>
+                        <dd>{{c.storageTb}}</dd>
+                        <dt>cpuCores</dt>
+                        <dd>{{c.cpuCores}}</dd>
+                        <dt>ramGb</dt>
+                        <dd>{{c.ramGb}}</dd>
+                        <dt>ramPerCoreGb</dt>
+                        <dd>{{c.ramPerCoreGb}}</dd>
+                        <dt>cpuHoursYearly</dt>
+                        <dd>{{c.cpuHoursYearly}}</dd>
+                        <dt>usersYearly</dt>
+                        <dd>{{c.usersYearly}}</dd>
+                    </dl></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Server Description</div>
+                    <div class="card-body">{{c.description|linebreaksbr}}</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Terms Of Use</div>
+                    <div class="card-body"><a href="{{c.termsOfUse}}">{{c.termsOfUse}}</a></div>
+                </div>
+                {%endfor%}
             </div>
         </div>
         <div aria-labelledby="nav-Data-tab" class="tab-pane border border-top-0 fade" id="nav-Data" role="tabpanel">
