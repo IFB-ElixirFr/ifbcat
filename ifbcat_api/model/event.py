@@ -242,6 +242,7 @@ class Event(models.Model):
             permissions.ReadWriteByContact,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,
+            permissions.ReadWriteByOrgByTeamsMaintainers,
             permissions.ReadWriteByOrgByOrganisationsLeader,
             permissions.ReadWriteBySuperEditor,
         )

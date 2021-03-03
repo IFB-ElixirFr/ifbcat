@@ -114,6 +114,10 @@ class ReadWriteByOrgByTeamsDeputies(ReadWriteBySomething):
     target = 'organisedByTeams__deputies'
 
 
+class ReadWriteByOrgByTeamsMaintainers(ReadWriteBySomething):
+    target = 'organisedByTeams__maintainers'
+
+
 class ReadWriteByOrgByOrganisationsLeader(ReadWriteBySomething):
     target = 'organisedByOrganisations__user_profile'
 
