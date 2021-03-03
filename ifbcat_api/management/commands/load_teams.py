@@ -106,7 +106,9 @@ class Command(BaseCommand):
                     except Exception as e:
                         print("Failed with %s" % certification)
                         print(e)
-                for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(","):
+                for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(",") + [
+                    row["Structure"]
+                ]:  # FIXME Structure and Affiliation are not the same thing and should not both be an Organisation
                     affiliation = affiliation.strip()
                     if affiliation == "Unité : \nNon renseignée":
                         continue
