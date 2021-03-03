@@ -83,25 +83,44 @@ class Command(BaseCommand):
                     object_platform = None
 
                 try:
-                    print(database_link_data)
-                    database, created = Tool.objects.update_or_create(
-                        name=database_name,
-                        defaults={
-                            'logo': database_logo,
-                            'description': database_description,
-                            'access_condition': database_access_conditions,
-                            'citations': database_citations,
-                            'homepage': database_link_data,
-                            'annual_visits': database_annual_visits,
-                            'unique_visits': database_unique_visits,
-                            'last_update': database_last_update,
-                            # 'increase_last_update' is not in Tool model.
-                            # Maybe we could create a Database model inheriting from Tool
-                            # with this additionnal field?
-                            #'increase_last_update': database_increase_last_update
-                        },
-                    )
+                    try:
+                        database = Tool.objects.get(name__iexact=database_name)
+                        created = False
+                        if database.biotoolsID == '':
+                            database.biotoolsID = database.name
+                    except Tool.DoesNotExist:
+                        biotoolsID = database_name
+                        if biotoolsID.endswith("2.0"):
+                            biotoolsID = biotoolsID[:-3]
+                        biotoolsID = biotoolsID.split('(')[0]
+                        biotoolsID = biotoolsID.strip()
+                        biotoolsID = biotoolsID.replace(' ', '_')
+                        if database_name == "Plant data discovery portal":
+                            biotoolsID = "Plant_DataDiscovery"
+                        database, created = Tool.objects.get_or_create(biotoolsID=biotoolsID)
+                        database.refresh_from_db()
+                    if created and database.name is '':
+                        Tool.objects.filter(pk=database.pk).update(
+                            **{
+                                'name': database_name,
+                                'logo': database_logo,
+                                'description': database_description,
+                                'access_condition': database_access_conditions,
+                                'citations': database_citations,
+                                'homepage': database_link_data,
+                                'annual_visits': database_annual_visits,
+                                'unique_visits': database_unique_visits,
+                                'last_update': database_last_update,
+                                # 'increase_last_update' is not in Tool model.
+                                # Maybe we could create a Database model inheriting from Tool
+                                # with this additionnal field?
+                                # 'increase_last_update': database_increase_last_update
+                            }
+                        )
 
+                    database.refresh_from_db()
+                    if database.name == '':
+                        raise ValueError(f'We should not end up with an empty name for {database_name}')
                 except Exception as e:
                     print(data_object)
                     raise e
