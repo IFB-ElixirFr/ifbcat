@@ -20,6 +20,6 @@ jobs:
         docker-compose build
         docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
         docker-compose exec -T -e DJANGO_SUPERUSER_PASSWORD web python manage.py createsuperuser --no-input --email super.user@test.com --firstname super --lastname user
-        docker-compose exec -T web python manage.py test
+        docker-compose exec -T -e CACHE_DIR=./import_data web python manage.py test
       env:
         DJANGO_SUPERUSER_PASSWORD: test_password
