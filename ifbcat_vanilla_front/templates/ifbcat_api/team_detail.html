@@ -1,7 +1,9 @@
 {% extends "ifbcat_base.html" %}
 {% load ifbcat_vanilla_front_tags %}
 
-{% block title%}FRENCH PLATFORMS AND ASSOCIATED TEAMS MEMBER OF IFB{% endblock title%}
+{%block head_title%}{{object.name}}{%endblock head_title%}
+
+{% block title%}{{object.name}}{% endblock title%}
 
 {% block content%}
 <div class="col-12 mb-4">
