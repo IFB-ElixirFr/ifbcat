@@ -23,5 +23,5 @@ class LoadCatalogTestCase(EnsureImportDataAreHere):
         )
         self.assertEqual(
             Organisation.objects.count(),
-            62,
+            59,
         )
