@@ -549,7 +549,6 @@ class ComputingFacilityViewSet(ResourceViewSet):
         'homepage',
         'providedBy__name',
         'accessibility',
-        'serverDescription',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
         'providedBy',
