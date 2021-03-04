@@ -594,7 +594,6 @@ class ComputingFacilitySerializer(ResourceSerializer):
             'requestAccount',
             'termsOfUse',
             'trainingMaterials',
-            'serverDescription',
             'storageTb',
             'cpuCores',
             'ramGb',
@@ -606,7 +605,6 @@ class ComputingFacilitySerializer(ResourceSerializer):
         extra_kwargs = {
             **ResourceSerializer.Meta.extra_kwargs,
             **{
-                'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
                 'providedBy': {'lookup_field': 'name'},
                 'trainingMaterials': {'lookup_field': 'name'},
             },
