@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     http = None
 
-    def crawl_tools(self, limit, collection_id, cache_dir=None):
+    def crawl_tools(self, limit, collection_id):
         # clean tool table
         # Tool.objects.all().delete()
         # ToolType.objects.all().delete()
@@ -24,7 +24,7 @@ class Command(BaseCommand):
         # Collection.objects.all().delete()
 
         try:
-            resp = self.get_from_biotools(collection_id=collection_id, page=1, cache_dir=cache_dir)
+            resp = self.get_from_biotools(collection_id=collection_id, page=1)
             count = int(resp['count'])
             print(f"{count} available BioTools entries for collection {collection_id}")
 
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             progress_bar = tqdm()
             while has_next_page and (limit == -1 or progress_bar.n < limit):
                 try:
-                    entry = self.get_from_biotools(collection_id=collection_id, page=page, cache_dir=cache_dir)
+                    entry = self.get_from_biotools(collection_id=collection_id, page=page)
                 except JSONDecodeError as e:
                     logging.error("Json decode error")
                     break
@@ -61,9 +61,11 @@ class Command(BaseCommand):
             logger.error("Connection error")
             logger.error(e)
 
-    def get_from_biotools(self, collection_id, page, cache_dir: str):
+    def get_from_biotools(self, collection_id, page):
         key = None
+        cache_dir = os.environ.get('CACHE_DIR', None)
         if cache_dir is not None:
+            cache_dir = os.path.join(cache_dir, 'biotools')
             key = f'{collection_id}.{page}.json'
             try:
                 with open(os.path.join(cache_dir, key)) as f:
@@ -98,15 +100,9 @@ class Command(BaseCommand):
             type=str,
             default='elixir-fr-sdp-2019',
         )
-        parser.add_argument(
-            '--cache_dir',
-            help='Folder where are/will be stored the raw json downloaded',
-            type=str,
-            default=None,
-        )
 
     def handle(self, *args, **options):
         """
         Call the function to import data
         """
-        self.crawl_tools(limit=options['limit'], collection_id=options['collection_id'], cache_dir=options['cache_dir'])
+        self.crawl_tools(limit=options['limit'], collection_id=options['collection_id'])
