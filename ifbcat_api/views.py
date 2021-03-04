@@ -266,6 +266,30 @@ class EventFilter(AutoSubsetFilterSet):
         ]
 
 
+class TrainingEventFilter(AutoSubsetFilterSet):
+    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
+    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+
+    class Meta:
+        model = models.TrainingEvent
+        fields = [
+            'type',
+            'min_start',
+            'max_start',
+            'costs',
+            'topics',
+            'keywords',
+            'prerequisites',
+            'contactId',
+            'elixirPlatforms',
+            'communities',
+            'organisedByTeams',
+            'organisedByOrganisations',
+            'sponsoredBy',
+            'computingFacilities',
+        ]
+
+
 # Model ViewSet for events
 class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
@@ -317,6 +341,7 @@ class TrainingEventViewSet(EventViewSet):
         'difficultyLevel',
         'learningOutcomes',
     )
+    filterset_class = TrainingEventFilter
 
 
 # Model ViewSet for keywords
