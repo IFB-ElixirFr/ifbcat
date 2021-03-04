@@ -1,6 +1,7 @@
 import json
 import logging
 
+import requests
 from Bio import Entrez
 from django.core.exceptions import ValidationError
 from django.db import models, DataError
@@ -9,10 +10,10 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django_better_admin_arrayfield.models.fields import ArrayField
-from pip._vendor import requests
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions, misc
+from ifbcat_api.misc import BibliographicalEntryNotFound
 from ifbcat_api.validators import validate_edam_topic, validate_can_be_looked_up, validate_doi
 from ifbcat_api.validators import validate_grid_or_ror_id
 
@@ -263,7 +264,12 @@ class Doi(models.Model):
 @receiver(pre_save, sender=Doi)
 def fetch_info_from_doi(sender, instance, **kwargs):
     if instance.pk is None and instance.doi is not None and instance.doi != "":
-        instance.fill_from_doi()
+        try:
+            instance.fill_from_doi()
+        except BibliographicalEntryNotFound:
+            pass
+        except requests.HTTPError:
+            logger.warning(f"Error while fetching {instance.doi}")
 
 
 class WithGridIdOrRORId(models.Model):

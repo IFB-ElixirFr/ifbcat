@@ -1,8 +1,11 @@
 import csv
 import datetime
+import json
 import os
 
 import pytz
+import unidecode
+import urllib3
 from django.core.management import BaseCommand
 from django.db.transaction import atomic
 from django.utils.timezone import make_aware
@@ -14,6 +17,8 @@ from ifbcat_api.models import Tool
 
 
 class Command(BaseCommand):
+    http = None
+
     def add_arguments(self, parser):
         parser.add_argument("file", type=str, help="Path to the CSV source file")
 
@@ -88,16 +93,31 @@ class Command(BaseCommand):
                         if database.biotoolsID == '':
                             database.biotoolsID = database.name
                     except Tool.DoesNotExist:
-                        biotoolsID = database_name
+                        # clean up anme to get the biotool id
+                        biotoolsID = unidecode.unidecode(database_name)
                         if biotoolsID.endswith("2.0"):
                             biotoolsID = biotoolsID[:-3]
                         biotoolsID = biotoolsID.split('(')[0]
+                        biotoolsID = biotoolsID.split(':')[0]
                         biotoolsID = biotoolsID.strip()
                         biotoolsID = biotoolsID.replace(' ', '_')
                         if database_name == "Plant data discovery portal":
                             biotoolsID = "Plant_DataDiscovery"
-                        database, created = Tool.objects.get_or_create(biotoolsID=biotoolsID)
-                        database.refresh_from_db()
+                        if database_name == "Wheat@URGI":
+                            biotoolsID = "WheatIS"
+
+                        # try to get it from the db
+                        try:
+                            database = Tool.objects.get(biotoolsID__iexact=biotoolsID)
+                        except Tool.DoesNotExist:
+                            # not found, so create a new entry, and bypass autofill
+                            database = Tool.objects.create(
+                                name=database_name,
+                            )
+                            biotool_db = self.get_from_biotools(biotoolsID)
+                            if biotool_db.get("detail", None) != "Not found.":
+                                database.biotoolsID = biotoolsID
+                                database.update_information_from_json(biotool_db)
                     if created and database.name is '':
                         Tool.objects.filter(pk=database.pk).update(
                             **{
@@ -135,3 +155,27 @@ class Command(BaseCommand):
                 # biotoolsCURIE and biotoolsID are missing for validation
                 # database.full_clean()
                 database.save()
+
+    def get_from_biotools(self, biotoolsID):
+        key = None
+        cache_dir = os.environ.get('CACHE_DIR', None)
+        if cache_dir is not None:
+            cache_dir = os.path.join(cache_dir, 'biotools')
+            os.makedirs(cache_dir, exist_ok=True)
+            key = f'{biotoolsID}.json'
+            try:
+                with open(os.path.join(cache_dir, key)) as f:
+                    response = json.load(f)
+                return response
+            except FileNotFoundError:
+                pass
+
+        if self.http is None:
+            self.http = urllib3.PoolManager()
+        req = self.http.request('GET', f'https://bio.tools/api/{biotoolsID}?format=json')
+        response = json.loads(req.data.decode('utf-8'))
+
+        if key is not None:
+            with open(os.path.join(cache_dir, key), 'w') as f:
+                json.dump(response, f)
+        return response

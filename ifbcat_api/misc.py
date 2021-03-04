@@ -1,3 +1,6 @@
+import json
+import os
+
 import requests
 
 
@@ -23,6 +26,18 @@ def get_doi_info(doi: str) -> dict:
     :return: publication metadata (title, journal name, publication year, authors list).
     :rtype: dict
     """
+    cache_dir = os.environ.get('CACHE_DIR', None)
+    key = None
+    if cache_dir is not None:
+        cache_dir = os.path.join(cache_dir, 'doi')
+        os.makedirs(cache_dir, exist_ok=True)
+        key = f'{doi.replace("/", "-")}.json'
+        try:
+            with open(os.path.join(cache_dir, key)) as f:
+                response = json.load(f)
+            return response
+        except FileNotFoundError:
+            pass
     resp = requests.get(
         "http://dx.doi.org/%s" % doi,
         headers={"Accept": "application/vnd.citationstyles.csl+json"},
@@ -63,9 +78,13 @@ def get_doi_info(doi: str) -> dict:
             print(json_data)
             raise e
     authors = ", ".join(authors_list)
-    return {
+    response = {
         "title": title,
         "journal_name": journal_name,
         "biblio_year": biblio_year,
         "authors_list": authors,
     }
+    if key is not None:
+        with open(os.path.join(cache_dir, key), 'w') as f:
+            json.dump(response, f)
+    return response

@@ -1,7 +1,8 @@
 import itertools
 
+import requests
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
@@ -16,6 +17,7 @@ from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
+from ifbcat_api.misc import BibliographicalEntryNotFound
 from ifbcat_api.permissions import simple_override_method
 
 
@@ -463,8 +465,13 @@ class DoiAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
     def update_information(self, request, queryset):
         for o in queryset:
-            o.fill_from_doi()
-            o.save()
+            try:
+                o.fill_from_doi()
+                o.save()
+            except BibliographicalEntryNotFound:
+                self.message_user(request, f"Not found: {o.doi}", messages.INFO)
+            except requests.HTTPError as he:
+                self.message_user(request, f"HTTPError: {o.doi} : {str(he)}", messages.ERROR)
 
 
 @admin.register(models.Project)
