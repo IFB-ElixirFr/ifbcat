@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
     - uses: actions/checkout@v2
       with:
         repository:  IFB-ElixirFr/ifbcat-importdata
         token: ${{ secrets.ACCESS_TOKEN }}
         path: 'import_data'
-    - name: Run the DB locally
+    - name: Run the tests inside the docker-compose with third party api calls cached
       run: |
         cp resources/default.ini local.ini     
         docker-compose build
