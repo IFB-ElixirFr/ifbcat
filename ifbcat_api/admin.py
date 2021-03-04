@@ -540,7 +540,6 @@ class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'homepage',
         'providedBy__name',
         'accessibility',
-        'serverDescription',
     )
     save_as = True
 
