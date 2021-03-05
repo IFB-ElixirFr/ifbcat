@@ -34,11 +34,11 @@
         <div aria-labelledby="nav-Information-tab" class="tab-pane border border-top-0 fade show active"
              id="nav-Information" role="tabpanel">
             <div class="p-3" style="display: grid;grid-template-columns: repeat(3, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
-                <div class="card" style="grid-row: span 2;">
+                <div class="card">
                     <div class="card-header">Address</div>
                     <div class="card-body">{{object.address}}</div>
                 </div>
-                <div class="card" style="grid-row: span 2;">
+                <div class="card">
                     <div class="card-header">Attachment</div>
                     <div class="card-body">
                         <dl>
@@ -54,15 +54,12 @@
                     </div>
                 </div>
                 <div class="card">
-                    <div class="card-header">Website</div>
+                    <div class="card-header">Outlinks</div>
                     <div class="card-body">
-                        <a href="{{object.homepage}}">[long name missing in model]</a>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Legacy catalog</div>
-                    <div class="card-body">
-                        <a href="https://ressources.france-bioinformatique.fr/en/platforms/{{object.name}}" target="_blank">Try opening in legacy catalog</a>
+                        <b>homepage:</b>
+                        <a href="{{object.homepage}}">[long name is missing in model]</a><br/>
+                        <b>legacy catalog:</b>
+                        <a href="https://ressources.france-bioinformatique.fr/en/platforms/{{object.name}}" target="_blank">Try opening in it</a>
                     </div>
                 </div>
                 <div class="card">
