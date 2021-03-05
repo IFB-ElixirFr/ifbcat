@@ -984,3 +984,9 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         fields = _tool_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
         # depth = 1
+
+
+class OperatingSystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OperatingSystem
+        fields = ['id', 'name']
