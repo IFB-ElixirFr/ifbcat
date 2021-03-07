@@ -989,6 +989,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
             'team': {'lookup_field': 'name'},
         }
 
+
 class OperatingSystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OperatingSystem

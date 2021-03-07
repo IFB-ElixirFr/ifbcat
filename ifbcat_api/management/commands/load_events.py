@@ -148,7 +148,7 @@ class Command(BaseCommand):
                             continue
                         sponsor_instance, created = EventSponsor.objects.get_or_create(name=sponsor)
                         event.sponsoredBy.add(sponsor_instance)
-                        
+
                     event.save()
 
                 except Exception as e:
