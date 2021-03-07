@@ -8,7 +8,8 @@ from django.db.models.functions import Upper, Concat, Replace
 
 from ifbcat_api.models import UserProfile
 
-from ifbcat_api.management.commands.load_bioinformatics_teams import to_none_when_appropriate
+from ifbcat_api.management.commands.load_teams import to_none_when_appropriate
+
 
 logger = logging.getLogger(__name__)
 
