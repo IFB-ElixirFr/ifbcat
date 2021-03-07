@@ -29,6 +29,37 @@ from ifbcat_api import serializers
 from ifbcat_api.filters import AutoSubsetFilterSet
 
 
+class CachedNoPaginationMixin:
+    @property
+    def paginator(self):
+        return None
+
+    def perform_create(self, serializer):
+        super().perform_create(serializer)
+        cache.clear()
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        cache.clear()
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        cache.clear()
+
+    @method_decorator(cache_page(int(60 * 60 * 0.5)))
+    @method_decorator(vary_on_cookie)
+    def list(self, *args, **kwargs):
+        return super().list(*args, **kwargs)
+
+
+def CachedNoPaginationFactory(base):
+    class _tmp(CachedNoPaginationMixin, base):
+        pass
+
+    _tmp.__name__ = base.__name__ + "CNP"
+    return _tmp
+
+
 class PermissionInClassModelViewSet:
     class Meta:
         abstract = True
@@ -214,7 +245,7 @@ class UserLoginApiView(ObtainAuthToken):
 
 class EventFilter(AutoSubsetFilterSet):
     min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
-    max_start = django_filters.NumberFilter(field_name="dates__dateStart", lookup_expr='lte')
+    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
 
     class Meta:
         model = models.Event
@@ -229,11 +260,33 @@ class EventFilter(AutoSubsetFilterSet):
             'contactId',
             'elixirPlatforms',
             'communities',
-            'hostedBy',
             'organisedByTeams',
-            'organisedByBioinformaticsTeams',
             'organisedByOrganisations',
             'sponsoredBy',
+        ]
+
+
+class TrainingEventFilter(AutoSubsetFilterSet):
+    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
+    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+
+    class Meta:
+        model = models.TrainingEvent
+        fields = [
+            'type',
+            'min_start',
+            'max_start',
+            'costs',
+            'topics',
+            'keywords',
+            'prerequisites',
+            'contactId',
+            'elixirPlatforms',
+            'communities',
+            'organisedByTeams',
+            'organisedByOrganisations',
+            'sponsoredBy',
+            'computingFacilities',
         ]
 
 
@@ -263,9 +316,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'market',
         'elixirPlatforms__name',
         'communities__name',
-        'hostedBy__name',
         'organisedByTeams__name',
-        'organisedByBioinformaticsTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
@@ -290,6 +341,7 @@ class TrainingEventViewSet(EventViewSet):
         'difficultyLevel',
         'learningOutcomes',
     )
+    filterset_class = TrainingEventFilter
 
 
 # Model ViewSet for keywords
@@ -394,20 +446,6 @@ class OrganisationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
         serializer.save(user_profile=self.request.user)
-        cache.clear()
-
-    def perform_update(self, serializer):
-        super().perform_update(serializer)
-        cache.clear()
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        cache.clear()
-
-    @method_decorator(cache_page(60 * 60 * 0.5))
-    @method_decorator(vary_on_cookie)
-    def list(self, *args, **kwargs):
-        return super().list(*args, **kwargs)
 
 
 class CertificationViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
@@ -535,12 +573,10 @@ class ComputingFacilityViewSet(ResourceViewSet):
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy__name',
-        'team__name',
         'accessibility',
-        'serverDescription',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
-        'team',
+        'providedBy',
         'accessibility',
     )
 
@@ -620,6 +656,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'projects',
         'fundedBy',
         'keywords',
+        'platforms',
     )
 
     def perform_create(self, serializer):
@@ -627,22 +664,22 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
-# Model ViewSet for teams
-class BioinformaticsTeamViewSet(TeamViewSet):
-    """Handles creating, reading and updating bioinformatics teams."""
-
-    serializer_class = serializers.BioinformaticsTeamSerializer
-    queryset = models.BioinformaticsTeam.objects.all()
-    search_fields = TeamViewSet.search_fields + (
-        'edamTopics__uri',
-        'ifbMembership',
-        'platforms__name',
-    )
-    filterset_fields = TeamViewSet.search_fields + (
-        'edamTopics',
-        'ifbMembership',
-        'platforms',
-    )
+# # Model ViewSet for teams
+# class BioinformaticsTeamViewSet(TeamViewSet):
+#     """Handles creating, reading and updating bioinformatics teams."""
+#
+#     serializer_class = serializers.BioinformaticsTeamSerializer
+#     queryset = models.BioinformaticsTeam.objects.all()
+#     search_fields = TeamViewSet.search_fields + (
+#         'edamTopics__uri',
+#         'ifbMembership',
+#         'platforms__name',
+#     )
+#     filterset_fields = TeamViewSet.search_fields + (
+#         'edamTopics',
+#         'ifbMembership',
+#         'platforms',
+#     )
 
 
 # Model ViewSet for services
@@ -656,14 +693,14 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields = (
         'name',
         'description',
-        'bioinformaticsTeams__name',
         'computingFacilities__name',
+        'teams__name',
         'trainingEvents__name',
         'trainingMaterials__name',
         'publications__doi',
     )
     filterset_fields = (
-        'bioinformaticsTeams',
+        'teams',
         'computingFacilities',
     )
 
@@ -715,3 +752,9 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
         'tool_credit',
         'collection',
     )
+
+
+class OperatingSystemChoicesViewSet(viewsets.ModelViewSet):
+    queryset = models.OperatingSystem.objects.all()
+    serializer_class = serializers.OperatingSystemSerializer
+    lookup_field = 'name'

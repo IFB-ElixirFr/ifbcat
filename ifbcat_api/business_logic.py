@@ -80,7 +80,7 @@ def init_business_logic():
         models.Event,
     ]
     team_and_more_related = [
-        models.BioinformaticsTeam,
+        models.Team,
         models.Certification,
         models.Team,
         models.Community,

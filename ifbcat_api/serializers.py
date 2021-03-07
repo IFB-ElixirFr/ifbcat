@@ -6,7 +6,7 @@ from django.utils.encoding import smart_str
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from ifbcat_api import models
+from ifbcat_api import models, inlineSerializers
 
 
 # This is just for testing serialization
@@ -254,6 +254,11 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         read_only=False,
     )
+    elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+    communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
+    organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    organisedByOrganisations = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),
@@ -266,7 +271,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'name',
             'shortName',
             'description',
@@ -290,11 +294,9 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'market',
             'elixirPlatforms',
             'communities',
-            'hostedBy',
             'sponsoredBy',
             'organisedByOrganisations',
             'organisedByTeams',
-            'organisedByBioinformaticsTeams',
             'logo_url',
         )
 
@@ -305,17 +307,14 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         # See https://www.django-rest-framework.org/api-guide/relations/
         extra_kwargs = {
             # 'id': {'read_only': True},
-            'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'venue': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
-            'hostedBy': {'lookup_field': 'name'},
             'sponsoredBy': {'lookup_field': 'name'},
             # 'organisedBy': {'lookup_field': 'name'},
             'organisedByOrganisations': {'lookup_field': 'name'},
             'organisedByTeams': {'lookup_field': 'name'},
-            'organisedByBioinformaticsTeams': {'lookup_field': 'name'},
         }
 
     def update(self, instance, validated_data):
@@ -461,6 +460,10 @@ class OrganisationSerializer(serializers.ModelSerializer):
         model = models.Organisation
         fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
         read_only_fields = ['user_profile']
+        rdf_mapping = dict(
+            name="http://i-dont-know.org#name",
+            description="http://i-dont-know.org#desc",
+        )
 
 
 class CertificationSerializer(serializers.HyperlinkedModelSerializer):
@@ -587,12 +590,10 @@ class ComputingFacilitySerializer(ResourceSerializer):
         fields = ResourceSerializer.Meta.fields + (
             'homepage',
             'providedBy',
-            'team',
             'accessibility',
             'requestAccount',
             'termsOfUse',
             'trainingMaterials',
-            'serverDescription',
             'storageTb',
             'cpuCores',
             'ramGb',
@@ -604,9 +605,7 @@ class ComputingFacilitySerializer(ResourceSerializer):
         extra_kwargs = {
             **ResourceSerializer.Meta.extra_kwargs,
             **{
-                'serverDescription': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
                 'providedBy': {'lookup_field': 'name'},
-                'team': {'lookup_field': 'name'},
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
@@ -642,6 +641,13 @@ class TrainingMaterialSerializer(ResourceSerializer):
         read_only=False,
         slug_field="audienceRole",
         queryset=models.AudienceRole.objects,
+        required=False,
+    )
+    doi = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="doi",
+        queryset=models.Doi.objects,
         required=False,
     )
 
@@ -711,6 +717,9 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.Certification.objects,
         required=False,
     )
+    affiliatedWith = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
+    fundedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
+    platforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Team
@@ -743,51 +752,53 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'technicalLeaders',
             'members',
             'maintainers',
+            'ifbMembership',
+            'platforms',
         )
         read_only_fields = ['user_profile']
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
         extra_kwargs = {
-            **{
-                'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-                'keywords': {'lookup_field': 'keyword'},
-                'affiliatedWith': {'lookup_field': 'name'},
-                'certifications': {'lookup_field': 'name'},
-                'communities': {'lookup_field': 'name'},
-                'projects': {'lookup_field': 'name'},
-                'fundedBy': {'lookup_field': 'name'},
-            },
+            'address': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'keywords': {'lookup_field': 'keyword'},
+            'affiliatedWith': {'lookup_field': 'name'},
+            'certifications': {'lookup_field': 'name'},
+            'communities': {'lookup_field': 'name'},
+            'projects': {'lookup_field': 'name'},
+            'fundedBy': {'lookup_field': 'name'},
+            'platforms': {'lookup_field': 'name'},
         }
 
 
-# Model serializer for bioinformatics team
-class BioinformaticsTeamSerializer(TeamSerializer):
-    """Serializes a bioinformatics team (BioinformaticsTeam object)."""
-
-    edamTopics = CreatableSlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="uri",
-        queryset=models.Topic.objects,
-        required=False,
-    )
-
-    class Meta(TeamSerializer.Meta):
-        model = models.BioinformaticsTeam
-
-        fields = TeamSerializer.Meta.fields + (
-            'edamTopics',
-            'ifbMembership',
-            'platforms',
-        )
-
-        # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
-        extra_kwargs = {
-            **TeamSerializer.Meta.extra_kwargs,
-            **{
-                'platforms': {'lookup_field': 'name'},
-            },
-        }
+#
+# # Model serializer for bioinformatics team
+# class BioinformaticsTeamSerializer(TeamSerializer):
+#     """Serializes a bioinformatics team (BioinformaticsTeam object)."""
+#
+#     edamTopics = CreatableSlugRelatedField(
+#         many=True,
+#         read_only=False,
+#         slug_field="uri",
+#         queryset=models.Topic.objects,
+#         required=False,
+#     )
+#
+#     class Meta(TeamSerializer.Meta):
+#         model = models.BioinformaticsTeam
+#
+#         fields = TeamSerializer.Meta.fields + (
+#             'edamTopics',
+#             'ifbMembership',
+#             'platforms',
+#         )
+#
+#         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
+#         extra_kwargs = {
+#             **TeamSerializer.Meta.extra_kwargs,
+#             **{
+#                 'platforms': {'lookup_field': 'name'},
+#             },
+#         }
 
 
 # Model serializer for service
@@ -811,7 +822,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'name',
             'description',
             'dateEstablished',
-            'bioinformaticsTeams',
+            'teams',
             'computingFacilities',
             'trainingEvents',
             'trainingMaterials',
@@ -822,7 +833,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'bioinformaticsTeams': {'lookup_field': 'name'},
+            'teams': {'lookup_field': 'name'},
             'computingFacilities': {'lookup_field': 'name'},
             # 'trainingEvents': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
@@ -977,3 +988,8 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             'team': {'lookup_field': 'name'},
         }
+
+class OperatingSystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OperatingSystem
+        fields = ['id', 'name']

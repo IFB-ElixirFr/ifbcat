@@ -52,10 +52,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_templates_patch',
     'rest_framework',
+    'corsheaders',
     'django_filters',
     'rest_framework.authtoken',
     'django_better_admin_arrayfield',
     'ifbcat_api',
+    'ifbcat_vanilla_front',
     'django.contrib.postgres',
 ]
 
@@ -64,6 +66,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -169,9 +172,22 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'ifbcat_api.filters.DjangoFilterAutoSubsetBackend',
     ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'ifbcat_api.renderers.NTriplesRdfRenderer',
+    ],
 }
 # From https://gist.github.com/davewongillies/6897161#gistcomment-3017261
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+################################################################################
+# CORS
+################################################################################
+CORS_ALLOW_METHODS = [
+    'GET',
+    'OPTIONS',
+]
 
 ################################################################################
 # Log level
@@ -238,7 +254,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
         {"model": "ifbcat_api.UserProfile"},
         {"model": "ifbcat_api.Event"},
-        {"model": "ifbcat_api.BioinformaticsTeam"},
+        {"model": "ifbcat_api.Team"},
         {"app": "ifbcat_api"},
     ],
     # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free
@@ -249,7 +265,6 @@ JAZZMIN_SETTINGS = {
         "authtoken.Token": "fas fa-key",
         "ifbcat_api.AudienceRole": "fas fa-circle",
         "ifbcat_api.AudienceType": "fas fa-circle",
-        "ifbcat_api.BioinformaticsTeam": "fas fa-users",
         "ifbcat_api.Certification": "fas fa-circle",
         "ifbcat_api.Collection": "fas fa-circle",
         "ifbcat_api.Community": "fas fa-broadcast-tower",

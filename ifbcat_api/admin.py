@@ -1,7 +1,8 @@
 import itertools
 
+import requests
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
@@ -12,11 +13,11 @@ from django.db.models.functions import Upper, Length
 from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
 from django.utils.html import format_html
-from django.utils.translation import ugettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
+from ifbcat_api.misc import BibliographicalEntryNotFound
 from ifbcat_api.permissions import simple_override_method
 
 
@@ -233,7 +234,6 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'contactEmail',
         'market',
         'organisedByTeams__name',
-        'organisedByBioinformaticsTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
@@ -246,7 +246,8 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'accessibility',
         'elixirPlatforms',
         'communities',
-        'hostedBy',
+        'organisedByTeams',
+        'organisedByOrganisations',
     )
     #
     filter_horizontal = ('dates',)
@@ -257,7 +258,6 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'prerequisites',
         'elixirPlatforms',
         'communities',
-        'hostedBy',
         'sponsoredBy',
     )
 
@@ -453,6 +453,27 @@ class FieldAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 @admin.register(models.Doi)
 class DoiAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ('doi',)
+    list_display = (
+        'doi',
+        'title',
+        'authors_list',
+        'biblio_year',
+    )
+
+    actions = [
+        'update_information',
+    ]
+    readonly_fields = ('title', 'journal_name', 'authors_list', 'biblio_year')
+
+    def update_information(self, request, queryset):
+        for o in queryset:
+            try:
+                o.fill_from_doi()
+                o.save()
+            except BibliographicalEntryNotFound:
+                self.message_user(request, f"Not found: {o.doi}", messages.INFO)
+            except requests.HTTPError as he:
+                self.message_user(request, f"HTTPError: {o.doi} : {str(he)}", messages.ERROR)
 
 
 @admin.register(models.Project)
@@ -520,16 +541,14 @@ class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'homepage',
         'providedBy__name',
-        'team__name',
         'accessibility',
-        'serverDescription',
     )
+    save_as = True
 
     list_filter = ('accessibility',)
 
     autocomplete_fields = (
         'providedBy',
-        'team',
         'trainingMaterials',
     )
 
@@ -572,65 +591,63 @@ class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     )
 
 
-@admin.register(models.BioinformaticsTeam)
-class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    ordering = (Unaccent("name"),)
-    search_fields = (
-        'name',
-        'description',
-        'expertise__uri',
-        'leader__firstname',
-        'leader__lastname',
-        'deputies__firstname',
-        'deputies__lastname',
-        'scientificLeaders__firstname',
-        'scientificLeaders__lastname',
-        'technicalLeaders__firstname',
-        'technicalLeaders__lastname',
-        'members__firstname',
-        'members__lastname',
-        'maintainers__firstname',
-        'maintainers__lastname',
-        'orgid',
-        'unitId',
-        'address',
-        'fields__field',
-        'keywords__keyword',
-        'ifbMembership',
-        'platforms__name',
-        'communities__name',
-        'projects__name',
-        'fundedBy__name',
-        'publications__doi',
-        'certifications__name',
-    )
-
-    list_filter = ('fields',)
-
-    autocomplete_fields = (
-        'fields',
-        'platforms',
-        'communities',
-        'projects',
-    )
-    filter_horizontal = (
-        'scientificLeaders',
-        'technicalLeaders',
-        'members',
-        'maintainers',
-        'deputies',
-    )
-    list_display = (
-        'name',
-        'logo',
-    )
-
-    def logo(self, obj):
-        if obj.logo_url:
-            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
-        return format_html('<center style="margin: -8px;">-<center>')
-
-    logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
+# @admin.register(models.BioinformaticsTeam)
+# class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+#     ordering = (Unaccent("name"),)
+#     search_fields = (
+#         'name',
+#         'description',
+#         'expertise__uri',
+#         'leader__firstname',
+#         'leader__lastname',
+#         'deputies__firstname',
+#         'deputies__lastname',
+#         'scientificLeaders__firstname',
+#         'scientificLeaders__lastname',
+#         'technicalLeaders__firstname',
+#         'technicalLeaders__lastname',
+#         'members__firstname',
+#         'members__lastname',
+#         'maintainers__firstname',
+#         'maintainers__lastname',
+#         'orgid',
+#         'unitId',
+#         'address',
+#         'fields__field',
+#         'keywords__keyword',
+#         'communities__name',
+#         'projects__name',
+#         'fundedBy__name',
+#         'publications__doi',
+#         'certifications__name',
+#     )
+#
+#     list_filter = ('fields',)
+#
+#     autocomplete_fields = (
+#         'fields',
+#         'platforms',
+#         'communities',
+#         'projects',
+#     )
+#     filter_horizontal = (
+#         'scientificLeaders',
+#         'technicalLeaders',
+#         'members',
+#         'maintainers',
+#         'deputies',
+#     )
+#     list_display = (
+#         'name',
+#         'logo',
+#     )
+#
+#     def logo(self, obj):
+#         if obj.logo_url:
+#             return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+#         return format_html('<center style="margin: -8px;">-<center>')
+#
+#     logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
 @admin.register(models.Service)
@@ -638,7 +655,7 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'name',
         'description',
-        'bioinformaticsTeams__name',
+        'teams__name',
         'computingFacilities__name',
         'trainingEvents__name',
         'trainingMaterials__name',
@@ -646,10 +663,10 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     )
 
     autocomplete_fields = (
-        'bioinformaticsTeams',
         'computingFacilities',
         'trainingEvents',
         'trainingMaterials',
+        'teams',
     )
 
 

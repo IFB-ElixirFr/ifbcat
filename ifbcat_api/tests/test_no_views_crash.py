@@ -47,8 +47,8 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         super().setUp()
         # which view do not return 200 and it is normal
         self.status_code_not_200 = {
-            "trainingevent-list": 403,
-            "trainingevent-detail": 403,
+            # "trainingevent-list": 403,
+            # "trainingevent-detail": 403,
         }
 
         # load the whole catalogue

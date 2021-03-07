@@ -140,7 +140,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # Good practice to support string representation of the custom user model.
     def __str__(self):
         """Return string representation of our user."""
-        return self.email
+        return self.get_full_name()
 
     # permission_classes set how user has gets permission to do certain things.
     @classmethod

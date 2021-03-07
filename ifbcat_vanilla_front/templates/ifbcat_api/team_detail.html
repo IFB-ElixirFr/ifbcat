@@ -1,0 +1,248 @@
+{% extends "ifbcat_base.html" %}
+{% load ifbcat_vanilla_front_tags %}
+
+{%block head_title%}{{object.name}}{%endblock head_title%}
+
+{% block title%}{{object.name}}{% endblock title%}
+
+{% block content%}
+<div class="col-12 mb-4">
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a aria-controls="nav-Information" aria-selected="true" class="nav-item nav-link active" data-toggle="tab"
+               href="#nav-Information" id="nav-Information-tab" role="tab">Information</a>
+            <a aria-controls="nav-Infrastructure" class="nav-item nav-link" data-toggle="tab" href="#nav-Infrastructure"
+               id="nav-Infrastructure-tab" role="tab">Infrastructure</a>
+            <a aria-controls="nav-Data" class="nav-item nav-link" data-toggle="tab" href="#nav-Data" id="nav-Data-tab"
+               role="tab">Data</a>
+            <a aria-controls="nav-Tools" class="nav-item nav-link" data-toggle="tab" href="#nav-Tools"
+               id="nav-Tools-tab" role="tab">Tools</a>
+            <a aria-controls="nav-Expertise" class="nav-item nav-link" data-toggle="tab" href="#nav-Expertise"
+               id="nav-Expertise-tab" role="tab">Expertise</a>
+            <a aria-controls="nav-Trainings" class="nav-item nav-link" data-toggle="tab" href="#nav-Trainings"
+               id="nav-Trainings-tab" role="tab">Trainings</a>
+            <a aria-controls="nav-Events" class="nav-item nav-link" data-toggle="tab" href="#nav-Events"
+               id="nav-Events-tab" role="tab">Events</a>
+            <a aria-controls="nav-Collaborations" class="nav-item nav-link" data-toggle="tab" href="#nav-Collaborations"
+               id="nav-Collaborations-tab" role="tab">Collaborations</a>
+            <a aria-controls="nav-Ouverture" class="nav-item nav-link" data-toggle="tab" href="#nav-Ouverture"
+               id="nav-Ouverture-tab" role="tab">Ouverture</a>
+            <a class="nav-item nav-link" href="{{object|get_admin_url}}" target="_blank" id="nav-Manage-tab" role="tab">Manage</a>
+        </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+        <div aria-labelledby="nav-Information-tab" class="tab-pane border border-top-0 fade show active"
+             id="nav-Information" role="tabpanel">
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(3, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                <div class="card">
+                    <div class="card-header">Address</div>
+                    <div class="card-body">{{object.address}}</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Attachment</div>
+                    <div class="card-body">
+                        <dl>
+                            <dt>Structure</dt>
+                            {%for a in object.fundedBy.all%}
+                            <dl>{{a.name}}</dl>
+                            {%endfor%}
+                            <dt>Unit</dt>
+                            {%for a in object.affiliatedWith.all%}
+                            <dl>{{a.name}}</dl>
+                            {%endfor%}
+                        </dl>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Outlinks</div>
+                    <div class="card-body">
+                        <b>homepage:</b>
+                        <a href="{{object.homepage}}">[long name is missing in model]</a><br/>
+                        <b>legacy catalog:</b>
+                        <a href="https://ressources.france-bioinformatique.fr/en/platforms/{{object.name}}" target="_blank">Try opening in it</a>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Scientific Leaders</div>
+                    <div class="card-body">
+                        <ul>
+                        {%for a in object.scientificLeaders.all%}
+                        <li>{{a.lastname}} {{a.firstname}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Technical Leaders</div>
+                    <div class="card-body">
+                        <ul>
+                        {%for a in object.technicalLeaders.all%}
+                        <li>{{a.lastname}} {{a.firstname}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Certificats</div>
+                    <div class="card-body">
+                        <ul>
+                        {%for a in object.certifications.all%}
+                        <li>{{a.name}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" style="grid-column: span 3;">
+                    <div class="card-header">Team</div>
+                    <div class="card-body">
+                        <ul style="display: grid;grid-template-columns: repeat(3, 1fr);">
+                        {%for a in object.members.all%}
+                        <li>{{a.lastname}} {{a.firstname}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div aria-labelledby="nav-Infrastructure-tab" class="tab-pane border border-top-0 fade" id="nav-Infrastructure"
+             role="tabpanel">
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                {%for c in object.computingfacility_set.all%}
+                <div class="card" style="grid-column: span 2;">
+                    <div class="card-body h3 text-center p-2 mb-0">{{c.name}}</div>
+                </div>
+                <div class="card" style="grid-row: span 2;">
+                    <div class="card-body"><dl>
+                        <dt>accessibility</dt>
+                        <dd>{{c.accessibility}}</dd>
+                        <dt>storageTb</dt>
+                        <dd>{{c.storageTb}}</dd>
+                        <dt>cpuCores</dt>
+                        <dd>{{c.cpuCores}}</dd>
+                        <dt>ramGb</dt>
+                        <dd>{{c.ramGb}}</dd>
+                        <dt>ramPerCoreGb</dt>
+                        <dd>{{c.ramPerCoreGb}}</dd>
+                        <dt>cpuHoursYearly</dt>
+                        <dd>{{c.cpuHoursYearly}}</dd>
+                        <dt>usersYearly</dt>
+                        <dd>{{c.usersYearly}}</dd>
+                    </dl></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Server Description</div>
+                    <div class="card-body">{{c.description|linebreaksbr}}</div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Terms Of Use</div>
+                    <div class="card-body"><a href="{{c.termsOfUse}}">{{c.termsOfUse}}</a></div>
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+        <div aria-labelledby="nav-Data-tab" class="tab-pane border border-top-0 fade" id="nav-Data" role="tabpanel">
+            <div class="p-3">
+                Data
+            </div>
+        </div>
+        <div aria-labelledby="nav-Tools-tab" class="tab-pane border border-top-0 fade" id="nav-Tools" role="tabpanel">
+            <div class="p-3">
+                Tools
+            </div>
+        </div>
+        <div aria-labelledby="nav-Expertise-tab" class="tab-pane border border-top-0 fade" id="nav-Expertise"
+             role="tabpanel">
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(1, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                <div class="card" style="grid-column: span 3;">
+                    <div class="card-header">Domains of activity</div>
+                    <div class="card-body">
+                        <ul style="display: grid;grid-template-columns: repeat(3, 1fr);">
+                        {%for a in object.fields.all%}
+                        <li>{{a.field}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card" style="grid-column: span 3;">
+                    <div class="card-header">Description of expertise domains</div>
+                    <div class="card-body">
+                        {{object.description|linebreaksbr}}
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Keywords</div>
+                    <div class="card-body">
+                        <ul style="display: grid;grid-template-columns: repeat(3, 1fr);grid-column-gap: 1em;">
+                        {%for a in object.keywords.all%}
+                        <li>{{a.keyword}}</li>
+                        {%endfor%}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div aria-labelledby="nav-Trainings-tab" class="tab-pane border border-top-0 fade" id="nav-Trainings"
+             role="tabpanel">
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                {%for c in object.trainingevent_set.all%}
+                <div class="card" style="grid-column: span 2;">
+                    <div class="card-body h3 text-center p-2 mb-0">{{c.name}}</div>
+                </div>
+                <div class="card">
+                    <div class="card-body"><dl>
+                        <dt>accessibility</dt>
+                        <dd>{{c.accessibility}}</dd>
+                        <dt>more</dt>
+                        <dd>...</dd>
+                    </dl></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Description</div>
+                    <div class="card-body">{{c.description|linebreaksbr}}</div>
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+        <div aria-labelledby="nav-Events-tab" class="tab-pane border border-top-0 fade" id="nav-Events"
+             role="tabpanel">
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                {%for c in object.event_set.all%}
+                <div class="card" style="grid-column: span 2;">
+                    <div class="card-body h3 text-center p-2 mb-0">{{c.name}}</div>
+                </div>
+                <div class="card">
+                    <div class="card-body"><dl>
+                        <dt>accessibility</dt>
+                        <dd>{{c.accessibility}}</dd>
+                        <dt>more</dt>
+                        <dd>...</dd>
+                    </dl></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Description</div>
+                    <div class="card-body">{{c.description|linebreaksbr}}</div>
+                </div>
+                {%endfor%}
+            </div>
+        </div>
+        <div aria-labelledby="nav-Collaborations-tab" class="tab-pane border border-top-0 fade" id="nav-Collaborations"
+             role="tabpanel">
+            <div class="p-3 pb-0">
+                {% for p in object.publications.all %}
+                <p>
+                    {{p.title}} <i>{{p.authors_list}}</i>.
+                    {{p.biblio_year}}, {{p.journal_name}}.
+                    <a href="{{p.doi}}" target="_blank">{{p.doi}}</a>
+                </p>
+                {% endfor %}
+            </div>
+        </div>
+        <div aria-labelledby="nav-Ouverture-tab" class="tab-pane border border-top-0 fade" id="nav-Ouverture"
+             role="tabpanel">
+            <div class="p-3">
+                ouverture_pf.csv is not loaded in the system
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content%}

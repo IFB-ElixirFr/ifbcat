@@ -23,9 +23,10 @@ from django.views.generic import TemplateView
 from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
+    path('', include('ifbcat_vanilla_front.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('ifbcat_api.urls')),
-    path('', RedirectView.as_view(url='/api/', permanent=False)),
+    path('', RedirectView.as_view(url='/team/', permanent=False)),
     path(
         'swagger-ui/',
         TemplateView.as_view(template_name='swagger-ui.html', extra_context={'schema_url': 'openapi-schema'}),

@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def import_catalog(self):
         call_command('preload_catalog', cache_dir=self.import_data)
         call_command('load_users')
-        call_command('load_bioinformatics_teams', os.path.join(self.import_data, "platforms.csv"))
+        call_command('load_teams', os.path.join(self.import_data, "platforms.csv"))
         call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
         call_command('load_databases', os.path.join(self.import_data, "databases.csv"))
         call_command('load_biotools', cache_dir=self.import_data)

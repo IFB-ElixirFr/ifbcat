@@ -2,11 +2,11 @@
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
-from ifbcat_api.model.event import Event
+from ifbcat_api.model.event import AbstractEvent
 from ifbcat_api.model.misc import AudienceType, AudienceRole, DifficultyLevelType
 from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.model.userProfile import UserProfile
@@ -40,7 +40,7 @@ class Trainer(models.Model):
         return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)
 
 
-class TrainingEvent(Event):
+class TrainingEvent(AbstractEvent):
     """Training event model: An event dedicated to bioinformatics training or teaching."""
 
     # No fields are mandatory (beyond what's mandatory in Event)
@@ -119,12 +119,12 @@ class TrainingEvent(Event):
         return super().get_edition_permission_classes() + (
             permissions.ReadWriteByTrainers,
             permissions.ReadWriteByContact,
-            permissions.ReadWriteByOwner | permissions.ReadWriteBySuperEditor,
+            permissions.ReadWriteBySuperEditor,
         )
 
-    @classmethod
-    def get_default_permission_classes(cls):
-        return (IsAuthenticated,)
+    # @classmethod
+    # def get_default_permission_classes(cls):
+    #     return (IsAuthenticated,)
 
 
 class TrainingEventMetrics(models.Model):
@@ -142,6 +142,7 @@ class TrainingEventMetrics(models.Model):
             MinValueValidator(1),
         ],
     )
+
     trainingEvent = models.ForeignKey(
         TrainingEvent,
         related_name='metrics',

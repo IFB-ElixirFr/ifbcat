@@ -39,8 +39,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
         elif model['object_name'] == 'Event':
             if model['perms']['change']:
                 model['instances'] = models.Event.objects.filter(
-                    Q(user_profile=user)
-                    | Q(contactId=user)
+                    Q(contactId=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
                     | Q(organisedByTeams__leader=user)

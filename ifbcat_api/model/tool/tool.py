@@ -136,7 +136,10 @@ class Tool(models.Model):
             req = http.request('GET', f'https://bio.tools/api/{self.biotoolsID}?format=json')
             entry = json.loads(req.data.decode('utf-8'))
         except (JSONDecodeError, MaxRetryError) as e:
-            logger.error(f"Error with {self.biotoolsID}")
+            logger.error(f"Error with {self.biotoolsID}: {e}")
+            return
+        if entry.get('detail', None) is not None:
+            logger.error(f"Error with {self.biotoolsID}: {entry['detail']}")
             return
         self.update_information_from_json(entry)
 

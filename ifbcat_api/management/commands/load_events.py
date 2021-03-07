@@ -16,6 +16,13 @@ from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 logger = logging.getLogger(__name__)
 
 
+def parse_date(date_string):
+    event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")
+    # event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
+    event_start_date = event_start_date.strftime("%Y-%m-%d")
+    return event_start_date
+
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
@@ -68,10 +75,10 @@ class Command(BaseCommand):
                 if data_object[3]:
                     if "to" in data_object[3]:
                         data_object[3] = data_object[3].split(" to ")
-                        event_start_date = self.parse_date(data_object[3][0])
-                        event_end_date = self.parse_date(data_object[3][1])
+                        event_start_date = parse_date(data_object[3][0])
+                        event_end_date = parse_date(data_object[3][1])
                     else:
-                        event_start_date = self.parse_date(data_object[3])
+                        event_start_date = parse_date(data_object[3])
                         event_end_date = None
                 else:
                     event_start_date = None
@@ -88,13 +95,14 @@ class Command(BaseCommand):
                 try:
                     event, created = Event.objects.get_or_create(
                         name=event_name,
-                        logo_url=event_logo,
-                        type=event_type,
-                        description=event_description,
-                        # city is only a subset of event_location for the moment
-                        city=event_location,
-                        homepage=event_link,
-                        accessibility='Public',
+                        defaults=dict(
+                            logo_url=event_logo,
+                            type=event_type,
+                            description=event_description,
+                            # city is only a subset of event_location for the moment
+                            city=event_location,
+                            homepage=event_link,
+                        ),
                     )
 
                     try:
@@ -122,10 +130,6 @@ class Command(BaseCommand):
                                 organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
                             event.organisedByOrganisations.add(organisation)
 
-                        # elif BioinformaticsTeam.objects.filter(name=organizer).exists():
-                        #    team = BioinformaticsTeam.objects.get(name=organizer)
-                        #    event.organisedByBioinformaticsTeams.add(team)
-
                         elif Team.objects.filter(name=organizer).exists():
                             team = Team.objects.get(name=organizer)
                             event.organisedByTeams.add(team)
@@ -137,30 +141,16 @@ class Command(BaseCommand):
                         else:
                             logger.warning(f'{organizer} is not an organisation in the DB.')
 
-                    # EventSponsors should be created before to be able to add them here to events
-                    # for sponsor in event_sponsors.split(','):
-                    #    sponsor=sponsor.strip()
-
-                    #    if sponsor == '':
-                    #        logger.debug(f'No sponsor for {sponsor}')
-
-                    #    elif EventSponsor.objects.filter(name=sponsor).exists():
-                    #        organisation=EventSponsor.objects.get(name=sponsor)
-                    #        event.sponsoredBy.add(organisation)
-                    #
-
-                    # TODO: Fill required field using
-                    # get_user_model().objects.filter(is_superuser=True).first()
-                    # then uncomment validation below:
-                    # event.full_clean()
+                    for sponsor in event_sponsors.split(','):
+                        sponsor = sponsor.strip()
+                        if sponsor == '':
+                            logger.debug(f'No sponsor for {event_name}')
+                            continue
+                        sponsor_instance, created = EventSponsor.objects.get_or_create(name=sponsor)
+                        event.sponsoredBy.add(sponsor_instance)
+                        
                     event.save()
 
                 except Exception as e:
                     logger.error(data_object)
                     raise e
-
-    def parse_date(self, date_string):
-        event_start_date = datetime.datetime.strptime(date_string, "%d-%m-%Y")
-        # event_start_date = make_aware(event_start_date, timezone=pytz.timezone('Europe/Paris'))
-        event_start_date = event_start_date.strftime("%Y-%m-%d")
-        return event_start_date

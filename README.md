@@ -91,6 +91,7 @@ The webserver is running at http://0.0.0.0:8080 (the instance on 8000 does not h
 3. Create a superuser, do some imports
 
 ```
+docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py load_catalog
 ```

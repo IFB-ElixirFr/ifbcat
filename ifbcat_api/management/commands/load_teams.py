@@ -8,8 +8,8 @@ from django.db.models import Value
 from django.db.models.functions import Replace
 
 from ifbcat_api import models
-from ifbcat_api.models import Organisation
 from ifbcat_api.models import Certification
+from ifbcat_api.models import Organisation
 
 logger = logging.getLogger(__name__)
 
@@ -71,11 +71,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         df = pd.read_csv(options["file"], sep=",")
-        # models.BioinformaticsTeam.objects.all().delete()
+        # models.Team.objects.all().delete()
         # models.Organisation.objects.all().delete()
         for index, row in df.iterrows():
             try:
-                bt, _ = models.BioinformaticsTeam.objects.get_or_create(name=row["Nom de la plateforme"])
+                bt, _ = models.Team.objects.get_or_create(name=row["Nom de la plateforme"])
                 address = row["Adresse postale"]
                 zip_city = address.split('\n')[-2]
                 city = zip_city.split(' ')[-1]
@@ -91,6 +91,7 @@ class Command(BaseCommand):
                     homepage = str(row["Website"])
                 bt.homepage = homepage
                 bt.logo_url = to_none_when_appropriate(str(row["Chemin"]))
+                bt.homepage = to_none_when_appropriate(str(row["Website"])) or ''
                 for p in find_persons(row["Responsable scientifique"]):
                     bt.scientificLeaders.add(p)
                 for p in find_persons(row["Responsable technique"]):
@@ -129,6 +130,22 @@ class Command(BaseCommand):
                             o.full_clean()
                             o.save()
                         bt.affiliatedWith.add(o)
+                    except Exception as e:
+                        print("Failed with %s" % affiliation)
+                for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
+                    affiliation = affiliation.strip()
+                    if affiliation == "Unité : \nNon renseignée":
+                        continue
+                    # FIXME, adding dummy contents because description and homepage are missing
+                    try:
+                        o, created = Organisation.objects.get_or_create(name=affiliation)
+                        if created:
+                            o.name = affiliation
+                            o.description = f"description for {affiliation}"
+                            o.homepage = f"http://nothing.org"
+                            o.full_clean()
+                            o.save()
+                        bt.fundedBy.add(o)
                     except Exception as e:
                         print("Failed with %s" % affiliation)
                 bt.save()
