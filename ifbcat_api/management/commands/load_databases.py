@@ -14,6 +14,7 @@ from tqdm import tqdm
 from ifbcat_api.models import Keyword
 from ifbcat_api.models import Team
 from ifbcat_api.models import Tool
+from ifbcat_api.models import ToolType
 
 
 class Command(BaseCommand):
