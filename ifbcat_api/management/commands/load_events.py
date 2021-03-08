@@ -11,7 +11,6 @@ from tqdm import tqdm
 from ifbcat_api.model.event import *
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
-from ifbcat_api.model.bioinformaticsTeam import BioinformaticsTeam
 
 logger = logging.getLogger(__name__)
 

@@ -13,7 +13,7 @@ class Command(BaseCommand):
         call_command('load_teams', os.path.join(self.import_data, "platforms.csv"))
         call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
         call_command('load_databases', os.path.join(self.import_data, "databases.csv"))
-        call_command('load_biotools', cache_dir=self.import_data)
+        call_command('load_biotools')
         # load_tools is likely obsolete with load_biotools
         # and cause issues since biotoolsID is not available.
         # call_command('load_tools', os.path.join(self.import_data, "tools.csv"))
