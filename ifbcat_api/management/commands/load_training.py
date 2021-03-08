@@ -176,10 +176,6 @@ class Command(BaseCommand):
                                 organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
                             training.organisedByOrganisations.add(organisation)
 
-                        # elif BioinformaticsTeam.objects.filter(name=organizer).exists():
-                        #    team = BioinformaticsTeam.objects.get(name=organizer)
-                        #    event.organisedByBioinformaticsTeams.add(team)
-
                         elif Team.objects.filter(name=organizer).exists():
                             team = Team.objects.get(name=organizer)
                             training.organisedByTeams.add(team)

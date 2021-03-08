@@ -134,7 +134,7 @@ class Command(BaseCommand):
                         print("Failed with %s" % affiliation)
                 for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
-                    if affiliation == "Unité : \nNon renseignée":
+                    if affiliation in ["Unité : \nNon renseignée", "Non renseignée"]:
                         continue
                     # FIXME, adding dummy contents because description and homepage are missing
                     try:
