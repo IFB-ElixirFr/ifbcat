@@ -1,5 +1,8 @@
 import os
 import csv
+import json
+import urllib3
+
 from django.core.management import BaseCommand
 from ifbcat_api.models import Tool
 from ifbcat_api.models import Keyword
@@ -21,7 +24,6 @@ class Command(BaseCommand):
                 if data_object == []:
                     continue  # Check for empty lines
                 tool_name = data_object[0]
-                print(tool_name)
                 tool_citation = data_object[1]
                 tool_logo = data_object[2]
                 tool_access_condition = data_object[3]
@@ -33,9 +35,7 @@ class Command(BaseCommand):
                 tool_keyword = ""
                 for keyword in tool_keywords:
                     if len(keyword) > 2:
-
                         try:
-
                             tool_keyword, created = Keyword.objects.get_or_create(
                                 keyword=keyword,
                             )
@@ -73,13 +73,21 @@ class Command(BaseCommand):
                 tool_annual_visits = data_object[16].split(" ")[0] or 0
                 tool_unique_visits = data_object[17].split(" ")[0] or 0
                 tool_platform = data_object[19]
-                print(tool_platform)
 
-                tool = ""
-                try:
-                    tool, created = Tool.objects.update_or_create(
-                        name=tool_name,
+                # Most of the tool infos are gathered first from Bio.tools
+                http = urllib3.PoolManager()
+                req = http.request('GET', f'https://bio.tools/api/tool/?page=1&q={tool_name}&sort=score&format=json')
+                response = json.loads(req.data.decode('utf-8'))
+
+                first_match_is_not_the_correct_tool = ["Hex"]
+                if response['count'] == 0 or tool_name in first_match_is_not_the_correct_tool:
+                    print("No match in Bio.tools for " + tool_name + ". The tool is not imported.")
+                elif response['count'] > 0:
+                    biotoolsID = response['list'][0]['biotoolsID']
+                    tool, created = Tool.objects.get_or_create(
+                        biotoolsID=biotoolsID,
                         defaults={
+                            'name': tool_name,
                             'citations': tool_citation,
                             'logo': tool_logo,
                             'access_condition': tool_access_condition,
@@ -91,30 +99,25 @@ class Command(BaseCommand):
                             'unique_visits': int(tool_unique_visits),
                         },
                     )
+                    print("The '" + tool_name + "' tool is matched with the '" + tool.biotoolsID + "' biotoolsID")
+                    # tool.update_information_from_biotool()
 
                     ## TODO : add check here because the tool_platform is not always a team but sometimes a service, ie ISFinder
                     if tool_platform not in ['ISfinder', 'PRABI-G']:
-                        object_platform = Team.objects.get(
+                        team = Team.objects.get(
                             name=tool_platform,
                         )
-                        print(object_platform.id)
-                        tool.team.add(object_platform.id)
+                        tool.team.add(team.id)
 
-                    print(created)
-                    if created:
-                        tool.save()
+                    for keyword in tool_keywords_list:
+                        tool.keywords.add(keyword)
+                    for type in tool_type_list:
+                        tool.tool_type.add(type)
 
-                        display_format = "\nTool, {}, has been saved."
-                        print(display_format.format(tool))
-                        for keyword in tool_keywords_list:
-                            tool.keywords.add(keyword)
-                        for type in tool_type_list:
-                            tool.tool_type.add(type)
+                #         tool.save()
 
-                        tool.save()
-
-                except Exception as ex:
-                    print(str(ex))
-                    msg = "\n\nSomething went wrong saving this tool: {}\n{}".format(tool, str(ex))
-                    print(msg)
-                    raise ex
+                # except Exception as ex:
+                #     print(str(ex))
+                #     msg = "\n\nSomething went wrong saving this tool: {}\n{}".format(tool, str(ex))
+                #     print(msg)
+                #     raise ex
