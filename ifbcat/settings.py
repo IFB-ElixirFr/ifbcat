@@ -67,7 +67,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'csp.middleware.CSPMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -75,7 +74,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# X_FRAME_OPTIONS = 'ALLOW-FROM https://demo3.france-bioinformatique.fr'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 ROOT_URLCONF = 'ifbcat.urls'
 
@@ -192,27 +191,6 @@ CORS_ALLOW_METHODS = [
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.france-bioinformatique\.fr$",
 ]
-
-################################################################################
-# CSP: Content-Security-Policy
-################################################################################
-# CSP_FRAME_SRC = (
-#     'https://ressources.france-bioinformatique.fr',
-#     'https://demo3.france-bioinformatique.fr',
-# )
-# CSP_DEFAULT_SRC = (
-#     'https://stackpath.bootstrapcdn.com',
-#     'https://demo3.france-bioinformatique.fr',
-# )
-# CSP_STYLE_SRC = ('https://stackpath.bootstrapcdn.com',)
-# CSP_SCRIPT_SRC = (
-#     'https://code.jquery.com',
-#     'https://stackpath.bootstrapcdn.com',
-# )
-# CSP_FRAME_ANCESTORS = (
-#     'https://ressources.france-bioinformatique.fr',
-#     'https://demo3.france-bioinformatique.fr',
-# )
 
 ################################################################################
 # Log level
