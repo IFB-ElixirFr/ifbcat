@@ -20,6 +20,14 @@ from django_filters.fields import ModelMultipleChoiceField
 from django_filters.rest_framework import DjangoFilterBackend
 
 
+def filter_not_used(queryset, model_field):
+    if isinstance(model_field, ManyToOneRel):
+        return queryset.filter(~Q(**{f'{model_field.remote_field.name}__isnull': True})), True
+    if isinstance(model_field, ManyToManyField):
+        return queryset.filter(~Q(**{f'{model_field.related_query_name()}__isnull': True})), True
+    return queryset, False
+
+
 class AutoSubsetFilterSet(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,18 +38,11 @@ class AutoSubsetFilterSet(django_filters.FilterSet):
             except FieldDoesNotExist:
                 # additional filter field cannot be found in class
                 continue
-            if isinstance(model_field, ManyToOneRel):
-                self.filters[field_name].queryset = self.filters[field_name].queryset.filter(
-                    ~Q(**{f'{model_field.remote_field.name}__isnull': True})
-                )
-                check_qs = True
-            if isinstance(model_field, ManyToManyField):
-                self.filters[field_name].queryset = self.filters[field_name].queryset.filter(
-                    ~Q(**{f'{model_field.related_query_name()}__isnull': True})
-                )
-                check_qs = True
-            if check_qs and not self.filters[field_name].queryset.exists():
-                self.filters[field_name].field.widget.attrs["disabled"] = True
+            queryset, check_qs = filter_not_used(self.filters[field_name].queryset, model_field)
+            if check_qs:
+                self.filters[field_name].queryset = queryset
+                if not queryset.exists():
+                    self.filters[field_name].field.widget.attrs["disabled"] = True
 
     def get_auto_subset_fields(self):
         return self._meta.fields
