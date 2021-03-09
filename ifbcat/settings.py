@@ -67,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'csp.middleware.CSPMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -74,7 +75,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-X_FRAME_OPTIONS = 'ALLOW-FROM https://demo3.france-bioinformatique.fr'
+# X_FRAME_OPTIONS = 'ALLOW-FROM https://demo3.france-bioinformatique.fr'
 
 ROOT_URLCONF = 'ifbcat.urls'
 
@@ -191,6 +192,14 @@ CORS_ALLOW_METHODS = [
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.france-bioinformatique\.fr$",
 ]
+
+################################################################################
+# CSP: Content-Security-Policy
+################################################################################
+CSP_FRAME_ANCESTORS = (
+    'https://ressources.france-bioinformatique.fr',
+    'https://demo3.france-bioinformatique.fr',
+)
 
 ################################################################################
 # Log level
