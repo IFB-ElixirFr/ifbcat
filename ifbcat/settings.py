@@ -196,6 +196,19 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 ################################################################################
 # CSP: Content-Security-Policy
 ################################################################################
+CSP_FRAME_SRC = (
+    'https://ressources.france-bioinformatique.fr',
+    'https://demo3.france-bioinformatique.fr',
+)
+CSP_DEFAULT_SRC = (
+    'https://stackpath.bootstrapcdn.com',
+    'https://demo3.france-bioinformatique.fr',
+)
+CSP_STYLE_SRC = ('https://stackpath.bootstrapcdn.com',)
+CSP_SCRIPT_SRC = (
+    'https://code.jquery.com',
+    'https://stackpath.bootstrapcdn.com',
+)
 CSP_FRAME_ANCESTORS = (
     'https://ressources.france-bioinformatique.fr',
     'https://demo3.france-bioinformatique.fr',
