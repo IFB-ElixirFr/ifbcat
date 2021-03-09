@@ -756,5 +756,5 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
 
 class OperatingSystemChoicesViewSet(viewsets.ModelViewSet):
     queryset = models.OperatingSystem.objects.all()
-    serializer_class = serializers.OperatingSystemSerializer
+    serializer_class = serializers.modelserializer_factory(models.OperatingSystem, fields=['id', 'name'])
     lookup_field = 'name'
