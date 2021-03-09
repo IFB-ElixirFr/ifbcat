@@ -749,7 +749,6 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
         'scientific_topics',
         'keywords',
         'operating_system',
-        'tool_credit',
         'collection',
     )
 
