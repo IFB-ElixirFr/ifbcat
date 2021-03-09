@@ -74,7 +74,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = 'ALLOW-FROM https://demo3.france-bioinformatique.fr'
 
 ROOT_URLCONF = 'ifbcat.urls'
 
