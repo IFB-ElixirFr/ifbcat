@@ -20,12 +20,12 @@ from django_filters.fields import ModelMultipleChoiceField
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-def filter_not_used(queryset, model_field):
+def filter_not_used(filter_field, model_field):
     if isinstance(model_field, ManyToOneRel):
-        return queryset.filter(~Q(**{f'{model_field.remote_field.name}__isnull': True})), True
+        return filter_field.queryset.filter(~Q(**{f'{model_field.remote_field.name}__isnull': True})), True
     if isinstance(model_field, ManyToManyField):
-        return queryset.filter(~Q(**{f'{model_field.related_query_name()}__isnull': True})), True
-    return queryset, False
+        return filter_field.queryset.filter(~Q(**{f'{model_field.related_query_name()}__isnull': True})), True
+    return None, False
 
 
 class AutoSubsetFilterSet(django_filters.FilterSet):
@@ -38,7 +38,7 @@ class AutoSubsetFilterSet(django_filters.FilterSet):
             except FieldDoesNotExist:
                 # additional filter field cannot be found in class
                 continue
-            queryset, check_qs = filter_not_used(self.filters[field_name].queryset, model_field)
+            queryset, check_qs = filter_not_used(self.filters[field_name], model_field)
             if check_qs:
                 self.filters[field_name].queryset = queryset
                 if not queryset.exists():
@@ -78,7 +78,7 @@ class DjangoFilterAutoSubsetBackend(DjangoFilterBackend):
             if field.extra and 'choices' in field.extra:
                 parameter['schema']['enum'] = [c[0] for c in field.extra['choices']]
             if field.field_class == ModelMultipleChoiceField:
-                field_queryset, changed = filter_not_used(field.queryset, queryset.model._meta.get_field(field_name))
+                field_queryset, changed = filter_not_used(field, queryset.model._meta.get_field(field_name))
                 try:
                     parameter['schema']['endpoint'] = reverse(get_list_view_name(field_queryset.model))
                     parameter['schema']['type'] = 'id'
