@@ -753,37 +753,37 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
     )
 
 
-class OperatingSystemChoicesViewSet(viewsets.ModelViewSet):
+class OperatingSystemChoicesViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.OperatingSystem.objects.all()
     serializer_class = serializers.modelserializer_factory(models.OperatingSystem, fields=['id', 'name'])
     lookup_field = 'name'
 
 
-class ToolTypeViewSet(viewsets.ModelViewSet):
+class ToolTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.ToolType.objects.all()
     serializer_class = serializers.modelserializer_factory(models.ToolType, fields=['id', 'name'])
 
 
-class TopicViewSet(viewsets.ModelViewSet):
+class TopicViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.Topic.objects.all()
     serializer_class = serializers.modelserializer_factory(models.Topic, fields=['id', 'uri', 'label'])
 
 
-class EventCostViewSet(viewsets.ModelViewSet):
+class EventCostViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.EventCost.objects.all()
     serializer_class = serializers.modelserializer_factory(models.EventCost, fields=['id', 'cost'])
 
 
-class FieldViewSet(viewsets.ModelViewSet):
+class FieldViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.Field.objects.all()
     serializer_class = serializers.modelserializer_factory(models.Field, fields=['id', 'field'])
 
 
-class AudienceTypeViewSet(viewsets.ModelViewSet):
+class AudienceTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.AudienceType.objects.all()
     serializer_class = serializers.modelserializer_factory(models.AudienceType, fields=['id', 'audienceType'])
 
 
-class AudienceRoleViewSet(viewsets.ModelViewSet):
+class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.AudienceRole.objects.all()
     serializer_class = serializers.modelserializer_factory(models.AudienceRole, fields=['id', 'audienceRole'])
