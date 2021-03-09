@@ -86,7 +86,7 @@ class DjangoFilterAutoSubsetBackend(DjangoFilterBackend):
                 choices_count_in_schema = settings.MAX_CHOICES_COUNT_IN_SCHEMA
                 if need_choices or choices_count_in_schema == -1 or field.queryset.count() < choices_count_in_schema:
                     parameter['schema']['type'] = 'id'
-                    parameter['schema']['choices'] = [(o.id, str(o)) for o in field.queryset.all()]
+                    parameter['schema']['choices'] = [dict(id=o.id, str=str(o)) for o in field.queryset.all()]
             parameters.append(parameter)
         return parameters
 
