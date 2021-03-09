@@ -78,16 +78,17 @@ class DjangoFilterAutoSubsetBackend(DjangoFilterBackend):
             if field.extra and 'choices' in field.extra:
                 parameter['schema']['enum'] = [c[0] for c in field.extra['choices']]
             if field.field_class == ModelMultipleChoiceField:
+                field_queryset, changed = filter_not_used(field.queryset, queryset.model._meta.get_field(field_name))
                 try:
-                    parameter['schema']['endpoint'] = reverse(get_list_view_name(field.queryset.model))
+                    parameter['schema']['endpoint'] = reverse(get_list_view_name(field_queryset.model))
                     parameter['schema']['type'] = 'id'
                     need_choices = False
                 except NoReverseMatch:
                     need_choices = True
                 choices_count_in_schema = settings.MAX_CHOICES_COUNT_IN_SCHEMA
-                if need_choices or choices_count_in_schema == -1 or field.queryset.count() < choices_count_in_schema:
+                if need_choices or choices_count_in_schema == -1 or field_queryset.count() < choices_count_in_schema:
                     parameter['schema']['type'] = 'id'
-                    parameter['schema']['choices'] = [dict(id=o.id, str=str(o)) for o in field.queryset.all()]
+                    parameter['schema']['choices'] = [dict(id=o.id, str=str(o)) for o in field_queryset.all()]
             parameters.append(parameter)
         return parameters
 
