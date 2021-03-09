@@ -188,6 +188,9 @@ CORS_ALLOW_METHODS = [
     'GET',
     'OPTIONS',
 ]
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://\w+\.france-bioinformatique\.fr$",
+]
 
 ################################################################################
 # Log level
