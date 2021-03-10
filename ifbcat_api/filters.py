@@ -13,7 +13,7 @@ import warnings
 
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import Q, ManyToManyField, ManyToOneRel
+from django.db.models import Q, ManyToManyField, ManyToOneRel, ManyToManyRel, Exists, OuterRef
 from django.urls import reverse, NoReverseMatch
 from django_filters import rest_framework as django_filters
 from django_filters.fields import ModelMultipleChoiceField
@@ -25,6 +25,15 @@ def filter_not_used(filter_field, model_field):
         return filter_field.queryset.filter(~Q(**{f'{model_field.remote_field.name}__isnull': True})), True
     if isinstance(model_field, ManyToManyField):
         return filter_field.queryset.filter(~Q(**{f'{model_field.related_query_name()}__isnull': True})), True
+    if isinstance(model_field, ManyToManyRel):
+        return (
+            filter_field.queryset.annotate(
+                __auto_subset_attr__is_not_used=~Exists(
+                    model_field.model.objects.filter(**{f'{model_field.related_name}__pk': OuterRef('pk')})
+                )
+            ).filter(__auto_subset_attr__is_not_used=False),
+            True,
+        )
     return None, False
 
 
