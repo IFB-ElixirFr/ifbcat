@@ -1,7 +1,7 @@
 # Imports
 # "re" is regular expression library
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.utils.encoding import smart_str
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -990,7 +990,25 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
-class OperatingSystemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.OperatingSystem
-        fields = ['id', 'name']
+def modelserializer_factory(model, serializer=serializers.ModelSerializer, fields=None, exclude=None):
+    attrs = {'model': model}
+    if fields is not None:
+        attrs['fields'] = fields
+    if exclude is not None:
+        attrs['exclude'] = exclude
+    bases = (serializer.Meta,) if hasattr(serializer, 'Meta') else ()
+    Meta = type('Meta', bases, attrs)
+    class_name = model.__name__ + 'ModelSerializer'
+
+    # Class attributes for the new form class.
+    form_class_attrs = {
+        'Meta': Meta,
+    }
+
+    if getattr(Meta, 'fields', None) is None and getattr(Meta, 'exclude', None) is None:
+        raise ImproperlyConfigured(
+            "Calling modelserializer_factory without defining 'fields' or " "'exclude' explicitly is prohibited."
+        )
+
+    # Instantiate type(form) in order to use the same metaclass as form.
+    return type(serializer)(class_name, (serializer,), form_class_attrs)

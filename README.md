@@ -1,6 +1,6 @@
 # ifbcat
 
-ifbcat is the database hosting and serving the IFB Catalogue through a REST API.
+ifbcat is the database hosting and serving the [IFB Catalogue](https://catalogue.france-bioinformatique.fr/) through a REST API.
 
 # How to contribute
 
