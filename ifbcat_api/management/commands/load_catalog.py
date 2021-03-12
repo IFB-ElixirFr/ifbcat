@@ -9,6 +9,8 @@ class Command(BaseCommand):
 
     def import_catalog(self):
         call_command('preload_catalog', cache_dir=self.import_data)
+        call_command('load_organisations_from_csv')
+        call_command('load_organisations_from_gridid')
         call_command('load_users')
         call_command('load_teams', os.path.join(self.import_data, "platforms.csv"))
         call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
@@ -16,8 +18,6 @@ class Command(BaseCommand):
         call_command('load_biotools')
         call_command('load_tools', os.path.join(self.import_data, "tools.csv"))
         call_command('load_teams_from_csv')
-        call_command('load_organisations_from_csv')
-        call_command('load_organisations_from_gridid')
         call_command('load_events', '--event', os.path.join(self.import_data, "events.csv"))
         call_command('load_training', '--training', os.path.join(self.import_data, "training.csv"))
         # call_command('load_training_material')

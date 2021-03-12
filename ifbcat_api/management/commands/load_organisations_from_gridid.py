@@ -47,11 +47,11 @@ class Command(BaseCommand):
                     response = json.loads(req.data.decode('utf-8'))
 
                     if response['institute']['acronyms']:
-                        name = response['institute']['acronyms']
+                        name = response['institute']['acronyms'][0]
                     else:
                         name = response['institute']['name']
 
-                    description = response['institute']['acronyms']
+                    description = response['institute']['name']
                     homepage = response['institute']['links'][0]
                     orgid = response['institute']['id']
                     # fields = Nothing available in Grid
@@ -60,9 +60,9 @@ class Command(BaseCommand):
 
                     try:
                         o, created = Organisation.objects.update_or_create(
-                            orgid=orgid,
+                            name=name,
                             defaults={
-                                'name': name,
+                                'orgid': orgid,
                                 'description': description,
                                 'homepage': homepage,
                                 'city': city,

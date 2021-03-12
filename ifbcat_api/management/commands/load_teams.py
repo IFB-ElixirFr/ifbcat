@@ -118,33 +118,15 @@ class Command(BaseCommand):
                 affiliated_with = row["Affiliation"] + "," + row["Structure"]
                 for affiliation in affiliated_with.replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
-                    if affiliation in ["Unité : \nNon renseignée", "Non renseignée"]:
-                        continue
-                    # FIXME, adding dummy contents because description and homepage are missing
                     try:
-                        o, created = Organisation.objects.get_or_create(name=affiliation)
-                        if created:
-                            o.name = affiliation
-                            o.description = f"description for {affiliation}"
-                            o.homepage = f"http://nothing.org"
-                            o.full_clean()
-                            o.save()
+                        o = Organisation.objects.get(name=affiliation)
                         bt.affiliatedWith.add(o)
                     except Exception as e:
                         print("Failed with %s" % affiliation)
                 for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
-                    if affiliation in ["Unité : \nNon renseignée", "Non renseignée"]:
-                        continue
-                    # FIXME, adding dummy contents because description and homepage are missing
                     try:
-                        o, created = Organisation.objects.get_or_create(name=affiliation)
-                        if created:
-                            o.name = affiliation
-                            o.description = f"description for {affiliation}"
-                            o.homepage = f"http://nothing.org"
-                            o.full_clean()
-                            o.save()
+                        o = Organisation.objects.get(name=affiliation)
                         bt.fundedBy.add(o)
                     except Exception as e:
                         print("Failed with %s" % affiliation)
