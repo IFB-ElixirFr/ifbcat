@@ -2,17 +2,15 @@ import csv
 import datetime
 import logging
 import os
-import zipfile
-import pandas as pd
+import json
+import urllib3
+import re
+from tqdm import tqdm
 
 import pytz
 from django.core.management import BaseCommand
 from django.utils.timezone import make_aware
 from django.contrib.auth import get_user_model
-import urllib.request
-import json
-
-from tqdm import tqdm
 
 from ifbcat_api.model.event import *
 from ifbcat_api.model.organisation import Organisation
@@ -30,57 +28,47 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        df = pd.read_csv(options["file"], sep=",")
-        print(df)
+        grid = re.compile('grid.\d+.*')
+        with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
+            data = csv.reader(data_file)
+            data_len = len(list(data))
+            data_file.seek(0)
 
-        url = 'https://s3-eu-west-1.amazonaws.com/pstorage-digitalscience-874864551/25039403/grid20201006.zip'
-        local_grid_archive = os.path.basename(url)
-        if not os.path.isfile(local_grid_archive):
-            urllib.request.urlretrieve(url, local_grid_archive)  # , file=local_grid_archive)
+            # skip first line as there is always a header
+            next(data)
+            # do the work
+            for data_object in tqdm(data, total=data_len):
+                drupal_name = data_object[0]
+                ifbcat_name = data_object[1]
+                orgid = data_object[2]
+                if grid.match(orgid):
+                    http = urllib3.PoolManager()
+                    req = http.request('GET', f'https://www.grid.ac/institutes/{orgid}?format=json')
+                    response = json.loads(req.data.decode('utf-8'))
 
-        extracted_grid_dir = "/tmp/ifbcat_grid_archive"
-        with zipfile.ZipFile(local_grid_archive, "r") as zip_ref:
-            zip_ref.extractall(extracted_grid_dir)
+                    if response['institute']['acronyms']:
+                        name = response['institute']['acronyms']
+                    else:
+                        name = response['institute']['name']
 
-        with open(extracted_grid_dir + "/grid.json") as json_file:
-            data = json.load(json_file)
-            for p in data['institutes']:
-                # try:
-                #     if 'INRA' in p['acronyms']:
-                #         print(p)
-                # except:
-                #     "No acronym for this institute"
-                if p['id'] in df['orgid'].dropna().tolist():
-                    try:
-                        print(p['acronyms'])
-                        if not p['acronyms']:
-                            name = p['name']
-                        else:
-                            name = p['acronyms'][0]
-
-                        description = p['name']
-                        homepage = p['links'][0]
-                        orgid = p['id']
-                        # fields = Nothing available in Grid
-                        city = p['addresses'][0]['city']
-                        # logo_url = p = Nothing available in Grid
-
-                    except Exception as e:
-                        logger.error(p)
-                        raise e
+                    description = response['institute']['acronyms']
+                    homepage = response['institute']['links'][0]
+                    orgid = response['institute']['id']
+                    # fields = Nothing available in Grid
+                    city = response['institute']['addresses'][0]['city']
+                    # logo_url = p = Nothing available in Grid
 
                     try:
                         o, created = Organisation.objects.update_or_create(
-                            name=name,
+                            orgid=orgid,
                             defaults={
+                                'name': name,
                                 'description': description,
                                 'homepage': homepage,
-                                'orgid': orgid,
                                 'city': city,
                             },
                         )
                         o.save()
-                        print('save ' + name)
 
                     except Exception as e:
                         logger.error(o)

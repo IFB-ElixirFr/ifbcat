@@ -25,7 +25,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--file",
             type=str,
-            help="Path to the CSV file containing one 'orgid' column.",
+            help="Path to the CSV file containing informations on organisations.",
             default="import_data/manual_curation/organisations.csv",
         )
 
