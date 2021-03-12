@@ -67,10 +67,22 @@ class Command(BaseCommand):
     help = "Import Teams"
 
     def add_arguments(self, parser):
-        parser.add_argument("file", type=str, help="Path to the CSV source file")
+        parser.add_argument(
+            "--teams",
+            default="import_data/platforms.csv",
+            type=str,
+            help="Path to the CSV source file for teams",
+        )
+        parser.add_argument(
+            "--mapping-organisations",
+            default="import_data/manual_curation/mapping_organisations.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for organisations between Drupal names and Ifbcat ones.",
+        )
 
     def handle(self, *args, **options):
-        df = pd.read_csv(options["file"], sep=",")
+        df = pd.read_csv(options["teams"], sep=",")
+        mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         # models.Team.objects.all().delete()
         # models.Organisation.objects.all().delete()
         for index, row in df.iterrows():
@@ -117,12 +129,22 @@ class Command(BaseCommand):
                         print(e)
                 affiliated_with = row["Affiliation"] + "," + row["Structure"]
                 for affiliation in affiliated_with.replace("/", ",").replace("’", "'").split(","):
+
                     affiliation = affiliation.strip()
-                    try:
-                        o = Organisation.objects.get(name=affiliation)
-                        bt.affiliatedWith.add(o)
-                    except Exception as e:
-                        print("Failed with %s" % affiliation)
+                    if Organisation.objects.filter(name=affiliation).exists():
+                        organisation = Organisation.objects.get(name=affiliation)
+                        bt.affiliatedWith.add(organisation)
+                    elif affiliation in mapping_organisations['drupal_name'].tolist():
+                        organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == affiliation]
+                        if not organizer_row['orgid'].isna().iloc[0]:
+                            print(organizer_row['orgid'])
+                            organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
+                        elif not organizer_row['ifbcat_name'].isna().iloc[0]:
+                            print(organizer_row['orgid'])
+                            organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                        bt.affiliatedWith.add(organisation)
+                    else:
+                        print("%s is not a known organisation" % affiliation)
                 for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
                     try:

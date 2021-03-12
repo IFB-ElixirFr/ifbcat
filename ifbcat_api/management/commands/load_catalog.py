@@ -12,7 +12,7 @@ class Command(BaseCommand):
         call_command('load_organisations_from_csv')
         call_command('load_organisations_from_gridid')
         call_command('load_users')
-        call_command('load_teams', os.path.join(self.import_data, "platforms.csv"))
+        call_command('load_teams')
         call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
         call_command('load_databases', os.path.join(self.import_data, "databases.csv"))
         call_command('load_biotools')
