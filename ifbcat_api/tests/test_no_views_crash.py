@@ -45,12 +45,6 @@ def add_everywhere(instance):
 class TestNoViewsCrash(EnsureImportDataAreHere):
     def setUp(self):
         super().setUp()
-        # which view do not return 200 and it is normal
-        self.status_code_not_200 = {
-            # "trainingevent-list": 403,
-            # "trainingevent-detail": 403,
-        }
-
         # load the whole catalogue
         management.call_command('load_catalog')
 
@@ -69,25 +63,21 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         cpt = 0
         for url_instance in [u for u in router.urls if u.name.endswith("-list")]:
             url_list = reverse(url_instance.name)
-            response = self.client.get(url_list)
-            status_code = self.status_code_not_200.get(url_instance.name, 200)
-            self.assertEqual(
-                response.status_code,
-                status_code,
-                f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}',
-            )
-            url_list += "?search=tralala"
-            msg = f'failed while opening {url_instance.name} ({url_list}), expected {status_code} got {response.status_code}'
-            try:
-                response = self.client.get(url_list)
-            except FieldError as e:
-                self.assertTrue(False, msg + str(e))
-            status_code = self.status_code_not_200.get(url_instance.name, 200)
-            self.assertEqual(
-                response.status_code,
-                status_code,
-                msg,
-            )
+            for suffix in [
+                "",
+                "?search=tralala",
+                "?format=json",
+                "?format=json-ld",
+            ]:
+                response = self.client.get(url_list + suffix)
+                status_code = 404 if "json-ld" in suffix else 200
+                self.assertEqual(
+                    response.status_code,
+                    status_code,
+                    f'failed while opening {url_instance.name} '
+                    f'({url_list}{suffix}), expected {status_code} '
+                    f'got {response.status_code}',
+                )
             cpt += 1
         self.assertGreater(cpt, 0)
 
@@ -99,7 +89,6 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
             lookup_field = getattr(url_instance.callback.cls, "lookup_field")
             attr_field = lookup_field.replace("__unaccent", "")
             attr_field = attr_field.replace("__iexact", "")
-            status_code = self.status_code_not_200.get(url_instance.name, 200)
             for o in getattr(url_instance.callback.cls, "queryset").all():
                 try:
                     url_detail = reverse(url_instance.name, kwargs={lookup_field: getattr(o, attr_field)})
@@ -108,13 +97,19 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                         f'failed while opening {url_instance.name} with {o}',
                         e,
                     )
-                response = self.client.get(url_detail)
-                self.assertEqual(
-                    response.status_code,
-                    status_code,
-                    f'failed while opening {url_instance.name} ({url_detail}), expected {status_code} got {response.status_code}',
-                )
-                cpt += 1
+                for suffix in [
+                    "",
+                    "?format=json",
+                    "?format=json-ld",
+                ]:
+                    response = self.client.get(url_detail + suffix)
+                    status_code = 404 if "json-ld" in suffix else 200
+                    self.assertEqual(
+                        response.status_code,
+                        status_code,
+                        f'failed while opening {url_instance.name} ({url_detail}), expected {status_code} got {response.status_code}',
+                    )
+                    cpt += 1
         self.assertGreater(cpt, 0)
 
         #######################################################################
