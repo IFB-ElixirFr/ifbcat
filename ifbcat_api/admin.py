@@ -293,6 +293,8 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
             .values_list('min', 'max')
             .get()
         )
+        if start is None:
+            return None
         if end is None:
             return dateformat.format(start, "Y-m-d")
         return f'{dateformat.format(start, "Y-m-d")} - {dateformat.format(end, "Y-m-d")}'

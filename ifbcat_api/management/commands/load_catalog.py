@@ -9,24 +9,20 @@ class Command(BaseCommand):
 
     def import_catalog(self):
         call_command('preload_catalog', cache_dir=self.import_data)
-        call_command(
-            'load_persons',
-            os.path.join(self.import_data, "persons.csv"),
-            os.path.join(self.import_data, "drupal_db_dump", "users.txt"),
-        )
-        call_command('load_teams', os.path.join(self.import_data, "platforms.csv"))
+        call_command('load_organisations_from_csv')
+        call_command('load_organisations_from_gridid')
+        call_command('load_users')
+        call_command('load_teams')
         call_command('load_expertises', os.path.join(self.import_data, "expertises.csv"))
         call_command('load_databases', os.path.join(self.import_data, "databases.csv"))
         call_command('load_biotools')
-        # call_command('load_services')
-        # call_command('load_training')
+        call_command('load_tools', os.path.join(self.import_data, "tools.csv"))
+        call_command('load_teams_from_csv')
+        call_command('load_events', '--event', os.path.join(self.import_data, "events.csv"))
+        call_command('load_training', '--training', os.path.join(self.import_data, "training.csv"))
         # call_command('load_training_material')
-        call_command('load_events', os.path.join(self.import_data, "events.csv"))
         # call_command('load_infrastructure')
-
-        # load_biotools works but the call should be avoided here
-        # to avoid spamming NCBI for queries each time we run tests.
-        # call_command('load_biotools')
+        # call_command('load_services')
 
     def handle(self, *args, **options):
         """

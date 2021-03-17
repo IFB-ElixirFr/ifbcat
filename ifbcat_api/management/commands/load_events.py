@@ -2,6 +2,7 @@ import csv
 import datetime
 import logging
 import os
+import pandas as pd
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.management import BaseCommand
@@ -9,6 +10,7 @@ from tqdm import tqdm
 
 from ifbcat_api.model.event import *
 from ifbcat_api.model.organisation import Organisation
+from ifbcat_api.model.team import Team
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +24,30 @@ def parse_date(date_string):
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        parser.add_argument("file", type=str, help="Path to the CSV source file")
+        parser.add_argument(
+            "--events",
+            default="import_data/events.csv",
+            type=str,
+            help="Path to the CSV source file",
+        )
+        parser.add_argument(
+            "--mapping-organisations",
+            default="import_data/manual_curation/mapping_organisations.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for organisations between Drupal names and Ifbcat ones.",
+        )
+        parser.add_argument(
+            "--mapping-teams",
+            default="import_data/manual_curation/mapping_teams.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for teams between Drupal names and Ifbcat ones.",
+        )
 
     def handle(self, *args, **options):
-        with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
+        mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
+        mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
+
+        with open(os.path.join(options["events"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
             # skip first line as there is always a header
             next(data)
@@ -33,12 +55,21 @@ class Command(BaseCommand):
             data_len = len(list(data))
             data_file.seek(0)
             next(data)
-            # do the work#
+            # do the work
+            type_mapping_drupal_to_api = {
+                'Formation': 'Training course',
+                'Réunion': 'Meeting',
+                'Atelier': 'Workshop',
+                'Conférence': 'Conference',
+                'Autre': 'Other',
+                '': 'Other',
+            }
+
             for data_object in tqdm(data, total=data_len):
                 if data_object == []:
                     continue  # Check for empty lines
                 event_name = data_object[0]
-                event_type = data_object[1]
+                event_type = type_mapping_drupal_to_api[data_object[1]]
                 event_description = data_object[2]
                 if data_object[3]:
                     if "to" in data_object[3]:
@@ -57,6 +88,8 @@ class Command(BaseCommand):
                 event_organizer = data_object[6]
                 event_sponsors = data_object[7]
                 event_logo = data_object[8]
+
+                # print(get_user_model().objects.filter(is_superuser=True).first())
 
                 try:
                     event, created = Event.objects.get_or_create(
@@ -81,25 +114,41 @@ class Command(BaseCommand):
 
                     for organizer in event_organizer.split(','):
                         organizer = organizer.strip()
-
                         if organizer == '':
                             logger.debug(f'No organizer for {event_name}')
                         elif Organisation.objects.filter(name=organizer).exists():
-                            organizer_instance = Organisation.objects.get(name=organizer)
-                            event.organisedByOrganisations.add(organizer_instance)
+                            organisation = Organisation.objects.get(name=organizer)
+                            event.organisedByOrganisations.add(organisation)
+                        elif organizer in mapping_organisations['drupal_name'].tolist():
+                            organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == organizer]
+                            if not organizer_row['orgid'].isna().iloc[0]:
+                                print(organizer_row['orgid'])
+                                organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
+                            elif not organizer_row['ifbcat_name'].isna().iloc[0]:
+                                print(organizer_row['orgid'])
+                                organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                            event.organisedByOrganisations.add(organisation)
+
                         elif Team.objects.filter(name=organizer).exists():
-                            organizer_instance = Team.objects.get(name=organizer)
-                            event.organisedByTeams.add(organizer_instance)
+                            team = Team.objects.get(name=organizer)
+                            event.organisedByTeams.add(team)
+                        elif organizer in mapping_teams['drupal_name'].tolist():
+                            organizer_row = mapping_teams[mapping_teams['drupal_name'] == organizer]
+                            team = Team.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                            event.organisedByTeams.add(team)
+
                         else:
-                            logger.error(f'{organizer} is not an organisation not team in the DB.')
+                            logger.warning(f'{organizer} is not an organisation in the DB.')
 
                     for sponsor in event_sponsors.split(','):
                         sponsor = sponsor.strip()
                         if sponsor == '':
-                            logger.debug(f'No organizer for {event_name}')
+                            logger.debug(f'No sponsor for {event_name}')
                             continue
                         sponsor_instance, created = EventSponsor.objects.get_or_create(name=sponsor)
                         event.sponsoredBy.add(sponsor_instance)
+
+                    event.save()
 
                 except Exception as e:
                     logger.error(data_object)

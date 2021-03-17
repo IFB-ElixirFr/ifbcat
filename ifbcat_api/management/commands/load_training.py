@@ -1,162 +1,224 @@
 import os
 import csv
 import pytz
+import logging
+import pandas as pd
 
 from django.db.transaction import atomic
 from django.utils.timezone import make_aware
 import datetime
 from django.core.management import BaseCommand
-from ifbcat_api.models import Formation
+from ifbcat_api.models import EventCost
+from ifbcat_api.models import EventPrerequisite
+from ifbcat_api.model.event import EventDate
+from ifbcat_api.models import TrainingEvent
 from ifbcat_api.models import Keyword
-from ifbcat.settings import BASE_DIR
+from ifbcat_api.model.organisation import Organisation
+from ifbcat_api.model.team import Team
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    def import_formations_from_csv_file(self):
-        data_folder = os.path.join(BASE_DIR, './import_data')
-        Formation.objects.all().delete()
-        print(data_folder, 'data_folder')
-        for data_file in os.listdir(data_folder):
-            # name of the correct csv file
-            if data_file == "training.csv":
-                with open(os.path.join(data_folder, data_file), encoding='utf-8') as data_file:
-                    data = csv.reader(data_file)
-                    # skip first line as there is always a header
-                    next(data)
-                    # do the work
-                    for data_object in data:
-                        if data_object == []:
-                            continue  # Check for empty lines
-                        formation_name = data_object[0]
-                        formation_type = data_object[2]
-                        formation_description = data_object[4]
-                        formation_keywords = data_object[5].split("\n")
-                        formation_keywords_list = []
-                        formation_keyword = ""
-                        for keyword in formation_keywords:
-                            if len(keyword) > 2:
-
-                                try:
-
-                                    formation_keyword, created = Keyword.objects.get_or_create(
-                                        name=keyword,
-                                    )
-                                    formation_keyword.save()
-                                    formation_keywords_list.append(formation_keyword)
-                                    display_format = "\nKeyword, {}, has been saved."
-                                    print(display_format.format(formation_keyword))
-                                except Exception as ex:
-                                    print(str(ex))
-                                    msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(
-                                        formation_keyword, str(ex)
-                                    )
-                                    print(msg)
-
-                        if data_object[7]:
-                            if "to" in data_object[7]:
-                                formation_start_date = datetime.datetime.strptime(
-                                    data_object[7].split(" to ")[0], "%d-%m-%Y"
-                                )  # .strftime("%Y-%m-%d")
-                                formation_start_date = make_aware(
-                                    formation_start_date, timezone=pytz.timezone('Europe/Paris')
-                                )
-                                formation_end_date = datetime.datetime.strptime(
-                                    data_object[7].split(" to ")[1], "%d-%m-%Y"
-                                )
-                                formation_end_date = make_aware(
-                                    formation_end_date, timezone=pytz.timezone('Europe/Paris')
-                                )
-                            else:
-                                formation_start_date = datetime.datetime.strptime(
-                                    data_object[7], "%d-%m-%Y"
-                                )  # .strftime("%Y-%m-%d")
-                                formation_start_date = make_aware(
-                                    formation_start_date, timezone=pytz.timezone('Europe/Paris')
-                                )
-                                formation_end_date = None
-                        else:
-                            formation_start_date = None
-                            formation_end_date = None
-                        formation_acces_condition = data_object[8]
-                        formation_link = data_object[9]
-                        formation_location = data_object[10]
-                        formation_organizer = data_object[11]
-                        formation_sponsors = data_object[12]
-                        if data_object[13]:
-                            formation_number_people_trained = data_object[13].split("/ ")[0]
-                        else:
-                            formation_number_people_trained: None
-                        if data_object[14]:
-                            formation_number_of_academic_participants = data_object[14]
-                        else:
-                            formation_number_of_academic_participants = None
-                        if data_object[15]:
-                            formation_number_of_non_academic_participants = data_object[15]
-                        else:
-                            formation_number_of_non_academic_participants = None
-
-                        if data_object[16]:
-                            formation_training_time = data_object[16]
-                        else:
-                            formation_training_time = None
-                        formation_participation = data_object[17]
-                        formation_training_level = data_object[18]
-                        formation_training_operator = data_object[19]
-                        if data_object[20]:
-                            formation_number_of_sessions = data_object[20]
-                        else:
-                            formation_number_of_sessions = None
-                        formation_recurrence = data_object[21]
-                        if data_object[22]:
-                            formation_satisfaction_rate = data_object[22].split("%")[0]
-                        else:
-                            formation_satisfaction_rate = None
-                        # formation_platform = data_object[23]
-
-                        formation = ""
-
-                        try:
-                            formation, created = Formation.objects.get_or_create(
-                                name=formation_name,
-                                formation_type=formation_type,
-                                description=formation_description,
-                                start_date=formation_start_date,
-                                end_date=formation_end_date,
-                                location=formation_location,
-                                access_conditions=formation_acces_condition,
-                                link=formation_link,
-                                organizer=formation_organizer,
-                                sponsors=formation_sponsors,
-                                number_people_trained=formation_number_people_trained,
-                                number_of_academic_participants=formation_number_of_academic_participants,
-                                number_of_non_academic_participants=formation_number_of_non_academic_participants,
-                                training_time=formation_training_time,
-                                participation=formation_participation,
-                                training_level=formation_training_level,
-                                training_operator=formation_training_operator,
-                                number_of_sessions=formation_number_of_sessions,
-                                recurrence=formation_recurrence,
-                                satisfaction_rate=formation_satisfaction_rate,
-                                # platform = formation_platform,
-                            )
-
-                            if created:
-                                formation.save()
-
-                                display_format = "\nFormation, {}, has been saved."
-                                print(display_format.format(formation))
-                                for keyword in formation_keywords_list:
-                                    formation.keywords.add(keyword)
-
-                                formation.save()
-
-                        except Exception as ex:
-                            print(str(ex))
-                            msg = "\n\nSomething went wrong saving this tool: {}\n{}".format(formation, str(ex))
-                            print(msg)
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--training",
+            default="import_data/training.csv",
+            type=str,
+            help="Path to the CSV source file",
+        )
+        parser.add_argument(
+            "--mapping-organisations",
+            default="import_data/manual_curation/mapping_organisations.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for organisations between Drupal names and Ifbcat ones.",
+        )
+        parser.add_argument(
+            "--mapping-teams",
+            default="import_data/manual_curation/mapping_teams.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for teams between Drupal names and Ifbcat ones.",
+        )
 
     def handle(self, *args, **options):
-        """
-        Call the function to import data
-        """
-        self.import_formations_from_csv_file()
+        mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
+        mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
+
+        with open(os.path.join(options["training"]), encoding='utf-8') as data_file:
+            data = csv.reader(data_file)
+            # skip first line as there is always a header
+            next(data)
+            # do the work
+            for data_object in data:
+                if data_object == []:
+                    continue  # Check for empty lines
+                training_name = data_object[0]
+                training_type = data_object[2]
+                training_description = data_object[4]
+                training_keywords = data_object[5].split("\n")
+                training_keywords_list = []
+                training_keyword = ""
+                for keyword in training_keywords:
+                    keyword = keyword.strip()
+                    if keyword == 'Aucun des termes ci-dessus ne convient':
+                        continue
+                    if len(keyword) > 2:
+
+                        try:
+
+                            training_keyword, created = Keyword.objects.get_or_create(
+                                keyword=keyword,
+                            )
+                            training_keyword.save()
+                            training_keywords_list.append(training_keyword)
+                            display_format = '\nKeyword "{}" has been saved.'
+                            print(display_format.format(training_keyword))
+                        except Exception as ex:
+                            print(str(ex))
+                            msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(
+                                training_keyword, str(ex)
+                            )
+                            print(msg)
+
+                if data_object[7]:
+                    if "to" in data_object[7]:
+                        training_start_date = datetime.datetime.strptime(
+                            data_object[7].split(" to ")[0], "%d-%m-%Y"
+                        )  # .strftime("%Y-%m-%d")
+                        training_start_date = make_aware(training_start_date, timezone=pytz.timezone('Europe/Paris'))
+                        training_end_date = datetime.datetime.strptime(data_object[7].split(" to ")[1], "%d-%m-%Y")
+                        training_end_date = make_aware(training_end_date, timezone=pytz.timezone('Europe/Paris'))
+                    else:
+                        training_start_date = datetime.datetime.strptime(
+                            data_object[7], "%d-%m-%Y"
+                        )  # .strftime("%Y-%m-%d")
+                        training_start_date = make_aware(training_start_date, timezone=pytz.timezone('Europe/Paris'))
+                        training_end_date = None
+                else:
+                    training_start_date = None
+                    training_end_date = None
+                training_access_condition = data_object[8]
+                training_link = data_object[9]
+                training_location = data_object[10]
+                training_organizer = data_object[11]
+                training_sponsors = data_object[12]
+                if data_object[13]:
+                    training_number_people_trained = data_object[13].split("/ ")[0]
+                else:
+                    training_number_people_trained: None
+                if data_object[14]:
+                    training_number_of_academic_participants = data_object[14]
+                else:
+                    training_number_of_academic_participants = None
+                if data_object[15]:
+                    training_number_of_non_academic_participants = data_object[15]
+                else:
+                    training_number_of_non_academic_participants = None
+
+                if data_object[16]:
+                    training_training_time = data_object[16]
+                else:
+                    training_training_time = None
+                training_participation = data_object[17]
+                training_training_level = data_object[18]
+                training_training_operator = data_object[19]
+                if data_object[20]:
+                    training_number_of_sessions = data_object[20]
+                else:
+                    training_number_of_sessions = None
+                training_recurrence = data_object[21]
+                if data_object[22]:
+                    training_satisfaction_rate = data_object[22].split("%")[0]
+                else:
+                    training_satisfaction_rate = None
+                # training_platform = data_object[23]
+
+                training = ""
+
+                try:
+                    training, created = TrainingEvent.objects.get_or_create(
+                        name=training_name,
+                        type="Training course",
+                        # training_type=training_type,
+                        description=training_description,
+                        # start_date=training_start_date,
+                        # end_date=training_end_date,
+                        city=training_location,
+                        accessibilityNote=training_access_condition,
+                        homepage=training_link,
+                        # organizer=training_organizer,
+                        # sponsors=training_sponsors,
+                        # number_people_trained=training_number_people_trained,
+                        # number_of_academic_participants=training_number_of_academic_participants,
+                        # number_of_non_academic_participants=training_number_of_non_academic_participants,
+                        # training_time=training_training_time,
+                        # participation=training_participation,
+                        # training_level=training_training_level,
+                        # training_operator=training_training_operator,
+                        # number_of_sessions=training_number_of_sessions,
+                        # recurrence=training_recurrence,
+                        # satisfaction_rate=training_satisfaction_rate,
+                        # platform = training_platform,
+                    )
+
+                    for organizer in training_organizer.split(','):
+                        organizer = organizer.strip()
+                        if organizer == '':
+                            logger.debug(f'No organizer for {training_name}')
+                        elif Organisation.objects.filter(name=organizer).exists():
+                            organisation = Organisation.objects.get(name=organizer)
+                            training.organisedByOrganisations.add(organisation)
+                        elif organizer in mapping_organisations['drupal_name'].tolist():
+                            organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == organizer]
+                            if not organizer_row['orgid'].isna().iloc[0]:
+                                organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
+                            elif not organizer_row['ifbcat_name'].isna().iloc[0]:
+                                organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                            training.organisedByOrganisations.add(organisation)
+
+                        elif Team.objects.filter(name=organizer).exists():
+                            team = Team.objects.get(name=organizer)
+                            training.organisedByTeams.add(team)
+                        elif organizer in mapping_teams['drupal_name'].tolist():
+                            organizer_row = mapping_teams[mapping_teams['drupal_name'] == organizer]
+                            team = Team.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                            training.organisedByTeams.add(team)
+
+                        else:
+                            logger.warning(f'{organizer} is not an organisation in the DB.')
+
+                    for keyword in training_keywords_list:
+                        training.keywords.add(keyword)
+
+                    event_cost, created = EventCost.objects.get_or_create(cost=training_participation)
+                    training.costs.add(event_cost)
+
+                    # Need to check this chunk with Bryan
+                    # (1
+                    if training_start_date:
+                        dates = EventDate.objects.filter(dateStart=training_start_date, dateEnd=training_end_date)[0]
+                        if not dates:
+                            dates = EventDate.objects.create(dateStart=training_start_date, dateEnd=training_end_date)
+
+                        # get() returned more than one EventDate -- it returned 2!
+                        # dates, created = EventDate.objects.get_or_create(dateStart=training_start_date, dateEnd=training_end_date)
+
+                        training.dates.add(dates)
+                    # 1)
+
+                    if training_training_level:
+                        prerequisite, created = EventPrerequisite.objects.get_or_create(
+                            prerequisite=training_training_level
+                        )
+                        training.prerequisites.add(prerequisite)
+
+                    # if created:
+                    # training.full_clean()
+                    training.save()
+
+                    display_format = '\nTraining "{}" has been saved.'
+                    print(display_format.format(training))
+                except Exception as ex:
+                    print(str(ex))
+                    msg = "\n\nSomething went wrong saving this training: {}\n{}".format(training, str(ex))
+                    print(msg)
