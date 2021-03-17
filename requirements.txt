@@ -16,4 +16,5 @@ django-jazzmin
 django-filter
 django-cors-headers
 requests
+pylev
 #end of file

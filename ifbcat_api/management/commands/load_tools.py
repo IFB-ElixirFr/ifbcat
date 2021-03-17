@@ -1,16 +1,24 @@
-import os
 import csv
 import json
-import urllib3
+import logging
+import os
+from typing import Optional
 
+import pylev
+import urllib3
 from django.core.management import BaseCommand
-from ifbcat_api.models import Tool
+
 from ifbcat_api.models import Keyword
-from ifbcat_api.models import ToolType
 from ifbcat_api.models import Team
+from ifbcat_api.models import Tool
+from ifbcat_api.models import ToolType
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+    http = None
+
     def add_arguments(self, parser):
         parser.add_argument("file", type=str, help="Path to the CSV source file")
 
@@ -21,7 +29,8 @@ class Command(BaseCommand):
             next(data)
 
             first_match_is_not_the_correct_tool = ["Hex", "ARNold", "SuMo"]
-            not_imported_tools = first_match_is_not_the_correct_tool
+            match_too_broad = []
+            no_match = []
             # do the work
             for data_object in data:
                 if data_object == []:
@@ -34,7 +43,9 @@ class Command(BaseCommand):
                     tool_name = "VarAFT"
                 if tool_name == "RNAbrowse nouvelle version":
                     tool_name = "RNAbrowse"
-                tool_citation = data_object[1]
+                if tool_name == "Regulatory Sequence Analysis Tools (RSAT)":
+                    tool_name = "rsat"
+                tool_citation_count = data_object[1]
                 tool_logo = data_object[2]
                 tool_access_condition = data_object[3]
                 tool_description = data_object[5]
@@ -49,10 +60,8 @@ class Command(BaseCommand):
                             tool_keyword, created = Keyword.objects.get_or_create(
                                 keyword=keyword,
                             )
-                            tool_keyword.save()
                             tool_keywords_list.append(tool_keyword)
-                            display_format = "\nKeyword, {}, has been saved."
-                            print(display_format.format(tool_keyword))
+                            logger.debug(f"Keyword, {tool_keyword}, has been saved.")
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(tool_keyword, str(ex))
@@ -72,8 +81,7 @@ class Command(BaseCommand):
                             )
                             tool_type.save()
                             tool_type_list.append(tool_type)
-                            display_format = "\nType, {}, has been saved."
-                            print(display_format.format(tool_type))
+                            logger.debug(f"Type, {tool_keyword}, has been saved.")
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this type: {}\n{}".format(tool_type, str(ex))
@@ -86,52 +94,105 @@ class Command(BaseCommand):
 
                 if tool_name not in first_match_is_not_the_correct_tool:
                     # Most of the tool infos are gathered first from Bio.tools
-                    http = urllib3.PoolManager()
-                    req = http.request(
-                        'GET', f'https://bio.tools/api/tool/?page=1&q={tool_name}&sort=score&format=json'
-                    )
-                    response = json.loads(req.data.decode('utf-8'))
+                    response = self.get_from_biotools(tool_name)
 
                     if response['count'] == 0:
-                        print("No match in Bio.tools for '" + tool_name + "'. The tool is not imported.")
-                        not_imported_tools.append(tool_name)
-                    elif response['count'] > 0:
-                        biotoolsID = response['list'][0]['biotoolsID']
-                        tool, created = Tool.objects.get_or_create(
-                            biotoolsID=biotoolsID,
-                            defaults={
-                                'name': tool_name,
-                                'citations': tool_citation,
-                                'logo': tool_logo,
-                                'access_condition': tool_access_condition,
-                                'description': tool_description,
-                                'homepage': tool_link,
-                                # should we add downloads to the current model?
-                                # downloads=int(tool_downloads),
-                                'annual_visits': int(tool_annual_visits),
-                                'unique_visits': int(tool_unique_visits),
-                            },
+                        logger.debug("No match in Bio.tools for '" + tool_name + "'. The tool is not imported.")
+                        no_match.append(tool_name)
+                        continue
+                    tool_item = self.get_best_match(response, tool_name)
+                    if tool_item is None:
+                        tool_item = self.get_best_match(response, tool_name, max_edition_percentage=None)
+                        logger.debug(
+                            "The best match for '"
+                            + tool_name
+                            + "' is '"
+                            + tool_item['biotoolsID']
+                            + "' but is too different, we do not import it."
                         )
-                        print("The '" + tool_name + "' tool is matched with the '" + tool.biotoolsID + "' biotoolsID")
-                        # tool.update_information_from_biotool()
+                        match_too_broad.append(tool_name)
+                        continue
+                    tool = Tool.objects.filter(biotoolsID__iexact=tool_item['biotoolsID']).first()
+                    if tool is None:
+                        tool = Tool.objects.filter(name__iexact=tool_item['name']).first()
+                        if tool is not None and (tool.biotoolsID is None or tool.biotoolsID == ""):
+                            tool.biotoolsID = tool_item['biotoolsID']
+                            tool.logo = tool_logo
+                            tool.access_condition = tool_access_condition
+                            tool.annual_visits = int(tool_annual_visits)
+                            tool.unique_visits = int(tool_unique_visits)
+                            tool.save()
+                            tool.update_information_from_json(tool_item)
+                    if tool is None:
+                        tool = Tool.objects.create(
+                            name=tool_item['biotoolsID'],
+                        )
+                        tool.biotoolsID = tool_item['biotoolsID']
+                        tool.logo = tool_logo
+                        tool.access_condition = tool_access_condition
+                        tool.annual_visits = int(tool_annual_visits)
+                        tool.unique_visits = int(tool_unique_visits)
+                        tool.update_information_from_json(tool_item)
+                    logger.debug(f"The '{tool_name}' tool is matched with the '{tool.biotoolsID}' biotoolsID")
 
-                        ## TODO : add check here because the tool_platform is not always a team but sometimes a service, ie ISFinder
-                        if tool_platform not in ['ISfinder', 'PRABI-G']:
-                            team = Team.objects.get(
-                                name=tool_platform,
-                            )
-                            tool.team.add(team.id)
+                    ## TODO : add check here because the tool_platform is not always a team but sometimes a service, ie ISFinder
+                    if tool_platform not in ['ISfinder', 'PRABI-G']:
+                        team = Team.objects.get(
+                            name=tool_platform,
+                        )
+                        tool.team.add(team.id)
 
-                        for keyword in tool_keywords_list:
-                            tool.keywords.add(keyword)
-                        for type in tool_type_list:
-                            tool.tool_type.add(type)
+                    for keyword in tool_keywords_list:
+                        tool.keywords.add(keyword)
+                    for type in tool_type_list:
+                        tool.tool_type.add(type)
 
-                #         tool.save()
+        logger.warning(f"Not imported tools: {', '.join(no_match + match_too_broad)}")
+        logger.warning("Too broad:\n\t\t" + '\n\t\t'.join(match_too_broad))
+        logger.warning("No match:\n\t\t" + '\n\t\t'.join(no_match))
 
-                # except Exception as ex:
-                #     print(str(ex))
-                #     msg = "\n\nSomething went wrong saving this tool: {}\n{}".format(tool, str(ex))
-                #     print(msg)
-                #     raise ex
-        print(not_imported_tools)
+    def get_from_biotools(self, tool_name):
+        key = None
+        cache_dir = os.environ.get('CACHE_DIR', None)
+        if cache_dir is not None:
+            cache_dir = os.path.join(cache_dir, 'biotools')
+            os.makedirs(cache_dir, exist_ok=True)
+            key = f'q.{tool_name.replace(" ", "").replace("/", "").replace(":", "")}.json'
+            try:
+                with open(os.path.join(cache_dir, key)) as f:
+                    response = json.load(f)
+                return response
+            except FileNotFoundError:
+                pass
+
+        if self.http is None:
+            self.http = urllib3.PoolManager()
+        req = self.http.request('GET', f'https://bio.tools/api/tool/?page=1&q={tool_name}&sort=score&format=json')
+        response = json.loads(req.data.decode('utf-8'))
+
+        if key is not None:
+            with open(os.path.join(cache_dir, key), 'w') as f:
+                json.dump(response, f)
+        return response
+
+    @staticmethod
+    def normalize(string: str):
+        return string.replace("-", "").upper()
+
+    def get_best_match(self, response, tool_name, max_edition_percentage: Optional[float] = 0.1):
+        # biotoolsID = response['list'][0]['biotoolsID']
+        biotools_item = None
+        normalized_name = self.normalize(tool_name)
+        min_edit = len(tool_name) * 10000
+        for item in response['list']:
+            choice_edit = pylev.levenshtein(normalized_name, self.normalize(item['biotoolsID']))
+            if choice_edit < min_edit:
+                min_edit = choice_edit
+                biotools_item = item
+            choice_edit = pylev.levenshtein(normalized_name, self.normalize(item['name']))
+            if choice_edit < min_edit:
+                min_edit = choice_edit
+                biotools_item = item
+        if max_edition_percentage is not None and min_edit > len(tool_name) * max_edition_percentage:
+            return None
+        return biotools_item
