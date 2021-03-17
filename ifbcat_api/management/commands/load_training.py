@@ -1,20 +1,20 @@
-import os
 import csv
-import pytz
-import logging
-import pandas as pd
-
-from django.db.transaction import atomic
-from django.utils.timezone import make_aware
 import datetime
+import logging
+import os
+
+import pandas as pd
+import pytz
 from django.core.management import BaseCommand
-from ifbcat_api.models import EventCost
-from ifbcat_api.models import EventPrerequisite
+from django.utils.timezone import make_aware
+
 from ifbcat_api.model.event import EventDate
-from ifbcat_api.models import TrainingEvent
-from ifbcat_api.models import Keyword
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
+from ifbcat_api.models import EventCost
+from ifbcat_api.models import EventPrerequisite
+from ifbcat_api.models import Keyword
+from ifbcat_api.models import TrainingEvent
 
 logger = logging.getLogger(__name__)
 
@@ -71,8 +71,7 @@ class Command(BaseCommand):
                             )
                             training_keyword.save()
                             training_keywords_list.append(training_keyword)
-                            display_format = '\nKeyword "{}" has been saved.'
-                            print(display_format.format(training_keyword))
+                            logger.debug(f'Keyword "{training_keyword}" has been saved.')
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(
@@ -216,8 +215,7 @@ class Command(BaseCommand):
                     # training.full_clean()
                     training.save()
 
-                    display_format = '\nTraining "{}" has been saved.'
-                    print(display_format.format(training))
+                    logger.debug(f'Training "{training}" has been saved.')
                 except Exception as ex:
                     print(str(ex))
                     msg = "\n\nSomething went wrong saving this training: {}\n{}".format(training, str(ex))
