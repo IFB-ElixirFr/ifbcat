@@ -2,8 +2,8 @@ import csv
 import datetime
 import logging
 import os
-import pandas as pd
 
+import pandas as pd
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.management import BaseCommand
 from tqdm import tqdm
@@ -122,10 +122,10 @@ class Command(BaseCommand):
                         elif organizer in mapping_organisations['drupal_name'].tolist():
                             organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == organizer]
                             if not organizer_row['orgid'].isna().iloc[0]:
-                                print(organizer_row['orgid'])
+                                logger.debug(organizer_row['orgid'])
                                 organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
                             elif not organizer_row['ifbcat_name'].isna().iloc[0]:
-                                print(organizer_row['orgid'])
+                                logger.debug(organizer_row['orgid'])
                                 organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
                             event.organisedByOrganisations.add(organisation)
 
