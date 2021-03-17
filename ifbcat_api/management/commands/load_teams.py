@@ -34,6 +34,8 @@ def find_persons(first_and_last_names):
 def find_person(first_and_last_name):
     if type(first_and_last_name) == float and math.isnan(first_and_last_name):
         return None
+    if "Non renseigné" in first_and_last_name:
+        return None
     first_and_last_name = first_and_last_name.strip()
     names = first_and_last_name.split(" ")
     for i in range(1, len(names)):
@@ -143,6 +145,8 @@ class Command(BaseCommand):
                             print(organizer_row['orgid'])
                             organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
                         bt.affiliatedWith.add(organisation)
+                    elif "Non renseigné" in affiliation:
+                        pass
                     else:
                         print("%s is not a known organisation" % affiliation)
                 for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
