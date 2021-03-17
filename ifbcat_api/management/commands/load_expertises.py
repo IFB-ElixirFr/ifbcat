@@ -38,7 +38,7 @@ class Command(BaseCommand):
                             )
                             pf_activity_areas_list.append(activity_area)
                             if created:
-                                logger.info(f'Field (i.e Activity area) "{activity_area}" has been saved.')
+                                logger.debug(f'Field (i.e Activity area) "{activity_area}" has been saved.')
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this activity_area: {}\n{}".format(
@@ -61,7 +61,7 @@ class Command(BaseCommand):
                             # pf_keyword.save()
                             pf_keywords_list.append(pf_keyword)
                             if created:
-                                logger.info(f'Keyword "{pf_keyword}" has been saved.')
+                                logger.debug(f'Keyword "{pf_keyword}" has been saved.')
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(pf_keyword, str(ex))
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                             platform.keywords.add(a_keyword)
                         platform.save()
                         if created:
-                            logger.info(f'Team (i.e Platform) "{platform}" has been saved.')
+                            logger.debug(f'Team (i.e Platform) "{platform}" has been saved.')
 
                 except Exception as ex:
                     print(str(ex))
