@@ -58,10 +58,6 @@ class ReadOnly(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
-class ReadWriteByOwner(ReadWriteBySomething):
-    target = 'user_profile'
-
-
 class ReadWriteByUser(ReadWriteBySomething):
     target = 'user'
 
@@ -106,6 +102,22 @@ class ReadWriteByTeamDeputies(ReadWriteBySomething):
     target = 'team__deputies'
 
 
+class ReadWriteByTeamMaintainers(ReadWriteBySomething):
+    target = 'team__maintainers'
+
+
+class ReadWriteByTeamsLeader(ReadWriteBySomething):
+    target = 'teams__leader'
+
+
+class ReadWriteByTeamsDeputies(ReadWriteBySomething):
+    target = 'teams__deputies'
+
+
+class ReadWriteByTeamsMaintainers(ReadWriteBySomething):
+    target = 'teams__maintainers'
+
+
 class ReadWriteByOrgByTeamsLeader(ReadWriteBySomething):
     target = 'organisedByTeams__leader'
 
@@ -118,8 +130,8 @@ class ReadWriteByOrgByTeamsMaintainers(ReadWriteBySomething):
     target = 'organisedByTeams__maintainers'
 
 
-class ReadWriteByOrgByOrganisationsLeader(ReadWriteBySomething):
-    target = 'organisedByOrganisations__user_profile'
+# class ReadWriteByOrgByOrganisationsLeader(ReadWriteBySomething):
+#     target = 'organisedByOrganisations__user_profile'
 
 
 class ReadWriteByProvidedByLeader(ReadWriteBySomething):
@@ -128,6 +140,10 @@ class ReadWriteByProvidedByLeader(ReadWriteBySomething):
 
 class ReadWriteByProvidedByDeputies(ReadWriteBySomething):
     target = 'providedBy__deputies'
+
+
+class ReadWriteByProvidedByMaintainer(ReadWriteBySomething):
+    target = 'providedBy__maintainers'
 
 
 class simple_override_method:

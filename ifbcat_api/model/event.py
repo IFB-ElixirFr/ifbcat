@@ -1,7 +1,6 @@
 # Imports
 import functools
 
-from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -62,7 +61,6 @@ class EventSponsor(models.Model):
     """Event sponsor model: A sponsor of an event."""
 
     # name & homepage are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
         max_length=255, unique=True, help_text="Name of institutional entity that is sponsoring the event."
     )
@@ -81,7 +79,7 @@ class EventSponsor(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
 
 
 class AbstractEvent(models.Model):
@@ -89,10 +87,6 @@ class AbstractEvent(models.Model):
         abstract = True
 
     """Event model: A scheduled scholarly gathering such as workshop, conference, symposium, training or open project meeting of relevance to bioinformatics."""
-
-    # "on_delete=models.NULL" means that the Event is not deleted if the user profile is deleted.
-    # "null=True" is required in case a user profile IS deleted.
-    # user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
 
     # Controlled vocabularies
     # See https://docs.django(project).com/en/dev/ref/models/fields/#enumeration-types
@@ -229,12 +223,11 @@ class AbstractEvent(models.Model):
     def get_edition_permission_classes(cls):
         return (
             permissions.ReadOnly,
-            # permissions.ReadWriteByOwner,
             permissions.ReadWriteByContact,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,
             permissions.ReadWriteByOrgByTeamsMaintainers,
-            permissions.ReadWriteByOrgByOrganisationsLeader,
+            # permissions.ReadWriteByOrgByOrganisationsLeader,
             permissions.ReadWriteBySuperEditor,
         )
 

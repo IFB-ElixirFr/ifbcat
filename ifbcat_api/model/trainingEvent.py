@@ -1,5 +1,4 @@
 # Imports
-from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -16,8 +15,6 @@ class Trainer(models.Model):
     """Trainer model: A person who is providing training at a training event."""
 
     # trainerEmail is mandatory
-
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     trainerName = models.CharField(
         max_length=255, blank=True, help_text="Name of person who is providing training at the training event."
     )
@@ -37,7 +34,7 @@ class Trainer(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteByOwner, IsAuthenticatedOrReadOnly)
+        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
 
 
 class TrainingEvent(AbstractEvent):
@@ -131,7 +128,6 @@ class TrainingEventMetrics(models.Model):
     """Training event metrics model: Metrics and other information for a specific training event."""
 
     # dateStart and dateEnd are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     dateStart = models.DateField(help_text="The start date of the training event.")
     dateEnd = models.DateField(help_text="The end date of the training event.")
     numParticipants = models.PositiveSmallIntegerField(
@@ -161,6 +157,6 @@ class TrainingEventMetrics(models.Model):
     def get_permission_classes(cls):
         # TODO let trainer and/or bio team edit it ?
         return (
-            permissions.ReadOnly | permissions.ReadWriteByOwner | permissions.ReadWriteBySuperEditor,
+            permissions.ReadOnly | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

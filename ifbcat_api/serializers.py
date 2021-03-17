@@ -458,8 +458,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Organisation
-        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
-        read_only_fields = ['user_profile']
+        fields = ('id', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
         rdf_mapping = dict(
             name="http://i-dont-know.org#name",
             description="http://i-dont-know.org#desc",
@@ -531,7 +530,6 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'name',
             'homepage',
             'description',
@@ -545,7 +543,6 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
@@ -565,7 +562,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'name',
             'description',
             'communities',
@@ -573,7 +569,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'communities': {'lookup_field': 'name'},
             'elixirPlatforms': {'lookup_field': 'name'},
@@ -725,7 +720,6 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Team
         fields = (
             'id',
-            'user_profile',
             'name',
             'logo_url',
             'description',
@@ -755,7 +749,6 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'ifbMembership',
             'platforms',
         )
-        read_only_fields = ['user_profile']
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
         extra_kwargs = {
@@ -818,7 +811,6 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'name',
             'description',
             'dateEstablished',
@@ -831,7 +823,6 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'teams': {'lookup_field': 'name'},
             'computingFacilities': {'lookup_field': 'name'},
@@ -849,7 +840,6 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'service',
             'authors',
             'submitters',
@@ -863,7 +853,6 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'service': {'lookup_field': 'name'},
             'motivation': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'scope': {'style': {'rows': 4, 'base_template': 'textarea.html'}},

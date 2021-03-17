@@ -27,10 +27,10 @@ def get_editable_instance(context: Context) -> List[Dict]:
             if model['perms']['change']:
                 model['instances'] = models.Team.objects.filter(Q(leader=user) | Q(maintainers=user) | Q(deputies=user))
                 editable.append(model)
-        elif model['object_name'] == 'Organisation':
-            if model['perms']['change']:
-                model['instances'] = models.Organisation.objects.filter(Q(user_profile=user))
-                editable.append(model)
+        # elif model['object_name'] == 'Organisation':
+        #     if model['perms']['change']:
+        #         model['instances'] = models.Organisation.objects.filter(Q(user_profile=user))
+        #         editable.append(model)
         elif model['object_name'] == 'Group':
             if model['perms']['change']:
                 model['instances'] = Group.objects.all()

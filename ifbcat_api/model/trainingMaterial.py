@@ -87,9 +87,9 @@ class TrainingMaterial(Resource):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
-            | permissions.ReadWriteByOwner
             | permissions.ReadWriteByProvidedByLeader
             | permissions.ReadWriteByProvidedByDeputies
+            | permissions.ReadWriteByProvidedByMaintainer
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

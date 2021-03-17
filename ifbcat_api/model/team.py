@@ -1,7 +1,6 @@
 # Imports
 import functools
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -28,7 +27,6 @@ class Team(WithGridIdOrRORId, models.Model):
         CERTIFICATE1 = 'Certificate 1', _('Certificate 1')
 
     # name, description, homepage, members & maintainers are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(
         max_length=255,
         unique=True,
@@ -178,7 +176,6 @@ class Team(WithGridIdOrRORId, models.Model):
     def get_edition_permission_classes(cls):
         return (
             permissions.ReadOnly,
-            permissions.ReadWriteByOwner,
             permissions.ReadWriteByLeader,
             permissions.ReadWriteByDeputies,
             permissions.ReadWriteByMaintainers,

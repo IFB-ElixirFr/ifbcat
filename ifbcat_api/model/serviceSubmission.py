@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -12,7 +11,6 @@ class ServiceSubmission(models.Model):
     """Service submission model: Metadata for a service that is included as part of the submission of the service to a ELIXIR-FR SDP submission process."""
 
     # All fields are mandatory !
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     service = models.ForeignKey(
         Service,
         related_name='ServiceSubmission',
@@ -59,7 +57,6 @@ class ServiceSubmission(models.Model):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
-            | permissions.ReadWriteByOwner
             | permissions.ReadWriteBySubmitters
             | permissions.ReadWriteByAuthors
             | permissions.ReadWriteBySuperEditor,

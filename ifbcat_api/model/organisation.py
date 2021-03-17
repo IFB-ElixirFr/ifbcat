@@ -1,5 +1,4 @@
 # Imports
-from django.conf import settings
 from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -12,7 +11,6 @@ class Organisation(WithGridIdOrRORId, models.Model):
     """A legal entity involved in research and development, or its support, primarily but not exclusively French organisations directly or indirectly related to bioinformatics."""
 
     # name, description & homepage are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(
         max_length=255,
         unique=True,
@@ -39,6 +37,6 @@ class Organisation(WithGridIdOrRORId, models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.ReadWriteByOwner | permissions.ReadWriteBySuperuser,
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
             IsAuthenticatedOrReadOnly,
         )

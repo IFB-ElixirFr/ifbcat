@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -12,8 +11,6 @@ from ifbcat_api.validators import validate_can_be_looked_up
 
 class Service(models.Model):
     """Service model: A provision of a bundle of computing facilities, databases, tools, training events and materials, with support to help end-users utilise the resources."""
-
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(
         max_length=255,
@@ -65,6 +62,10 @@ class Service(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.ReadWriteByOwner | permissions.ReadWriteBySuperEditor,
+            permissions.ReadOnly
+            | permissions.ReadWriteByTeamsLeader
+            | permissions.ReadWriteByTeamsDeputies
+            | permissions.ReadWriteByTeamsMaintainers
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )
