@@ -139,10 +139,10 @@ class Command(BaseCommand):
                     elif affiliation in mapping_organisations['drupal_name'].tolist():
                         organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == affiliation]
                         if not organizer_row['orgid'].isna().iloc[0]:
-                            print(organizer_row['orgid'])
+                            logger.debug(organizer_row['orgid'])
                             organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
                         elif not organizer_row['ifbcat_name'].isna().iloc[0]:
-                            print(organizer_row['orgid'])
+                            logger.debug(organizer_row['orgid'])
                             organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
                         bt.affiliatedWith.add(organisation)
                     elif "Non renseigné" in affiliation:

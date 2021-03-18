@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 if data_object == []:
                     continue  # Check for empty lines
                 try:
-                    print(data_object[0])
+                    logger.debug(data_object[0])
                     o, created = Organisation.objects.update_or_create(
                         name=data_object[0],
                         defaults={
