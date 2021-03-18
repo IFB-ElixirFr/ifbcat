@@ -3,6 +3,7 @@ import functools
 
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Count, ManyToManyRel, ManyToOneRel
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -265,3 +266,24 @@ class EventDate(models.Model):
             | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
+
+    @classmethod
+    def remove_duplicates(cls):
+        for d_prop in (
+            cls.objects.values('dateStart', 'dateEnd', 'timeStart', 'timeEnd')
+            .annotate(c=Count('pk'))
+            .filter(c__gt=1)
+            .all()
+        ):
+            del d_prop['c']
+            dates = cls.objects.filter(**d_prop).order_by('id')
+            date = dates[0]
+            for d in dates[1:]:
+                for model_field in d._meta.get_fields():
+                    if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
+                        attr_name = model_field.related_name or (model_field.name + "_set")
+                        remote_name = model_field.remote_field.name
+                        for o in getattr(d, attr_name).all():
+                            getattr(o, remote_name).add(date)
+                            getattr(o, remote_name).remove(d)
+                d.delete()
