@@ -43,6 +43,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
+        EventDate.remove_duplicates()
 
         with open(os.path.join(options["training"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
@@ -192,18 +193,11 @@ class Command(BaseCommand):
                     event_cost, created = EventCost.objects.get_or_create(cost=training_participation)
                     training.costs.add(event_cost)
 
-                    # Need to check this chunk with Bryan
-                    # (1
                     if training_start_date:
-                        dates = EventDate.objects.filter(dateStart=training_start_date, dateEnd=training_end_date)[0]
-                        if not dates:
-                            dates = EventDate.objects.create(dateStart=training_start_date, dateEnd=training_end_date)
-
-                        # get() returned more than one EventDate -- it returned 2!
-                        # dates, created = EventDate.objects.get_or_create(dateStart=training_start_date, dateEnd=training_end_date)
-
-                        training.dates.add(dates)
-                    # 1)
+                        d, created = EventDate.objects.get_or_create(
+                            dateStart=training_start_date, dateEnd=training_end_date
+                        )
+                        training.dates.add(d)
 
                     if training_training_level:
                         prerequisite, created = EventPrerequisite.objects.get_or_create(
@@ -217,6 +211,6 @@ class Command(BaseCommand):
 
                     logger.debug(f'Training "{training}" has been saved.')
                 except Exception as ex:
-                    print(str(ex))
-                    msg = "\n\nSomething went wrong saving this training: {}\n{}".format(training, str(ex))
-                    print(msg)
+                    logger.error(f"Something went wrong saving this training: {training}")
+                    logger.error(ex)
+                    raise ex

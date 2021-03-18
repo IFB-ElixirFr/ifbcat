@@ -4,7 +4,6 @@ import logging
 import os
 
 import pandas as pd
-from django.core.exceptions import MultipleObjectsReturned
 from django.core.management import BaseCommand
 from tqdm import tqdm
 
@@ -46,6 +45,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
+        EventDate.remove_duplicates()
 
         with open(os.path.join(options["events"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
@@ -104,11 +104,7 @@ class Command(BaseCommand):
                         ),
                     )
 
-                    try:
-                        dates, created = event.dates.get_or_create(dateStart=event_start_date, dateEnd=event_end_date)
-                    except MultipleObjectsReturned:
-                        event.dates.all().delete()
-                        dates = EventDate.objects.create(dateStart=event_start_date, dateEnd=event_end_date)
+                    dates, created = EventDate.objects.get_or_create(dateStart=event_start_date, dateEnd=event_end_date)
 
                     event.dates.add(dates)
 
