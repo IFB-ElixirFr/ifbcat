@@ -131,7 +131,7 @@ class KeywordSerializer(serializers.ModelSerializer):
     #     validators=[UniqueValidator(queryset = models.EventKeyword.objects.all())])
     class Meta:
         model = models.Keyword
-        fields = ('keyword',)
+        fields = ('keyword', 'id')
 
     def validate(self, attrs):
         self.Meta.model(**attrs).clean_fields()
