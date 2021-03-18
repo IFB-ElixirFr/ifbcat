@@ -199,6 +199,10 @@ class Tool(models.Model):
 
         # insert or get DB topic entry table here
         for topic in tool['topic']:
+            if topic['uri'] == "http://edamontology.org/topic_3557":
+                # cf comments in https://bioportal.bioontology.org/ontologies/EDAM?p=classes&conceptid=topic_3957
+                # how could we do this not in the code ?
+                topic['uri'] = "http://edamontology.org/topic_3957"
             topic_entry, created = Topic.objects.get_or_create(uri=topic['uri'])
             topic_entry.save()
             self.scientific_topics.add(topic_entry.id)
