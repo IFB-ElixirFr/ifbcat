@@ -158,8 +158,8 @@ class AbstractEvent(models.Model):
         choices=EventAccessibilityType.choices,
         help_text="Whether the event is public or private.",
     )
-    accessibilityNote = models.CharField(
-        max_length=255, blank=True, help_text="Comment about the audience a private event is open to and tailored for."
+    accessibilityNote = models.TextField(
+        help_text="Comment about the audience a private event is open to and tailored for."
     )
     maxParticipants = models.PositiveSmallIntegerField(
         null=True,
