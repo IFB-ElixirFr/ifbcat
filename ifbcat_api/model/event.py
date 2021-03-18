@@ -249,7 +249,12 @@ class EventDate(models.Model):
 
     def __str__(self):
         """Return the EventDate model as a string."""
-        return self.dateStart.__str__()
+        r = self.dateStart.__str__()
+        if self.dateEnd:
+            r = f"{r} to {self.dateEnd.__str__()}"
+        if self.timeStart or self.timeEnd:
+            r = f"{r} ({str(self.timeStart)} {str(self.timeEnd)})"
+        return r
 
     @classmethod
     def get_permission_classes(cls):
