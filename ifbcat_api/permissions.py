@@ -1,6 +1,6 @@
 # Imports
 from django.contrib.auth import get_user_model
-from django.db.models import ManyToManyField
+from django.db.models import ManyToManyField, ManyToOneRel, ManyToManyRel
 from rest_framework import permissions
 
 # Custom permission class for updating user profiles
@@ -201,6 +201,27 @@ class UserCanAddNew(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj is None
+
+
+class UserCanEditAndDeleteIfNotUsed(permissions.BasePermission):
+    allowed_methods = ("PUT", "POST", "DELETE")
+
+    def has_permission(self, request, view):
+        return request.method in self.allowed_methods
+
+    def has_object_permission(self, request, view, obj):
+        if request.method not in self.allowed_methods:
+            return False
+        for model_field in obj._meta.get_fields():
+            if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
+                attr_name = model_field.related_name or (model_field.name + "_set")
+                if getattr(obj, attr_name).count() > 0:
+                    return False
+        return True
+
+
+class UserCanDeleteIfNotUsed(UserCanEditAndDeleteIfNotUsed):
+    allowed_methods = ("DELETE",)
 
 
 class SuperuserCanDelete(permissions.BasePermission):

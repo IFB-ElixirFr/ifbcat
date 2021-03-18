@@ -254,6 +254,9 @@ class EventDate(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.SuperuserCanDelete | permissions.UserCanAddNew,
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
