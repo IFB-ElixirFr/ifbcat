@@ -127,8 +127,8 @@ class Command(BaseCommand):
                             c.save()
                         bt.certifications.add(c)
                     except Exception as e:
-                        print("Failed with %s" % certification)
-                        print(e)
+                        logger.error("Failed with certification %s" % certification)
+                        logger.error(e)
                 affiliated_with = row["Affiliation"] + "," + row["Structure"]
                 for affiliation in affiliated_with.replace("/", ",").replace("’", "'").split(","):
 
@@ -148,17 +148,20 @@ class Command(BaseCommand):
                     elif "Non renseigné" in affiliation:
                         pass
                     else:
-                        print("%s is not a known organisation" % affiliation)
+                        logger.info("%s is not a known organisation" % affiliation)
                 for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
+                    if affiliation == "Non renseignée":
+                        continue
                     try:
                         o = Organisation.objects.get(name=affiliation)
                         bt.fundedBy.add(o)
                     except Exception as e:
-                        print("Failed with %s" % affiliation)
+                        logger.error("Failed with affiliation %s" % affiliation)
+                        logger.error(e)
                 bt.save()
             except Exception as e:
-                print("Failed with line %i:%s; %s" % (index, str(row), str(e)))
+                logger.error("Failed with line %i:%s; %s" % (index, str(row), str(e)))
                 raise e
 
 
