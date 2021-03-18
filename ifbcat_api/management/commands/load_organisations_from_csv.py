@@ -47,13 +47,13 @@ class Command(BaseCommand):
                         defaults={
                             'description': data_object[1],
                             'homepage': data_object[2],
-                            # M2M:
-                            #'fields': data_object[3],
                             'city': data_object[4],
                             'logo_url': data_object[5],
                         },
                     )
-                    o.save()
+                    for f_str in data_object[3]:
+                        f, created = Field.objects.get_or_create(field=f_str)
+                        o.fields.add(f)
 
                 except Exception as e:
                     logger.error(o)
