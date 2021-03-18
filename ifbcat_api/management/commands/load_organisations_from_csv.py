@@ -1,20 +1,10 @@
 import csv
-import datetime
 import logging
-import os
-import zipfile
-import pandas as pd
 
-import pytz
 from django.core.management import BaseCommand
-from django.utils.timezone import make_aware
-from django.contrib.auth import get_user_model
-import urllib.request
-import json
-
 from tqdm import tqdm
 
-from ifbcat_api.model.event import *
+from ifbcat_api.model.misc import Field
 from ifbcat_api.model.organisation import Organisation
 
 logger = logging.getLogger(__name__)
@@ -57,5 +47,5 @@ class Command(BaseCommand):
 
                 except Exception as e:
                     logger.error(o)
-                    print('error' + name)
+                    print('error' + data_object[0])
                     raise e
