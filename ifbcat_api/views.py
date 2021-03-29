@@ -23,10 +23,12 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 
 from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
 from ifbcat_api.filters import AutoSubsetFilterSet
+from ifbcat_api.renderers import JsonLDSchemaTrainingRenderer
 
 
 class CachedNoPaginationMixin:
@@ -294,6 +296,7 @@ class TrainingEventFilter(AutoSubsetFilterSet):
 class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
     search_fields = (

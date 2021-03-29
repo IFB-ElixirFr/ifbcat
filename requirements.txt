@@ -16,4 +16,6 @@ django-jazzmin
 django-filter
 django-cors-headers
 requests
+rdflib
+rdflib-jsonld
 #end of file
