@@ -2,11 +2,27 @@
 .brand-image{
     box-shadow:none !important;
 }
-.select2.select2-container.select2-container--admin-autocomplete
+.select2.select2-container
 {
     width:100%!important;
 }
-
+.select2.select2-container .select2-selection__choice{
+    color: #278bc7 !important;
+    background-color: white !important;
+    border-color: #278bc7 !important;
+}
+.select2.select2-container .select2-selection__choice>button{
+    border-width: 0px;
+    color: #278bc7 !important;
+}
+.select2.select2-container .select2-selection__choice:hover{
+    color: white !important;
+    background-color: #278bc7 !important;
+    border-color: #278bc7 !important;
+}
+.select2.select2-container .select2-selection__choice:hover>button{
+    color: white !important;
+}
 .theme-default .sidebar-light-primary+.content-wrapper{
     background-color: #eff4fb;
 }
