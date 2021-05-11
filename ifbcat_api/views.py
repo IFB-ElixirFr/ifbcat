@@ -402,7 +402,7 @@ class TrainingCourseMetricsViewSet(PermissionInClassModelViewSet, viewsets.Model
     search_fields = (
         'dateStart',
         'dateEnd',
-        'event_name',
+        'event__name',
         'event__shortName',
         'event__description',
     )
