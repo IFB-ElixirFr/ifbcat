@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='event',
-            name='geographic_range',
+            name='geographical_range',
             field=models.CharField(blank=True, choices=[('Local', 'Local or regional'), ('National', 'National'), ('International', 'International')], help_text='Geographical area which is the focus of event marketing efforts.', max_length=255),
         ),
         migrations.AddField(

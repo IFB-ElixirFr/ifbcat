@@ -267,7 +267,7 @@ class Event(AbstractEvent):
         blank=True,
         help_text="The country where the event will be held.",
     )
-    geographic_range = models.CharField(
+    geographical_range = models.CharField(
         max_length=255,
         blank=True,
         help_text="Geographical area which is the focus of event marketing efforts.",
