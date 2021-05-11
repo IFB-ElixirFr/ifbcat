@@ -351,8 +351,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
 # Model serializer for training events
 class TrainingSerializer(EventSerializer):
-    """Serializes a training event (TrainingEvent object)."""
-
     audienceTypes = VerboseSlugRelatedField(
         many=True,
         read_only=False,
