@@ -56,7 +56,13 @@ class EventCost(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
+        return (
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 # Event sponsor model
@@ -82,7 +88,13 @@ class EventSponsor(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
+        return (
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 class AbstractEvent(models.Model):
