@@ -38,6 +38,6 @@ class TrainingCourseMetrics(models.Model):
     def get_permission_classes(cls):
         # TODO let trainer and/or bio team edit it ?
         return (
-            permissions.ReadOnly | permissions.ReadWriteBySuperEditor,
+            permissions.ReadOnly | permissions.UserCanAddNew | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )
