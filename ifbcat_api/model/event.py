@@ -221,6 +221,7 @@ class AbstractEvent(models.Model):
     def get_edition_permission_classes(cls):
         return (
             permissions.ReadOnly,
+            permissions.UserCanAddNew,
             permissions.ReadWriteByContact,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,
@@ -301,6 +302,12 @@ class Event(AbstractEvent):
             errors.setdefault('training', []).append("training must be provided when creating a Training course")
         if len(errors) > 0:
             raise ValidationError(errors)
+
+    @classmethod
+    def get_edition_permission_classes(cls):
+        return super().get_edition_permission_classes() + (
+            permissions.ReadWriteByTrainers,
+        )
 
 
 # Event date model
