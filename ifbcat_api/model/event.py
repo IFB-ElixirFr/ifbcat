@@ -155,9 +155,6 @@ class AbstractEvent(models.Model):
         on_delete=models.SET_NULL,
         help_text="IFB ID of person to contact about the event.",
     )
-    market = models.CharField(
-        max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts."
-    )
     elixirPlatforms = models.ManyToManyField(
         ElixirPlatform,
         blank=True,
@@ -255,6 +252,16 @@ class Event(AbstractEvent):
         max_length=255,
         blank=True,
         help_text="The country where the event will be held.",
+    )
+    geographic_range = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Geographical area which is the focus of event marketing efforts.",
+        choices=[
+            ('Local', 'Local or regional'),
+            ('National', 'National'),
+            ('International', 'International'),
+        ],
     )
     training = models.ForeignKey(
         to="Training",
