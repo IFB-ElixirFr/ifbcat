@@ -232,7 +232,6 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'contactName',
         'contactId__email',
         'contactEmail',
-        'market',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
