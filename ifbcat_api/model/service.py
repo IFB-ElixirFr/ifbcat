@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from ifbcat_api import permissions
 from ifbcat_api.model.misc import Doi
 from ifbcat_api.model.team import Team
-from ifbcat_api.model.trainingEvent import TrainingEvent
+
+from ifbcat_api.model.training import Training
 from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.validators import validate_can_be_looked_up
 
@@ -33,11 +34,11 @@ class Service(models.Model):
         related_name='servicesComputingFacilities',
         help_text="Computing facilities provided by the service.",
     )
-    trainingEvents = models.ManyToManyField(
-        TrainingEvent,
+    trainings = models.ManyToManyField(
+        Training,
         blank=True,
         related_name='services',
-        help_text="Training event(s) provided by the service.",
+        help_text="Training provided by the service.",
     )
     trainingMaterials = models.ManyToManyField(
         TrainingMaterial,

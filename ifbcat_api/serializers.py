@@ -365,7 +365,7 @@ class TrainingEventSerializer(EventSerializer):
     )
 
     class Meta(EventSerializer.Meta):
-        model = models.TrainingEvent
+        model = models.Training
 
         fields = EventSerializer.Meta.fields + (
             'audienceTypes',

@@ -266,16 +266,16 @@ class EventFilter(AutoSubsetFilterSet):
         ]
 
 
-class TrainingEventFilter(AutoSubsetFilterSet):
-    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
-    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+class TrainingFilter(AutoSubsetFilterSet):
+    # min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
+    # max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
 
     class Meta:
-        model = models.TrainingEvent
+        model = models.Training
         fields = [
-            'type',
-            'min_start',
-            'max_start',
+            # 'type',
+            # 'min_start',
+            # 'max_start',
             'costs',
             'topics',
             'keywords',
@@ -329,11 +329,11 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for training events
-class TrainingEventViewSet(EventViewSet):
+class TrainingViewSet(EventViewSet):
     """Handles creating, reading and updating training events."""
 
     serializer_class = serializers.TrainingEventSerializer
-    queryset = models.TrainingEvent.objects.all()
+    queryset = models.Training.objects.all()
 
     search_fields = EventViewSet.search_fields + (
         'audienceTypes__audienceType',
@@ -341,7 +341,7 @@ class TrainingEventViewSet(EventViewSet):
         'difficultyLevel',
         'learningOutcomes',
     )
-    filterset_class = TrainingEventFilter
+    filterset_class = TrainingFilter
 
 
 # Model ViewSet for keywords

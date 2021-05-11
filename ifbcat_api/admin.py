@@ -303,8 +303,8 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     date_range.admin_order_field = 'dates__dateStart'
 
 
-@admin.register(models.TrainingEvent)
-class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+@admin.register(models.Training)
+class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     """Enables search, filtering and widgets in Django admin interface."""
 
     search_fields = (
@@ -381,11 +381,16 @@ class TrainingEventMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin
     search_fields = (
         'dateStart',
         'dateEnd',
-        'trainingEvent__name',
-        'trainingEvent__shortName',
-        'trainingEvent__description',
+        'training__name',
+        'event__shortName',
+        'event__description',
     )
-    autocomplete_fields = ('trainingEvent',)
+    autocomplete_fields = ('event',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.fields['event'].queryset = models.Event.objects.filter(type=models.Event.EventType.TRAINING_COURSE)
+        return form
 
 
 @admin.register(models.EventSponsor)
@@ -657,14 +662,14 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'description',
         'teams__name',
         'computingFacilities__name',
-        'trainingEvents__name',
+        'trainings__name',
         'trainingMaterials__name',
         'publications__doi',
     )
 
     autocomplete_fields = (
         'computingFacilities',
-        'trainingEvents',
+        'trainings',
         'trainingMaterials',
         'teams',
     )
