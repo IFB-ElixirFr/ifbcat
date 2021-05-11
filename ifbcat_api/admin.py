@@ -18,6 +18,7 @@ from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
 from ifbcat_api.misc import BibliographicalEntryNotFound
+from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
 
 
@@ -422,7 +423,7 @@ class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmi
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        form.fields['event'].queryset = models.Event.objects.filter(type=models.Event.EventType.TRAINING_COURSE)
+        form.base_fields['event'].queryset = Event.objects.filter(type=Event.EventType.TRAINING_COURSE)
         return form
 
 
