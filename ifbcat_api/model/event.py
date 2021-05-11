@@ -110,6 +110,11 @@ class AbstractEvent(models.Model):
     )
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
+    homepage = models.URLField(
+        max_length=255,
+        blank=True,
+        help_text="URL of event homepage.",
+    )
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     costs = models.ManyToManyField(
         EventCost,
@@ -234,10 +239,6 @@ class Event(AbstractEvent):
         blank=True,
         choices=EventType.choices,
         help_text="The type of event e.g. 'Training course'.",
-    )
-    homepage = models.URLField(
-        max_length=255,
-        help_text="URL of event homepage.",
     )
     venue = models.TextField(
         blank=True,
