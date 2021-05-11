@@ -818,7 +818,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'dateEstablished',
             'teams',
             'computingFacilities',
-            'trainingEvents',
+            'trainings',
             'trainingMaterials',
             'publications',
             'governanceSab',
@@ -828,7 +828,6 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'teams': {'lookup_field': 'name'},
             'computingFacilities': {'lookup_field': 'name'},
-            # 'trainingEvents': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
 

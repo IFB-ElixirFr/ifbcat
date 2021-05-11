@@ -699,7 +699,7 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'description',
         'computingFacilities__name',
         'teams__name',
-        'trainingEvents__name',
+        'trainings__name',
         'trainingMaterials__name',
         'publications__doi',
     )
