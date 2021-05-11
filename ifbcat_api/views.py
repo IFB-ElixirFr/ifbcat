@@ -657,6 +657,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'fundedBy',
         'keywords',
         'platforms',
+        'ifbMembership',
     )
 
     def perform_create(self, serializer):
