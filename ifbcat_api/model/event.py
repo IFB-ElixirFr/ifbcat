@@ -305,9 +305,7 @@ class Event(AbstractEvent):
 
     @classmethod
     def get_edition_permission_classes(cls):
-        return super().get_edition_permission_classes() + (
-            permissions.ReadWriteByTrainers,
-        )
+        return super().get_edition_permission_classes() + (permissions.ReadWriteByTrainers,)
 
 
 # Event date model
