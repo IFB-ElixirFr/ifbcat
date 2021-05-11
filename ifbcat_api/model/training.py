@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
-from ifbcat_api.model.event import AbstractEvent
+from ifbcat_api.model.event import AbstractEvent, Event, EventDate
 from ifbcat_api.model.misc import AudienceType, AudienceRole, DifficultyLevelType
 from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.model.userProfile import UserProfile
@@ -113,3 +113,44 @@ class Training(AbstractEvent):
     # @classmethod
     # def get_default_permission_classes(cls):
     #     return (IsAuthenticated,)
+
+    def create_new_event(self, start_date, end_date):
+        event_attrs = dict(
+            name=f'New course of {self.name}',
+            shortName=f'New course of {self.shortName}',
+            type=Event.EventType.TRAINING_COURSE,
+        )
+        for field in [
+            'description',
+            'homepage',
+            'onlineOnly',
+            'accessibility',
+            'accessibilityNote',
+            'maxParticipants',
+            'contactName',
+            'contactEmail',
+            'contactId',
+            'logo_url',
+        ]:
+            event_attrs[field] = getattr(self, field)
+        event = Event.objects.create(**event_attrs)
+
+        if start_date:
+            d, created = EventDate.objects.get_or_create(dateStart=start_date, dateEnd=end_date)
+            event.dates.add(d)
+
+        for m2m_name in [
+            'costs',
+            'topics',
+            'keywords',
+            'prerequisites',
+            'elixirPlatforms',
+            'communities',
+            'organisedByTeams',
+            'organisedByOrganisations',
+            'sponsoredBy',
+        ]:
+            for o in getattr(self, m2m_name).all():
+                getattr(event, m2m_name).add(o)
+
+        return event
