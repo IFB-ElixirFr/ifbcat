@@ -412,11 +412,9 @@ class TrainerSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Model serializer for training event metrics
-class TrainingEventMetricsSerializer(serializers.ModelSerializer):
-    """Serializes training event metrics (TrainingEventMetrics object)."""
-
+class TrainingCourseMetricsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.TrainingEventMetrics
+        model = models.TrainingCourseMetrics
 
         fields = (
             'id',

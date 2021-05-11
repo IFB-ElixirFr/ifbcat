@@ -394,17 +394,17 @@ class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for training event metrics
-class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class TrainingCourseMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating training event metrics."""
 
-    serializer_class = serializers.TrainingEventMetricsSerializer
-    queryset = models.TrainingEventMetrics.objects.all()
+    serializer_class = serializers.TrainingCourseMetricsSerializer
+    queryset = models.TrainingCourseMetrics.objects.all()
     search_fields = (
         'dateStart',
         'dateEnd',
-        'trainingEvent__name',
-        'trainingEvent__shortName',
-        'trainingEvent__description',
+        'event_name',
+        'event__shortName',
+        'event__description',
     )
 
     def perform_create(self, serializer):

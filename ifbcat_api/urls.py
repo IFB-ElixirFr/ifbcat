@@ -43,7 +43,7 @@ router.register('tool-cnp', CachedNoPaginationFactory(views.ToolViewSet), basena
 router.register('tooltype', views.ToolTypeViewSet)
 router.register('topic', views.TopicViewSet)
 router.register('trainer', views.TrainerViewSet)
-router.register('trainingeventmetrics', views.TrainingEventMetricsViewSet)
+router.register('trainingcoursemetrics', views.TrainingCourseMetricsViewSet)
 router.register('training', views.TrainingViewSet)
 router.register('trainingmaterial', views.TrainingMaterialViewSet)
 router.register('userprofile', views.UserProfileViewSet)

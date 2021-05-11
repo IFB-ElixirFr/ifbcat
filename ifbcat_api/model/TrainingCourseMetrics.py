@@ -6,7 +6,7 @@ from ifbcat_api import permissions
 from ifbcat_api.model.event import Event
 
 
-class TrainingEventMetrics(models.Model):
+class TrainingCourseMetrics(models.Model):
     """Training event metrics model: Metrics and other information for a specific training event."""
 
     # dateStart and dateEnd are mandatory
@@ -32,7 +32,6 @@ class TrainingEventMetrics(models.Model):
         verbose_name_plural = "Training event metrics"
 
     def __str__(self):
-        """Return the TrainingEventMetrics model as a string."""
         return self.dateStart.__str__()
 
     @classmethod

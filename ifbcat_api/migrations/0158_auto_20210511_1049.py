@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='TrainingEventMetrics',
+            name='TrainingCourseMetrics',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('dateStart', models.DateField(help_text='The start date of the training event.')),
@@ -113,7 +113,7 @@ class Migration(migrations.Migration):
             name='TrainingEvent',
         ),
         migrations.AddField(
-            model_name='trainingeventmetrics',
+            model_name='trainingCourseMetrics',
             name='event',
             field=models.ForeignKey(help_text='Training event to which the metrics are associated.', on_delete=django.db.models.deletion.CASCADE, related_name='metrics', to='ifbcat_api.Event'),
         ),

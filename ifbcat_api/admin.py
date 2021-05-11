@@ -409,8 +409,8 @@ class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     autocomplete_fields = ('trainerId',)
 
 
-@admin.register(models.TrainingEventMetrics)
-class TrainingEventMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+@admin.register(models.TrainingCourseMetrics)
+class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'dateStart',
         'dateEnd',
