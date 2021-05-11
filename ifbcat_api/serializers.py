@@ -350,7 +350,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Model serializer for training events
-class TrainingEventSerializer(EventSerializer):
+class TrainingSerializer(EventSerializer):
     """Serializes a training event (TrainingEvent object)."""
 
     audienceTypes = VerboseSlugRelatedField(
