@@ -296,14 +296,10 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
-    search_fields = (
+    search_fields_from_abstract_event = (
         'name',
         'shortName',
         'description',
-        'type',
-        'venue',
-        'city',
-        'country',
         'costs__cost',
         'topics__uri',
         'keywords__keyword',
@@ -313,13 +309,20 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'contactName',
         'contactId__email',
         'contactEmail',
-        'market',
         'elixirPlatforms__name',
         'communities__name',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
+    )
+    search_fields = search_fields_from_abstract_event + (
+        'type',
+        'venue',
+        'city',
+        'country',
+        'trainers__trainerName',
+        'trainers__trainerId__email',
     )
     filterset_class = EventFilter
 
@@ -335,7 +338,7 @@ class TrainingViewSet(EventViewSet):
     serializer_class = serializers.TrainingEventSerializer
     queryset = models.Training.objects.all()
 
-    search_fields = EventViewSet.search_fields + (
+    search_fields = EventViewSet.search_fields_from_abstract_event + (
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
         'difficultyLevel',

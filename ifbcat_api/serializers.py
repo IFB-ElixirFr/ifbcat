@@ -269,17 +269,12 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Event
 
-        fields = (
+        fields_from_abstract_event = (
             'id',
             'name',
             'shortName',
             'description',
             'homepage',
-            'type',
-            'dates',
-            'venue',
-            'city',
-            'country',
             'onlineOnly',
             'costs',
             'topics',
@@ -291,13 +286,22 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'contactName',
             'contactEmail',
             'contactId',
-            'market',
             'elixirPlatforms',
             'communities',
             'sponsoredBy',
             'organisedByOrganisations',
             'organisedByTeams',
             'logo_url',
+        )
+        fields = fields_from_abstract_event + (
+            'type',
+            'dates',
+            'venue',
+            'city',
+            'country',
+            'geographical_range',
+            'trainers',
+            'computingFacilities',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -367,7 +371,7 @@ class TrainingEventSerializer(EventSerializer):
     class Meta(EventSerializer.Meta):
         model = models.Training
 
-        fields = EventSerializer.Meta.fields + (
+        fields = EventSerializer.Meta.fields_from_abstract_event + (
             'audienceTypes',
             'audienceRoles',
             'difficultyLevel',
@@ -376,9 +380,7 @@ class TrainingEventSerializer(EventSerializer):
             'hoursPresentations',
             'hoursHandsOn',
             'hoursTotal',
-            'trainers',
             'personalised',
-            'computingFacilities',
             # 'databases',
             # 'tools',
         )
