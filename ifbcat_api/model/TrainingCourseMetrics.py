@@ -29,7 +29,7 @@ class TrainingCourseMetrics(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = "Training event metrics"
+        verbose_name_plural = "Training course metrics"
 
     def __str__(self):
         return self.dateStart.__str__()
