@@ -304,17 +304,39 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 @admin.register(models.Training)
 class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    """Enables search, filtering and widgets in Django admin interface."""
-
+    list_display = (
+        "name",
+        "logo",
+        "home",
+    )
     search_fields = (
-        'audienceTypes__audienceType',
-        'audienceRoles__audienceRole',
-        'difficultyLevel',
-        'learningOutcomes',
+        'name',
+        'shortName',
+        'description',
+        # 'topics__uri',
+        'keywords__keyword',
+        # 'prerequisites__prerequisite',
+        # 'accessibilityNote',
+        'contactName',
+        # 'contactId__email',
+        'contactEmail',
+        # 'organisedByTeams__name',
+        # 'organisedByOrganisations__name',
+        # 'sponsoredBy__name',
+        # 'sponsoredBy__organisationId__name',
+    ) + (
+        # 'audienceTypes__audienceType',
+        # 'audienceRoles__audienceRole',
+        # 'difficultyLevel',
+        # 'learningOutcomes',
     )
     list_filter = (
         'trainingMaterials',
         'computingFacilities',
+        'organisedByTeams',
+        'organisedByOrganisations',
+        'sponsoredBy',
+        'costs',
         # 'databases',
         # 'tools',
     )
@@ -322,6 +344,18 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'trainingMaterials',
         'computingFacilities',
     )
+
+    def logo(self, obj):
+        return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+
+    def home(self, obj):
+        if not obj.homepage:
+            return ""
+        return format_html(
+            '<center><a target="_blank" href="' + obj.homepage + '"><i class="fa fa-home"></i></a><center>'
+        )
+
+    home.short_description = format_html('<center>homepage</center>')
 
 
 @admin.register(models.Keyword)
