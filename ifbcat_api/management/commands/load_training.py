@@ -224,6 +224,7 @@ class Command(BaseCommand):
                     training.save()
 
                     training_course = training.create_new_event(training_start_date, training_end_date)
+                    training_course.name = training.name
 
                     training_course.city = training_location
 
