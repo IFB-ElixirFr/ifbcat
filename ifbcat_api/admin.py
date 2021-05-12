@@ -415,7 +415,7 @@ class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmi
     search_fields = (
         'dateStart',
         'dateEnd',
-        'training__name',
+        'event__name',
         'event__shortName',
         'event__description',
     )
