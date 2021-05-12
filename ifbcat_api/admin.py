@@ -10,9 +10,11 @@ from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
 from django.db.models.functions import Upper, Length
+from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
@@ -345,6 +347,38 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'trainingMaterials',
         'computingFacilities',
     )
+
+    actions = ["create_new_course"]
+
+    def create_new_course_and_get_admin_url(self, request, training):
+        course = training.create_new_event(None, None)
+        course.contactId = request.user
+        course.save()
+        opts = course._meta.model._meta
+        redirect_url = reverse(
+            'admin:%s_%s_change' % (opts.app_label, opts.model_name),
+            args=(course.pk,),
+            current_app=self.admin_site.name,
+        )
+        return course, redirect_url
+
+    def create_new_course(self, request, queryset):
+        if queryset.count() != 1:
+            self.message_user(request, "Can only create a new course/event one training at a time", messages.ERROR)
+            return
+        course, url = self.create_new_course_and_get_admin_url(request=request, training=queryset.first())
+        self.message_user(
+            request, mark_safe(f'New course created, go to <a href="{url}">{url}</a> to complete it'), messages.SUCCESS
+        )
+
+    change_form_template = 'admin/change_form_training.html'
+
+    def response_change(self, request, obj):
+        if "_new_course" in request.POST:
+            course, redirect_url = self.create_new_course_and_get_admin_url(request=request, training=obj)
+            return HttpResponseRedirect(redirect_url)
+        else:
+            return super().response_change(request, obj)
 
     def logo(self, obj):
         return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
