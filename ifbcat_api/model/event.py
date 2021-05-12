@@ -1,6 +1,7 @@
 # Imports
 import functools
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, ManyToManyRel, ManyToOneRel
@@ -9,6 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.community import Community
+from ifbcat_api.model.computingFacility import ComputingFacility
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Topic, Keyword
 from ifbcat_api.model.organisation import Organisation
@@ -54,7 +56,13 @@ class EventCost(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
+        return (
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 # Event sponsor model
@@ -80,7 +88,13 @@ class EventSponsor(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
+        return (
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.ReadWriteBySuperuser,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 class AbstractEvent(models.Model):
@@ -93,17 +107,6 @@ class AbstractEvent(models.Model):
     # See https://docs.django(project).com/en/dev/ref/models/fields/#enumeration-types
     # The enums support internatonalization (using the '_' shorthand convention for gettext_lazy() function)
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
-
-    # EventType: Controlled vocabulary of types of events.
-    # Name and human-readable labels are set the same (rather than using an short-form abbreviation for the name), because of issue:
-    # see https://github.com/joncison/ifbcat-sandbox/pull/9
-    class EventType(models.TextChoices):
-        """Controlled vocabulary of types of events."""
-
-        WORKSHOP = 'Workshop', _('Workshop')
-        TRAINING_COURSE = 'Training course', _('Training course')
-        MEETING = 'Meeting', _('Meeting')
-        CONFERENCE = 'Conference', _('Conference')
 
     # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
     class EventAccessibilityType(models.TextChoices):
@@ -119,20 +122,11 @@ class AbstractEvent(models.Model):
     )
     shortName = models.CharField(max_length=255, blank=True, help_text="Short name (or acronym) of the event.")
     description = models.TextField(help_text="Description of the event.")
-    homepage = models.URLField(max_length=255, help_text="URL of event homepage.")
-
-    # NB: max_length is mandatory, but is ignored by sqlite3, see https://github.com/joncison/ifbcat-sandbox/pull/9
-    type = models.CharField(
-        max_length=255, blank=True, choices=EventType.choices, help_text="The type of event e.g. 'Training course'."
+    homepage = models.URLField(
+        max_length=255,
+        blank=True,
+        help_text="URL of event homepage.",
     )
-
-    dates = models.ManyToManyField(
-        "EventDate",
-        help_text="Date(s) and optional time periods on which the event takes place.",
-    )
-    venue = models.TextField(blank=True, help_text="The address of the venue where the event will be held.")
-    city = models.CharField(max_length=255, blank=True, help_text="The nearest city to where the event will be held.")
-    country = models.CharField(max_length=255, blank=True, help_text="The country where the event will be held.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     costs = models.ManyToManyField(
         EventCost,
@@ -178,30 +172,33 @@ class AbstractEvent(models.Model):
         on_delete=models.SET_NULL,
         help_text="IFB ID of person to contact about the event.",
     )
-    market = models.CharField(
-        max_length=255, blank=True, help_text="Geographical area which is the focus of event marketing efforts."
-    )
     elixirPlatforms = models.ManyToManyField(
-        ElixirPlatform, blank=True, help_text="ELIXIR Platform to which the event is relevant."
+        ElixirPlatform,
+        blank=True,
+        help_text="ELIXIR Platform to which it is relevant.",
     )
-    communities = models.ManyToManyField(Community, blank=True, help_text="Community for which the event is relevant.")
+    communities = models.ManyToManyField(
+        Community,
+        blank=True,
+        help_text="Community for which it is relevant.",
+    )
     # hostedBy = models.ManyToManyField(
     #     Organisation, blank=True, help_text="Organisation which is hosting the event."
     # )
     organisedByTeams = models.ManyToManyField(
         Team,
         blank=True,
-        help_text="A Team that is organizing the event.",
+        help_text="A Team that is organizing it.",
     )
     organisedByOrganisations = models.ManyToManyField(
         Organisation,
         blank=True,
-        help_text="An organisation that is organizing the event.",
+        help_text="An organisation that is organizing it.",
     )
     sponsoredBy = models.ManyToManyField(
         EventSponsor,
         blank=True,
-        help_text="An institutional entity that is sponsoring the event.",
+        help_text="An institutional entity that is sponsoring it.",
     )
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event.", blank=True, null=True)
 
@@ -224,6 +221,7 @@ class AbstractEvent(models.Model):
     def get_edition_permission_classes(cls):
         return (
             permissions.ReadOnly,
+            permissions.UserCanAddNew,
             permissions.ReadWriteByContact,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,
@@ -234,7 +232,80 @@ class AbstractEvent(models.Model):
 
 
 class Event(AbstractEvent):
-    pass
+    # EventType: Controlled vocabulary of types of events.
+    # Name and human-readable labels are set the same (rather than using an short-form abbreviation for the name), because of issue:
+    # see https://github.com/joncison/ifbcat-sandbox/pull/9
+    class EventType(models.TextChoices):
+        """Controlled vocabulary of types of events."""
+
+        WORKSHOP = 'Workshop', _('Workshop')
+        TRAINING_COURSE = 'Training course', _('Training course')
+        MEETING = 'Meeting', _('Meeting')
+        CONFERENCE = 'Conference', _('Conference')
+
+    dates = models.ManyToManyField(
+        "EventDate",
+        help_text="Date(s) and optional time periods on which the event takes place.",
+    )
+    type = models.CharField(
+        max_length=255,
+        blank=True,
+        choices=EventType.choices,
+        help_text="The type of event e.g. 'Training course'.",
+    )
+    venue = models.TextField(
+        blank=True,
+        help_text="The address of the venue where the event will be held.",
+    )
+    city = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="The nearest city to where the event will be held.",
+    )
+    country = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="The country where the event will be held.",
+    )
+    geographical_range = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Geographical area which is the focus of event marketing efforts.",
+        choices=[
+            ('Local', 'Local or regional'),
+            ('National', 'National'),
+            ('International', 'International'),
+        ],
+    )
+    training = models.ForeignKey(
+        to="Training",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        help_text="The training proposed, must be null if type is 'Training course', null otherwise.",
+    )
+    trainers = models.ManyToManyField(
+        to="Trainer",
+        blank=True,
+        help_text="Details of people who are providing training at the event.",
+    )
+    computingFacilities = models.ManyToManyField(
+        ComputingFacility,
+        blank=True,
+        help_text="Computing facilities that are used in the event.",
+    )
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
+            errors.setdefault('training', []).append("training must be provided when creating a Training course")
+        if len(errors) > 0:
+            raise ValidationError(errors)
+
+    @classmethod
+    def get_edition_permission_classes(cls):
+        return super().get_edition_permission_classes() + (permissions.ReadWriteByTrainers,)
 
 
 # Event date model

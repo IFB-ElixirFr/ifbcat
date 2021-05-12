@@ -266,16 +266,16 @@ class EventFilter(AutoSubsetFilterSet):
         ]
 
 
-class TrainingEventFilter(AutoSubsetFilterSet):
-    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
-    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+class TrainingFilter(AutoSubsetFilterSet):
+    # min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
+    # max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
 
     class Meta:
-        model = models.TrainingEvent
+        model = models.Training
         fields = [
-            'type',
-            'min_start',
-            'max_start',
+            # 'type',
+            # 'min_start',
+            # 'max_start',
             'costs',
             'topics',
             'keywords',
@@ -296,14 +296,10 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     serializer_class = serializers.EventSerializer
     queryset = models.Event.objects.all()
-    search_fields = (
+    search_fields_from_abstract_event = (
         'name',
         'shortName',
         'description',
-        'type',
-        'venue',
-        'city',
-        'country',
         'costs__cost',
         'topics__uri',
         'keywords__keyword',
@@ -313,13 +309,20 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'contactName',
         'contactId__email',
         'contactEmail',
-        'market',
         'elixirPlatforms__name',
         'communities__name',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
+    )
+    search_fields = search_fields_from_abstract_event + (
+        'type',
+        'venue',
+        'city',
+        'country',
+        'trainers__trainerName',
+        'trainers__trainerId__email',
     )
     filterset_class = EventFilter
 
@@ -329,19 +332,19 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for training events
-class TrainingEventViewSet(EventViewSet):
+class TrainingViewSet(EventViewSet):
     """Handles creating, reading and updating training events."""
 
-    serializer_class = serializers.TrainingEventSerializer
-    queryset = models.TrainingEvent.objects.all()
+    serializer_class = serializers.TrainingSerializer
+    queryset = models.Training.objects.all()
 
-    search_fields = EventViewSet.search_fields + (
+    search_fields = EventViewSet.search_fields_from_abstract_event + (
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'learningOutcomes',
     )
-    filterset_class = TrainingEventFilter
+    filterset_class = TrainingFilter
 
 
 # Model ViewSet for keywords
@@ -391,17 +394,17 @@ class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for training event metrics
-class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class TrainingCourseMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating training event metrics."""
 
-    serializer_class = serializers.TrainingEventMetricsSerializer
-    queryset = models.TrainingEventMetrics.objects.all()
+    serializer_class = serializers.TrainingCourseMetricsSerializer
+    queryset = models.TrainingCourseMetrics.objects.all()
     search_fields = (
         'dateStart',
         'dateEnd',
-        'trainingEvent__name',
-        'trainingEvent__shortName',
-        'trainingEvent__description',
+        'event__name',
+        'event__shortName',
+        'event__description',
     )
 
     def perform_create(self, serializer):
@@ -657,6 +660,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'fundedBy',
         'keywords',
         'platforms',
+        'ifbMembership',
     )
 
     def perform_create(self, serializer):
@@ -695,7 +699,7 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'description',
         'computingFacilities__name',
         'teams__name',
-        'trainingEvents__name',
+        'trainings__name',
         'trainingMaterials__name',
         'publications__doi',
     )

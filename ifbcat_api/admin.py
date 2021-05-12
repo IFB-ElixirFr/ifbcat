@@ -10,14 +10,17 @@ from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
 from django.db.models.functions import Upper, Length
+from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
 from ifbcat_api.misc import BibliographicalEntryNotFound
+from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
 
 
@@ -232,7 +235,6 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'contactName',
         'contactId__email',
         'contactEmail',
-        'market',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
@@ -303,19 +305,41 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     date_range.admin_order_field = 'dates__dateStart'
 
 
-@admin.register(models.TrainingEvent)
-class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    """Enables search, filtering and widgets in Django admin interface."""
-
+@admin.register(models.Training)
+class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+    list_display = (
+        "name",
+        "logo",
+        "home",
+    )
     search_fields = (
-        'audienceTypes__audienceType',
-        'audienceRoles__audienceRole',
-        'difficultyLevel',
-        'learningOutcomes',
+        'name',
+        'shortName',
+        'description',
+        # 'topics__uri',
+        'keywords__keyword',
+        # 'prerequisites__prerequisite',
+        # 'accessibilityNote',
+        'contactName',
+        # 'contactId__email',
+        'contactEmail',
+        # 'organisedByTeams__name',
+        # 'organisedByOrganisations__name',
+        # 'sponsoredBy__name',
+        # 'sponsoredBy__organisationId__name',
+    ) + (
+        # 'audienceTypes__audienceType',
+        # 'audienceRoles__audienceRole',
+        # 'difficultyLevel',
+        # 'learningOutcomes',
     )
     list_filter = (
         'trainingMaterials',
         'computingFacilities',
+        'organisedByTeams',
+        'organisedByOrganisations',
+        'sponsoredBy',
+        'costs',
         # 'databases',
         # 'tools',
     )
@@ -323,6 +347,50 @@ class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'trainingMaterials',
         'computingFacilities',
     )
+
+    actions = ["create_new_course"]
+
+    def create_new_course_and_get_admin_url(self, request, training):
+        course = training.create_new_event(None, None)
+        course.contactId = request.user
+        course.save()
+        opts = course._meta.model._meta
+        redirect_url = reverse(
+            'admin:%s_%s_change' % (opts.app_label, opts.model_name),
+            args=(course.pk,),
+            current_app=self.admin_site.name,
+        )
+        return course, redirect_url
+
+    def create_new_course(self, request, queryset):
+        if queryset.count() != 1:
+            self.message_user(request, "Can only create a new course/event one training at a time", messages.ERROR)
+            return
+        course, url = self.create_new_course_and_get_admin_url(request=request, training=queryset.first())
+        self.message_user(
+            request, mark_safe(f'New course created, go to <a href="{url}">{url}</a> to complete it'), messages.SUCCESS
+        )
+
+    change_form_template = 'admin/change_form_training.html'
+
+    def response_change(self, request, obj):
+        if "_new_course" in request.POST:
+            course, redirect_url = self.create_new_course_and_get_admin_url(request=request, training=obj)
+            return HttpResponseRedirect(redirect_url)
+        else:
+            return super().response_change(request, obj)
+
+    def logo(self, obj):
+        return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+
+    def home(self, obj):
+        if not obj.homepage:
+            return ""
+        return format_html(
+            '<center><a target="_blank" href="' + obj.homepage + '"><i class="fa fa-home"></i></a><center>'
+        )
+
+    home.short_description = format_html('<center>homepage</center>')
 
 
 @admin.register(models.Keyword)
@@ -376,16 +444,21 @@ class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     autocomplete_fields = ('trainerId',)
 
 
-@admin.register(models.TrainingEventMetrics)
-class TrainingEventMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+@admin.register(models.TrainingCourseMetrics)
+class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'dateStart',
         'dateEnd',
-        'trainingEvent__name',
-        'trainingEvent__shortName',
-        'trainingEvent__description',
+        'event__name',
+        'event__shortName',
+        'event__description',
     )
-    autocomplete_fields = ('trainingEvent',)
+    autocomplete_fields = ('event',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['event'].queryset = Event.objects.filter(type=Event.EventType.TRAINING_COURSE)
+        return form
 
 
 @admin.register(models.EventSponsor)
@@ -657,14 +730,14 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'description',
         'teams__name',
         'computingFacilities__name',
-        'trainingEvents__name',
+        'trainings__name',
         'trainingMaterials__name',
         'publications__doi',
     )
 
     autocomplete_fields = (
         'computingFacilities',
-        'trainingEvents',
+        'trainings',
         'trainingMaterials',
         'teams',
     )

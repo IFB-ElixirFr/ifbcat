@@ -1,5 +1,6 @@
 import csv
 import datetime
+import itertools
 import logging
 import os
 
@@ -8,13 +9,13 @@ import pytz
 from django.core.management import BaseCommand
 from django.utils.timezone import make_aware
 
-from ifbcat_api.model.event import EventDate
+from ifbcat_api.model.event import EventDate, EventSponsor
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
 from ifbcat_api.models import EventCost
 from ifbcat_api.models import EventPrerequisite
 from ifbcat_api.models import Keyword
-from ifbcat_api.models import TrainingEvent
+from ifbcat_api import models
 
 logger = logging.getLogger(__name__)
 
@@ -39,10 +40,17 @@ class Command(BaseCommand):
             type=str,
             help="Path to the CSV file containing mapping for teams between Drupal names and Ifbcat ones.",
         )
+        parser.add_argument(
+            "--mapping-costs",
+            default="import_data/manual_curation/mapping_costs.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for cost terms.",
+        )
 
     def handle(self, *args, **options):
         mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
+        mapping_costs = dict(k.strip().split(',') for k in open(options["mapping_costs"]))
         EventDate.remove_duplicates()
 
         with open(os.path.join(options["training"]), encoding='utf-8') as data_file:
@@ -54,9 +62,13 @@ class Command(BaseCommand):
                 if data_object == []:
                     continue  # Check for empty lines
                 training_name = data_object[0]
+                training_logo = data_object[1]
                 training_type = data_object[2]
                 training_description = data_object[4]
-                training_keywords = data_object[5].split("\n")
+                training_keywords = itertools.chain(
+                    data_object[5].split("\n"),
+                    data_object[24].split(","),
+                )
                 training_keywords_list = []
                 training_keyword = ""
                 for keyword in training_keywords:
@@ -136,14 +148,10 @@ class Command(BaseCommand):
                 training = ""
 
                 try:
-                    training, created = TrainingEvent.objects.get_or_create(
+                    training, created = models.Training.objects.get_or_create(
                         name=training_name,
-                        type="Training course",
                         # training_type=training_type,
                         description=training_description,
-                        # start_date=training_start_date,
-                        # end_date=training_end_date,
-                        city=training_location,
                         accessibilityNote=training_access_condition,
                         homepage=training_link,
                         # organizer=training_organizer,
@@ -159,6 +167,7 @@ class Command(BaseCommand):
                         # recurrence=training_recurrence,
                         # satisfaction_rate=training_satisfaction_rate,
                         # platform = training_platform,
+                        logo_url=training_logo,
                     )
 
                     for organizer in training_organizer.split(','):
@@ -187,27 +196,47 @@ class Command(BaseCommand):
                         else:
                             logger.warning(f'{organizer} is not an organisation in the DB.')
 
+                    if "DU-BII" in training_name.upper():
+                        training.organisedByOrganisations.add(
+                            Organisation.objects.filter(name__icontains='Diderot').first()
+                        )
+                        training.organisedByOrganisations.add(Organisation.objects.get(name='IFB'))
+                    if "AVIESAN" in training_name.upper():
+                        training.organisedByOrganisations.add(Organisation.objects.get(name='AVIESAN'))
+                    if "IFB" in training_name.upper():
+                        training.organisedByOrganisations.add(Organisation.objects.get(name='IFB'))
+
+                    for sponsor in training_sponsors.split(','):
+                        sponsor = sponsor.strip()
+                        if sponsor == '':
+                            continue
+                        event_sponsor, created = EventSponsor.objects.get_or_create(name=sponsor)
+                        training.sponsoredBy.add(event_sponsor)
+
                     for keyword in training_keywords_list:
                         training.keywords.add(keyword)
 
-                    event_cost, created = EventCost.objects.get_or_create(cost=training_participation)
-                    training.costs.add(event_cost)
+                    if training_participation:
+                        training_participation = mapping_costs.get(training_participation, training_participation)
+                        event_cost, created = EventCost.objects.get_or_create(cost=training_participation)
+                        training.costs.add(event_cost)
 
-                    if training_start_date:
-                        d, created = EventDate.objects.get_or_create(
-                            dateStart=training_start_date, dateEnd=training_end_date
-                        )
-                        training.dates.add(d)
+                    training.save()
+
+                    training_course = training.create_new_event(training_start_date, training_end_date)
+                    training_course.name = training.name
+
+                    training_course.city = training_location
 
                     if training_training_level:
                         prerequisite, created = EventPrerequisite.objects.get_or_create(
                             prerequisite=training_training_level
                         )
-                        training.prerequisites.add(prerequisite)
+                        training_course.prerequisites.add(prerequisite)
 
                     # if created:
                     # training.full_clean()
-                    training.save()
+                    training_course.save()
 
                     logger.debug(f'Training "{training}" has been saved.')
                 except Exception as ex:

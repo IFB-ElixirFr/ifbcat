@@ -105,8 +105,8 @@ def init_business_logic():
         models.AudienceRole,
         models.AudienceType,
         models.Trainer,
-        models.TrainingEventMetrics,
-        models.TrainingEvent,
+        models.TrainingCourseMetrics,
+        models.Training,
         models.TrainingMaterial,
     ]
     needed_by_all = [

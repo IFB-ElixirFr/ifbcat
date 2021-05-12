@@ -269,17 +269,12 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Event
 
-        fields = (
+        fields_from_abstract_event = (
             'id',
             'name',
             'shortName',
             'description',
             'homepage',
-            'type',
-            'dates',
-            'venue',
-            'city',
-            'country',
             'onlineOnly',
             'costs',
             'topics',
@@ -291,13 +286,22 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'contactName',
             'contactEmail',
             'contactId',
-            'market',
             'elixirPlatforms',
             'communities',
             'sponsoredBy',
             'organisedByOrganisations',
             'organisedByTeams',
             'logo_url',
+        )
+        fields = fields_from_abstract_event + (
+            'type',
+            'dates',
+            'venue',
+            'city',
+            'country',
+            'geographical_range',
+            'trainers',
+            'computingFacilities',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -346,9 +350,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Model serializer for training events
-class TrainingEventSerializer(EventSerializer):
-    """Serializes a training event (TrainingEvent object)."""
-
+class TrainingSerializer(EventSerializer):
     audienceTypes = VerboseSlugRelatedField(
         many=True,
         read_only=False,
@@ -365,9 +367,9 @@ class TrainingEventSerializer(EventSerializer):
     )
 
     class Meta(EventSerializer.Meta):
-        model = models.TrainingEvent
+        model = models.Training
 
-        fields = EventSerializer.Meta.fields + (
+        fields = EventSerializer.Meta.fields_from_abstract_event + (
             'audienceTypes',
             'audienceRoles',
             'difficultyLevel',
@@ -376,9 +378,7 @@ class TrainingEventSerializer(EventSerializer):
             'hoursPresentations',
             'hoursHandsOn',
             'hoursTotal',
-            'trainers',
             'personalised',
-            'computingFacilities',
             # 'databases',
             # 'tools',
         )
@@ -410,11 +410,9 @@ class TrainerSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Model serializer for training event metrics
-class TrainingEventMetricsSerializer(serializers.ModelSerializer):
-    """Serializes training event metrics (TrainingEventMetrics object)."""
-
+class TrainingCourseMetricsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.TrainingEventMetrics
+        model = models.TrainingCourseMetrics
 
         fields = (
             'id',
@@ -816,7 +814,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'dateEstablished',
             'teams',
             'computingFacilities',
-            'trainingEvents',
+            'trainings',
             'trainingMaterials',
             'publications',
             'governanceSab',
@@ -826,7 +824,6 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'teams': {'lookup_field': 'name'},
             'computingFacilities': {'lookup_field': 'name'},
-            # 'trainingEvents': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
 

@@ -36,7 +36,11 @@ pip install -r requirements.txt
 ```
 # Copy (and optionally tweak) ini 
 cp resources/default.ini local.ini
-docker-compose run db
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml run db
+```
+Note that a volume is created. To remove it run:
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
 ```
 
 3. Retrieve import data (ask access to private repository if needed):
@@ -94,6 +98,16 @@ The webserver is running at http://0.0.0.0:8080 (the instance on 8000 does not h
 docker-compose exec web python manage.py migrate
 docker-compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py load_catalog
+```
+
+4. Do some cleanup
+To remove db volumes run:
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
+```
+To remove build and pulled images:
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --rmi all
 ```
 
 # How to manage the server

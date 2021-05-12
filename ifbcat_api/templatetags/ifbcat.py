@@ -36,10 +36,22 @@ def get_editable_instance(context: Context) -> List[Dict]:
                 model['instances'] = Group.objects.all()
                 model['my'] = False
                 editable.append(model)
+        elif model['object_name'] == 'Training':
+            if model['perms']['change']:
+                model['instances'] = models.Training.objects.filter(
+                    Q(contactId=user)
+                    | Q(elixirPlatforms__coordinator=user)
+                    | Q(elixirPlatforms__deputies=user)
+                    | Q(organisedByTeams__leader=user)
+                    | Q(organisedByTeams__deputies=user)
+                    | Q(organisedByTeams__maintainers=user)
+                )
+                editable.append(model)
         elif model['object_name'] == 'Event':
             if model['perms']['change']:
                 model['instances'] = models.Event.objects.filter(
                     Q(contactId=user)
+                    | Q(trainers__trainerId=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
                     | Q(organisedByTeams__leader=user)
