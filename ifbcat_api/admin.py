@@ -352,6 +352,8 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
     def create_new_course_and_get_admin_url(self, request, training):
         course = training.create_new_event(None, None)
+        course.contactName = f'{request.user.firstname} {request.user.lastname}'
+        course.contactEmail = request.user.email
         course.contactId = request.user
         course.save()
         opts = course._meta.model._meta
