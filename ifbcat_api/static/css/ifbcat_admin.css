@@ -189,4 +189,11 @@
     position: absolute;
     left: calc( 100% - 20px );
 }
+.form-group.errors *,
+.form-group.errors  .select2-selection{
+    border-color: red;
+}
+.form-group.errors label {
+    color: #a00;
+}
 /**/
