@@ -124,6 +124,7 @@ class Training(AbstractEvent):
             name=f'New course of {self.name}',
             shortName=f'New course of {self.shortName}',
             type=Event.EventType.TRAINING_COURSE,
+            training=self,
         )
         for field in [
             'description',
