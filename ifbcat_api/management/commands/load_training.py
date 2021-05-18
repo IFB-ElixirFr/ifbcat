@@ -168,6 +168,7 @@ class Command(BaseCommand):
                         # satisfaction_rate=training_satisfaction_rate,
                         # platform = training_platform,
                         logo_url=training_logo,
+                        tess_publishing=False,
                     )
 
                     for organizer in training_organizer.split(','):

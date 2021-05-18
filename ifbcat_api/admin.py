@@ -240,7 +240,11 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
-    list_display = ('short_name_or_name_trim', 'date_range')
+    list_display = (
+        'short_name_or_name_trim',
+        'date_range',
+        'is_tess_publishing',
+    )
     list_filter = (
         'type',
         'costs',
@@ -250,6 +254,7 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'communities',
         'organisedByTeams',
         'organisedByOrganisations',
+        'tess_publishing',
     )
     #
     filter_horizontal = ('dates',)
@@ -266,16 +271,12 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     date_hierarchy = 'dates__dateStart'
 
     def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .annotate(
-                short_name_or_name=Case(
-                    When(shortName='', then=F('name')),
-                    When(shortName__isnull=True, then=F('name')),
-                    default='shortName',
-                    output_field=CharField(),
-                )
+        return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
+            short_name_or_name=Case(
+                When(shortName='', then=F('name')),
+                When(shortName__isnull=True, then=F('name')),
+                default='shortName',
+                output_field=CharField(),
             )
         )
 
@@ -286,6 +287,19 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
     short_name_or_name_trim.short_description = "Name"
     short_name_or_name_trim.admin_order_field = 'short_name_or_name'
+
+    def is_tess_publishing(self, obj):
+        s = ''
+        if obj.tess_publishing == 2:
+            s += '<i class="fa fa-magic text-muted" title="Automatically computed"></i> '
+        if obj.is_tess_publishing:
+            s += '<i class="fa fa-check text-success" title="Is published"></i>'
+        else:
+            s += '<i class="fa fa-times" title="Is NOT published"></i>'
+        return format_html('<center>' + s + '</center>')
+
+    is_tess_publishing.short_description = format_html("<center>TESS sync</center>")
+    is_tess_publishing.admin_order_field = 'short_name_or_name'
 
     def date_range(self, obj):
         start, end = (
@@ -340,6 +354,7 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'organisedByOrganisations',
         'sponsoredBy',
         'costs',
+        'tess_publishing',
         # 'databases',
         # 'tools',
     )

@@ -4,7 +4,7 @@ import functools
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Count, ManyToManyRel, ManyToOneRel
+from django.db.models import Count, ManyToManyRel, ManyToOneRel, Case, When, Value, BooleanField, Q
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -294,6 +294,24 @@ class Event(AbstractEvent):
         blank=True,
         help_text="Computing facilities that are used in the event.",
     )
+    tess_publishing = models.IntegerField(
+        default=2,
+        choices=((0, "No"), (1, "Yes"), (2, "Auto")),
+        help_text="Publish it in tess? Auto use training status, or Yes otherwise",
+    )
+
+    @classmethod
+    def annotate_is_tess_publishing(cls, qs=None):
+        if qs is None:
+            qs = cls.objects
+        return qs.annotate(
+            is_tess_publishing=Case(
+                When(tess_publishing=1, then=True),
+                When(Q(tess_publishing=2) & Q(training__isnull=False) & Q(training__tess_publishing=True), then=True),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
 
     def clean(self):
         super().clean()

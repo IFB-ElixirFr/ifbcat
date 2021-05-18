@@ -107,6 +107,10 @@ class Training(AbstractEvent):
         blank=True,
         help_text="Trainings (ideally) already followed by the audience, or at least possess the expected outcomes.",
     )
+    tess_publishing = models.BooleanField(
+        default=True,
+        help_text="Publish it in tess? Does associated events should also be published (unless explicitly indicated)?",
+    )
 
     @classmethod
     def get_edition_permission_classes(cls):
