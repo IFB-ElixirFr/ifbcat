@@ -297,7 +297,7 @@ class Event(AbstractEvent):
     tess_publishing = models.IntegerField(
         default=2,
         choices=((0, "No"), (1, "Yes"), (2, "Auto")),
-        help_text="Publish it in tess? Auto use training status, or Yes otherwise",
+        help_text="Publish it in tess? Auto use training status for training courses, or Yes otherwise for",
     )
 
     @classmethod
@@ -307,7 +307,11 @@ class Event(AbstractEvent):
         return qs.annotate(
             is_tess_publishing=Case(
                 When(tess_publishing=1, then=True),
-                When(Q(tess_publishing=2) & Q(training__isnull=False) & Q(training__tess_publishing=True), then=True),
+                When(
+                    Q(tess_publishing=2)
+                    & (~Q(type=Event.EventType.TRAINING_COURSE) | Q(training__tess_publishing=True)),
+                    then=True,
+                ),
                 default=Value(False),
                 output_field=BooleanField(),
             )
