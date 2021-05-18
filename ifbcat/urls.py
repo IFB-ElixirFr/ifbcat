@@ -26,6 +26,7 @@ urlpatterns = [
     path('', include('ifbcat_vanilla_front.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('ifbcat_api.urls')),
+    path('api/tess/', include('ifbcat_api.tess_urls')),
     path('', RedirectView.as_view(url='/team/', permanent=False)),
     path(
         'swagger-ui/',

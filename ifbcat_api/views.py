@@ -331,7 +331,12 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
-# Model ViewSet for training events
+# Model ViewSet for training events that should be published in TES
+class TessEventViewSet(EventViewSet):
+    queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
+
+
+# Model ViewSet for training
 class TrainingViewSet(EventViewSet):
     """Handles creating, reading and updating training events."""
 
@@ -345,6 +350,11 @@ class TrainingViewSet(EventViewSet):
         'learningOutcomes',
     )
     filterset_class = TrainingFilter
+
+
+# Model ViewSet for training that should be published in TES
+class TessTrainingViewSet(TrainingViewSet):
+    queryset = models.Training.objects.filter(tess_publishing=True)
 
 
 # Model ViewSet for keywords
