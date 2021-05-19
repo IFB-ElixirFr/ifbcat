@@ -6,7 +6,7 @@ ifbcat is the database hosting and serving the [IFB Catalogue](https://catalogue
 
 ## How code is formatted
 
-Code is formatted using https://github.com/psf/black. Please use pre-commit along with black to commit only well formatted code:
+Code is formatted using https://github.com/psf/black (version 20.8b1). Please use pre-commit along with black to commit only well formatted code:
 ```
 #install dependencies
 pip install -r requirements-dev.txt
