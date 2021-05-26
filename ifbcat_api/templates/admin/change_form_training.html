@@ -8,11 +8,13 @@
             Training courses
         </h3>
     </div>
+    {% if original.pk %}
     <div class="card-body">
         <div class="form-group">
             <a role="button" href="{% url 'new_training_course' original.pk %}" class="btn btn-outline-primary form-control">Create a new session</a>
         </div>
     </div>
+    {% endif %}
 </div>
 {{ block.super }}
 {% endblock %}
