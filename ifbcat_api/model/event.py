@@ -39,7 +39,7 @@ class EventPrerequisite(models.Model):
             permissions.ReadOnly
             | permissions.UserCanAddNew
             | permissions.UserCanEditAndDeleteIfNotUsed
-            | permissions.ReadWriteBySuperuser,
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -66,7 +66,7 @@ class EventCost(models.Model):
             permissions.ReadOnly
             | permissions.UserCanAddNew
             | permissions.UserCanEditAndDeleteIfNotUsed
-            | permissions.ReadWriteBySuperuser,
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -98,7 +98,7 @@ class EventSponsor(models.Model):
             permissions.ReadOnly
             | permissions.UserCanAddNew
             | permissions.UserCanEditAndDeleteIfNotUsed
-            | permissions.ReadWriteBySuperuser,
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )
 
