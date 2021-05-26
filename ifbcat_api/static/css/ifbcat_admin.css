@@ -169,6 +169,15 @@
 .theme-default .sidebar-light-primary+.content-wrapper .bg-success {
     background-color: #61963f !important;
 }
+.theme-default .sidebar-light-primary+.content-wrapper .btn-outline-success {
+    color: #61963f;
+    border-color: #61963f;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .btn-outline-success:hover {
+    color: #fff;
+    background-color: #61963f;
+    border-color: #61963f;
+}
 .theme-default .sidebar-light-primary+.content-wrapper .btn-outline-info {
     color: #278bc7;
     border-color: #278bc7;
