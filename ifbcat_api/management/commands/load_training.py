@@ -8,6 +8,7 @@ import pandas as pd
 import pytz
 from django.core.management import BaseCommand
 from django.utils.timezone import make_aware
+from tqdm import tqdm
 
 from ifbcat_api.model.event import EventDate, EventSponsor
 from ifbcat_api.model.organisation import Organisation
@@ -58,7 +59,7 @@ class Command(BaseCommand):
             # skip first line as there is always a header
             next(data)
             # do the work
-            for data_object in data:
+            for data_object in tqdm(data):
                 if data_object == []:
                     continue  # Check for empty lines
                 training_name = data_object[0]
