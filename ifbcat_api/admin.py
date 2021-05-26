@@ -378,6 +378,8 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     change_form_template = 'admin/change_form_training.html'
 
     def logo(self, obj):
+        if not obj.logo_url:
+            return ''
         return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
 
     def home(self, obj):
