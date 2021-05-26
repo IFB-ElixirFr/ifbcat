@@ -12,7 +12,7 @@ import json
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.cache import cache
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -810,6 +810,8 @@ class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 def new_training_course(request, training_pk):
     training = get_object_or_404(models.Training, pk=training_pk)
     if not business_logic.has_view_permission(models.Training, request=request, obj=training):
-        raise Http404('No Training matches the given query.')
+        return HttpResponseForbidden('You cannot see this training.')
+    if not business_logic.has_add_permission(models.Event, request=request):
+        return HttpResponseForbidden('You cannot create new Event.')
     course, redirect_url = TrainingAdmin.create_new_course_and_get_admin_url(request=request, training=training)
     return HttpResponseRedirect(redirect_url)
