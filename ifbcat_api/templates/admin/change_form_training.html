@@ -1,6 +1,7 @@
 {% extends 'admin/change_form.html' %}
 
 {% block object-tools %}
+{% if original.pk %}
 <div class="card card-primary card-outline">
     <div class="card-header">
         <h3 class="card-title">
@@ -8,13 +9,12 @@
             Training courses
         </h3>
     </div>
-    {% if original.pk %}
     <div class="card-body">
         <div class="form-group">
             <a role="button" href="{% url 'new_training_course' original.pk %}" class="btn btn-outline-primary form-control">Create a new session</a>
         </div>
     </div>
-    {% endif %}
 </div>
+{% endif %}
 {{ block.super }}
 {% endblock %}
