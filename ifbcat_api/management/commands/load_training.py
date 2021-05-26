@@ -222,22 +222,20 @@ class Command(BaseCommand):
                         event_cost, created = EventCost.objects.get_or_create(cost=training_participation)
                         training.costs.add(event_cost)
 
-                    training.save()
-
-                    training_course = training.create_new_event(training_start_date, training_end_date)
-                    training_course.name = training.name
-
-                    training_course.city = training_location
-
                     if training_training_level:
                         prerequisite, created = EventPrerequisite.objects.get_or_create(
                             prerequisite=training_training_level
                         )
-                        training_course.prerequisites.add(prerequisite)
+                        training.prerequisites.add(prerequisite)
 
-                    # if created:
-                    # training.full_clean()
-                    training_course.save()
+                    training.save()
+
+                    if training_start_date:
+                        training_course = training.create_new_event(training_start_date, training_end_date)
+                        training_course.name = training.name
+                        training_course.city = training_location
+                        training_course.save()
+                        logger.debug(f'Training course "{training}" has been saved.')
 
                     logger.debug(f'Training "{training}" has been saved.')
                 except Exception as ex:
