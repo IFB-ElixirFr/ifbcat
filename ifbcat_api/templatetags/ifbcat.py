@@ -39,7 +39,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
         elif model['object_name'] == 'Training':
             if model['perms']['change']:
                 model['action_url'] = 'new_training_course'
-                model['action_text'] = "Create a new session"
+                model['action_text'] = "Add a new session"
                 model['instances'] = models.Training.objects.filter(
                     Q(contactId=user)
                     | Q(elixirPlatforms__coordinator=user)
