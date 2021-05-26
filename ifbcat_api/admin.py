@@ -28,19 +28,6 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
     class Meta:
         abstract = True
 
-    def has_permission_for_methods(self, *, request, methods: list, obj=None):
-        # similar to rest_framework/views.py:APIView.check_permissions#L326
-        for perm in business_logic.get_permission_classes(self.model):
-            for method in methods:
-                with simple_override_method(request=request, method=method) as request:
-                    if obj is None:
-                        if not perm().has_permission(request=request, view=None):
-                            return False
-                    else:
-                        if not perm().has_object_permission(request=request, view=None, obj=obj):
-                            return False
-        return True
-
     def has_view_permission(self, request, obj=None):
         from_super = super().has_view_permission(request=request, obj=obj)
         if not from_super:
@@ -48,14 +35,14 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         if obj is None:
             return from_super
 
-        return self.has_permission_for_methods(request=request, obj=obj, methods=["GET"])
+        return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
 
     def has_add_permission(self, request):
         from_super = super().has_add_permission(request=request)
         if not from_super:
             return False
 
-        return self.has_permission_for_methods(request=request, methods=["PUT"])
+        return business_logic.has_add_permission(model=self.model, request=request)
 
     def has_change_permission(self, request, obj=None):
         from_super = super().has_change_permission(request=request, obj=obj)
@@ -64,7 +51,7 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         if obj is None:
             return from_super
 
-        return self.has_permission_for_methods(request=request, obj=obj, methods=["POST", "PUT"])
+        return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
 
     def has_delete_permission(self, request, obj=None):
         from_super = super().has_delete_permission(request=request, obj=obj)
@@ -72,7 +59,7 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
             return False
         if obj is None:
             return from_super
-        return self.has_permission_for_methods(request=request, obj=obj, methods=["DELETE"])
+        return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
 
 
 class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):

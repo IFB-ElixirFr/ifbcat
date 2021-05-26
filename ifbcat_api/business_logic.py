@@ -220,6 +220,41 @@ def get_permission_classes(model):
 
 
 ###############################################################################
+# Using permission
+###############################################################################
+
+
+def __has_permission_for_methods(*, model, request, methods: list, obj=None):
+    # similar to rest_framework/views.py:APIView.check_permissions#L326
+    for perm in get_permission_classes(model):
+        for method in methods:
+            with permissions.simple_override_method(request=request, method=method) as request:
+                if obj is None:
+                    if not perm().has_permission(request=request, view=None):
+                        return False
+                else:
+                    if not perm().has_object_permission(request=request, view=None, obj=obj):
+                        return False
+    return True
+
+
+def has_view_permission(model, request, obj=None):
+    return __has_permission_for_methods(model=model, request=request, obj=obj, methods=["GET"])
+
+
+def has_add_permission(model, request):
+    return __has_permission_for_methods(model=model, request=request, methods=["PUT"])
+
+
+def has_change_permission(model, request, obj=None):
+    return __has_permission_for_methods(model=model, request=request, obj=obj, methods=["POST", "PUT"])
+
+
+def has_delete_permission(model, request, obj=None):
+    return __has_permission_for_methods(model=model, request=request, obj=obj, methods=["DELETE"])
+
+
+###############################################################################
 # Permission classes
 ###############################################################################
 def get_not_to_be_deleted_group_names():
