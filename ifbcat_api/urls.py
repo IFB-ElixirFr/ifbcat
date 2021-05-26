@@ -54,4 +54,9 @@ urlpatterns = [
     path('tool/<biotoolsID>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
     path('login/', views.UserLoginApiView.as_view()),
     path('', include(router.urls)),
+    path(
+        'training/<int:training_pk>/new-course/',
+        views.new_training_course,
+        name='new_training_course',
+    ),
 ]

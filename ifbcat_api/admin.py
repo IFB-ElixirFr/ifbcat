@@ -352,7 +352,8 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
     actions = ["create_new_course"]
 
-    def create_new_course_and_get_admin_url(self, request, training):
+    @staticmethod
+    def create_new_course_and_get_admin_url(request, training):
         course = training.create_new_event(None, None)
         course.contactName = f'{request.user.firstname} {request.user.lastname}'
         course.contactEmail = request.user.email
@@ -362,7 +363,6 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         redirect_url = reverse(
             'admin:%s_%s_change' % (opts.app_label, opts.model_name),
             args=(course.pk,),
-            current_app=self.admin_site.name,
         )
         return course, redirect_url
 
@@ -376,13 +376,6 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         )
 
     change_form_template = 'admin/change_form_training.html'
-
-    def response_change(self, request, obj):
-        if "_new_course" in request.POST:
-            course, redirect_url = self.create_new_course_and_get_admin_url(request=request, training=obj)
-            return HttpResponseRedirect(redirect_url)
-        else:
-            return super().response_change(request, obj)
 
     def logo(self, obj):
         return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')

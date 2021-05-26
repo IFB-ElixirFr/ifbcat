@@ -10,7 +10,9 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.cache import cache
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -26,6 +28,7 @@ from rest_framework.views import APIView
 
 from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
+from ifbcat_api.admin import TrainingAdmin
 from ifbcat_api.filters import AutoSubsetFilterSet
 
 
@@ -801,3 +804,12 @@ class AudienceTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.AudienceRole.objects.all()
     serializer_class = serializers.modelserializer_factory(models.AudienceRole, fields=['id', 'audienceRole'])
+
+
+@staff_member_required
+def new_training_course(request, training_pk):
+    training = get_object_or_404(models.Training, pk=training_pk)
+    if not business_logic.has_view_permission(models.Training, request=request, obj=training):
+        raise Http404('No Training matches the given query.')
+    course, redirect_url = TrainingAdmin.create_new_course_and_get_admin_url(request=request, training=training)
+    return HttpResponseRedirect(redirect_url)

@@ -10,7 +10,7 @@
     </div>
     <div class="card-body">
         <div class="form-group">
-            <input type="submit" value="Create a new session" class="btn btn-outline-primary form-control" name="_new_course">
+            <a role="button" href="{% url 'new_training_course' original.pk %}" class="btn btn-outline-primary form-control">Create a new session</a>
         </div>
     </div>
 </div>
