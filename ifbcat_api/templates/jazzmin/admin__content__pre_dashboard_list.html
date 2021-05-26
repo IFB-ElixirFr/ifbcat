@@ -26,7 +26,12 @@
         <div class="card-body">
             <ul>
             {% for instance in model.instances %}
-                <li><a href="{{model.admin_url}}{{instance.pk}}">{{instance}}</a></li>
+                <li>
+                    <a href="{{model.admin_url}}{{instance.pk}}">{{instance}}</a>
+                    {% if model.action_url %}
+                    <a role="button" href="{% url model.action_url instance.pk %}" class="btn btn-xs btn-outline-primary float-right">{{model.action_text}}</a>
+                    {% endif %}
+                </li>
             {%endfor%}
             </ul>
         </div>
