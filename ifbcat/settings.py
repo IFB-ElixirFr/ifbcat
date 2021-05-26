@@ -257,6 +257,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
         {"model": "ifbcat_api.UserProfile"},
         {"model": "ifbcat_api.Event"},
+        {"model": "ifbcat_api.Training"},
         {"model": "ifbcat_api.Team"},
         {"app": "ifbcat_api"},
     ],
