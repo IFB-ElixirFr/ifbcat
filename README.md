@@ -140,13 +140,13 @@ sudo docker-compose exec web python manage.py createsuperuser
 ## Do some import
 ```
 cd /var/ifbcat-src
-sudo docker-compose run -f docker-compose.yaml -f docker-compose.import.yaml web python manage.py load_users
-sudo docker-compose run -f docker-compose.yaml -f docker-compose.import.yaml web python manage.py load_biotools
+sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_users
+sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_biotools
 ```
 
 Or all imports :
 ```
-sudo docker-compose run -f docker-compose.yaml -f docker-compose.import.yaml web python manage.py load_catalog
+sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_catalog
 ```
 
 # How to generate graph models
