@@ -1,0 +1,14 @@
+{% load i18n static ifbcat %}
+{% get_editable_instance as editable_list %}
+<div class="row">
+{% for model in  editable_list%}
+    {% include "jazzmin/admin__content__pre_dashboard_card.html"%}
+{%endfor%}
+</div>
+<hr/>
+{% get_general_instance as general_list %}
+<div class="row">
+{% for model in  general_list%}
+    {% include "jazzmin/admin__content__pre_dashboard_card.html"%}
+{%endfor%}
+</div>
