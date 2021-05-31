@@ -27,6 +27,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
         if model['object_name'] == 'Team':
             if model['perms']['change']:
                 model['instances'] = models.Team.objects.filter(Q(leader=user) | Q(maintainers=user) | Q(deputies=user))
+                model['order'] = 3
                 editable.append(model)
         # elif model['object_name'] == 'Organisation':
         #     if model['perms']['change']:
@@ -36,6 +37,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
             if model['perms']['change']:
                 model['instances'] = Group.objects.all()
                 model['my'] = False
+                model['order'] = 4
                 editable.append(model)
         elif model['object_name'] == 'Training':
             if model['perms']['change']:
@@ -49,6 +51,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
                     | Q(organisedByTeams__deputies=user)
                     | Q(organisedByTeams__maintainers=user)
                 )
+                model['order'] = 2
                 editable.append(model)
         elif model['object_name'] == 'Event':
             if model['perms']['change']:
@@ -60,8 +63,10 @@ def get_editable_instance(context: Context) -> List[Dict]:
                     | Q(organisedByTeams__leader=user)
                     | Q(organisedByTeams__deputies=user)
                     | Q(organisedByTeams__maintainers=user)
-                )
+                ).order_by('-dates__dateStart')
+                model['order'] = 1
                 editable.append(model)
+    editable = sorted(editable, key=lambda x: x.get("order", 1))
     return editable
 
 
