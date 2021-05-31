@@ -1,13 +1,11 @@
 {% load i18n static ifbcat %}
-{% get_editable_instance as editable_list %}
-<div class="row">
-{% for model in  editable_list%}
 <div class="col-md-6 col-sm-12">
     <div class="card card-primary card-outline">
         <div class="card-header">
             <span class="h5 m-0">
                 <i class="nav-icon {{model.icon}}"></i>
                 {% if not model.my %}{{model.name}}{%else%}{%blocktrans with name=model.name%}My {{name}}{%endblocktrans%}{%endif%}
+                {% if model.suffix %} : {{model.suffix}}{%endif%}
             </span>
             <div class="btn-group float-right">
                 {% if model.add_url %}
@@ -37,6 +35,4 @@
         </div>
         {% endif %}
     </div>
-</div>
-{%endfor%}
 </div>
