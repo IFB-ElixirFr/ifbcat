@@ -125,12 +125,12 @@ class Training(AbstractEvent):
 
     def create_new_event(self, start_date, end_date):
         event_attrs = dict(
-            name=f'New course of {self.name}',
+            name=f'New session of {self.name}',
             type=Event.EventType.TRAINING_COURSE,
             training=self,
         )
         if self.shortName:
-            event_attrs['shortName'] = f'New course of {self.shortName}'
+            event_attrs['shortName'] = f'New session of {self.shortName}'
         for field in [
             'description',
             'homepage',

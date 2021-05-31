@@ -368,11 +368,11 @@ class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
     def create_new_course(self, request, queryset):
         if queryset.count() != 1:
-            self.message_user(request, "Can only create a new course/event one training at a time", messages.ERROR)
+            self.message_user(request, "Can only create a new session/event one training at a time", messages.ERROR)
             return
         course, url = self.create_new_course_and_get_admin_url(request=request, training=queryset.first())
         self.message_user(
-            request, mark_safe(f'New course created, go to <a href="{url}">{url}</a> to complete it'), messages.SUCCESS
+            request, mark_safe(f'New session created, go to <a href="{url}">{url}</a> to complete it'), messages.SUCCESS
         )
 
     change_form_template = 'admin/change_form_training.html'

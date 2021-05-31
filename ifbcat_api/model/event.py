@@ -245,7 +245,7 @@ class Event(AbstractEvent):
         """Controlled vocabulary of types of events."""
 
         WORKSHOP = 'Workshop', _('Workshop')
-        TRAINING_COURSE = 'Training course', _('Training course')
+        TRAINING_COURSE = 'Training course', _('Training session')
         MEETING = 'Meeting', _('Meeting')
         CONFERENCE = 'Conference', _('Conference')
 
@@ -257,7 +257,7 @@ class Event(AbstractEvent):
         max_length=255,
         blank=True,
         choices=EventType.choices,
-        help_text="The type of event e.g. 'Training course'.",
+        help_text="The type of event e.g. 'Training session'.",
     )
     venue = models.TextField(
         blank=True,
@@ -288,7 +288,7 @@ class Event(AbstractEvent):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        help_text="The training proposed, must be null if type is 'Training course', null otherwise.",
+        help_text="The training proposed, must be null if type is 'Training session', null otherwise.",
     )
     trainers = models.ManyToManyField(
         to="Trainer",
@@ -303,7 +303,7 @@ class Event(AbstractEvent):
     tess_publishing = models.IntegerField(
         default=2,
         choices=((0, "No"), (1, "Yes"), (2, "Auto")),
-        help_text="Publish it in tess? Auto use training status for training courses, or Yes otherwise for",
+        help_text="Publish it in tess? Auto use training status for training sessions, or Yes otherwise for",
     )
 
     @classmethod
@@ -327,7 +327,7 @@ class Event(AbstractEvent):
         super().clean()
         errors = {}
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
-            errors.setdefault('training', []).append("training must be provided when creating a Training course")
+            errors.setdefault('training', []).append("training must be provided when creating a Training session")
         if len(errors) > 0:
             raise ValidationError(errors)
 
