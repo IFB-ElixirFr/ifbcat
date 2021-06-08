@@ -54,6 +54,10 @@ def get_editable_instance(context: Context) -> List[Dict]:
                 editable.append(model)
         elif model['object_name'] == 'Event':
             if model['perms']['change']:
+                model['actions'] = [
+                    dict(url='add_metrics', text='Add'),
+                    dict(url='manage_metrics', text='Manage metrics'),
+                ]
                 model['instances'] = models.Event.objects.filter(
                     Q(contactId=user)
                     | Q(trainers__trainerId=user)

@@ -453,6 +453,7 @@ class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmi
         'event__description',
     )
     autocomplete_fields = ('event',)
+    list_filter = ('event',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

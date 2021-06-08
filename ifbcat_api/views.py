@@ -14,6 +14,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.cache import cache
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
@@ -815,3 +817,30 @@ def new_training_course(request, training_pk):
         return HttpResponseForbidden('You cannot create new Event.')
     course, redirect_url = TrainingAdmin.create_new_course_and_get_admin_url(request=request, training=training)
     return HttpResponseRedirect(redirect_url)
+
+
+@staff_member_required
+def manage_metrics(request, event_pk):
+    return HttpResponseRedirect(
+        '%s?event__id__exact=%i'
+        % (
+            reverse('admin:ifbcat_api_trainingcoursemetrics_changelist'),
+            event_pk,
+        )
+    )
+
+
+@staff_member_required
+def add_metrics(request, event_pk):
+    t = models.TrainingCourseMetrics.objects.create(
+        event=get_object_or_404(models.Event, pk=event_pk),
+        dateStart=timezone.now().date(),
+        dateEnd=timezone.now().date(),
+    )
+    return HttpResponseRedirect(
+        '%s?_changelist_filters=event__id__exact:%i'
+        % (
+            reverse('admin:ifbcat_api_trainingcoursemetrics_change', args=[t.id]),
+            event_pk,
+        )
+    )

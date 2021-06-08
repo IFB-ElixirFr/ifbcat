@@ -59,4 +59,14 @@ urlpatterns = [
         views.new_training_course,
         name='new_training_course',
     ),
+    path(
+        'event/<int:event_pk>/metrics/',
+        views.manage_metrics,
+        name='manage_metrics',
+    ),
+    path(
+        'event/<int:event_pk>/new-metrics/',
+        views.add_metrics,
+        name='add_metrics',
+    ),
 ]
