@@ -156,6 +156,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Configure Django to use our custom user model for authentication and user registration
 AUTH_USER_MODEL = 'ifbcat_api.UserProfile'
 
+# Configure AutoField, cf models.W042
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 REST_FRAMEWORK = {
     # authentication_classes sets how user is authenticated.
     # Token authentication works by generating a random token when the user logs in,
