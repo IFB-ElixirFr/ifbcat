@@ -41,8 +41,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
                 editable.append(model)
         elif model['object_name'] == 'Training':
             if model['perms']['change']:
-                model['action_url'] = 'new_training_course'
-                model['action_text'] = "Add a new session"
+                model['actions'] = [dict(url='new_training_course', text='Add a new session')]
                 model['instances'] = models.Training.objects.filter(
                     Q(contactId=user)
                     | Q(elixirPlatforms__coordinator=user)
@@ -67,6 +66,8 @@ def get_editable_instance(context: Context) -> List[Dict]:
                 model['order'] = 1
                 editable.append(model)
     editable = sorted(editable, key=lambda x: x.get("order", 1))
+    for model in editable:
+        model['instances'] = model['instances'].distinct()
     return editable
 
 
@@ -80,10 +81,14 @@ def get_general_instance(context: Context) -> List[Dict]:
         model['my'] = True
         if model['object_name'] == 'Event':
             if model['perms']['change']:
-                model['instances'] = models.Event.objects.filter(
-                    Q(dates__dateStart__gte=timezone.now())
-                    | Q(dates__dateEnd__isnull=False) & Q(dates__dateEnd__gte=timezone.now())
-                ).order_by('-dates__dateStart')
+                model['instances'] = (
+                    models.Event.objects.filter(
+                        Q(dates__dateStart__gte=timezone.now())
+                        | Q(dates__dateEnd__isnull=False) & Q(dates__dateEnd__gte=timezone.now())
+                    )
+                    .distinct()
+                    .order_by('-dates__dateStart')
+                )
                 model['order'] = 1
                 model['my'] = False
                 model['suffix'] = "Upcoming"

@@ -26,9 +26,11 @@
             {% for instance in model.instances %}
                 <li>
                     <a href="{{model.admin_url}}{{instance.pk}}">{{instance}}</a>
-                    {% if model.action_url %}
-                    <a role="button" href="{% url model.action_url instance.pk %}" class="btn btn-xs btn-outline-success float-right">{{model.action_text}}</a>
-                    {% endif %}
+                    <div class="btn-group float-right" role="group" aria-label="Basic example">
+                    {% for action in model.actions %}
+                    <a role="button" href="{% url action.url instance.pk %}" class="btn btn-xs btn-outline-success">{{action.text}}</a>
+                    {% endfor %}
+                    </div>
                 </li>
             {%endfor%}
             </ul>
