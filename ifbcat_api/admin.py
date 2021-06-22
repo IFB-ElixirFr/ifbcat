@@ -24,6 +24,23 @@ from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
 
 
+class ModelAdminFillingContactId(admin.ModelAdmin):
+    class Meta:
+        abstract = True
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        if 'contactId' in super().get_fields(request):
+            initial.update(
+                dict(
+                    contactName=str(request.user),
+                    contactEmail=request.user.email,
+                    contactId=request.user,
+                )
+            )
+        return initial
+
+
 class PermissionInClassModelAdmin(admin.ModelAdmin):
     class Meta:
         abstract = True
@@ -204,7 +221,11 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
 # "list_filter" adds fields to Django admin filter box
 # "filter_horizontal" adds widgets for item selection from lists
 @admin.register(models.Event)
-class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class EventAdmin(
+    ModelAdminFillingContactId,
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     """Enables search, filtering and widgets in Django admin interface."""
 
     search_fields = (
@@ -307,7 +328,11 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Training)
-class TrainingAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class TrainingAdmin(
+    ModelAdminFillingContactId,
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     list_display = (
         "name",
         "logo",
