@@ -67,6 +67,8 @@ def get_editable_instance(context: Context) -> List[Dict]:
                 model['order'] = 1
                 editable.append(model)
     editable = sorted(editable, key=lambda x: x.get("order", 1))
+    for model in editable:
+        model['instances'] = model['instances'].distinct()
     return editable
 
 
