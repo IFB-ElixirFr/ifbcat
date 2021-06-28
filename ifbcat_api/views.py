@@ -214,6 +214,10 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handle creating and updating user profiles."""
 
     queryset = models.UserProfile.objects.all()
+    ordering_fields = [
+        'lastname',
+        'firstname',
+    ]
     # filter_backends adds ability to search profiles by name or email (via filtering)
     # search_fields specifies which fields are searchable by this filter.
     search_fields = (

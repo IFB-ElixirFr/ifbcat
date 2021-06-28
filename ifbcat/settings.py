@@ -173,6 +173,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
         'ifbcat_api.filters.DjangoFilterAutoSubsetBackend',
     ),
     'DEFAULT_RENDERER_CLASSES': [
