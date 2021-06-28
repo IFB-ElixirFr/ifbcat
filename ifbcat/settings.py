@@ -60,8 +60,8 @@ INSTALLED_APPS = [
     'ifbcat_vanilla_front',
     'django.contrib.postgres',
 ]
-
-# INSTALLED_APPS.append('django_extensions')
+if DEBUG:
+    INSTALLED_APPS.append('django_extensions')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -17,4 +17,5 @@ django-filter
 django-cors-headers
 requests
 pylev
+django-extensions
 #end of file
