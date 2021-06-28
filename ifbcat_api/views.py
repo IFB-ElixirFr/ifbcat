@@ -349,6 +349,7 @@ class TrainingViewSet(EventViewSet):
     """Handles creating, reading and updating training events."""
 
     serializer_class = serializers.TrainingSerializer
+    ordering = []
     queryset = models.Training.objects.all()
 
     search_fields = EventViewSet.search_fields_from_abstract_event + (
