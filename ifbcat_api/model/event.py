@@ -339,6 +339,11 @@ class Event(AbstractEvent):
 # Event date model
 # Event date has a many:one relationship to Event
 class EventDate(models.Model):
+    class Meta:
+        ordering = [
+            'dateStart',
+        ]
+
     """Event date model: Start and end date and time of an event."""
 
     # dateStart is mandatory (other fields optional)

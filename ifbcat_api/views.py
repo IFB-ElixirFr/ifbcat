@@ -302,6 +302,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
     serializer_class = serializers.EventSerializer
+    ordering = ['-dates']
     queryset = models.Event.objects.all()
     search_fields_from_abstract_event = (
         'name',
