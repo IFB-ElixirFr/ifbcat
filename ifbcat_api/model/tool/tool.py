@@ -10,13 +10,11 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
 
 from ifbcat_api import permissions
-from ifbcat_api.model.misc import Topic, Doi
+from ifbcat_api.model.misc import Topic, Doi, Keyword
 from ifbcat_api.model.tool.collection import Collection
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
 from ifbcat_api.model.tool.toolType import ToolType
-from ifbcat_api.models import Keyword
-from ifbcat_api.models import Team
 
 logger = logging.getLogger(__name__)
 
@@ -83,12 +81,12 @@ class Tool(models.Model):
 
     # many_to_many
     # platform = models.ManyToManyField(Platform, blank=True)
-    team = models.ManyToManyField(
-        Team,
-        blank=True,
-        related_name='ToolsTeams',
-        help_text="Team developping the tool.",
-    )
+    # team = models.ManyToManyField(
+    #     Team,
+    #     blank=True,
+    #     related_name='ToolsTeams',
+    #     help_text="Team developping the tool.",
+    # )
     # language = models.ManyToManyField(Language, blank=True)
 
     # elixir_platform = models.ManyToManyField(ElixirPlatform, blank=True)

@@ -720,6 +720,13 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     fundedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     platforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
 
+    tools = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="biotoolsID",
+        required=False,
+    )
+
     class Meta:
         model = models.Team
         fields = (
@@ -743,6 +750,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'keywords',
             'fields',
             'orgid',
+            'tools',
             # fields below are legacy
             'leader',
             'deputies',
@@ -920,7 +928,7 @@ _tool_fields = (
     # 'increase_last_update',
     # 'access_condition',
     'keywords',
-    'team',
+    'teams',
     # 'language',
     # 'topic',
 )
@@ -971,15 +979,22 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
 
     tool_credit = ToolCreditSerializer(read_only=True, many=True)
 
+    teams = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        required=False,
+    )
+
     class Meta:
         model = models.Tool
         fields = _tool_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
         # depth = 1
 
-        extra_kwargs = {
-            'team': {'lookup_field': 'name'},
-        }
+        # extra_kwargs = {
+        #     'team': {'lookup_field': 'name'},
+        # }
 
 
 def modelserializer_factory(model, serializer=serializers.ModelSerializer, fields=None, exclude=None):

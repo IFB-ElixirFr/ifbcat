@@ -140,7 +140,7 @@ class Command(BaseCommand):
                         team = Team.objects.get(
                             name=tool_platform,
                         )
-                        tool.team.add(team.id)
+                        tool.teams.add(team.id)
 
                     for keyword in tool_keywords_list:
                         tool.keywords.add(keyword)
