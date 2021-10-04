@@ -255,6 +255,8 @@ class UserLoginApiView(ObtainAuthToken):
 class EventFilter(AutoSubsetFilterSet):
     min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
     max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+    registration_status = django_filters.Filter(field_name="registration_status", label="Registration status")
+    realisation_status = django_filters.Filter(field_name="realisation_status", label="Realisation status")
 
     class Meta:
         model = models.Event
