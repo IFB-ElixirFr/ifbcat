@@ -12,7 +12,7 @@ import json
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.cache import cache
-from django.db.models import When, Q, Case, Value, CharField
+from django.db.models import When, Q, Case, Value, CharField, Min, Max
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -324,35 +324,42 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     serializer_class = serializers.EventSerializer
     ordering = ['-dates']
-    queryset = models.Event.objects.annotate(
-        realisation_status=Case(
-            When(Q(dates__dateStart__gt=timezone.now()), then=Value('future')),
-            When(
-                Q(dates__dateStart__lt=timezone.now())
-                & (Q(dates__dateEnd__isnull=True) | Q(dates__dateEnd__lt=timezone.now())),
-                then=Value('past'),
-            ),
-            default=Value('ongoing'),
-            output_field=CharField(),
+    queryset = (
+        models.Event.objects.annotate(
+            dateStartMin=Min('dates__dateStart'),
+            dateEndMin=Max('dates__dateEnd'),
         )
-    ).annotate(
-        registration_status=Case(
-            When(
-                Q(registration_opening__gt=timezone.now()),
-                then=Value('future'),
-            ),
-            When(
-                (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
-                & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
-                & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
-                then=Value('open'),
-            ),
-            When(
-                Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
-                then=Value('unknown'),
-            ),
-            default=Value('closed'),
-            output_field=CharField(),
+        .annotate(
+            realisation_status=Case(
+                When(Q(dateStartMin__gt=timezone.now()), then=Value('future')),
+                When(
+                    Q(dateStartMin__lt=timezone.now())
+                    & (Q(dateEndMin__isnull=True) | Q(dateEndMin__lt=timezone.now())),
+                    then=Value('past'),
+                ),
+                default=Value('ongoing'),
+                output_field=CharField(),
+            )
+        )
+        .annotate(
+            registration_status=Case(
+                When(
+                    Q(registration_opening__gt=timezone.now()),
+                    then=Value('future'),
+                ),
+                When(
+                    (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
+                    & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
+                    & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
+                    then=Value('open'),
+                ),
+                When(
+                    Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
+                    then=Value('unknown'),
+                ),
+                default=Value('closed'),
+                output_field=CharField(),
+            )
         )
     )
     search_fields_from_abstract_event = (
