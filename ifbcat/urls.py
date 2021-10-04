@@ -45,6 +45,10 @@ urlpatterns = [
         auth_views.PasswordResetCompleteView.as_view(),
         name='password_reset_complete',
     ),
+    path(
+        'accounts/profile/',
+        RedirectView.as_view(url='/admin/'),
+    ),
     path('admin/', admin.site.urls),
     path('api/', include('ifbcat_api.urls')),
     path('api/tess/', include('ifbcat_api.tess_urls')),
