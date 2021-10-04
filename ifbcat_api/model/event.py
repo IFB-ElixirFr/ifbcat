@@ -249,6 +249,16 @@ class Event(AbstractEvent):
         MEETING = 'Meeting', _('Meeting')
         CONFERENCE = 'Conference', _('Conference')
 
+    registration_opening = models.DateField(
+        help_text="When does the registration for the event opens.",
+        blank=True,
+        null=True,
+    )
+    registration_closing = models.DateField(
+        help_text="When does the registration for the event closes.",
+        blank=True,
+        null=True,
+    )
     dates = models.ManyToManyField(
         "EventDate",
         help_text="Date(s) and optional time periods on which the event takes place.",

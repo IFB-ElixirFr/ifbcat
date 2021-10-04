@@ -259,6 +259,8 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     organisedByOrganisations = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
+    realisation_status = serializers.CharField()
+    registration_status = serializers.CharField()
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),
@@ -302,6 +304,10 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'geographical_range',
             'trainers',
             'computingFacilities',
+            'realisation_status',
+            'registration_opening',
+            'registration_closing',
+            'registration_status',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
