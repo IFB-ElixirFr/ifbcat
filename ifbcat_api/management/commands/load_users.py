@@ -41,7 +41,7 @@ class Command(BaseCommand):
         df = pd.read_csv(options["by_email"], sep=",")
         for index, row in df.iterrows():
 
-            user, created = UserProfile.objects.get_or_create(email=row['email'])
+            user, created = UserProfile.objects.get_or_create(email=row['email'].lower())
             if "firstname" in df:
                 user.firstname = row["firstname"]
             if "lastname" in df:
