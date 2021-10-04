@@ -64,8 +64,8 @@ class Command(BaseCommand):
     def get_from_biotools(self, collection_id, page):
         key = None
         cache_dir = os.environ.get('CACHE_DIR', None)
-        os.makedirs(cache_dir, exist_ok=True)
         if cache_dir is not None:
+            os.makedirs(cache_dir, exist_ok=True)
             cache_dir = os.path.join(cache_dir, 'biotools')
             key = f'{collection_id}.{page}.json'
             try:
