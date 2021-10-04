@@ -990,11 +990,6 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         model = models.Tool
         fields = _tool_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
-        # depth = 1
-
-        # extra_kwargs = {
-        #     'team': {'lookup_field': 'name'},
-        # }
 
 
 def modelserializer_factory(model, serializer=serializers.ModelSerializer, fields=None, exclude=None):
