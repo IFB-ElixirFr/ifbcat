@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
@@ -103,11 +102,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                     "?format=json",
                     "?format=json-ld",
                 ]:
-                    try:
-                        response = self.client.get(url_detail + suffix)
-                    except Exception as e:
-                        print(url_detail + suffix, file=sys.stderr)
-                        raise e
+                    response = self.client.get(url_detail + suffix)
                     status_code = 404 if "json-ld" in suffix else 200
                     self.assertEqual(
                         response.status_code,
