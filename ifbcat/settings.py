@@ -358,8 +358,11 @@ if config('USE_IFB_THEME', True, cast=bool):
 MAX_CHOICES_COUNT_IN_SCHEMA = 30
 
 ################################################################################
-# MISC
+# EMAIL
 ################################################################################
+EMAIL_HOST = config('EMAIL_HOST', default='smtprelay.cnrs.fr')
+EMAIL_PORT = config('EMAIL_PORT', default='25')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioinformatique.fr')
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ################################################################################
