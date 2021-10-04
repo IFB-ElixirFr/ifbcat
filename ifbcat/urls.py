@@ -17,6 +17,7 @@ Including another URLconf
 # Imports
 # ' , include' is a functon used to include URLs from other apps (in this case from ifbcat_api)
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.views.generic import RedirectView
 from django.views.generic import TemplateView
@@ -24,6 +25,26 @@ from rest_framework.schemas import get_schema_view
 
 urlpatterns = [
     path('', include('ifbcat_vanilla_front.urls')),
+    path(
+        'admin/password_reset/',
+        auth_views.PasswordResetView.as_view(),
+        name='admin_password_reset',
+    ),
+    path(
+        'admin/password_reset/done/',
+        auth_views.PasswordResetDoneView.as_view(),
+        name='password_reset_done',
+    ),
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(),
+        name='password_reset_confirm',
+    ),
+    path(
+        'reset/done/',
+        auth_views.PasswordResetCompleteView.as_view(),
+        name='password_reset_complete',
+    ),
     path('admin/', admin.site.urls),
     path('api/', include('ifbcat_api.urls')),
     path('api/tess/', include('ifbcat_api.tess_urls')),
