@@ -23,6 +23,7 @@ class Trainer(models.Model):
     trainerId = models.ForeignKey(
         UserProfile,
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         help_text="IFB ID of person who is providing training at the training event.",
     )
