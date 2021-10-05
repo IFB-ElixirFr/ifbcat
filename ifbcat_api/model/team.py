@@ -64,6 +64,7 @@ class Team(WithGridIdOrRORId, models.Model):
         UserProfile,
         related_name='teamLeader',
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         help_text="Leader of the team.",
     )
