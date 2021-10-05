@@ -234,6 +234,7 @@ class AbstractEvent(models.Model):
             permissions.ReadWriteByOrgByTeamsMaintainers,
             # permissions.ReadWriteByOrgByOrganisationsLeader,
             permissions.ReadWriteBySuperEditor,
+            permissions.ReadWriteByCurator,
         )
 
 

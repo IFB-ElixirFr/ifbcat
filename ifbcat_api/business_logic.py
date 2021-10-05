@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 __USER_MANAGER_GRP_NAME = "User manager"
 __SUPER_EDITOR_GRP_NAME = "Supereditor (superuser that can also edit many things)"
+__CURATOR_GRP_NAME = "Curator (for a class, can edit all instance when manager of a this class)"
 __EVENT_GRP_NAME = "Event manager"
 __TEAM_AND_MORE_GRP_NAME = "Community, Organisation, Project, Team manager"
 __TOOL_GRP_NAME = "Tool manager"
@@ -198,6 +199,14 @@ def is_super_editor(user, request=None):
 
 
 ###############################################################################
+# Curator
+###############################################################################
+def is_curator(user, request=None):
+    user = user or request.user
+    return user.is_staff and user.groups.filter(name=__CURATOR_GRP_NAME).exists()
+
+
+###############################################################################
 # Permission classes
 ###############################################################################
 __missing_permission_classes = set()
@@ -261,6 +270,7 @@ def get_not_to_be_deleted_group_names():
     return (
         __USER_MANAGER_GRP_NAME,
         __SUPER_EDITOR_GRP_NAME,
+        __CURATOR_GRP_NAME,
         __EVENT_GRP_NAME,
         __TEAM_AND_MORE_GRP_NAME,
         __TOOL_GRP_NAME,
