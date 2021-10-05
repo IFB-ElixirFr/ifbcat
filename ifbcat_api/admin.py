@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
 from django.db.models.functions import Upper, Length
+from django.forms import modelform_factory
 from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
@@ -155,7 +156,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
             None,
             {
                 'classes': ('wide',),
-                'fields': ('email', 'password1', 'password2'),
+                'fields': ('email',),
             },
         ),
     )
@@ -164,6 +165,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         "groups",
     )
     autocomplete_fields = ("expertise",)
+    add_form = modelform_factory(models.UserProfile, fields=('email',))
 
     def can_manager_user(self, request, obj):
         return business_logic.can_edit_user(request.user, obj)
@@ -179,6 +181,8 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
         if not request.user.is_superuser:
             readonly_fields |= set(itertools.chain(*[d['fields'] for _, d in self.fieldsets]))
+            if obj is None:
+                readonly_fields.discard("email")
             if request.user == obj:
                 readonly_fields.discard("email")
                 readonly_fields.discard("password")
