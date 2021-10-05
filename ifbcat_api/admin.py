@@ -16,6 +16,7 @@ from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
@@ -690,6 +691,17 @@ class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'maintainers',
         'deputies',
     )
+    list_display = (
+        'name',
+        'logo',
+    )
+
+    def logo(self, obj):
+        if obj.logo_url:
+            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+        return format_html('<center style="margin: -8px;">-<center>')
+
+    logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
 # @admin.register(models.BioinformaticsTeam)
