@@ -160,7 +160,9 @@ class AbstractEvent(models.Model):
         help_text="Whether the event is public or private.",
     )
     accessibilityNote = models.TextField(
-        help_text="Comment about the audience a private event is open to and tailored for."
+        help_text="Comment about the audience a private event is open to and tailored for.",
+        blank=True,
+        null=True,
     )
     maxParticipants = models.PositiveSmallIntegerField(
         null=True,
@@ -207,6 +209,10 @@ class AbstractEvent(models.Model):
         help_text="An institutional entity that is sponsoring it.",
     )
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event.", blank=True, null=True)
+
+    def clean(self):
+        if self.accessibility == self.EventAccessibilityType.PRIVATE and len(self.accessibilityNote or '') == 0:
+            raise ValidationError(dict(accessibilityNote="Details have to be provided when accessibility is private"))
 
     def __str__(self):
         """Return the Event model as a string."""
