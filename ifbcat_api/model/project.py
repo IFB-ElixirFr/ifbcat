@@ -82,6 +82,7 @@ class Project(models.Model):
             | permissions.ReadWriteByTeamLeader
             | permissions.ReadWriteByTeamDeputies
             | permissions.ReadWriteByTeamMaintainers
+            | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

@@ -67,6 +67,7 @@ class Service(models.Model):
             | permissions.ReadWriteByTeamsLeader
             | permissions.ReadWriteByTeamsDeputies
             | permissions.ReadWriteByTeamsMaintainers
+            | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

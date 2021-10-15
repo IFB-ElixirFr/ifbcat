@@ -110,6 +110,7 @@ class ComputingFacility(Resource):
             | permissions.ReadWriteByTeamLeader
             | permissions.ReadWriteByTeamDeputies
             | permissions.ReadWriteByTeamMaintainers
+            | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

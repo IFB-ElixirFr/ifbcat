@@ -55,6 +55,7 @@ class ElixirPlatform(models.Model):
             permissions.ReadOnly
             | permissions.ReadWriteByDeputies
             | permissions.ReadWriteByCoordinator
+            | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

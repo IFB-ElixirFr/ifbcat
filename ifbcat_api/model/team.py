@@ -188,6 +188,7 @@ class Team(WithGridIdOrRORId, models.Model):
             permissions.ReadWriteByDeputies,
             permissions.ReadWriteByMaintainers,
             permissions.ReadWriteBySuperEditor,
+            permissions.ReadWriteByCurator,
         )
 
     def clean(self):
