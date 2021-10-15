@@ -360,7 +360,7 @@ MAX_CHOICES_COUNT_IN_SCHEMA = 30
 ################################################################################
 # EMAIL
 ################################################################################
-EMAIL_HOST = config('EMAIL_HOST', default='smtprelay.cnrs.fr')
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default='25')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioinformatique.fr')
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
