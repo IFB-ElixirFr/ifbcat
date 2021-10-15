@@ -51,4 +51,7 @@ class Community(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadWriteByCurator | permissions.ReadWriteBySuperEditor, IsAuthenticatedOrReadOnly)
+        return (
+            permissions.ReadOnly | permissions.ReadWriteByCurator | permissions.ReadWriteBySuperEditor,
+            IsAuthenticatedOrReadOnly,
+        )
