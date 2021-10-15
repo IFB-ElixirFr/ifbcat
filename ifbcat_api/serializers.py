@@ -257,7 +257,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
     communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
-    organisedByOrganisations = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    organisedByOrganisations = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
     realisation_status = serializers.CharField()
     registration_status = serializers.CharField()
