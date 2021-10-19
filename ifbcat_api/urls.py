@@ -59,4 +59,9 @@ urlpatterns = [
         views.new_training_course,
         name='new_training_course',
     ),
+    path(
+        'training/<int:training_pk>/view-courses/',
+        views.view_training_courses,
+        name='view_training_courses',
+    ),
 ]

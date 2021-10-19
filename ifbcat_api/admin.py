@@ -268,6 +268,7 @@ class EventAdmin(
         'organisedByTeams',
         'organisedByOrganisations',
         'tess_publishing',
+        'training',
     )
     #
     filter_horizontal = ('dates',)

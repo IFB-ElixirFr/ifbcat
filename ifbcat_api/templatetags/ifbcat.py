@@ -7,6 +7,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.template import Library, Context
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from jazzmin.templatetags.jazzmin import get_side_menu
 
 from ifbcat_api import models
@@ -41,8 +42,10 @@ def get_editable_instance(context: Context) -> List[Dict]:
                 editable.append(model)
         elif model['object_name'] == 'Training':
             if model['perms']['change']:
-                model['action_url'] = 'new_training_course'
-                model['action_text'] = "Add a new session"
+                model['actions'] = [
+                    dict(url='new_training_course', text=mark_safe('<i class="fa fa-plus"></i> session')),
+                    dict(url='view_training_courses', text=mark_safe('<i class="fa fa-eye"></i> sessions')),
+                ]
                 model['instances'] = models.Training.objects.filter(
                     Q(contactId=user)
                     | Q(elixirPlatforms__coordinator=user)

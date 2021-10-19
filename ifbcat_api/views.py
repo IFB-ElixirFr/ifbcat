@@ -15,6 +15,7 @@ from django.core.cache import cache
 from django.db.models import When, Q, Case, Value, CharField, Min, Max
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -878,4 +879,21 @@ def new_training_course(request, training_pk):
     if not business_logic.has_add_permission(models.Event, request=request):
         return HttpResponseForbidden('You cannot create new Event.')
     course, redirect_url = TrainingAdmin.create_new_course_and_get_admin_url(request=request, training=training)
+    return HttpResponseRedirect(redirect_url)
+
+
+@staff_member_required
+def view_training_courses(request, training_pk):
+    training = get_object_or_404(models.Training, pk=training_pk)
+    if not business_logic.has_view_permission(models.Training, request=request, obj=training):
+        return HttpResponseForbidden('You cannot see this training.')
+    if not business_logic.has_view_permission(models.Event, request=request):
+        return HttpResponseForbidden('You cannot see Event.')
+    opts = models.Event._meta
+    redirect_url = (
+        reverse(
+            'admin:%s_%s_changelist' % (opts.app_label, opts.model_name),
+        )
+        + f'?training__id__exact={training_pk}'
+    )
     return HttpResponseRedirect(redirect_url)
