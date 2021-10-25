@@ -3,10 +3,12 @@ import itertools
 import requests
 from django import forms
 from django.contrib import admin, messages
+from django.contrib.admin.models import LogEntry, ADDITION
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
 from django.db.models.functions import Upper, Length
@@ -390,7 +392,19 @@ class TrainingAdmin(
         course.contactEmail = request.user.email
         course.contactId = request.user
         course.save()
-        opts = course._meta.model._meta
+        messages.success(request, "New session of the training created, you can now update it, or delete it.")
+
+        courseModel = course._meta.model
+
+        LogEntry.objects.log_action(
+            user_id=request.user.id,
+            content_type_id=ContentType.objects.get_for_model(courseModel).pk,
+            object_id=course.id,
+            object_repr=str(course),
+            action_flag=ADDITION,
+        )
+
+        opts = courseModel._meta
         redirect_url = reverse(
             'admin:%s_%s_change' % (opts.app_label, opts.model_name),
             args=(course.pk,),
