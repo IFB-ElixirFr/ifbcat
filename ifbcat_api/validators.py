@@ -68,3 +68,9 @@ def validate_orcid(value):
             'This field can only contain a valid ORCID ID (%s is not). Syntax: %s' % (value, __p_orcid_regexp)
         )
     return value
+
+
+def validate_email(value):
+    if not value.islower():
+        raise ValidationError("Only lowercase is allowed in email")
+    return value
