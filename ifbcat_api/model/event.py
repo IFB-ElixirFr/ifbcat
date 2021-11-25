@@ -269,6 +269,17 @@ class Event(AbstractEvent):
         blank=True,
         null=True,
     )
+    start_date = models.DateField(
+        help_text="Set the start date of the event",
+        blank="True",
+        null=True,
+    )
+
+    end_date = models.DateField(
+        help_text="Set the end date of the event",
+        blank=True,
+        null=True,
+    )
     dates = models.ManyToManyField(
         "EventDate",
         help_text="Date(s) and optional time periods on which the event takes place.",
