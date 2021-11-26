@@ -250,10 +250,10 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.EventPrerequisite.objects,
         required=False,
     )
-    dates = EventDateSerializer(
-        many=True,
-        read_only=False,
-    )
+    # dates = EventDateSerializer(
+    #     many=True,
+    #     read_only=False,
+    # )
     elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
     communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
@@ -297,7 +297,8 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         )
         fields = fields_from_abstract_event + (
             'type',
-            'dates',
+            'start_date',
+            'end_date',
             'venue',
             'city',
             'country',

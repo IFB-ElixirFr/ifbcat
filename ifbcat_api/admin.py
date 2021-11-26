@@ -273,7 +273,7 @@ class EventAdmin(
         'training',
     )
     #
-    filter_horizontal = ('dates',)
+    filter_horizontal = ()
     autocomplete_fields = (
         'costs',
         'topics',
@@ -284,7 +284,7 @@ class EventAdmin(
         'sponsoredBy',
     )
 
-    date_hierarchy = 'dates__dateStart'
+    date_hierarchy = 'start_date'
 
     def get_queryset(self, request):
         return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
@@ -321,7 +321,7 @@ class EventAdmin(
         start, end = (
             type(obj)
             .objects.filter(pk=obj.pk)
-            .annotate(min=Min('dates__dateStart'), max=Max('dates__dateEnd'))
+            .annotate(min=Min('start_date'), max=Max('end_date'))
             .values_list('min', 'max')
             .get()
         )
@@ -332,7 +332,7 @@ class EventAdmin(
         return f'{dateformat.format(start, "Y-m-d")} - {dateformat.format(end, "Y-m-d")}'
 
     date_range.short_description = "Period"
-    date_range.admin_order_field = 'dates__dateStart'
+    date_range.admin_order_field = 'start_date'
 
 
 @admin.register(models.Training)

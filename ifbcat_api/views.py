@@ -254,8 +254,8 @@ class UserLoginApiView(ObtainAuthToken):
 
 
 class EventFilter(AutoSubsetFilterSet):
-    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
-    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+    min_start = django_filters.DateFilter(field_name="start_date", lookup_expr='gte')
+    max_start = django_filters.DateFilter(field_name="start_date", lookup_expr='lte')
     registration_status = django_filters.ChoiceFilter(
         field_name="registration_status",
         label="Registration status",
@@ -324,11 +324,13 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
     serializer_class = serializers.EventSerializer
-    ordering = ['-dates']
+    ordering = [
+        '-start_date',
+    ]
     queryset = (
         models.Event.objects.annotate(
-            dateStartMin=Min('dates__dateStart'),
-            dateEndMin=Max('dates__dateEnd'),
+            dateStartMin=Min('start_date'),
+            dateEndMin=Max('end_date'),
         )
         .annotate(
             realisation_status=Case(

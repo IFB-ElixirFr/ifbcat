@@ -66,7 +66,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
                     | Q(organisedByTeams__leader=user)
                     | Q(organisedByTeams__deputies=user)
                     | Q(organisedByTeams__maintainers=user)
-                ).order_by('-dates__dateStart')
+                ).order_by('-start_date')
                 model['order'] = 1
                 editable.append(model)
     editable = sorted(editable, key=lambda x: x.get("order", 1))
@@ -86,9 +86,8 @@ def get_general_instance(context: Context) -> List[Dict]:
         if model['object_name'] == 'Event':
             if model['perms']['change']:
                 model['instances'] = models.Event.objects.filter(
-                    Q(dates__dateStart__gte=timezone.now())
-                    | Q(dates__dateEnd__isnull=False) & Q(dates__dateEnd__gte=timezone.now())
-                ).order_by('-dates__dateStart')
+                    Q(start_date=timezone.now()) | Q(end_date__isnull=False) & Q(end_date=timezone.now())
+                ).order_by('-start_date')
                 model['order'] = 1
                 model['my'] = False
                 model['suffix'] = "Upcoming"
