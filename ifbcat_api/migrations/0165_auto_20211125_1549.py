@@ -40,5 +40,9 @@ class Migration(migrations.Migration):
                 validators=[ifbcat_api.validators.validate_email],
             ),
         ),
+        migrations.RemoveField(
+            model_name='event',
+            name='dates',
+        ),
         migrations.RunPython(code=migrate_start_end_time, reverse_code=migrations.RunPython.noop),
     ]

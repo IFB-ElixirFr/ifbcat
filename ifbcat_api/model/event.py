@@ -289,10 +289,6 @@ class Event(AbstractEvent):
         null=True,
         help_text="The end time of the event.",
     )
-    dates = models.ManyToManyField(
-        "EventDate",
-        help_text="Date(s) and optional time periods on which the event takes place.",
-    )
     type = models.CharField(
         max_length=255,
         blank=True,
