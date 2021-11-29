@@ -189,18 +189,6 @@ class VerboseSlugRelatedField(serializers.SlugRelatedField):
             self.fail('invalid')
 
 
-class EventDateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.EventDate
-        exclude = ('id',)
-        extra_kwargs = dict(
-            dateStart=dict(format="%Y-%m-%d"),
-            dateEnd=dict(format="%Y-%m-%d"),
-            timeStart=dict(format="%H:%M"),
-            timeEnd=dict(format="%H:%M"),
-        )
-
-
 # Model serializer for events.
 class EventSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an event (Event object)."""
@@ -250,10 +238,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.EventPrerequisite.objects,
         required=False,
     )
-    # dates = EventDateSerializer(
-    #     many=True,
-    #     read_only=False,
-    # )
+
     elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
     communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)

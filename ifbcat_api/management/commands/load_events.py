@@ -45,7 +45,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
-        EventDate.remove_duplicates()
 
         with open(os.path.join(options["events"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
@@ -103,10 +102,6 @@ class Command(BaseCommand):
                             homepage=event_link,
                         ),
                     )
-
-                    dates, created = EventDate.objects.get_or_create(dateStart=event_start_date, dateEnd=event_end_date)
-
-                    event.dates.add(dates)
 
                     for organizer in event_organizer.split(','):
                         organizer = organizer.strip()

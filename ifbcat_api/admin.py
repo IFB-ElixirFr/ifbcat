@@ -471,11 +471,6 @@ class EventCostAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['cost']
 
 
-@admin.register(models.EventDate)
-class EventDateAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    pass
-
-
 @admin.register(models.Trainer)
 class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
