@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
-from ifbcat_api.model.event import AbstractEvent, Event
+from ifbcat_api.model.event import AbstractEvent, Event, EventDate
 from ifbcat_api.model.misc import AudienceType, AudienceRole, DifficultyLevelType
 from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.model.userProfile import UserProfile
@@ -23,7 +23,6 @@ class Trainer(models.Model):
     trainerId = models.ForeignKey(
         UserProfile,
         null=True,
-        blank=True,
         on_delete=models.SET_NULL,
         help_text="IFB ID of person who is providing training at the training event.",
     )
@@ -145,11 +144,11 @@ class Training(AbstractEvent):
             'logo_url',
         ]:
             event_attrs[field] = getattr(self, field)
-        event = Event.objects.create(**event_attrs)
-
         if start_date:
-            d, created = Event.objects.get_or_create(start_date=start_date, end_date=end_date)
-            event.save(d)
+            event_attrs['start_date'] = start_date
+            event_attrs['end_date'] = end_date
+
+        event = Event.objects.create(**event_attrs)
 
         for m2m_name in [
             'costs',
