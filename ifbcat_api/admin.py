@@ -10,7 +10,7 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.lookups import Unaccent
-from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
+from django.db.models import Count, Q, When, Value, BooleanField, Case, CharField, F
 from django.db.models.functions import Upper, Length
 from django.forms import modelform_factory
 from django.http import HttpResponseRedirect
@@ -318,13 +318,7 @@ class EventAdmin(
     is_tess_publishing.admin_order_field = 'short_name_or_name'
 
     def date_range(self, obj):
-        start, end = (
-            type(obj)
-            .objects.filter(pk=obj.pk)
-            .annotate(min=Min('start_date'), max=Max('end_date'))
-            .values_list('min', 'max')
-            .get()
-        )
+        start, end = obj.start_date, obj.end_date
         if start is None:
             return None
         if end is None:

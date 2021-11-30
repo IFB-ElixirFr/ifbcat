@@ -148,8 +148,8 @@ class Training(AbstractEvent):
         event = Event.objects.create(**event_attrs)
 
         if start_date:
-            d, created = Event.objects.get_or_create(start_date=start_date, end_date=end_date)
-            event.save(d)
+            event_attrs['start_date'] = start_date
+            event_attrs['end_date'] = end_date
 
         for m2m_name in [
             'costs',

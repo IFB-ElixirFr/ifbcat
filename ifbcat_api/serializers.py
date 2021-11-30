@@ -189,6 +189,18 @@ class VerboseSlugRelatedField(serializers.SlugRelatedField):
             self.fail('invalid')
 
 
+class EventDateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EventDate
+        exclude = ('id',)
+        extra_kwargs = dict(
+            dateStart=dict(format="%Y-%m-%d"),
+            dateEnd=dict(format="%Y-%m-%d"),
+            timeStart=dict(format="%H:%M"),
+            timeEnd=dict(format="%H:%M"),
+        )
+
+
 # Model serializer for events.
 class EventSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes an event (Event object)."""

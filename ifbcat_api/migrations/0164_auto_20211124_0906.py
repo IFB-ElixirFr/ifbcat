@@ -4,7 +4,7 @@ from django.db import migrations, models
 from django.db.models import Min, Max
 
 
-def migrate_opening_closing(apps, schema_editor):
+def migrate_start_end_date(apps, schema_editor):
     Event = apps.get_model("ifbcat_api", "Event")
     result = Event.objects.annotate(
         min=Min('dates__dateStart'),
@@ -32,5 +32,5 @@ class Migration(migrations.Migration):
             name='start_date',
             field=models.DateField(blank='True', help_text='Set the start date of the event', null=True),
         ),
-        migrations.RunPython(code=migrate_opening_closing, reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(code=migrate_start_end_date, reverse_code=migrations.RunPython.noop),
     ]
