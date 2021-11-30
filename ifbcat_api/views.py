@@ -12,7 +12,7 @@ import json
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.cache import cache
-from django.db.models import When, Q, Case, Value, CharField
+from django.db.models import When, Q, Case, Value, CharField, Min, Max
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -329,8 +329,8 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     ]
     queryset = (
         models.Event.objects.annotate(
-            dateStartMin='start_date',
-            dateEndMin='end_date',
+            dateStartMin=Min('start_date'),
+            dateEndMin=Max('end_date'),
         )
         .annotate(
             realisation_status=Case(

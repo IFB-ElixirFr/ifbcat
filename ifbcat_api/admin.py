@@ -273,7 +273,7 @@ class EventAdmin(
         'training',
     )
     #
-    filter_horizontal = ('dates',)
+    filter_horizontal = ()
     autocomplete_fields = (
         'costs',
         'topics',
@@ -284,7 +284,7 @@ class EventAdmin(
         'sponsoredBy',
     )
 
-    date_hierarchy = 'dates__dateStart'
+    date_hierarchy = 'start_date'
 
     def get_queryset(self, request):
         return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
@@ -318,7 +318,13 @@ class EventAdmin(
     is_tess_publishing.admin_order_field = 'short_name_or_name'
 
     def date_range(self, obj):
-        start, end = obj.start_date, obj.end_date
+        start, end = (
+            type(obj)
+            .objects.filter(pk=obj.pk)
+            .annotate(min=Min('start_date'), max=Max('end_date'))
+            .values_list('min', 'max')
+            .get()
+        )
         if start is None:
             return None
         if end is None:
@@ -463,11 +469,6 @@ class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 @admin.register(models.EventCost)
 class EventCostAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['cost']
-
-
-@admin.register(models.EventDate)
-class EventDateAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    pass
 
 
 @admin.register(models.Trainer)
