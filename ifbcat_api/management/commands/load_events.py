@@ -102,8 +102,8 @@ class Command(BaseCommand):
                             homepage=event_link,
                         ),
                     )
-                    event['start_date'] = event_start_date
-                    event['end_date'] = event_end_date
+                    event.start_date = event_start_date
+                    event.end_date = event_end_date
 
                     for organizer in event_organizer.split(','):
                         organizer = organizer.strip()
