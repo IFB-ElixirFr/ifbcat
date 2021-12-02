@@ -10,8 +10,13 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.cache import cache
+from django.db.models import When, Q, Case, Value, CharField, Min, Max
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
@@ -27,6 +32,7 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 
 from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
+from ifbcat_api.admin import TrainingAdmin
 from ifbcat_api.filters import AutoSubsetFilterSet
 from ifbcat_api.renderers import JsonLDSchemaEventRenderer
 
@@ -213,6 +219,10 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handle creating and updating user profiles."""
 
     queryset = models.UserProfile.objects.all()
+    ordering_fields = [
+        'lastname',
+        'firstname',
+    ]
     # filter_backends adds ability to search profiles by name or email (via filtering)
     # search_fields specifies which fields are searchable by this filter.
     search_fields = (
@@ -248,6 +258,25 @@ class UserLoginApiView(ObtainAuthToken):
 class EventFilter(AutoSubsetFilterSet):
     min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
     max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+    registration_status = django_filters.ChoiceFilter(
+        field_name="registration_status",
+        label="Registration status",
+        choices=(
+            ('future', 'future'),
+            ('open', 'open'),
+            ('unknown', 'unknown'),
+            ('closed', 'closed'),
+        ),
+    )
+    realisation_status = django_filters.ChoiceFilter(
+        field_name="realisation_status",
+        label="Realisation status",
+        choices=(
+            ('future', 'future'),
+            ('past', 'past'),
+            ('ongoing', 'ongoing'),
+        ),
+    )
 
     class Meta:
         model = models.Event
@@ -268,16 +297,16 @@ class EventFilter(AutoSubsetFilterSet):
         ]
 
 
-class TrainingEventFilter(AutoSubsetFilterSet):
-    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
-    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+class TrainingFilter(AutoSubsetFilterSet):
+    # min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
+    # max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
 
     class Meta:
-        model = models.TrainingEvent
+        model = models.Training
         fields = [
-            'type',
-            'min_start',
-            'max_start',
+            # 'type',
+            # 'min_start',
+            # 'max_start',
             'costs',
             'topics',
             'keywords',
@@ -298,15 +327,49 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaEventRenderer]
     serializer_class = serializers.EventSerializer
-    queryset = models.Event.objects.all()
-    search_fields = (
+    ordering = ['-dates']
+    queryset = (
+        models.Event.objects.annotate(
+            dateStartMin=Min('dates__dateStart'),
+            dateEndMin=Max('dates__dateEnd'),
+        )
+        .annotate(
+            realisation_status=Case(
+                When(Q(dateStartMin__gt=timezone.now()), then=Value('future')),
+                When(
+                    Q(dateStartMin__lt=timezone.now())
+                    & (Q(dateEndMin__isnull=True) | Q(dateEndMin__lt=timezone.now())),
+                    then=Value('past'),
+                ),
+                default=Value('ongoing'),
+                output_field=CharField(),
+            )
+        )
+        .annotate(
+            registration_status=Case(
+                When(
+                    Q(registration_opening__gt=timezone.now()),
+                    then=Value('future'),
+                ),
+                When(
+                    (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
+                    & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
+                    & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
+                    then=Value('open'),
+                ),
+                When(
+                    Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
+                    then=Value('unknown'),
+                ),
+                default=Value('closed'),
+                output_field=CharField(),
+            )
+        )
+    )
+    search_fields_from_abstract_event = (
         'name',
         'shortName',
         'description',
-        'type',
-        'venue',
-        'city',
-        'country',
         'costs__cost',
         'topics__uri',
         'keywords__keyword',
@@ -316,13 +379,20 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'contactName',
         'contactId__email',
         'contactEmail',
-        'market',
         'elixirPlatforms__name',
         'communities__name',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
+    )
+    search_fields = search_fields_from_abstract_event + (
+        'type',
+        'venue',
+        'city',
+        'country',
+        'trainers__trainerName',
+        'trainers__trainerId__email',
     )
     filterset_class = EventFilter
 
@@ -331,20 +401,31 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
-# Model ViewSet for training events
-class TrainingEventViewSet(EventViewSet):
+# Model ViewSet for training events that should be published in TES
+class TessEventViewSet(EventViewSet):
+    queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
+
+
+# Model ViewSet for training
+class TrainingViewSet(EventViewSet):
     """Handles creating, reading and updating training events."""
 
-    serializer_class = serializers.TrainingEventSerializer
-    queryset = models.TrainingEvent.objects.all()
+    serializer_class = serializers.TrainingSerializer
+    ordering = []
+    queryset = models.Training.objects.all()
 
-    search_fields = EventViewSet.search_fields + (
+    search_fields = EventViewSet.search_fields_from_abstract_event + (
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'learningOutcomes',
     )
-    filterset_class = TrainingEventFilter
+    filterset_class = TrainingFilter
+
+
+# Model ViewSet for training that should be published in TES
+class TessTrainingViewSet(TrainingViewSet):
+    queryset = models.Training.objects.filter(tess_publishing=True)
 
 
 # Model ViewSet for keywords
@@ -394,17 +475,17 @@ class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 
 # Model ViewSet for training event metrics
-class TrainingEventMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class TrainingCourseMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating training event metrics."""
 
-    serializer_class = serializers.TrainingEventMetricsSerializer
-    queryset = models.TrainingEventMetrics.objects.all()
+    serializer_class = serializers.TrainingCourseMetricsSerializer
+    queryset = models.TrainingCourseMetrics.objects.all()
     search_fields = (
         'dateStart',
         'dateEnd',
-        'trainingEvent__name',
-        'trainingEvent__shortName',
-        'trainingEvent__description',
+        'event__name',
+        'event__shortName',
+        'event__description',
     )
 
     def perform_create(self, serializer):
@@ -660,6 +741,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'fundedBy',
         'keywords',
         'platforms',
+        'ifbMembership',
     )
 
     def perform_create(self, serializer):
@@ -698,7 +780,7 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'description',
         'computingFacilities__name',
         'teams__name',
-        'trainingEvents__name',
+        'trainings__name',
         'trainingMaterials__name',
         'publications__doi',
     )
@@ -790,3 +872,31 @@ class AudienceTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.AudienceRole.objects.all()
     serializer_class = serializers.modelserializer_factory(models.AudienceRole, fields=['id', 'audienceRole'])
+
+
+@staff_member_required
+def new_training_course(request, training_pk):
+    training = get_object_or_404(models.Training, pk=training_pk)
+    if not business_logic.has_view_permission(models.Training, request=request, obj=training):
+        return HttpResponseForbidden('You cannot see this training.')
+    if not business_logic.has_add_permission(models.Event, request=request):
+        return HttpResponseForbidden('You cannot create new Event.')
+    course, redirect_url = TrainingAdmin.create_new_course_and_get_admin_url(request=request, training=training)
+    return HttpResponseRedirect(redirect_url)
+
+
+@staff_member_required
+def view_training_courses(request, training_pk):
+    training = get_object_or_404(models.Training, pk=training_pk)
+    if not business_logic.has_view_permission(models.Training, request=request, obj=training):
+        return HttpResponseForbidden('You cannot see this training.')
+    if not business_logic.has_view_permission(models.Event, request=request):
+        return HttpResponseForbidden('You cannot see Event.')
+    opts = models.Event._meta
+    redirect_url = (
+        reverse(
+            'admin:%s_%s_changelist' % (opts.app_label, opts.model_name),
+        )
+        + f'?training__id__exact={training_pk}'
+    )
+    return HttpResponseRedirect(redirect_url)

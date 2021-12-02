@@ -40,6 +40,7 @@ class Organisation(WithGridIdOrRORId, models.Model):
             permissions.ReadOnly
             | permissions.UserCanAddNew
             | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperuser,
             IsAuthenticatedOrReadOnly,
         )

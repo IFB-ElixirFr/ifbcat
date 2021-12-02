@@ -181,6 +181,18 @@ class ReadWriteBySuperEditor(permissions.BasePermission):
         return business_logic.is_super_editor(request.user)
 
 
+class ReadWriteByCurator(permissions.BasePermission):
+    def has_permission(self, request, view):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_curator(request.user)
+
+    def has_object_permission(self, request, view, obj):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_curator(request.user)
+
+
 class ReadWriteByUserManager(permissions.BasePermission):
     def has_permission(self, request, view):
         from ifbcat_api import business_logic

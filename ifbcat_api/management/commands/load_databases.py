@@ -149,7 +149,7 @@ class Command(BaseCommand):
                     raise e
 
                 if object_platform:
-                    database.team.add(object_platform)
+                    database.teams.add(object_platform)
 
                 display_format = "\nDatabase, {}, has been saved."
                 # print(display_format.format(database))

@@ -43,8 +43,8 @@ router.register('tool-cnp', CachedNoPaginationFactory(views.ToolViewSet), basena
 router.register('tooltype', views.ToolTypeViewSet)
 router.register('topic', views.TopicViewSet)
 router.register('trainer', views.TrainerViewSet)
-router.register('trainingeventmetrics', views.TrainingEventMetricsViewSet)
-router.register('trainingevent', views.TrainingEventViewSet)
+router.register('trainingcoursemetrics', views.TrainingCourseMetricsViewSet)
+router.register('training', views.TrainingViewSet)
 router.register('trainingmaterial', views.TrainingMaterialViewSet)
 router.register('userprofile', views.UserProfileViewSet)
 
@@ -54,4 +54,14 @@ urlpatterns = [
     path('tool/<biotoolsID>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
     path('login/', views.UserLoginApiView.as_view()),
     path('', include(router.urls)),
+    path(
+        'training/<int:training_pk>/new-course/',
+        views.new_training_course,
+        name='new_training_course',
+    ),
+    path(
+        'training/<int:training_pk>/view-courses/',
+        views.view_training_courses,
+        name='view_training_courses',
+    ),
 ]

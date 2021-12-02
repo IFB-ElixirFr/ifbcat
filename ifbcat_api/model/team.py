@@ -13,6 +13,7 @@ from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Keyword, Field, Topic, Doi, WithGridIdOrRORId
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
+from ifbcat_api.model.tool.tool import Tool
 from ifbcat_api.model.userProfile import UserProfile
 from ifbcat_api.validators import validate_can_be_looked_up
 
@@ -63,6 +64,7 @@ class Team(WithGridIdOrRORId, models.Model):
         UserProfile,
         related_name='teamLeader',
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         help_text="Leader of the team.",
     )
@@ -138,6 +140,12 @@ class Team(WithGridIdOrRORId, models.Model):
         related_name='teamsAffiliatedWith',
         help_text="Organisation(s) to which the team is affiliated.",
     )
+    tools = models.ManyToManyField(
+        Tool,
+        blank=True,
+        related_name='teams',
+        help_text="Tool(s) developped by the team.",
+    )
 
     #############################
     # BioTeam related attributes
@@ -180,6 +188,7 @@ class Team(WithGridIdOrRORId, models.Model):
             permissions.ReadWriteByDeputies,
             permissions.ReadWriteByMaintainers,
             permissions.ReadWriteBySuperEditor,
+            permissions.ReadWriteByCurator,
         )
 
     def clean(self):

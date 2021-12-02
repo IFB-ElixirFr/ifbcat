@@ -13,3 +13,8 @@ def template_exists(value):
         return True
     except template.TemplateDoesNotExist:
         return False
+
+
+@register.simple_tag
+def patch_for_get_jazzmin_settings(request):
+    request.current_app = getattr(request, 'current_app', None)
