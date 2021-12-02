@@ -1,7 +1,22 @@
 version: '3'
 
 services:
+  db:
+    volumes:
+      - ifbcat-dev-db-data:/var/lib/postgresql/data
+
   web:
     volumes:
       - .:/code # for dev purpose only !!!
       - ./import_data:/code/import_data # for dev purpose only !!!
+
+
+  # The Database manager (adminer)
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8081:8080"
+
+volumes:
+  ifbcat-dev-db-data:

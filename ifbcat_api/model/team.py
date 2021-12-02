@@ -1,7 +1,6 @@
 # Imports
 import functools
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -14,6 +13,7 @@ from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Keyword, Field, Topic, Doi, WithGridIdOrRORId
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
+from ifbcat_api.model.tool.tool import Tool
 from ifbcat_api.model.userProfile import UserProfile
 from ifbcat_api.validators import validate_can_be_looked_up
 
@@ -27,6 +27,17 @@ class Team(WithGridIdOrRORId, models.Model):
 
         CERTIFICATE1 = 'Certificate 1', _('Certificate 1')
 
+    # name, description, homepage, members & maintainers are mandatory
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Name of the team.",
+        validators=[
+            validate_can_be_looked_up,
+        ],
+    )
+    description = models.TextField(help_text="Description of the team.")
+    homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
     logo_url = models.URLField(max_length=512, help_text="URL of logo of the team.", blank=True, null=True)
     fields = models.ManyToManyField(
         Field,
@@ -40,18 +51,6 @@ class Team(WithGridIdOrRORId, models.Model):
         related_name='teamsKeywords',
         help_text="A keyword (beyond EDAM ontology scope) describing the team.",
     )
-    # name, description, homepage, members & maintainers are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
-    name = models.CharField(
-        max_length=255,
-        unique=True,
-        help_text="Name of the team.",
-        validators=[
-            validate_can_be_looked_up,
-        ],
-    )
-    description = models.TextField(help_text="Description of the team.")
-    homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
     expertise = models.ManyToManyField(
         Topic,
         related_name='teamsExpertise',
@@ -65,6 +64,7 @@ class Team(WithGridIdOrRORId, models.Model):
         UserProfile,
         related_name='teamLeader',
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         help_text="Leader of the team.",
     )
@@ -140,6 +140,12 @@ class Team(WithGridIdOrRORId, models.Model):
         related_name='teamsAffiliatedWith',
         help_text="Organisation(s) to which the team is affiliated.",
     )
+    tools = models.ManyToManyField(
+        Tool,
+        blank=True,
+        related_name='teams',
+        help_text="Tool(s) developped by the team.",
+    )
 
     #############################
     # BioTeam related attributes
@@ -178,11 +184,11 @@ class Team(WithGridIdOrRORId, models.Model):
     def get_edition_permission_classes(cls):
         return (
             permissions.ReadOnly,
-            permissions.ReadWriteByOwner,
             permissions.ReadWriteByLeader,
             permissions.ReadWriteByDeputies,
             permissions.ReadWriteByMaintainers,
             permissions.ReadWriteBySuperEditor,
+            permissions.ReadWriteByCurator,
         )
 
     def clean(self):

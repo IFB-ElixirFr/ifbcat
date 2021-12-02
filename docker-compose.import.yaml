@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  web:
+    restart:
+      on-failure
+    volumes:
+      - /var/ifbcat-importdata:/code/import_data # for import purpose only !!!

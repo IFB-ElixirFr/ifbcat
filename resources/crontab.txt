@@ -1,0 +1,7 @@
+MAILTO="bbrancot@pasteur.fr,ifbcat-dev@france-bioinformatique.fr"
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+00 12 01  *  * docker system prune -af
+02 01  *  *  * docker exec -e PGPASSWORD=$(cat /var/ifbcat-src/local.ini | grep POSTGRES_PASS  | cut -d"=" -f2) ifbcatsrc_db_1 pg_dumpall -h db -U postgres -c | gzip > /var/ifbcat/db-dump/ifbcat-$(date +"\%Y-\%m-\%d--\%H-\%M-\%S").sql.gz
+00 01  *  *  * rm $(find /var/ifbcat/db-dump/ -name "ifbcat*gz" -size -200)
+09 01  *  *  * rm $(find /var/ifbcat/db-dump/ -name "ifbcat*gz" -size +200 | sort | head -n -60)

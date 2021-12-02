@@ -30,7 +30,8 @@ from .model.trainingMaterial import *
 from .model.team import *
 from .model.computingFacility import *
 from .model.project import *
-from .model.trainingEvent import *
+from .model.training import *
+from .model.trainingCourseMetrics import *
 from .model.service import *
 from .model.serviceSubmission import *
 from .model.misc import *

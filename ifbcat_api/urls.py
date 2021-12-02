@@ -26,7 +26,9 @@ router.register('event', views.EventViewSet, basename='event')
 router.register('event-cnp', CachedNoPaginationFactory(views.EventViewSet), basename='event-cnp')
 router.register('eventcost', views.EventCostViewSet)
 router.register('field', views.FieldViewSet)
+router.register('field-cnp', CachedNoPaginationFactory(views.FieldViewSet), basename='field-cnp')
 router.register('keyword', views.KeywordViewSet)
+router.register('keyword-cnp', CachedNoPaginationFactory(views.KeywordViewSet), basename='keyword-cnp')
 router.register('operating-system', views.OperatingSystemChoicesViewSet)
 router.register('organisation', views.OrganisationViewSet, basename='organisation')
 router.register('organisation-cnp', CachedNoPaginationFactory(views.OrganisationViewSet), basename='organisation-cnp')
@@ -37,11 +39,12 @@ router.register('source-info', views.SourceInfoViewSet, basename='source_info')
 router.register('team', views.TeamViewSet, basename='team')
 router.register('team-cnp', CachedNoPaginationFactory(views.TeamViewSet), basename='team-cnp')
 router.register('tool', views.ToolViewSet)
+router.register('tool-cnp', CachedNoPaginationFactory(views.ToolViewSet), basename='tool-cnp')
 router.register('tooltype', views.ToolTypeViewSet)
 router.register('topic', views.TopicViewSet)
 router.register('trainer', views.TrainerViewSet)
-router.register('trainingeventmetrics', views.TrainingEventMetricsViewSet)
-router.register('trainingevent', views.TrainingEventViewSet)
+router.register('trainingcoursemetrics', views.TrainingCourseMetricsViewSet)
+router.register('training', views.TrainingViewSet)
 router.register('trainingmaterial', views.TrainingMaterialViewSet)
 router.register('userprofile', views.UserProfileViewSet)
 
@@ -51,4 +54,14 @@ urlpatterns = [
     path('tool/<biotoolsID>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
     path('login/', views.UserLoginApiView.as_view()),
     path('', include(router.urls)),
+    path(
+        'training/<int:training_pk>/new-course/',
+        views.new_training_course,
+        name='new_training_course',
+    ),
+    path(
+        'training/<int:training_pk>/view-courses/',
+        views.view_training_courses,
+        name='view_training_courses',
+    ),
 ]

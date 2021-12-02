@@ -6,7 +6,7 @@ ifbcat is the database hosting and serving the [IFB Catalogue](https://catalogue
 
 ## How code is formatted
 
-Code is formatted using https://github.com/psf/black. Please use pre-commit along with black to commit only well formatted code:
+Code is formatted using https://github.com/psf/black (version 20.8b1). Please use pre-commit along with black to commit only well formatted code:
 ```
 #install dependencies
 pip install -r requirements-dev.txt
@@ -36,7 +36,11 @@ pip install -r requirements.txt
 ```
 # Copy (and optionally tweak) ini 
 cp resources/default.ini local.ini
-docker-compose run db
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml run db
+```
+Note that a volume is created. To remove it run:
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
 ```
 
 3. Retrieve import data (ask access to private repository if needed):
@@ -96,6 +100,16 @@ docker-compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py load_catalog
 ```
 
+4. Do some cleanup
+To remove db volumes run:
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
+```
+To remove build and pulled images:
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --rmi all
+```
+
 # How to manage the server
 
 *All of this consider that you already are on the server and you are sudoer*
@@ -126,14 +140,13 @@ sudo docker-compose exec web python manage.py createsuperuser
 ## Do some import
 ```
 cd /var/ifbcat-src
-sudo docker-compose run -v /var/ifbcat-importdata:/import_data web python manage.py load_persons /import_data/persons.csv /import_data/drupal_db_dump/users.txt
-sudo docker-compose run -v /var/ifbcat-importdata:/import_data web python manage.py load_bioinformatics_teams /import_data/platforms.csv
-sudo docker-compose run -v /var/ifbcat-importdata:/import_data web python manage.py load_biotools
+sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_users
+sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_biotools
 ```
 
 Or all imports :
 ```
-sudo docker-compose run -v /var/ifbcat-importdata:/code/import_data web python manage.py load_catalog
+sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_catalog
 ```
 
 # How to generate graph models

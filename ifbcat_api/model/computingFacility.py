@@ -107,9 +107,10 @@ class ComputingFacility(Resource):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
-            | permissions.ReadWriteByOwner
             | permissions.ReadWriteByTeamLeader
             | permissions.ReadWriteByTeamDeputies
+            | permissions.ReadWriteByTeamMaintainers
+            | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

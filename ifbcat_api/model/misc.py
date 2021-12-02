@@ -62,7 +62,10 @@ class Topic(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -135,7 +138,13 @@ class Keyword(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser, IsAuthenticatedOrReadOnly)
+        return (
+            permissions.ReadOnly
+            | permissions.ReadWriteBySuperuser
+            | permissions.ReadWriteByCurator
+            | permissions.UserCanEditAndDeleteIfNotUsed,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 class AudienceType(models.Model):
@@ -158,7 +167,10 @@ class AudienceType(models.Model):
 
     @classmethod
     def get_permission_classes(cls):
-        return (permissions.ReadOnly | permissions.ReadWriteBySuperuser,)
+        return (
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser | permissions.ReadWriteByCurator,
+            IsAuthenticatedOrReadOnly,
+        )
 
 
 class AudienceRole(models.Model):
@@ -182,7 +194,7 @@ class AudienceRole(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser | permissions.ReadWriteByCurator,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -213,7 +225,7 @@ class Field(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.ReadWriteBySuperuser,
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser | permissions.ReadWriteByCurator,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -248,7 +260,11 @@ class Doi(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanDeleteIfNotUsed
+            | permissions.SuperuserCanDelete
+            | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )
 

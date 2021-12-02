@@ -58,7 +58,7 @@ class AutoSubsetFilterSet(django_filters.FilterSet):
 
 
 class DjangoFilterAutoSubsetBackend(DjangoFilterBackend):
-    filterset_base = AutoSubsetFilterSet
+    # filterset_base = AutoSubsetFilterSet
     raise_exception = True
 
     def get_schema_operation_parameters(self, view):

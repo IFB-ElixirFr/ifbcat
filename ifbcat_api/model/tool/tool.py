@@ -10,12 +10,11 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
 
 from ifbcat_api import permissions
-from ifbcat_api.model.misc import Topic, Doi
+from ifbcat_api.model.misc import Topic, Doi, Keyword
 from ifbcat_api.model.tool.collection import Collection
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
 from ifbcat_api.model.tool.toolType import ToolType
-from ifbcat_api.models import Keyword
 
 logger = logging.getLogger(__name__)
 
@@ -75,14 +74,19 @@ class Tool(models.Model):
     prerequisites = models.TextField(blank=True, null=True)
     # operating_system = models.CharField(max_length=50, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
     # topic = models.CharField(max_length=1000, blank=True, null=True)
-    # downloads = models.CharField(max_length=1000, blank=True, null=True)
+    downloads = models.CharField(max_length=1000, blank=True, null=True)
 
     annual_visits = models.IntegerField(blank=True, null=True)
     unique_visits = models.IntegerField(blank=True, null=True)
 
     # many_to_many
     # platform = models.ManyToManyField(Platform, blank=True)
-
+    # team = models.ManyToManyField(
+    #     Team,
+    #     blank=True,
+    #     related_name='ToolsTeams',
+    #     help_text="Team developping the tool.",
+    # )
     # language = models.ManyToManyField(Language, blank=True)
 
     # elixir_platform = models.ManyToManyField(ElixirPlatform, blank=True)
@@ -120,7 +124,10 @@ class Tool(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.UserCanAddNew | permissions.SuperuserCanDelete,
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanDeleteIfNotUsed
+            | permissions.SuperuserCanDelete,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -190,6 +197,10 @@ class Tool(models.Model):
 
         # insert or get DB topic entry table here
         for topic in tool['topic']:
+            if topic['uri'] == "http://edamontology.org/topic_3557":
+                # cf comments in https://bioportal.bioontology.org/ontologies/EDAM?p=classes&conceptid=topic_3957
+                # how could we do this not in the code ?
+                topic['uri'] = "http://edamontology.org/topic_3957"
             topic_entry, created = Topic.objects.get_or_create(uri=topic['uri'])
             topic_entry.save()
             self.scientific_topics.add(topic_entry.id)

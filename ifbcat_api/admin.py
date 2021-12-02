@@ -3,40 +3,51 @@ import itertools
 import requests
 from django import forms
 from django.contrib import admin, messages
+from django.contrib.admin.models import LogEntry, ADDITION
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
 from django.db.models.functions import Upper, Length
+from django.forms import modelform_factory
+from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
 from ifbcat_api.misc import BibliographicalEntryNotFound
+from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
+
+
+class ModelAdminFillingContactId(admin.ModelAdmin):
+    class Meta:
+        abstract = True
+
+    def get_changeform_initial_data(self, request):
+        initial = super().get_changeform_initial_data(request)
+        if 'contactId' in super().get_fields(request):
+            initial.update(
+                dict(
+                    contactName=str(request.user),
+                    contactEmail=request.user.email,
+                    contactId=request.user,
+                )
+            )
+        return initial
 
 
 class PermissionInClassModelAdmin(admin.ModelAdmin):
     class Meta:
         abstract = True
-
-    def has_permission_for_methods(self, *, request, methods: list, obj=None):
-        # similar to rest_framework/views.py:APIView.check_permissions#L326
-        for perm in business_logic.get_permission_classes(self.model):
-            for method in methods:
-                with simple_override_method(request=request, method=method) as request:
-                    if obj is None:
-                        if not perm().has_permission(request=request, view=None):
-                            return False
-                    else:
-                        if not perm().has_object_permission(request=request, view=None, obj=obj):
-                            return False
-        return True
 
     def has_view_permission(self, request, obj=None):
         from_super = super().has_view_permission(request=request, obj=obj)
@@ -45,14 +56,14 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         if obj is None:
             return from_super
 
-        return self.has_permission_for_methods(request=request, obj=obj, methods=["GET"])
+        return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
 
     def has_add_permission(self, request):
         from_super = super().has_add_permission(request=request)
         if not from_super:
             return False
 
-        return self.has_permission_for_methods(request=request, methods=["PUT"])
+        return business_logic.has_add_permission(model=self.model, request=request)
 
     def has_change_permission(self, request, obj=None):
         from_super = super().has_change_permission(request=request, obj=obj)
@@ -61,7 +72,7 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         if obj is None:
             return from_super
 
-        return self.has_permission_for_methods(request=request, obj=obj, methods=["POST", "PUT"])
+        return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
 
     def has_delete_permission(self, request, obj=None):
         from_super = super().has_delete_permission(request=request, obj=obj)
@@ -69,7 +80,7 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
             return False
         if obj is None:
             return from_super
-        return self.has_permission_for_methods(request=request, obj=obj, methods=["DELETE"])
+        return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
 
 
 class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
@@ -148,7 +159,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
             None,
             {
                 'classes': ('wide',),
-                'fields': ('email', 'password1', 'password2'),
+                'fields': ('email',),
             },
         ),
     )
@@ -157,6 +168,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         "groups",
     )
     autocomplete_fields = ("expertise",)
+    add_form = modelform_factory(models.UserProfile, fields=('email',))
 
     def can_manager_user(self, request, obj):
         return business_logic.can_edit_user(request.user, obj)
@@ -172,6 +184,8 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
         if not request.user.is_superuser:
             readonly_fields |= set(itertools.chain(*[d['fields'] for _, d in self.fieldsets]))
+            if obj is None:
+                readonly_fields.discard("email")
             if request.user == obj:
                 readonly_fields.discard("email")
                 readonly_fields.discard("password")
@@ -214,7 +228,11 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
 # "list_filter" adds fields to Django admin filter box
 # "filter_horizontal" adds widgets for item selection from lists
 @admin.register(models.Event)
-class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class EventAdmin(
+    ModelAdminFillingContactId,
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     """Enables search, filtering and widgets in Django admin interface."""
 
     search_fields = (
@@ -232,13 +250,16 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'contactName',
         'contactId__email',
         'contactEmail',
-        'market',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
-    list_display = ('short_name_or_name_trim', 'date_range')
+    list_display = (
+        'short_name_or_name_trim',
+        'date_range',
+        'is_tess_publishing',
+    )
     list_filter = (
         'type',
         'costs',
@@ -248,6 +269,8 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'communities',
         'organisedByTeams',
         'organisedByOrganisations',
+        'tess_publishing',
+        'training',
     )
     #
     filter_horizontal = ('dates',)
@@ -264,16 +287,12 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     date_hierarchy = 'dates__dateStart'
 
     def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .annotate(
-                short_name_or_name=Case(
-                    When(shortName='', then=F('name')),
-                    When(shortName__isnull=True, then=F('name')),
-                    default='shortName',
-                    output_field=CharField(),
-                )
+        return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
+            short_name_or_name=Case(
+                When(shortName='', then=F('name')),
+                When(shortName__isnull=True, then=F('name')),
+                default='shortName',
+                output_field=CharField(),
             )
         )
 
@@ -285,6 +304,19 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     short_name_or_name_trim.short_description = "Name"
     short_name_or_name_trim.admin_order_field = 'short_name_or_name'
 
+    def is_tess_publishing(self, obj):
+        s = ''
+        if obj.tess_publishing == 2:
+            s += '<i class="fa fa-magic text-muted" title="Automatically computed"></i> '
+        if obj.is_tess_publishing:
+            s += '<i class="fa fa-check text-success" title="Is published"></i>'
+        else:
+            s += '<i class="fa fa-times" title="Is NOT published"></i>'
+        return format_html('<center>' + s + '</center>')
+
+    is_tess_publishing.short_description = format_html("<center>TESS sync</center>")
+    is_tess_publishing.admin_order_field = 'short_name_or_name'
+
     def date_range(self, obj):
         start, end = (
             type(obj)
@@ -293,6 +325,8 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
             .values_list('min', 'max')
             .get()
         )
+        if start is None:
+            return None
         if end is None:
             return dateformat.format(start, "Y-m-d")
         return f'{dateformat.format(start, "Y-m-d")} - {dateformat.format(end, "Y-m-d")}'
@@ -301,19 +335,46 @@ class EventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     date_range.admin_order_field = 'dates__dateStart'
 
 
-@admin.register(models.TrainingEvent)
-class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    """Enables search, filtering and widgets in Django admin interface."""
-
+@admin.register(models.Training)
+class TrainingAdmin(
+    ModelAdminFillingContactId,
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
+    list_display = (
+        "name",
+        "logo",
+        "home",
+    )
     search_fields = (
-        'audienceTypes__audienceType',
-        'audienceRoles__audienceRole',
-        'difficultyLevel',
-        'learningOutcomes',
+        'name',
+        'shortName',
+        'description',
+        # 'topics__uri',
+        'keywords__keyword',
+        # 'prerequisites__prerequisite',
+        # 'accessibilityNote',
+        'contactName',
+        # 'contactId__email',
+        'contactEmail',
+        # 'organisedByTeams__name',
+        # 'organisedByOrganisations__name',
+        # 'sponsoredBy__name',
+        # 'sponsoredBy__organisationId__name',
+    ) + (
+        # 'audienceTypes__audienceType',
+        # 'audienceRoles__audienceRole',
+        # 'difficultyLevel',
+        # 'learningOutcomes',
     )
     list_filter = (
         'trainingMaterials',
         'computingFacilities',
+        'organisedByTeams',
+        'organisedByOrganisations',
+        'sponsoredBy',
+        'costs',
+        'tess_publishing',
         # 'databases',
         # 'tools',
     )
@@ -321,6 +382,59 @@ class TrainingEventAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'trainingMaterials',
         'computingFacilities',
     )
+
+    actions = ["create_new_course"]
+
+    @staticmethod
+    def create_new_course_and_get_admin_url(request, training):
+        course = training.create_new_event(None, None)
+        course.contactName = f'{request.user.firstname} {request.user.lastname}'
+        course.contactEmail = request.user.email
+        course.contactId = request.user
+        course.save()
+        messages.success(request, "New session of the training created, you can now update it, or delete it.")
+
+        courseModel = course._meta.model
+
+        LogEntry.objects.log_action(
+            user_id=request.user.id,
+            content_type_id=ContentType.objects.get_for_model(courseModel).pk,
+            object_id=course.id,
+            object_repr=str(course),
+            action_flag=ADDITION,
+        )
+
+        opts = courseModel._meta
+        redirect_url = reverse(
+            'admin:%s_%s_change' % (opts.app_label, opts.model_name),
+            args=(course.pk,),
+        )
+        return course, redirect_url
+
+    def create_new_course(self, request, queryset):
+        if queryset.count() != 1:
+            self.message_user(request, "Can only create a new session/event one training at a time", messages.ERROR)
+            return
+        course, url = self.create_new_course_and_get_admin_url(request=request, training=queryset.first())
+        self.message_user(
+            request, mark_safe(f'New session created, go to <a href="{url}">{url}</a> to complete it'), messages.SUCCESS
+        )
+
+    change_form_template = 'admin/change_form_training.html'
+
+    def logo(self, obj):
+        if not obj.logo_url:
+            return ''
+        return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+
+    def home(self, obj):
+        if not obj.homepage:
+            return ""
+        return format_html(
+            '<center><a target="_blank" href="' + obj.homepage + '"><i class="fa fa-home"></i></a><center>'
+        )
+
+    home.short_description = format_html('<center>homepage</center>')
 
 
 @admin.register(models.Keyword)
@@ -374,16 +488,21 @@ class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     autocomplete_fields = ('trainerId',)
 
 
-@admin.register(models.TrainingEventMetrics)
-class TrainingEventMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+@admin.register(models.TrainingCourseMetrics)
+class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = (
         'dateStart',
         'dateEnd',
-        'trainingEvent__name',
-        'trainingEvent__shortName',
-        'trainingEvent__description',
+        'event__name',
+        'event__shortName',
+        'event__description',
     )
-    autocomplete_fields = ('trainingEvent',)
+    autocomplete_fields = ('event',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['event'].queryset = Event.objects.filter(type=Event.EventType.TRAINING_COURSE)
+        return form
 
 
 @admin.register(models.EventSponsor)
@@ -587,6 +706,17 @@ class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'maintainers',
         'deputies',
     )
+    list_display = (
+        'name',
+        'logo',
+    )
+
+    def logo(self, obj):
+        if obj.logo_url:
+            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+        return format_html('<center style="margin: -8px;">-<center>')
+
+    logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
 # @admin.register(models.BioinformaticsTeam)
@@ -655,14 +785,14 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
         'description',
         'teams__name',
         'computingFacilities__name',
-        'trainingEvents__name',
+        'trainings__name',
         'trainingMaterials__name',
         'publications__doi',
     )
 
     autocomplete_fields = (
         'computingFacilities',
-        'trainingEvents',
+        'trainings',
         'trainingMaterials',
         'teams',
     )

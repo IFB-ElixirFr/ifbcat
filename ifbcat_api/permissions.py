@@ -1,6 +1,6 @@
 # Imports
 from django.contrib.auth import get_user_model
-from django.db.models import ManyToManyField
+from django.db.models import ManyToManyField, ManyToOneRel, ManyToManyRel
 from rest_framework import permissions
 
 # Custom permission class for updating user profiles
@@ -58,10 +58,6 @@ class ReadOnly(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS
 
 
-class ReadWriteByOwner(ReadWriteBySomething):
-    target = 'user_profile'
-
-
 class ReadWriteByUser(ReadWriteBySomething):
     target = 'user'
 
@@ -106,6 +102,22 @@ class ReadWriteByTeamDeputies(ReadWriteBySomething):
     target = 'team__deputies'
 
 
+class ReadWriteByTeamMaintainers(ReadWriteBySomething):
+    target = 'team__maintainers'
+
+
+class ReadWriteByTeamsLeader(ReadWriteBySomething):
+    target = 'teams__leader'
+
+
+class ReadWriteByTeamsDeputies(ReadWriteBySomething):
+    target = 'teams__deputies'
+
+
+class ReadWriteByTeamsMaintainers(ReadWriteBySomething):
+    target = 'teams__maintainers'
+
+
 class ReadWriteByOrgByTeamsLeader(ReadWriteBySomething):
     target = 'organisedByTeams__leader'
 
@@ -118,8 +130,8 @@ class ReadWriteByOrgByTeamsMaintainers(ReadWriteBySomething):
     target = 'organisedByTeams__maintainers'
 
 
-class ReadWriteByOrgByOrganisationsLeader(ReadWriteBySomething):
-    target = 'organisedByOrganisations__user_profile'
+# class ReadWriteByOrgByOrganisationsLeader(ReadWriteBySomething):
+#     target = 'organisedByOrganisations__user_profile'
 
 
 class ReadWriteByProvidedByLeader(ReadWriteBySomething):
@@ -128,6 +140,10 @@ class ReadWriteByProvidedByLeader(ReadWriteBySomething):
 
 class ReadWriteByProvidedByDeputies(ReadWriteBySomething):
     target = 'providedBy__deputies'
+
+
+class ReadWriteByProvidedByMaintainer(ReadWriteBySomething):
+    target = 'providedBy__maintainers'
 
 
 class simple_override_method:
@@ -165,6 +181,18 @@ class ReadWriteBySuperEditor(permissions.BasePermission):
         return business_logic.is_super_editor(request.user)
 
 
+class ReadWriteByCurator(permissions.BasePermission):
+    def has_permission(self, request, view):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_curator(request.user)
+
+    def has_object_permission(self, request, view, obj):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_curator(request.user)
+
+
 class ReadWriteByUserManager(permissions.BasePermission):
     def has_permission(self, request, view):
         from ifbcat_api import business_logic
@@ -185,6 +213,27 @@ class UserCanAddNew(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj is None
+
+
+class UserCanEditAndDeleteIfNotUsed(permissions.BasePermission):
+    allowed_methods = ("PUT", "POST", "DELETE")
+
+    def has_permission(self, request, view):
+        return request.method in self.allowed_methods
+
+    def has_object_permission(self, request, view, obj):
+        if request.method not in self.allowed_methods:
+            return False
+        for model_field in obj._meta.get_fields():
+            if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
+                attr_name = model_field.related_name or (model_field.name + "_set")
+                if getattr(obj, attr_name).count() > 0:
+                    return False
+        return True
+
+
+class UserCanDeleteIfNotUsed(UserCanEditAndDeleteIfNotUsed):
+    allowed_methods = ("DELETE",)
 
 
 class SuperuserCanDelete(permissions.BasePermission):

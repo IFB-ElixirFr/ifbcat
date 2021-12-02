@@ -145,4 +145,12 @@ settings.ini
 # folder where data are git cloned
 ./import_data
 import_data
+
+# Virtual Studio Code settings
+.vscode
+
+# Grid (downloaded by load_organisations_from_grid.py)
+grid*/
+grid*.zip
+
 source_info.json

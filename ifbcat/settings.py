@@ -60,8 +60,8 @@ INSTALLED_APPS = [
     'ifbcat_vanilla_front',
     'django.contrib.postgres',
 ]
-
-# INSTALLED_APPS.append('django_extensions')
+if DEBUG:
+    INSTALLED_APPS.append('django_extensions')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -156,6 +156,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Configure Django to use our custom user model for authentication and user registration
 AUTH_USER_MODEL = 'ifbcat_api.UserProfile'
 
+# Configure AutoField, cf models.W042
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 REST_FRAMEWORK = {
     # authentication_classes sets how user is authenticated.
     # Token authentication works by generating a random token when the user logs in,
@@ -170,6 +173,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
         'ifbcat_api.filters.DjangoFilterAutoSubsetBackend',
     ),
     'DEFAULT_RENDERER_CLASSES': [
@@ -257,6 +261,7 @@ JAZZMIN_SETTINGS = {
         {"name": "Support", "url": "https://github.com/IFB-ElixirFr/ifbcat/issues", "new_window": True},
         {"model": "ifbcat_api.UserProfile"},
         {"model": "ifbcat_api.Event"},
+        {"model": "ifbcat_api.Training"},
         {"model": "ifbcat_api.Team"},
         {"app": "ifbcat_api"},
     ],
@@ -292,8 +297,8 @@ JAZZMIN_SETTINGS = {
         "ifbcat_api.Tool": "fas fa-tools",
         "ifbcat_api.Topic": "fas fa-circle",
         "ifbcat_api.Trainer": "fas fa-chalkboard-teacher",
-        "ifbcat_api.TrainingEventMetrics": "fas fa-circle",
-        "ifbcat_api.TrainingEvent": "fas fa-school",
+        "ifbcat_api.TrainingCourseMetrics": "fas fa-tachometer-alt",
+        "ifbcat_api.Training": "fas fa-graduation-cap",
         "ifbcat_api.TrainingMaterial": "fas fa-book",
         "ifbcat_api.TypeRole": "fas fa-circle",
         "ifbcat_api.UserProfile": "fas fa-user",
@@ -351,5 +356,13 @@ if config('USE_IFB_THEME', True, cast=bool):
 # INNER settings
 ################################################################################
 MAX_CHOICES_COUNT_IN_SCHEMA = 30
+
+################################################################################
+# EMAIL
+################################################################################
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default='25')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioinformatique.fr')
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ################################################################################

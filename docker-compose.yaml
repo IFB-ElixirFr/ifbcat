@@ -34,13 +34,6 @@ services:
     depends_on:
       - db
 
-  # The Database manager (adminer)
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - "8081:8080"
-
   nginx:
     image: nginx:1.19-alpine
     volumes:
