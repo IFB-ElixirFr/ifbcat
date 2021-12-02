@@ -76,7 +76,6 @@ def init_business_logic():
     event_related = [
         models.EventCost,
         models.EventPrerequisite,
-        models.EventDate,
         models.EventSponsor,
         models.Event,
     ]

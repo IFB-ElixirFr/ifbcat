@@ -15,9 +15,4 @@ class Migration(migrations.Migration):
             model_name='event',
             name='dates',
         ),
-        migrations.AlterField(
-            model_name='userprofile',
-            name='email',
-            field=models.EmailField(help_text='Email address of a person (IFB catalogue user).', max_length=255, unique=True, validators=[ifbcat_api.validators.validate_email]),
-        ),
     ]
