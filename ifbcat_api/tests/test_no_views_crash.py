@@ -57,24 +57,26 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         add_everywhere(f)
 
     def test_all_at_once_to_spare_resource(self):
+        available_formats_dict = dict()
+        ignored_formats = {'rdf'}
         #######################################################################
         # def test_list(self):
         #######################################################################
         cpt = 0
-        for url_instance in [u for u in router.urls if u.name.endswith("-list")]:
-            url_list = reverse(url_instance.name)
+        for prefix, viewset, basename in router.registry:
+            url_list = reverse(f'{basename}-list')
+            available_formats = set(r.format for r in viewset.renderer_classes) - ignored_formats
+            available_formats_dict[basename] = available_formats
             for suffix in [
                 "",
                 "?search=tralala",
-                "?format=json",
-                "?format=json-ld",
-            ]:
+            ] + [f'?format={fmt}' for fmt in available_formats]:
                 response = self.client.get(url_list + suffix)
-                status_code = 404 if "json-ld" in suffix else 200
+                status_code = 200
                 self.assertEqual(
                     response.status_code,
                     status_code,
-                    f'failed while opening {url_instance.name} '
+                    f'failed while opening {basename}-list '
                     f'({url_list}{suffix}), expected {status_code} '
                     f'got {response.status_code}',
                 )
@@ -89,6 +91,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
             lookup_field = getattr(url_instance.callback.cls, "lookup_field")
             attr_field = lookup_field.replace("__unaccent", "")
             attr_field = attr_field.replace("__iexact", "")
+            available_formats = available_formats_dict[url_instance.name[:-7]]
             for o in getattr(url_instance.callback.cls, "queryset").all():
                 try:
                     url_detail = reverse(url_instance.name, kwargs={lookup_field: getattr(o, attr_field)})
@@ -99,9 +102,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                     )
                 for suffix in [
                     "",
-                    "?format=json",
-                    "?format=json-ld",
-                ]:
+                ] + [f'?format={fmt}' for fmt in available_formats]:
                     response = self.client.get(url_detail + suffix)
                     status_code = 404 if "json-ld" in suffix else 200
                     self.assertEqual(
