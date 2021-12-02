@@ -100,10 +100,10 @@ class Command(BaseCommand):
                             # city is only a subset of event_location for the moment
                             city=event_location,
                             homepage=event_link,
+                            start_date=event_start_date,
+                            end_date=event_end_date,
                         ),
                     )
-                    event.start_date = event_start_date
-                    event.end_date = event_end_date
 
                     for organizer in event_organizer.split(','):
                         organizer = organizer.strip()

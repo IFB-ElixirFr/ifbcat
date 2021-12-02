@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, ManyToManyRel, ManyToOneRel, Case, When, Value, BooleanField, Q
+
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -354,6 +355,8 @@ class Event(AbstractEvent):
         errors = {}
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
             errors.setdefault('training', []).append("training must be provided when creating a Training session")
+        if self.end_date and self.start_date is None:
+            errors.setdefault('start_date', []).append("start date must also be provided")
         if len(errors) > 0:
             raise ValidationError(errors)
 
