@@ -55,6 +55,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         add_everywhere(t)
         f, _ = Field.objects.get_or_create(field="django")
         add_everywhere(f)
+        logger.warning('Data loaded')
 
     def test_all_at_once_to_spare_resource(self):
         available_formats_dict = dict()
@@ -104,7 +105,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                     "",
                 ] + [f'?format={fmt}' for fmt in available_formats]:
                     response = self.client.get(url_detail + suffix)
-                    status_code = 404 if "json-ld" in suffix else 200
+                    status_code = 200
                     self.assertEqual(
                         response.status_code,
                         status_code,
