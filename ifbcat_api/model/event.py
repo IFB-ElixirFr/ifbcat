@@ -356,7 +356,7 @@ class Event(AbstractEvent):
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
             errors.setdefault('training', []).append("training must be provided when creating a Training session")
         if self.end_date and self.start_date is None:
-            errors.setdefault('start_date', []).append("start date must also be provided")
+            errors.setdefault('start_date', []).append("start date must be provided if end date is")
         if len(errors) > 0:
             raise ValidationError(errors)
 
