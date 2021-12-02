@@ -1,6 +1,6 @@
 name: Checking migrations
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -17,4 +17,3 @@ jobs:
         cp resources/default.ini local.ini     
         docker-compose build
         docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
-        docker-compose exec -T -e CACHE_DIR=./import_data web python manage.py migrate
