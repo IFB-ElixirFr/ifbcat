@@ -132,6 +132,9 @@ class Training(AbstractEvent):
         )
         if self.shortName:
             event_attrs['shortName'] = f'New session of {self.shortName}'
+        if start_date:
+            event_attrs['start_date'] = start_date
+            event_attrs['end_date'] = end_date
         for field in [
             'description',
             'homepage',
@@ -146,11 +149,6 @@ class Training(AbstractEvent):
         ]:
             event_attrs[field] = getattr(self, field)
         event = Event.objects.create(**event_attrs)
-
-        if start_date:
-            event_attrs['start_date'] = start_date
-            event_attrs['end_date'] = end_date
-
         for m2m_name in [
             'costs',
             'topics',

@@ -250,7 +250,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         queryset=models.EventPrerequisite.objects,
         required=False,
     )
-
     elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
     communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
