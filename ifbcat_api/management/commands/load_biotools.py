@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
                 has_next_page = entry['next'] is not None
                 for tool in entry['list']:
-                    logger.info("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
+                    logger.debug("https://bio.tools/api/" + tool['biotoolsID'] + "?format=jsonld ")
                     tool_entry = Tool.objects.filter(biotoolsID__iexact=tool['biotoolsID']).first()
                     if tool_entry is None:
                         tool_entry = Tool.objects.filter(name__iexact=tool['name']).first()
@@ -65,6 +65,7 @@ class Command(BaseCommand):
         key = None
         cache_dir = os.environ.get('CACHE_DIR', None)
         if cache_dir is not None:
+            os.makedirs(cache_dir, exist_ok=True)
             cache_dir = os.path.join(cache_dir, 'biotools')
             key = f'{collection_id}.{page}.json'
             try:

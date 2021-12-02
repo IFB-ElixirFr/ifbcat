@@ -14,6 +14,7 @@ from tqdm import tqdm
 from ifbcat_api.models import Keyword
 from ifbcat_api.models import Team
 from ifbcat_api.models import Tool
+from ifbcat_api.models import ToolType
 
 
 class Command(BaseCommand):
@@ -33,6 +34,9 @@ class Command(BaseCommand):
             data_file.seek(0)
             next(data)
             # do the work
+
+            database_tool_type, created = ToolType.objects.get_or_create(name="Database portal")
+
             for data_object in tqdm(data, total=data_len):
                 if data_object == []:
                     continue  # Check for empty lines
@@ -144,13 +148,15 @@ class Command(BaseCommand):
                     print(data_object)
                     raise e
 
-                # if object_platform:
-                #    database.platform.add(object_platform)
+                if object_platform:
+                    database.teams.add(object_platform)
 
                 display_format = "\nDatabase, {}, has been saved."
                 # print(display_format.format(database))
                 for keyword in database_keywords_list:
                     database.keywords.add(keyword)
+
+                database.tool_type.add(database_tool_type)
 
                 # biotoolsCURIE and biotoolsID are missing for validation
                 # database.full_clean()

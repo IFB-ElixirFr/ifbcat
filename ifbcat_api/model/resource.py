@@ -1,6 +1,4 @@
 # Imports
-from django.conf import settings
-from django.core.validators import RegexValidator
 from django.db import models
 
 from ifbcat_api.model.community import Community
@@ -13,8 +11,6 @@ class Resource(models.Model):
 
     class Meta:
         abstract = True
-
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(
         max_length=255,

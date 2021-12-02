@@ -1,0 +1,40 @@
+{% load i18n static ifbcat %}
+<div class="col-md-6 col-sm-12">
+    <div class="card card-primary card-outline">
+        <div class="card-header">
+            <span class="h5 m-0">
+                <i class="nav-icon {{model.icon}}"></i>
+                {% if not model.my %}{{model.name}}{%else%}{%blocktrans with name=model.name%}My {{name}}{%endblocktrans%}{%endif%}
+                {% if model.suffix %} : {{model.suffix}}{%endif%}
+            </span>
+            <div class="btn-group float-right">
+                {% if model.add_url %}
+                    <a href="{{ model.add_url }}" class="btn btn-sm btn-success btn-flat addlink">{% trans 'Add' %}</a>
+                {% endif %}
+                {% if model.url %}
+                    {% if model.view_only %}
+                        <a href="{{ model.url }}" class="btn btn-sm btn-outline-info btn-flat viewlink">{% trans 'View' %}</a>
+                    {% else %}
+                        <a href="{{ model.url }}" class="btn btn-sm btn-outline-info btn-flat changelink">{% if model.custom %}{% trans 'Go' %}{% else %}{% trans 'Change' %}{% endif %}</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% if model.instances %}
+        <div class="card-body">
+            <ul>
+            {% for instance in model.instances %}
+                <li>
+                    <a href="{{model.admin_url}}{{instance.pk}}">{{instance}}</a>
+                    <div class="btn-group float-right" role="group" aria-label="Basic example">
+                    {% for action in model.actions %}
+                    <a role="button" href="{% url action.url instance.pk %}" class="btn btn-xs btn-outline-success">{{action.text}}</a>
+                    {% endfor %}
+                    </div>
+                </li>
+            {%endfor%}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</div>

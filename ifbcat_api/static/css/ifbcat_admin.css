@@ -2,11 +2,39 @@
 .brand-image{
     box-shadow:none !important;
 }
-.select2.select2-container.select2-container--admin-autocomplete
+.select2.select2-container
 {
     width:100%!important;
 }
-
+.select2.select2-container .select2-selection__choice{
+    color: #278bc7 !important;
+    background-color: white !important;
+    border-color: #278bc7 !important;
+}
+.select2.select2-container .select2-selection__choice>span{
+    margin-left:14px;
+}
+.select2.select2-container .select2-selection__choice>button{
+    border-width: 0px;
+    color: white !important;
+    background-color: #278bc7 !important;
+    color: #278bc7 !important;
+    background-color: transparent !important;
+    margin-left:0px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.select2.select2-container .select2-selection__choice>button:hover{
+        background-color: #00000033 !important;
+}
+.select2.select2-container .select2-selection__choice:hover{
+    color: white !important;
+    background-color: #278bc7 !important;
+    border-color: #278bc7 !important;
+}
+.select2.select2-container .select2-selection__choice:hover>button{
+    color: white !important;
+}
 .theme-default .sidebar-light-primary+.content-wrapper{
     background-color: #eff4fb;
 }
@@ -141,6 +169,15 @@
 .theme-default .sidebar-light-primary+.content-wrapper .bg-success {
     background-color: #61963f !important;
 }
+.theme-default .sidebar-light-primary+.content-wrapper .btn-outline-success {
+    color: #61963f;
+    border-color: #61963f;
+}
+.theme-default .sidebar-light-primary+.content-wrapper .btn-outline-success:hover {
+    color: #fff;
+    background-color: #61963f;
+    border-color: #61963f;
+}
 .theme-default .sidebar-light-primary+.content-wrapper .btn-outline-info {
     color: #278bc7;
     border-color: #278bc7;
@@ -160,5 +197,12 @@
     background: -webkit-linear-gradient(left,rgba(255,0,0,0) 0,white 100%);
     position: absolute;
     left: calc( 100% - 20px );
+}
+.form-group.errors *,
+.form-group.errors  .select2-selection{
+    border-color: red;
+}
+.form-group.errors label {
+    color: #a00;
 }
 /**/

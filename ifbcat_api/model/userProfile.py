@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic
-from ifbcat_api.validators import validate_orcid
+from ifbcat_api.validators import validate_orcid, validate_email
 
 
 class UserProfileManager(BaseUserManager):
@@ -104,7 +104,14 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
             validate_orcid,
         ],
     )
-    email = models.EmailField(max_length=255, unique=True, help_text="Email address of a person (IFB catalogue user).")
+    email = models.EmailField(
+        max_length=255,
+        unique=True,
+        help_text="Email address of a person (IFB catalogue user).",
+        validators=[
+            validate_email,
+        ],
+    )
     homepage = models.URLField(
         max_length=255, null=True, blank=True, help_text="Homepage of a person (IFB catalogue user)."
     )

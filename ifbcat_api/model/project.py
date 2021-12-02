@@ -1,5 +1,4 @@
 # Imports
-from django.conf import settings
 from django.db import models
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -18,7 +17,6 @@ class Project(models.Model):
     """Project model: A scientific or technical project that a French bioinformatics team is involved in."""
 
     # name, homepage & description are mandatory
-    user_profile = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
         max_length=255,
         help_text="Name of the project.",
@@ -81,9 +79,10 @@ class Project(models.Model):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
-            | permissions.ReadWriteByOwner
             | permissions.ReadWriteByTeamLeader
             | permissions.ReadWriteByTeamDeputies
+            | permissions.ReadWriteByTeamMaintainers
+            | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
         )

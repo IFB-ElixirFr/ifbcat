@@ -34,6 +34,8 @@ def find_persons(first_and_last_names):
 def find_person(first_and_last_name):
     if type(first_and_last_name) == float and math.isnan(first_and_last_name):
         return None
+    if "Non renseigné" in first_and_last_name:
+        return None
     first_and_last_name = first_and_last_name.strip()
     names = first_and_last_name.split(" ")
     for i in range(1, len(names)):
@@ -67,10 +69,22 @@ class Command(BaseCommand):
     help = "Import Teams"
 
     def add_arguments(self, parser):
-        parser.add_argument("file", type=str, help="Path to the CSV source file")
+        parser.add_argument(
+            "--teams",
+            default="import_data/platforms.csv",
+            type=str,
+            help="Path to the CSV source file for teams",
+        )
+        parser.add_argument(
+            "--mapping-organisations",
+            default="import_data/manual_curation/mapping_organisations.csv",
+            type=str,
+            help="Path to the CSV file containing mapping for organisations between Drupal names and Ifbcat ones.",
+        )
 
     def handle(self, *args, **options):
-        df = pd.read_csv(options["file"], sep=",")
+        df = pd.read_csv(options["teams"], sep=",")
+        mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         # models.Team.objects.all().delete()
         # models.Organisation.objects.all().delete()
         for index, row in df.iterrows():
@@ -82,6 +96,14 @@ class Command(BaseCommand):
                 bt.address = address
                 bt.country = address.split('\n')[-1]
                 bt.city = city
+                # This plateform has no working website
+                # and homepage field do not allow for none.
+                # Hence this "better than nothing URL"
+                if row["Nom de la plateforme"] == "PRABI-HCL":
+                    homepage = "https://lbbe.univ-lyon1.fr/-90-PRABI-.html?lang=fr"
+                else:
+                    homepage = str(row["Website"])
+                bt.homepage = homepage
                 bt.logo_url = to_none_when_appropriate(str(row["Chemin"]))
                 bt.homepage = to_none_when_appropriate(str(row["Website"])) or ''
                 for p in find_persons(row["Responsable scientifique"]):
@@ -91,7 +113,7 @@ class Command(BaseCommand):
                 for p in find_persons(row["Equipe"]):
                     bt.members.add(p)
                 for certification in row['Certificat(s)'].strip().split('\n'):
-                    certification = certification.strip()
+                    certification = certification.strip().replace('/', '-')
                     if certification == "Non renseigné":
                         continue
                     try:
@@ -105,43 +127,41 @@ class Command(BaseCommand):
                             c.save()
                         bt.certifications.add(c)
                     except Exception as e:
-                        print("Failed with %s" % certification)
-                        print(e)
-                for affiliation in row["Affiliation"].replace("/", ",").replace("’", "'").split(","):
+                        logger.error("Failed with certification %s" % certification)
+                        logger.error(e)
+                affiliated_with = row["Affiliation"] + "," + row["Structure"]
+                for affiliation in affiliated_with.replace("/", ",").replace("’", "'").split(","):
+
                     affiliation = affiliation.strip()
-                    if affiliation == "Unité : \nNon renseignée":
-                        continue
-                    # FIXME, adding dummy contents because description and homepage are missing
-                    try:
-                        o, created = Organisation.objects.get_or_create(name=affiliation)
-                        if created:
-                            o.name = affiliation
-                            o.description = f"description for {affiliation}"
-                            o.homepage = f"http://nothing.org"
-                            o.full_clean()
-                            o.save()
-                        bt.affiliatedWith.add(o)
-                    except Exception as e:
-                        print("Failed with %s" % affiliation)
+                    if Organisation.objects.filter(name=affiliation).exists():
+                        organisation = Organisation.objects.get(name=affiliation)
+                        bt.affiliatedWith.add(organisation)
+                    elif affiliation in mapping_organisations['drupal_name'].tolist():
+                        organizer_row = mapping_organisations[mapping_organisations['drupal_name'] == affiliation]
+                        if not organizer_row['orgid'].isna().iloc[0]:
+                            logger.debug(organizer_row['orgid'])
+                            organisation = Organisation.objects.get(orgid=organizer_row['orgid'].iloc[0])
+                        elif not organizer_row['ifbcat_name'].isna().iloc[0]:
+                            logger.debug(organizer_row['orgid'])
+                            organisation = Organisation.objects.get(name=organizer_row['ifbcat_name'].iloc[0])
+                        bt.affiliatedWith.add(organisation)
+                    elif "Non renseigné" in affiliation:
+                        pass
+                    else:
+                        logger.info("%s is not a known organisation" % affiliation)
                 for affiliation in row["Structure"].replace("/", ",").replace("’", "'").split(","):
                     affiliation = affiliation.strip()
-                    if affiliation == "Unité : \nNon renseignée":
+                    if affiliation == "Non renseignée":
                         continue
-                    # FIXME, adding dummy contents because description and homepage are missing
                     try:
-                        o, created = Organisation.objects.get_or_create(name=affiliation)
-                        if created:
-                            o.name = affiliation
-                            o.description = f"description for {affiliation}"
-                            o.homepage = f"http://nothing.org"
-                            o.full_clean()
-                            o.save()
+                        o = Organisation.objects.get(name=affiliation)
                         bt.fundedBy.add(o)
                     except Exception as e:
-                        print("Failed with %s" % affiliation)
+                        logger.error("Failed with affiliation %s" % affiliation)
+                        logger.error(e)
                 bt.save()
             except Exception as e:
-                print("Failed with line %i:%s; %s" % (index, str(row), str(e)))
+                logger.error("Failed with line %i:%s; %s" % (index, str(row), str(e)))
                 raise e
 
 

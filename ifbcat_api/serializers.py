@@ -131,7 +131,7 @@ class KeywordSerializer(serializers.ModelSerializer):
     #     validators=[UniqueValidator(queryset = models.EventKeyword.objects.all())])
     class Meta:
         model = models.Keyword
-        fields = ('keyword',)
+        fields = ('keyword', 'id')
 
     def validate(self, attrs):
         self.Meta.model(**attrs).clean_fields()
@@ -257,8 +257,10 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
     communities = inlineSerializers.CommunityInlineSerializer(many=True, read_only=True)
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
-    organisedByOrganisations = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    organisedByOrganisations = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
+    realisation_status = serializers.CharField()
+    registration_status = serializers.CharField()
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),
@@ -269,17 +271,12 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Event
 
-        fields = (
+        fields_from_abstract_event = (
             'id',
             'name',
             'shortName',
             'description',
             'homepage',
-            'type',
-            'dates',
-            'venue',
-            'city',
-            'country',
             'onlineOnly',
             'costs',
             'topics',
@@ -291,13 +288,26 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'contactName',
             'contactEmail',
             'contactId',
-            'market',
             'elixirPlatforms',
             'communities',
             'sponsoredBy',
             'organisedByOrganisations',
             'organisedByTeams',
             'logo_url',
+        )
+        fields = fields_from_abstract_event + (
+            'type',
+            'dates',
+            'venue',
+            'city',
+            'country',
+            'geographical_range',
+            'trainers',
+            'computingFacilities',
+            'realisation_status',
+            'registration_opening',
+            'registration_closing',
+            'registration_status',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -346,9 +356,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Model serializer for training events
-class TrainingEventSerializer(EventSerializer):
-    """Serializes a training event (TrainingEvent object)."""
-
+class TrainingSerializer(EventSerializer):
     audienceTypes = VerboseSlugRelatedField(
         many=True,
         read_only=False,
@@ -365,9 +373,9 @@ class TrainingEventSerializer(EventSerializer):
     )
 
     class Meta(EventSerializer.Meta):
-        model = models.TrainingEvent
+        model = models.Training
 
-        fields = EventSerializer.Meta.fields + (
+        fields = EventSerializer.Meta.fields_from_abstract_event + (
             'audienceTypes',
             'audienceRoles',
             'difficultyLevel',
@@ -376,9 +384,7 @@ class TrainingEventSerializer(EventSerializer):
             'hoursPresentations',
             'hoursHandsOn',
             'hoursTotal',
-            'trainers',
             'personalised',
-            'computingFacilities',
             # 'databases',
             # 'tools',
         )
@@ -410,11 +416,9 @@ class TrainerSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Model serializer for training event metrics
-class TrainingEventMetricsSerializer(serializers.ModelSerializer):
-    """Serializes training event metrics (TrainingEventMetrics object)."""
-
+class TrainingCourseMetricsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.TrainingEventMetrics
+        model = models.TrainingCourseMetrics
 
         fields = (
             'id',
@@ -458,8 +462,7 @@ class OrganisationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Organisation
-        fields = ('id', 'user_profile', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
-        read_only_fields = ['user_profile']
+        fields = ('id', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
         rdf_mapping = dict(
             name="http://i-dont-know.org#name",
             description="http://i-dont-know.org#desc",
@@ -531,7 +534,6 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'name',
             'homepage',
             'description',
@@ -545,7 +547,6 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'elixirPlatforms': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
@@ -565,7 +566,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'name',
             'description',
             'communities',
@@ -573,7 +573,6 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'communities': {'lookup_field': 'name'},
             'elixirPlatforms': {'lookup_field': 'name'},
@@ -721,11 +720,17 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     fundedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     platforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
 
+    tools = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="biotoolsID",
+        required=False,
+    )
+
     class Meta:
         model = models.Team
         fields = (
             'id',
-            'user_profile',
             'name',
             'logo_url',
             'description',
@@ -745,6 +750,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'keywords',
             'fields',
             'orgid',
+            'tools',
             # fields below are legacy
             'leader',
             'deputies',
@@ -755,7 +761,6 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'ifbMembership',
             'platforms',
         )
-        read_only_fields = ['user_profile']
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
         extra_kwargs = {
@@ -818,24 +823,21 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'name',
             'description',
             'dateEstablished',
             'teams',
             'computingFacilities',
-            'trainingEvents',
+            'trainings',
             'trainingMaterials',
             'publications',
             'governanceSab',
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'teams': {'lookup_field': 'name'},
             'computingFacilities': {'lookup_field': 'name'},
-            # 'trainingEvents': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
 
@@ -849,7 +851,6 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
 
         fields = (
             'id',
-            'user_profile',
             'service',
             'authors',
             'submitters',
@@ -863,7 +864,6 @@ class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         extra_kwargs = {
-            'user_profile': {'read_only': True},
             'service': {'lookup_field': 'name'},
             'motivation': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'scope': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
@@ -928,7 +928,7 @@ _tool_fields = (
     # 'increase_last_update',
     # 'access_condition',
     'keywords',
-    # 'platform',
+    'teams',
     # 'language',
     # 'topic',
 )
@@ -979,11 +979,17 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
 
     tool_credit = ToolCreditSerializer(read_only=True, many=True)
 
+    teams = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        required=False,
+    )
+
     class Meta:
         model = models.Tool
         fields = _tool_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
-        # depth = 1
 
 
 def modelserializer_factory(model, serializer=serializers.ModelSerializer, fields=None, exclude=None):

@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 __USER_MANAGER_GRP_NAME = "User manager"
 __SUPER_EDITOR_GRP_NAME = "Supereditor (superuser that can also edit many things)"
+__CURATOR_GRP_NAME = "Curator (for a class, can edit all instance when manager of a this class)"
 __EVENT_GRP_NAME = "Event manager"
 __TEAM_AND_MORE_GRP_NAME = "Community, Organisation, Project, Team manager"
 __TOOL_GRP_NAME = "Tool manager"
@@ -105,8 +106,8 @@ def init_business_logic():
         models.AudienceRole,
         models.AudienceType,
         models.Trainer,
-        models.TrainingEventMetrics,
-        models.TrainingEvent,
+        models.TrainingCourseMetrics,
+        models.Training,
         models.TrainingMaterial,
     ]
     needed_by_all = [
@@ -198,6 +199,14 @@ def is_super_editor(user, request=None):
 
 
 ###############################################################################
+# Curator
+###############################################################################
+def is_curator(user, request=None):
+    user = user or request.user
+    return user.is_staff and user.groups.filter(name=__CURATOR_GRP_NAME).exists()
+
+
+###############################################################################
 # Permission classes
 ###############################################################################
 __missing_permission_classes = set()
@@ -220,12 +229,48 @@ def get_permission_classes(model):
 
 
 ###############################################################################
+# Using permission
+###############################################################################
+
+
+def __has_permission_for_methods(*, model, request, methods: list, obj=None):
+    # similar to rest_framework/views.py:APIView.check_permissions#L326
+    for perm in get_permission_classes(model):
+        for method in methods:
+            with permissions.simple_override_method(request=request, method=method) as request:
+                if obj is None:
+                    if not perm().has_permission(request=request, view=None):
+                        return False
+                else:
+                    if not perm().has_object_permission(request=request, view=None, obj=obj):
+                        return False
+    return True
+
+
+def has_view_permission(model, request, obj=None):
+    return __has_permission_for_methods(model=model, request=request, obj=obj, methods=["GET"])
+
+
+def has_add_permission(model, request):
+    return __has_permission_for_methods(model=model, request=request, methods=["PUT"])
+
+
+def has_change_permission(model, request, obj=None):
+    return __has_permission_for_methods(model=model, request=request, obj=obj, methods=["POST", "PUT"])
+
+
+def has_delete_permission(model, request, obj=None):
+    return __has_permission_for_methods(model=model, request=request, obj=obj, methods=["DELETE"])
+
+
+###############################################################################
 # Permission classes
 ###############################################################################
 def get_not_to_be_deleted_group_names():
     return (
         __USER_MANAGER_GRP_NAME,
         __SUPER_EDITOR_GRP_NAME,
+        __CURATOR_GRP_NAME,
         __EVENT_GRP_NAME,
         __TEAM_AND_MORE_GRP_NAME,
         __TOOL_GRP_NAME,
