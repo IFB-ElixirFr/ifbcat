@@ -18,4 +18,5 @@ jobs:
         docker-compose build
         docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
     - name: Check migrations
-      run: docker-compose exec -T -e web python manage.py migrate
+      run: docker-compose run web python manage.py migrate
+
