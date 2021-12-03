@@ -112,4 +112,4 @@ class JsonLDSchemaEventRenderer(renderers.BaseRenderer):
             #                            print(f"END {date['dateStart']}")
             count += 1
 
-        yield G.serialize(format="json-ld").decode()
+        return G.serialize(format="json-ld")
