@@ -70,8 +70,8 @@ class JsonLDSchemaEventRenderer(renderers.BaseRenderer):
             actual_data = [actual_data]  # put the only instance dict in an array to have the same behavior after
 
         # RDFlib graph object
-        G = ConjunctiveGraph()
-        SCHEMA = Namespace("https://schema.org/")
+        graph = ConjunctiveGraph()
+        schema = Namespace("https://schema.org/")
 
         count = 0
 
@@ -82,34 +82,34 @@ class JsonLDSchemaEventRenderer(renderers.BaseRenderer):
                 training_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/event/" + str(item['id']))
 
                 # <https://schema.org/CourseInstance>
-                G.add((training_uri, RDF.type, SCHEMA.CourseInstance))
+                graph.add((training_uri, RDF.type, schema.CourseInstance))
 
                 # print("((((((--------))))))")
                 if item.get("name"):
                     # print(item["name"])
-                    G.add((training_uri, SCHEMA.name, Literal(item["name"], datatype=XSD.string)))
+                    graph.add((training_uri, schema.name, Literal(item["name"], datatype=XSD.string)))
 
                 if item.get("city"):
-                    G.add((training_uri, SCHEMA.location, Literal(item["city"], datatype=XSD.string)))
+                    graph.add((training_uri, schema.location, Literal(item["city"], datatype=XSD.string)))
 
                 if item.get("homepage"):
                     # print(item["homepage"])
                     # print(json.dumps(item, indent=True))
-                    G.add((training_uri, SCHEMA.url, URIRef(item["homepage"])))
+                    graph.add((training_uri, schema.url, URIRef(item["homepage"])))
 
                 if item.get("description"):
                     # print(item["description"])
-                    G.add((training_uri, SCHEMA.description, Literal(item["description"], datatype=XSD.string)))
+                    graph.add((training_uri, schema.description, Literal(item["description"], datatype=XSD.string)))
 
                 # TODO check that dates are valid ISO-8601
                 if item.get("dates"):
                     for date in item["dates"]:
                         if date.get("dateStart"):
-                            G.add((training_uri, SCHEMA.startDate, Literal(date["dateStart"], datatype=XSD.date)))
+                            graph.add((training_uri, schema.startDate, Literal(date["dateStart"], datatype=XSD.date)))
                         #                            print(f"START {date['dateStart']}")
                         if date.get("dateEnd"):
-                            G.add((training_uri, SCHEMA.endDate, Literal(date["dateEnd"], datatype=XSD.date)))
+                            graph.add((training_uri, schema.endDate, Literal(date["dateEnd"], datatype=XSD.date)))
             #                            print(f"END {date['dateStart']}")
             count += 1
 
-        return G.serialize(format="json-ld")
+        return graph.serialize(format="json-ld")
