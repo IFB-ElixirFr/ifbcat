@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
-from ifbcat_api.model.event import AbstractEvent, Event, EventDate
+from ifbcat_api.model.event import AbstractEvent, Event
 from ifbcat_api.model.misc import AudienceType, AudienceRole, DifficultyLevelType
 from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.model.userProfile import UserProfile
@@ -132,6 +132,9 @@ class Training(AbstractEvent):
         )
         if self.shortName:
             event_attrs['shortName'] = f'New session of {self.shortName}'
+        if start_date:
+            event_attrs['start_date'] = start_date
+            event_attrs['end_date'] = end_date
         for field in [
             'description',
             'homepage',
@@ -146,11 +149,6 @@ class Training(AbstractEvent):
         ]:
             event_attrs[field] = getattr(self, field)
         event = Event.objects.create(**event_attrs)
-
-        if start_date:
-            d, created = EventDate.objects.get_or_create(dateStart=start_date, dateEnd=end_date)
-            event.dates.add(d)
-
         for m2m_name in [
             'costs',
             'topics',

@@ -19,7 +19,6 @@ from ifbcat import db_finder
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -132,7 +131,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -145,7 +143,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -280,7 +277,6 @@ JAZZMIN_SETTINGS = {
         "ifbcat_api.Doi": "fas fa-file-alt",
         "ifbcat_api.ElixirPlatform": "fas fa-circle",
         "ifbcat_api.EventCost": "fas fa-circle",
-        "ifbcat_api.EventDate": "fas fa-circle",
         "ifbcat_api.EventPrerequisite": "fas fa-circle",
         "ifbcat_api.EventSponsor": "fas fa-circle",
         "ifbcat_api.Event": "fas fa-calendar-alt",
