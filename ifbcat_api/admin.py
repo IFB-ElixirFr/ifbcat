@@ -10,7 +10,7 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.lookups import Unaccent
-from django.db.models import Count, Q, When, Value, BooleanField, Case, Min, Max, CharField, F
+from django.db.models import Count, Q, When, Value, BooleanField, Case, CharField, F
 from django.db.models.functions import Upper, Length
 from django.forms import modelform_factory
 from django.http import HttpResponseRedirect
@@ -273,7 +273,7 @@ class EventAdmin(
         'training',
     )
     #
-    filter_horizontal = ('dates',)
+    filter_horizontal = ()
     autocomplete_fields = (
         'costs',
         'topics',
@@ -284,7 +284,7 @@ class EventAdmin(
         'sponsoredBy',
     )
 
-    date_hierarchy = 'dates__dateStart'
+    date_hierarchy = 'start_date'
 
     def get_queryset(self, request):
         return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
@@ -318,13 +318,7 @@ class EventAdmin(
     is_tess_publishing.admin_order_field = 'short_name_or_name'
 
     def date_range(self, obj):
-        start, end = (
-            type(obj)
-            .objects.filter(pk=obj.pk)
-            .annotate(min=Min('dates__dateStart'), max=Max('dates__dateEnd'))
-            .values_list('min', 'max')
-            .get()
-        )
+        start, end = obj.start_date, obj.end_date
         if start is None:
             return None
         if end is None:
@@ -332,7 +326,7 @@ class EventAdmin(
         return f'{dateformat.format(start, "Y-m-d")} - {dateformat.format(end, "Y-m-d")}'
 
     date_range.short_description = "Period"
-    date_range.admin_order_field = 'dates__dateStart'
+    date_range.admin_order_field = 'start_date'
 
 
 @admin.register(models.Training)
@@ -469,11 +463,6 @@ class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 @admin.register(models.EventCost)
 class EventCostAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
     search_fields = ['cost']
-
-
-@admin.register(models.EventDate)
-class EventDateAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-    pass
 
 
 @admin.register(models.Trainer)

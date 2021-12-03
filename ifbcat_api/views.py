@@ -12,7 +12,7 @@ import json
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.cache import cache
-from django.db.models import When, Q, Case, Value, CharField, Min, Max
+from django.db.models import When, Q, Case, Value, CharField
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -254,8 +254,8 @@ class UserLoginApiView(ObtainAuthToken):
 
 
 class EventFilter(AutoSubsetFilterSet):
-    min_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='gte')
-    max_start = django_filters.DateFilter(field_name="dates__dateStart", lookup_expr='lte')
+    min_start = django_filters.DateFilter(field_name="start_date", lookup_expr='gte')
+    max_start = django_filters.DateFilter(field_name="start_date", lookup_expr='lte')
     registration_status = django_filters.ChoiceFilter(
         field_name="registration_status",
         label="Registration status",
@@ -324,43 +324,38 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
     serializer_class = serializers.EventSerializer
-    ordering = ['-dates']
-    queryset = (
-        models.Event.objects.annotate(
-            dateStartMin=Min('dates__dateStart'),
-            dateEndMin=Max('dates__dateEnd'),
+    ordering = [
+        '-start_date',
+    ]
+
+    queryset = models.Event.objects.annotate(
+        realisation_status=Case(
+            When(Q(start_date__gt=timezone.now()), then=Value('future')),
+            When(
+                Q(start_date__lt=timezone.now()) & (Q(end_date__isnull=True) | Q(end_date__lt=timezone.now())),
+                then=Value('past'),
+            ),
+            default=Value('ongoing'),
+            output_field=CharField(),
         )
-        .annotate(
-            realisation_status=Case(
-                When(Q(dateStartMin__gt=timezone.now()), then=Value('future')),
-                When(
-                    Q(dateStartMin__lt=timezone.now())
-                    & (Q(dateEndMin__isnull=True) | Q(dateEndMin__lt=timezone.now())),
-                    then=Value('past'),
-                ),
-                default=Value('ongoing'),
-                output_field=CharField(),
-            )
-        )
-        .annotate(
-            registration_status=Case(
-                When(
-                    Q(registration_opening__gt=timezone.now()),
-                    then=Value('future'),
-                ),
-                When(
-                    (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
-                    & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
-                    & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
-                    then=Value('open'),
-                ),
-                When(
-                    Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
-                    then=Value('unknown'),
-                ),
-                default=Value('closed'),
-                output_field=CharField(),
-            )
+    ).annotate(
+        registration_status=Case(
+            When(
+                Q(registration_opening__gt=timezone.now()),
+                then=Value('future'),
+            ),
+            When(
+                (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
+                & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
+                & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
+                then=Value('open'),
+            ),
+            When(
+                Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
+                then=Value('unknown'),
+            ),
+            default=Value('closed'),
+            output_field=CharField(),
         )
     )
     search_fields_from_abstract_event = (
