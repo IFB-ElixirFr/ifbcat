@@ -9,6 +9,8 @@ import json
 from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal
 from rdflib.namespace import RDF, RDFS, FOAF, XSD
 
+from ifbcat_api import models
+
 
 class NTriplesRdfRenderer(renderers.BaseRenderer):
     # media_type = 'text/rdf+txt'
@@ -76,7 +78,7 @@ class JsonLDSchemaEventRenderer(renderers.BaseRenderer):
         # we iterate over each result in the results set
         for item in actual_data:
 
-            if item.get("id") and item.get("type") and (item["type"] == "Formation"):
+            if item.get("id") and item.get("type") and (item["type"] == models.Event.EventType.TRAINING_COURSE):
                 training_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/event/" + str(item['id']))
 
                 # <https://schema.org/CourseInstance>
