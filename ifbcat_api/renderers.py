@@ -102,14 +102,10 @@ class JsonLDSchemaEventRenderer(renderers.BaseRenderer):
                     graph.add((training_uri, schema.description, Literal(item["description"], datatype=XSD.string)))
 
                 # TODO check that dates are valid ISO-8601
-                if item.get("dates"):
-                    for date in item["dates"]:
-                        if date.get("dateStart"):
-                            graph.add((training_uri, schema.startDate, Literal(date["dateStart"], datatype=XSD.date)))
-                        #                            print(f"START {date['dateStart']}")
-                        if date.get("dateEnd"):
-                            graph.add((training_uri, schema.endDate, Literal(date["dateEnd"], datatype=XSD.date)))
-            #                            print(f"END {date['dateStart']}")
+                if item.get("start_date"):
+                    graph.add((training_uri, schema.startDate, Literal(item["start_date"], datatype=XSD.date)))
+                if item.get("end_date"):
+                    graph.add((training_uri, schema.endDate, Literal(item["end_date"], datatype=XSD.date)))
             count += 1
 
         return graph.serialize(format="json-ld")
