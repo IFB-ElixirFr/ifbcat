@@ -12,8 +12,10 @@ jobs:
     - uses: actions/checkout@v2
       with:
         token: ${{ secrets.ACCESS_TOKEN }}
-    - name: Checking migration inside the docker-compose with third party api calls cached
+    - name: Run app inside the docker-compose with third party api calls cached
       run: |
         cp resources/default.ini local.ini     
         docker-compose build
         docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+    - name: Check migrations
+      run: docker-compose exec -T -e web python manage.py migrate
