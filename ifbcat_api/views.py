@@ -104,6 +104,8 @@ class MultipleFieldLookupMixin:
             field_key = field
             if field[-8:] == "__iexact":
                 field_key = field[:-8]
+            if field[-10:] == "__endswith":
+                field_key = field[:-10]
             if self.kwargs.get(field_key):  # Ignore empty fields.
                 filter[field] = self.kwargs[field_key]
         obj = get_object_or_404(queryset, **filter)  # Lookup the object
