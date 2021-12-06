@@ -18,4 +18,4 @@ jobs:
         pip install -r requirements.txt
     - name: Check if no migrations is missing
       run: |
-        POSTGRES_PASSWORD=eee python manage.py makemigrations --check
+        POSTGRES_PASSWORD=eee python manage.py makemigrations --check --dry-run
