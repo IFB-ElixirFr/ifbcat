@@ -11,7 +11,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Check if no migrations is missing
       run: |
-        cp resources/default.ini local.ini
-        docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build -d
+        cp resources/default.ini local.ini     
+        docker-compose build
+        docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
         sleep 10
         docker-compose exec web python manage.py makemigrations --check
