@@ -9,14 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.ACCESS_TOKEN }}
-    - name: Run app inside the docker-compose with third party api calls cached
+    - name: Check if no migrations is missing
       run: |
-        cp resources/default.ini local.ini     
-        docker-compose build
-        docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
-    - name: Check migrations
-      run: docker-compose run web python manage.py migrate
-
+        cp resources/default.ini local.ini
+        docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up --build -d
+        sleep 10
+        docker-compose exec web python manage.py makemigrations --check
