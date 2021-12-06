@@ -7,7 +7,7 @@ import ifbcat_api.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ifbcat_api', '0163_auto_20211006_0845'),
+        ('ifbcat_api', '0165_auto_20211130_1640'),
     ]
 
     operations = [
