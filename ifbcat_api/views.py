@@ -843,9 +843,10 @@ class ToolTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.modelserializer_factory(models.ToolType, fields=['id', 'name'])
 
 
-class TopicViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class TopicViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.Topic.objects.all()
     serializer_class = serializers.modelserializer_factory(models.Topic, fields=['id', 'uri', 'label'])
+    lookup_fields = ['pk', 'uri__endswith']
 
 
 class EventCostViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
