@@ -55,6 +55,10 @@ class Topic(models.Model):
         null=True,
     )
 
+    @property
+    def edam_id(self):
+        return self.uri[24:]
+
     def __str__(self):
         """Return the Topic model as a string."""
         return f'{self.label} ({self.uri})'

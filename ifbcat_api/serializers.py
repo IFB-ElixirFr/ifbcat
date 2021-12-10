@@ -220,7 +220,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -509,7 +509,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects.all(),
         required=False,
     )
@@ -602,7 +602,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -690,7 +690,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     expertise = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -944,7 +944,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     scientific_topics = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field="uri",
+        slug_field="edam_id",
         required=False,
     )
 

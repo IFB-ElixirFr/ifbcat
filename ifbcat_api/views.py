@@ -104,6 +104,8 @@ class MultipleFieldLookupMixin:
             field_key = field
             if field[-8:] == "__iexact":
                 field_key = field[:-8]
+            if field[-10:] == "__endswith":
+                field_key = field[:-10]
             if self.kwargs.get(field_key):  # Ignore empty fields.
                 filter[field] = self.kwargs[field_key]
         obj = get_object_or_404(queryset, **filter)  # Lookup the object
@@ -841,9 +843,10 @@ class ToolTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.modelserializer_factory(models.ToolType, fields=['id', 'name'])
 
 
-class TopicViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class TopicViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.Topic.objects.all()
     serializer_class = serializers.modelserializer_factory(models.Topic, fields=['id', 'uri', 'label'])
+    lookup_fields = ['pk', 'uri__endswith']
 
 
 class EventCostViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
