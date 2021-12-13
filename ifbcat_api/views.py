@@ -52,7 +52,7 @@ class CachedNoPaginationMixin:
         super().perform_destroy(instance)
         cache.clear()
 
-    @method_decorator(cache_page(int(60 * 60 * 0.5)))
+    # @method_decorator(cache_page(int(60 * 60 * 0.5)))
     @method_decorator(vary_on_cookie)
     def list(self, *args, **kwargs):
         return super().list(*args, **kwargs)
