@@ -16,6 +16,7 @@ from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Topic, Keyword
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
+from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.model.userProfile import UserProfile
 
 
@@ -321,6 +322,11 @@ class Event(AbstractEvent):
         to="Trainer",
         blank=True,
         help_text="Details of people who are providing training at the event.",
+    )
+    trainingMaterials = models.ManyToManyField(
+        TrainingMaterial,
+        blank=True,
+        help_text="Training material related to the training session.",
     )
     computingFacilities = models.ManyToManyField(
         ComputingFacility,
