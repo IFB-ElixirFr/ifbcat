@@ -288,6 +288,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'country',
             'geographical_range',
             'trainers',
+            'trainingMaterials',
             'computingFacilities',
             'realisation_status',
             'registration_opening',
@@ -310,6 +311,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             # 'organisedBy': {'lookup_field': 'name'},
             'organisedByOrganisations': {'lookup_field': 'name'},
             'organisedByTeams': {'lookup_field': 'name'},
+            'trainingMaterials': {'lookup_field': 'name'},
         }
 
     def update(self, instance, validated_data):
