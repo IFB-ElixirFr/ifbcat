@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Count, ManyToManyRel, ManyToOneRel, Case, When, Value, BooleanField, Q
+
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -269,9 +270,15 @@ class Event(AbstractEvent):
         blank=True,
         null=True,
     )
-    dates = models.ManyToManyField(
-        "EventDate",
-        help_text="Date(s) and optional time periods on which the event takes place.",
+    start_date = models.DateField(
+        help_text="Set the start date of the event",
+        blank="True",
+        null=True,
+    )
+    end_date = models.DateField(
+        help_text="Set the end date of the event",
+        blank=True,
+        null=True,
     )
     type = models.CharField(
         max_length=255,
@@ -348,66 +355,11 @@ class Event(AbstractEvent):
         errors = {}
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
             errors.setdefault('training', []).append("training must be provided when creating a Training session")
+        if self.end_date and self.start_date is None:
+            errors.setdefault('start_date', []).append("start date must be provided if end date is")
         if len(errors) > 0:
             raise ValidationError(errors)
 
     @classmethod
     def get_edition_permission_classes(cls):
         return super().get_edition_permission_classes() + (permissions.ReadWriteByTrainers,)
-
-
-# Event date model
-# Event date has a many:one relationship to Event
-class EventDate(models.Model):
-    class Meta:
-        ordering = [
-            'dateStart',
-        ]
-
-    """Event date model: Start and end date and time of an event."""
-
-    # dateStart is mandatory (other fields optional)
-    dateStart = models.DateField(help_text="The start date of the event.")
-    dateEnd = models.DateField(blank=True, null=True, help_text="The end date of the event.")
-    timeStart = models.TimeField(blank=True, null=True, help_text="The start time of the event.")
-    timeEnd = models.TimeField(blank=True, null=True, help_text="The end time of the event.")
-
-    def __str__(self):
-        """Return the EventDate model as a string."""
-        r = self.dateStart.__str__()
-        if self.dateEnd:
-            r = f"{r} to {self.dateEnd.__str__()}"
-        if self.timeStart or self.timeEnd:
-            r = f"{r} ({str(self.timeStart)} {str(self.timeEnd)})"
-        return r
-
-    @classmethod
-    def get_permission_classes(cls):
-        return (
-            permissions.ReadOnly
-            | permissions.UserCanAddNew
-            | permissions.UserCanEditAndDeleteIfNotUsed
-            | permissions.SuperuserCanDelete,
-            IsAuthenticatedOrReadOnly,
-        )
-
-    @classmethod
-    def remove_duplicates(cls):
-        for d_prop in (
-            cls.objects.values('dateStart', 'dateEnd', 'timeStart', 'timeEnd')
-            .annotate(c=Count('pk'))
-            .filter(c__gt=1)
-            .all()
-        ):
-            del d_prop['c']
-            dates = cls.objects.filter(**d_prop).order_by('id')
-            date = dates[0]
-            for d in dates[1:]:
-                for model_field in d._meta.get_fields():
-                    if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
-                        attr_name = model_field.related_name or (model_field.name + "_set")
-                        remote_name = model_field.remote_field.name
-                        for o in getattr(d, attr_name).all():
-                            getattr(o, remote_name).add(date)
-                            getattr(o, remote_name).remove(d)
-                d.delete()

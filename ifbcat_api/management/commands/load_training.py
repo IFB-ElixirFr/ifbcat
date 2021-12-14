@@ -10,7 +10,7 @@ from django.core.management import BaseCommand
 from django.utils.timezone import make_aware
 from tqdm import tqdm
 
-from ifbcat_api.model.event import EventDate, EventSponsor
+from ifbcat_api.model.event import EventSponsor
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
 from ifbcat_api.models import EventCost
@@ -52,7 +52,6 @@ class Command(BaseCommand):
         mapping_organisations = pd.read_csv(options["mapping_organisations"], sep=",")
         mapping_teams = pd.read_csv(options["mapping_teams"], sep=",")
         mapping_costs = dict(k.strip().split(',') for k in open(options["mapping_costs"]))
-        EventDate.remove_duplicates()
 
         with open(os.path.join(options["training"]), encoding='utf-8') as data_file:
             data = csv.reader(data_file)
