@@ -27,7 +27,8 @@ class Topic(models.Model):
     uri = models.CharField(
         max_length=255,
         unique=True,
-        help_text="URI of EDAM Topic term describing scope or expertise.",
+        help_text="URI of EDAM Topic term describing scope or expertise. "
+        "Go to https://edamontology.github.io/edam-browser/#topic_0003 to find new topics.",
         validators=[
             validate_edam_topic,
         ],
