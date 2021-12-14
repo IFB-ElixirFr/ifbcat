@@ -153,6 +153,7 @@ class Training(AbstractEvent):
             'costs',
             'topics',
             'keywords',
+            'trainingMaterials',
             'prerequisites',
             'elixirPlatforms',
             'communities',
