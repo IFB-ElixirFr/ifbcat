@@ -79,8 +79,8 @@ class JsonLDSchemaEventRenderer(renderers.BaseRenderer):
                 # print(item["type"])
                 event_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/event/" + str(item['id']))
 
-                # <https://schema.org/Event>
-                G.add((event_uri, RDF.type, SCHEMA.Event))
+                # <https://schema.org/CourseInstance>
+                G.add((event_uri, RDF.type, SCHEMA.CourseInstance))
 
                 # print("((((((--------))))))")
                 if item.get("name"):
@@ -146,8 +146,8 @@ class JsonLDSchemaTrainingRenderer(renderers.BaseRenderer):
                 # print(item["type"])
                 training_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/training/" + str(item['id']))
 
-                # <https://schema.org/CoursInstance>
-                G.add((training_uri, RDF.type, SCHEMA.CoursInstance))
+                # <https://schema.org/Course>
+                G.add((training_uri, RDF.type, SCHEMA.Course))
 
                 # print("((((((--------))))))")
                 if item.get("name"):

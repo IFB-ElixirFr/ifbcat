@@ -407,6 +407,7 @@ class TessEventViewSet(EventViewSet):
     ordering = []
 
     queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
+    # queryset = models.Event.annotate_is_tess_publishing().all()
 
 
 # Model ViewSet for training
@@ -433,8 +434,8 @@ class TessTrainingViewSet(TrainingViewSet):
     serializer_class = serializers.TrainingSerializer
     ordering = []
 
-    # queryset = models.Training.objects.filter(tess_publishing=True)
-    queryset = models.Training.objects.all()
+    queryset = models.Training.objects.filter(tess_publishing=True)
+    # queryset = models.Training.objects.all()
 
     search_fields = EventViewSet.search_fields_from_abstract_event + (
         'audienceTypes__audienceType',
