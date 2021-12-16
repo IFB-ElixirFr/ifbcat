@@ -46,6 +46,73 @@ class NTriplesRdfRenderer(renderers.BaseRenderer):
 
 
 # Proof of concept on tools before using it on training
+class JsonLDSchemaEventRenderer(renderers.BaseRenderer):
+    # media_type = 'text/rdf+txt'
+    media_type = 'application/ld+json'
+    format = 'json-ld'
+    render_style = 'text'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        if type(data) == OrderedDict:  # ie paginated
+            serializer = data["results"].serializer
+            actual_data = data["results"]
+        elif 'detail' in data:
+            return
+        else:  # not paginated
+            serializer = data.serializer
+            actual_data = data
+
+        if type(serializer) == ListSerializer:  # List view
+            serializer = serializer.child  # get the child serializer, not the list one
+        else:
+            actual_data = [actual_data]  # put the only instance dict in an array to have the same behavior after
+
+        # RDFlib graph object
+        G = ConjunctiveGraph()
+        SCHEMA = Namespace("https://schema.org/")
+
+        count = 0
+
+        # we iterate over each result in the results set
+        for item in actual_data:
+            if item.get("id"):
+                # print(item["type"])
+                event_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/event/" + str(item['id']))
+
+                # <https://schema.org/Event>
+                G.add((event_uri, RDF.type, SCHEMA.Event))
+
+                # print("((((((--------))))))")
+                if item.get("name"):
+                    # print(item["name"])
+                    G.add((event_uri, SCHEMA.name, Literal(item["name"], datatype=XSD.string)))
+
+                if item.get("city"):
+                    G.add((event_uri, SCHEMA.location, Literal(item["city"], datatype=XSD.string)))
+
+                if item.get("homepage"):
+                    # print(item["homepage"])
+                    # print(json.dumps(item, indent=True))
+                    G.add((event_uri, SCHEMA.url, URIRef(item["homepage"])))
+
+                if item.get("description"):
+                    # print(item["description"])
+                    G.add((event_uri, SCHEMA.description, Literal(item["description"], datatype=XSD.string)))
+
+                # TODO check that dates are valid ISO-8601
+                if item.get("dates"):
+                    for date in item["dates"]:
+                        if date.get("dateStart"):
+                            G.add((event_uri, SCHEMA.startDate, Literal(date["dateStart"], datatype=XSD.date)))
+                        #                            print(f"START {date['dateStart']}")
+                        if date.get("dateEnd"):
+                            G.add((event_uri, SCHEMA.endDate, Literal(date["dateEnd"], datatype=XSD.date)))
+            #                            print(f"END {date['dateStart']}")
+            count += 1
+        yield G.serialize(format="json-ld")
+
+
+# Proof of concept on tools before using it on training
 class JsonLDSchemaTrainingRenderer(renderers.BaseRenderer):
     # media_type = 'text/rdf+txt'
     media_type = 'application/ld+json'
@@ -77,7 +144,7 @@ class JsonLDSchemaTrainingRenderer(renderers.BaseRenderer):
         for item in actual_data:
             if item.get("id"):
                 # print(item["type"])
-                training_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/event/" + str(item['id']))
+                training_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/training/" + str(item['id']))
 
                 # <https://schema.org/CoursInstance>
                 G.add((training_uri, RDF.type, SCHEMA.CoursInstance))
@@ -109,4 +176,4 @@ class JsonLDSchemaTrainingRenderer(renderers.BaseRenderer):
                             G.add((training_uri, SCHEMA.endDate, Literal(date["dateEnd"], datatype=XSD.date)))
             #                            print(f"END {date['dateStart']}")
             count += 1
-        yield G.serialize(format="turtle").decode()
+        yield G.serialize(format="json-ld")

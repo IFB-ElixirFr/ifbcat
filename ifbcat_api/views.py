@@ -35,6 +35,7 @@ from ifbcat_api import serializers
 from ifbcat_api.admin import TrainingAdmin
 from ifbcat_api.filters import AutoSubsetFilterSet
 from ifbcat_api.renderers import JsonLDSchemaTrainingRenderer
+from ifbcat_api.renderers import JsonLDSchemaEventRenderer
 
 
 class CachedNoPaginationMixin:
@@ -400,6 +401,11 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 # Model ViewSet for training events that should be published in TES
 class TessEventViewSet(EventViewSet):
+
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaEventRenderer]
+    serializer_class = serializers.EventSerializer
+    ordering = []
+
     queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
 
 
