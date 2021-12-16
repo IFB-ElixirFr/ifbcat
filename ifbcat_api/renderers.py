@@ -75,12 +75,12 @@ class JsonLDSchemaTrainingRenderer(renderers.BaseRenderer):
 
         # we iterate over each result in the results set
         for item in actual_data:
-
-            if item.get("id") and item.get("type") and (item["type"] == "Formation"):
+            if item.get("id"):
+                # print(item["type"])
                 training_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/event/" + str(item['id']))
 
-                # <https://schema.org/CourseInstance>
-                G.add((training_uri, RDF.type, SCHEMA.CourseInstance))
+                # <https://schema.org/CoursInstance>
+                G.add((training_uri, RDF.type, SCHEMA.CoursInstance))
 
                 # print("((((((--------))))))")
                 if item.get("name"):
@@ -109,5 +109,4 @@ class JsonLDSchemaTrainingRenderer(renderers.BaseRenderer):
                             G.add((training_uri, SCHEMA.endDate, Literal(date["dateEnd"], datatype=XSD.date)))
             #                            print(f"END {date['dateStart']}")
             count += 1
-
-        yield G.serialize(format="json-ld").decode()
+        yield G.serialize(format="turtle").decode()

@@ -327,7 +327,7 @@ class TrainingFilter(AutoSubsetFilterSet):
 class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
-    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
+    # renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
     serializer_class = serializers.EventSerializer
     ordering = [
         '-start_date',
@@ -422,7 +422,21 @@ class TrainingViewSet(EventViewSet):
 
 # Model ViewSet for training that should be published in TES
 class TessTrainingViewSet(TrainingViewSet):
-    queryset = models.Training.objects.filter(tess_publishing=True)
+
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
+    serializer_class = serializers.TrainingSerializer
+    ordering = []
+
+    # queryset = models.Training.objects.filter(tess_publishing=True)
+    queryset = models.Training.objects.all()
+
+    search_fields = EventViewSet.search_fields_from_abstract_event + (
+        'audienceTypes__audienceType',
+        'audienceRoles__audienceRole',
+        'difficultyLevel',
+        'learningOutcomes',
+    )
+    filterset_class = TrainingFilter
 
 
 # Model ViewSet for keywords
