@@ -43,6 +43,7 @@ except UndefinedValueError:
 INSTALLED_APPS = [
     'jazzmin_patch',
     'jazzmin',
+    'admin_honeypot',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -65,6 +66,7 @@ if DEBUG:
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django_session_timeout.middleware.SessionTimeoutMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -199,6 +201,14 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO' if DEBUG else 'WARNING').upper()
 logging.basicConfig(level=LOGLEVEL)
 
+
+################################################################################
+# Session Time out
+################################################################################
+SESSION_EXPIRE_SECONDS = 1800  # 30 min
+SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True
+SESSION_TIMEOUT_REDIRECT = '/'
+
 ################################################################################
 # JAZZMIN CONFIGURATION
 ################################################################################
@@ -298,6 +308,7 @@ JAZZMIN_SETTINGS = {
         "ifbcat_api.TrainingMaterial": "fas fa-book",
         "ifbcat_api.TypeRole": "fas fa-circle",
         "ifbcat_api.UserProfile": "fas fa-user",
+        "admin_honeypot.LoginAttempt": "fas fa-search-location",
     },
     #
     #################

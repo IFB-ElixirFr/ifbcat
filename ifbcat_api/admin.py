@@ -1,5 +1,6 @@
 import itertools
 
+import admin_honeypot.models
 import requests
 from django import forms
 from django.contrib import admin, messages
@@ -26,6 +27,8 @@ from ifbcat_api import models, business_logic
 from ifbcat_api.misc import BibliographicalEntryNotFound
 from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
+from admin_honeypot.admin import LoginAttemptAdmin
+from django.utils.translation import ugettext_lazy as _
 
 
 class ModelAdminFillingContactId(admin.ModelAdmin):
@@ -1004,3 +1007,23 @@ for model in models:
         admin.site.register(model, DefaultPermissionInClassModelAdmin)
     except admin.sites.AlreadyRegistered:
         pass
+
+
+# Override admin_honeypot method
+
+
+def cus_get_ip_address(self, instance):
+    return '%(ip)s' % {'ip': instance.ip_address}
+
+
+def cus_get_session_key(self, instance):
+    return '%(key)s' % {'key': instance.session_key}
+
+
+def cus_get_path(self, instance):
+    return '%(path)s' % {'path': instance.path}
+
+
+LoginAttemptAdmin.get_ip_address = cus_get_ip_address
+LoginAttemptAdmin.get_session_key = cus_get_session_key
+LoginAttemptAdmin.get_path = cus_get_path

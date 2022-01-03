@@ -1,5 +1,7 @@
 biopython
 Django==3.2.5
+django-admin-honeypot==1.1.0
+django-session-timeout==0.1.0
 djangorestframework==3.11.2
 python-decouple
 psycopg2
