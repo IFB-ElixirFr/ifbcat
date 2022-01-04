@@ -38,12 +38,6 @@ class Tool(models.Model):
         Topic,
         blank=True,
     )
-    keywords = models.ManyToManyField(
-        Keyword,
-        blank=True,
-        related_name='toolsKeywords',
-        help_text="A keyword (beyond EDAM ontology scope) describing the tool.",
-    )
     operating_system = models.ManyToManyField(
         OperatingSystem,
         blank=True,
@@ -59,23 +53,17 @@ class Tool(models.Model):
         help_text="Publication(s) that describe the tool as a whole.",
     )
     collection = models.ManyToManyField(Collection, blank=True)
-
     biotoolsCURIE = models.CharField(blank=False, null=False, max_length=109)  # because of biotools: prefix
 
     # software_version = models.CharField(max_length=200, blank=True, null=True)
 
     citations = models.CharField(max_length=1000, blank=True, null=True)
-    logo = models.URLField(max_length=200, blank=True, null=True)
-    access_condition = models.TextField(blank=True, null=True)
-    contact_support = models.CharField(max_length=1000, blank=True, null=True)
 
     # link = models.CharField(max_length=1000, blank=True, null=True)
     # keywords = models.ManyToManyField(Keyword, blank=True)
-    prerequisites = models.TextField(blank=True, null=True)
     # operating_system = models.CharField(max_length=50, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
     # topic = models.CharField(max_length=1000, blank=True, null=True)
     downloads = models.CharField(max_length=1000, blank=True, null=True)
-
     annual_visits = models.IntegerField(blank=True, null=True)
     unique_visits = models.IntegerField(blank=True, null=True)
 
@@ -112,7 +100,6 @@ class Tool(models.Model):
     # to remove ?
     input_data = models.CharField(max_length=1000, blank=True, null=True)
     output_data = models.CharField(max_length=1000, blank=True, null=True)
-    primary = models.CharField(max_length=1000, blank=True, null=True)
 
     # metadata
     addition_date = models.DateTimeField(blank=True, null=True)
