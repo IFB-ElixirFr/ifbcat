@@ -47,25 +47,25 @@ class Command(BaseCommand):
                 database_citations = data_object[4]
                 database_citations = int(database_citations) if database_citations != '' else None
                 database_link_data = data_object[5]
-                if '\n' in data_object[6]:
-                    database_keywords = [x.strip() for x in data_object[6].split("\n")]
-                else:
-                    database_keywords = [x.strip() for x in data_object[6].split(",")]
-                database_keywords_list = []
-                for keyword in database_keywords:
-                    keyword = keyword.strip()
-                    if len(keyword) > 2:
-
-                        try:
-                            database_keyword, created = Keyword.objects.get_or_create(
-                                keyword=keyword,
-                            )
-                            database_keyword.save()
-                            database_keywords_list.append(database_keyword)
-                        except Exception as ex:
-                            print(str(ex))
-                            msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(keyword, str(ex))
-                            print(msg)
+                # if '\n' in data_object[6]:
+                #     database_keywords = [x.strip() for x in data_object[6].split("\n")]
+                # else:
+                #     database_keywords = [x.strip() for x in data_object[6].split(",")]
+                # database_keywords_list = []
+                # for keyword in database_keywords:
+                #     keyword = keyword.strip()
+                #     if len(keyword) > 2:
+                #
+                #         try:
+                #             database_keyword, created = Keyword.objects.get_or_create(
+                #                 keyword=keyword,
+                #             )
+                #             database_keyword.save()
+                #             database_keywords_list.append(database_keyword)
+                #         except Exception as ex:
+                #             print(str(ex))
+                #             msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(keyword, str(ex))
+                #             print(msg)
 
                 database_annual_visits = data_object[7].split(" ")[0]
                 database_annual_visits = int(database_annual_visits) if database_annual_visits != '' else None
@@ -153,8 +153,8 @@ class Command(BaseCommand):
 
                 display_format = "\nDatabase, {}, has been saved."
                 # print(display_format.format(database))
-                for keyword in database_keywords_list:
-                    database.keywords.add(keyword)
+                # for keyword in database_keywords_list:
+                #     database.keywords.add(keyword)
 
                 database.tool_type.add(database_tool_type)
 
