@@ -126,6 +126,12 @@ class AbstractEvent(models.Model):
         PUBLIC = 'Public', _('Public')
         PRIVATE = 'Private', _('Private')
 
+    mode_choice = (
+        ('Online', 'Online'),
+        ('Onsite', 'Onsite'),
+        ('Hybrid', 'Hybrid'),
+    )
+
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(
         max_length=255,
@@ -138,7 +144,15 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="URL of event homepage.",
     )
-    onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
+    is_draft = models.BooleanField(null=True, blank=True, help_text="Mention if the event is a draft")
+    onlineOnly = models.CharField(
+        choices=mode_choice,
+        default="Hybrid",
+        max_length=10,
+        null=True,
+        blank=True,
+        help_text="Select the mode for this event",
+    )
     costs = models.ManyToManyField(
         EventCost,
         blank=True,
@@ -361,8 +375,10 @@ class Event(AbstractEvent):
         errors = {}
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
             errors.setdefault('training', []).append("training must be provided when creating a Training session")
+        if not self.is_draft and self.start_date is None:
+            errors.setdefault('start_date', []).append("start date must be provided if the event is not a draft")
         if self.end_date and self.start_date is None:
-            errors.setdefault('start_date', []).append("start date must be provided if end date is")
+            errors.setdefault('end_date', []).append("you should set is_draft to yes if you only know end_date")
         if len(errors) > 0:
             raise ValidationError(errors)
 

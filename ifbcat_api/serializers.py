@@ -261,6 +261,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'shortName',
             'description',
             'homepage',
+            'is_draft',
             'onlineOnly',
             'costs',
             'topics',
