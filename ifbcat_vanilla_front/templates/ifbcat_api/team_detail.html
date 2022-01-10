@@ -146,8 +146,28 @@
             </div>
         </div>
         <div aria-labelledby="nav-Tools-tab" class="tab-pane border border-top-0 fade" id="nav-Tools" role="tabpanel">
-            <div class="p-3">
-                Tools
+            <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+                {%for o in object.tools.all%}
+                <div class="card" style="grid-column: span 2;">
+                    <div class="card-body h3 text-center p-2 mb-0">{{o.name}}</div>
+                </div>
+                <div class="card">
+                    <div class="card-body"><dl>
+                        <dt>biotoolsID</dt>
+                        <dd>{{o.biotoolsID}}</dd>
+                        <dt>homepage</dt>
+                        <dd>{{o.homepage}}</dd>
+                        <dt>last_update</dt>
+                        <dd>{{o.last_update}}</dd>
+                        <dt>more</dt>
+                        <dd>...</dd>
+                    </dl></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">Description</div>
+                    <div class="card-body">{{o.description|linebreaksbr}}</div>
+                </div>
+                {%endfor%}
             </div>
         </div>
         <div aria-labelledby="nav-Expertise-tab" class="tab-pane border border-top-0 fade" id="nav-Expertise"
