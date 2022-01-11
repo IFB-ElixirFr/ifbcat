@@ -330,7 +330,8 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         '-start_date',
     ]
 
-    queryset = models.Event.objects.annotate(
+    queryset = models.Event.objects
+    queryset = queryset.annotate(
         realisation_status=Case(
             When(Q(start_date__gt=timezone.now()), then=Value('future')),
             When(
@@ -340,7 +341,8 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
             default=Value('ongoing'),
             output_field=CharField(),
         )
-    ).annotate(
+    )
+    queryset = queryset.annotate(
         registration_status=Case(
             When(
                 Q(registration_opening__gt=timezone.now()),
