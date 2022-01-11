@@ -262,7 +262,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'homepage',
             'is_draft',
-            'onlineOnly',
+            'courseMode',
             'costs',
             'topics',
             'keywords',

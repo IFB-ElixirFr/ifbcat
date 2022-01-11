@@ -263,7 +263,7 @@ class EventAdmin(
     list_filter = (
         'type',
         'costs',
-        'onlineOnly',
+        'courseMode',
         'accessibility',
         'elixirPlatforms',
         'communities',
