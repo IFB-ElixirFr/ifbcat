@@ -144,7 +144,10 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="URL of event homepage.",
     )
-    is_draft = models.BooleanField(null=True, blank=True, help_text="Mention whether it's a draft.")
+    is_draft = models.BooleanField(
+        default=False,
+        help_text="Mention whether it's a draft.",
+    )
     courseMode = models.CharField(
         choices=mode_choice,
         default="Hybrid",
@@ -376,9 +379,9 @@ class Event(AbstractEvent):
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
             errors.setdefault('training', []).append("training must be provided when creating a Training session")
         if not self.is_draft and self.start_date is None:
-            errors.setdefault('start_date', []).append("start date must be provided if the event is not a draft")
+            errors.setdefault('start_date', []).append("start date must be provided if it's not a draft")
         if self.end_date and self.start_date is None:
-            errors.setdefault('end_date', []).append("start date must be provided if end date is")
+            errors.setdefault('start_date', []).append("start date must be provided if end date is")
         if len(errors) > 0:
             raise ValidationError(errors)
 
