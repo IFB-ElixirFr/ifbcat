@@ -108,15 +108,14 @@
     max-height: calc( 57px - 0.4em );
     height: calc( 57px - 0.4em );
     margin-top: -0.6em;
-    content:url("https://www.france-bioinformatique.fr/wp-content/uploads/logo-ifb_small.png");
+    content:url("/static/img/logo-ifb_small.png");
     border-radius:0!important;
 }
 .theme-default.sidebar-collapse .sidebar-light-primary .brand-link .brand-image{
-    margin-top: -0.63em;
-    margin-left: .5rem;
-    max-height: 200px;
-    height: 52px;
-    content:url("https://avatars0.githubusercontent.com/u/24292199?s=200&v=4");
+    margin-top: -0.5em;
+    margin-left: 0.95em;
+    height: 45px;
+    content:url(/static/img/ifb_avatar.png);
 }
 .theme-default .sidebar-light-primary+.content-wrapper .timeline-item .timeline-header:last-child{
     border-bottom:0;
