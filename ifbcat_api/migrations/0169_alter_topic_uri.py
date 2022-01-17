@@ -5,7 +5,6 @@ import ifbcat_api.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('ifbcat_api', '0168_event_trainingmaterials'),
     ]
@@ -14,6 +13,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='topic',
             name='uri',
-            field=models.CharField(help_text='URI of EDAM Topic term describing scope or expertise. Go to https://edamontology.github.io/edam-browser/#topic_0003 to find new topics.', max_length=255, unique=True, validators=[ifbcat_api.validators.validate_edam_topic]),
+            field=models.CharField(
+                help_text='URI of EDAM Topic term describing scope or expertise. Go to https://edamontology.github.io/edam-browser/#topic_0003 to find new topics.',
+                max_length=255, unique=True, validators=[ifbcat_api.validators.validate_edam_topic]),
         ),
     ]
