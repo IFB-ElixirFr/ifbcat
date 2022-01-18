@@ -264,6 +264,7 @@ class EventAdmin(
         'type',
         'costs',
         'courseMode',
+        'is_draft',
         'accessibility',
         'elixirPlatforms',
         'communities',
