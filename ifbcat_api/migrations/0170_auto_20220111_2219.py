@@ -12,7 +12,7 @@ def migrate_onlineonly_coursemode(apps, schema_editor):
                  then=Value("Online")),
             When(onlineOnly=False,
                  then=Value("Onsite")),
-            default=Value(""),
+            default=Value(None),
             output_field=CharField()
         )
     )
