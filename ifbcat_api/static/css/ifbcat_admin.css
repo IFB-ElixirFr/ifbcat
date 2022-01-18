@@ -205,6 +205,9 @@
 .form-group.errors label {
     color: #a00;
 }
+aside .sidebar .image .user-profile{
+    color: #278bc7;
+}
 .card, .card-header{
     background: #fff !important;
     color: #212529;

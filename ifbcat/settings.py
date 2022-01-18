@@ -236,6 +236,9 @@ JAZZMIN_SETTINGS = {
     # Title on the brand, and the login screen (19 chars max)
     "site_header": "IFB Catalogue",
     #
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "IFB Catalogue",
+    #
     # square logo to use for your site, must be present in static files, used for favicon and brand on top left
     "site_logo": "/img/logo-ifb_small.png",
     #
