@@ -32,6 +32,7 @@
     background-color: #278bc7 !important;
     border-color: #278bc7 !important;
 }
+.select2-container--admin-autocomplete .select2-results__option--highlighted[aria-selected],
 .select2.select2-container .select2-selection__choice:hover>button{
     color: white !important;
 }
@@ -203,5 +204,9 @@
 }
 .form-group.errors label {
     color: #a00;
+}
+.card, .card-header{
+    background: #fff !important;
+    color: #212529;
 }
 /**/
