@@ -138,7 +138,6 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="URL of event homepage.",
     )
-    onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     costs = models.ManyToManyField(
         EventCost,
         blank=True,
@@ -214,6 +213,10 @@ class AbstractEvent(models.Model):
         help_text="An institutional entity that is sponsoring it.",
     )
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event.", blank=True, null=True)
+    is_draft = models.BooleanField(
+        default=False,
+        help_text="Mention whether it's a draft.",
+    )
 
     def clean(self):
         if self.accessibility == self.EventAccessibilityType.PRIVATE and len(self.accessibilityNote or '') == 0:
@@ -261,6 +264,19 @@ class Event(AbstractEvent):
         MEETING = 'Meeting', _('Meeting')
         CONFERENCE = 'Conference', _('Conference')
 
+    class CourseModeType(models.TextChoices):
+        ONLINE = 'Online', _('Online')
+        ONSITE = 'Onsite', _('Onsite')
+        BLENDED = 'Blended', _('Blended')
+
+    courseMode = models.CharField(
+        choices=CourseModeType.choices,
+        default=None,
+        max_length=10,
+        null=True,
+        blank=False,  # Do not allow to set a blank value in the UI, only allow programmatically
+        help_text="Select the mode for this event",
+    )
     registration_opening = models.DateField(
         help_text="When does the registration for the event opens.",
         blank=True,
@@ -361,6 +377,8 @@ class Event(AbstractEvent):
         errors = {}
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
             errors.setdefault('training', []).append("training must be provided when creating a Training session")
+        if not self.is_draft and self.start_date is None:
+            errors.setdefault('start_date', []).append("start date must be provided if the event is not a draft")
         if self.end_date and self.start_date is None:
             errors.setdefault('start_date', []).append("start date must be provided if end date is")
         if len(errors) > 0:

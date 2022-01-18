@@ -138,7 +138,6 @@ class Training(AbstractEvent):
         for field in [
             'description',
             'homepage',
-            'onlineOnly',
             'accessibility',
             'accessibilityNote',
             'maxParticipants',

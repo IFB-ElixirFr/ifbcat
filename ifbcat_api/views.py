@@ -294,6 +294,8 @@ class EventFilter(AutoSubsetFilterSet):
             'organisedByTeams',
             'organisedByOrganisations',
             'sponsoredBy',
+            'is_draft',
+            'courseMode',
         ]
 
 
@@ -362,6 +364,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
             output_field=CharField(),
         )
     )
+    queryset = queryset.filter(is_draft=False)
     search_fields_from_abstract_event = (
         'name',
         'shortName',
