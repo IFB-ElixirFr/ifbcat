@@ -29,8 +29,8 @@
     color: #278bc7 !important;
     background-color: transparent !important;
     margin-left:0px;
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
     border-right: 1px solid #278bc7 !important;
 }
 .select2.select2-container .select2-selection__choice>span:hover,
