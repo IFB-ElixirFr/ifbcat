@@ -294,6 +294,8 @@ class EventFilter(AutoSubsetFilterSet):
             'organisedByTeams',
             'organisedByOrganisations',
             'sponsoredBy',
+            'is_draft',
+            'courseMode',
         ]
 
 
