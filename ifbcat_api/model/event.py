@@ -145,7 +145,6 @@ class AbstractEvent(models.Model):
         help_text="URL of event homepage.",
     )
     is_draft = models.BooleanField(default=False, help_text="Mention whether it's a draft.")
-    onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     costs = models.ManyToManyField(
         EventCost,
         blank=True,
