@@ -13,7 +13,8 @@
     padding-left:0px !important;
 }
 .select2.select2-container .select2-selection__choice>span:not(:first-child){
-    margin-left:18px;
+    margin-left:14px;
+    padding-left:7px;
 }
 .select2.select2-container .select2-selection__choice>span:first-child{
     margin-left:0px;
@@ -30,6 +31,7 @@
     margin-left:0px;
     padding-left: 6px;
     padding-right: 6px;
+    border-right: 1px solid #278bc7 !important;
 }
 .select2.select2-container .select2-selection__choice>span:hover,
 .select2.select2-container .select2-selection__choice>button:hover{
