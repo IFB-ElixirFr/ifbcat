@@ -208,10 +208,13 @@
 aside .sidebar .image .user-profile{
     color: #278bc7;
 }
-.card, .card-header{
+.card, .card-header, .modal-content, .content-wrapper{
     background: #fff !important;
 }
 html, body{
     color: #212529;
+}
+.modal-header{
+    border-bottom: 1px solid #e9ecef;
 }
 /**/
