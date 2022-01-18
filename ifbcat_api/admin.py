@@ -291,6 +291,7 @@ class EventAdmin(
                 'fields': (
                     'name',
                     'shortName',
+                    'description',
                     'is_draft',
                     'type',
                     'logo_url',
@@ -319,6 +320,7 @@ class EventAdmin(
                     'city',
                     'country',
                     'courseMode',
+                    'venue',
                 )
             },
         ),
@@ -328,6 +330,7 @@ class EventAdmin(
                 'fields': (
                     'maxParticipants',
                     'accessibility',
+                    'accessibilityNote',
                     'costs',
                     'geographical_range',
                 )
