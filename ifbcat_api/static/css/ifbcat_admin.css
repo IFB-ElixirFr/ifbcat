@@ -210,6 +210,8 @@ aside .sidebar .image .user-profile{
 }
 .card, .card-header{
     background: #fff !important;
+}
+html, body{
     color: #212529;
 }
 /**/
