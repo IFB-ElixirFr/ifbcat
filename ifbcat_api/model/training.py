@@ -46,8 +46,6 @@ class Trainer(models.Model):
 class Training(AbstractEvent):
     """Training event model: An event dedicated to bioinformatics training or teaching."""
 
-    courseMode = None
-
     # No fields are mandatory (beyond what's mandatory in Event)
     audienceTypes = models.ManyToManyField(
         AudienceType,

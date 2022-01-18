@@ -146,13 +146,6 @@ class AbstractEvent(models.Model):
     )
     is_draft = models.BooleanField(default=False, help_text="Mention whether it's a draft.")
     onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
-    courseMode = models.CharField(
-        choices=mode_choice,
-        default=None,
-        max_length=10,
-        null=True,
-        help_text="Select the mode for this event",
-    )
     costs = models.ManyToManyField(
         EventCost,
         blank=True,
@@ -275,6 +268,19 @@ class Event(AbstractEvent):
         MEETING = 'Meeting', _('Meeting')
         CONFERENCE = 'Conference', _('Conference')
 
+    class CourseModeType(models.TextChoices):
+        ONLINE = 'Online', _('Online')
+        ONSITE = 'Onsite', _('Onsite')
+        BLENDED = 'Blended', _('Blended')
+
+    courseMode = models.CharField(
+        choices=CourseModeType.choices,
+        default=None,
+        max_length=10,
+        null=True,
+        blank=False,  # Do not allow to set a blank value in the UI, only allow programmatically
+        help_text="Select the mode for this event",
+    )
     registration_opening = models.DateField(
         help_text="When does the registration for the event opens.",
         blank=True,
