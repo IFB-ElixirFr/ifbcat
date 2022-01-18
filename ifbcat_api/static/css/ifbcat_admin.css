@@ -46,6 +46,21 @@
 .select2.select2-container .select2-selection__choice:hover>button{
     color: white !important;
 }
+ul.select2-selection__rendered{
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+.select2-container.select2-container--open ul.select2-selection__rendered {
+    border-color: #80bdff;
+}
+.select2-container.select2-container--open.select2-container--above ul.select2-selection__rendered {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+.select2-container.select2-container--open.select2-container--below ul.select2-selection__rendered {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
 .theme-default .sidebar-light-primary+.content-wrapper{
     background-color: #eff4fb;
 }
