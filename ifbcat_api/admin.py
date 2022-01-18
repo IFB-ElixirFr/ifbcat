@@ -284,7 +284,83 @@ class EventAdmin(
         'communities',
         'sponsoredBy',
     )
-
+    fieldsets = (
+        (
+            'Event info',
+            {
+                'fields': (
+                    'name',
+                    'shortName',
+                    'is_draft',
+                    'type',
+                    'logo_url',
+                    'homepage',
+                    'keywords',
+                    'topics',
+                    'tess_publishing',
+                )
+            },
+        ),
+        (
+            'Dates',
+            {
+                'fields': (
+                    'registration_closing',
+                    'registration_opening',
+                    'start_date',
+                    'end_date',
+                )
+            },
+        ),
+        (
+            'Location',
+            {
+                'fields': (
+                    'city',
+                    'country',
+                    'courseMode',
+                )
+            },
+        ),
+        (
+            'Audience',
+            {
+                'fields': (
+                    'maxParticipants',
+                    'accessibility',
+                    'costs',
+                    'geographical_range',
+                )
+            },
+        ),
+        (
+            'Organizers and sponsors',
+            {
+                'fields': (
+                    'contactEmail',
+                    'contactId',
+                    'contactName',
+                    'organisedByOrganisations',
+                    'organisedByTeams',
+                    'sponsoredBy',
+                    'elixirPlatforms',
+                    'trainers',
+                )
+            },
+        ),
+        (
+            'Content',
+            {
+                'fields': (
+                    'prerequisites',
+                    'communities',
+                    'computingFacilities',
+                    'training',
+                    'trainingMaterials',
+                )
+            },
+        ),
+    )
     date_hierarchy = 'start_date'
 
     def get_queryset(self, request):
