@@ -212,7 +212,7 @@ class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdm
         for k, f in fieldsets:
             if request.user.is_superuser or (
                 (self.can_manager_user(request=request, obj=obj) or request.user == obj)
-                and k != 'Permissions'
+                and (business_logic.is_curator(request.user) or k != 'Permissions')
                 and (request.user == obj or k != "Password")
             ):
                 ret.append((k, f))
