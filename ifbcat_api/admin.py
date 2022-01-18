@@ -456,7 +456,67 @@ class TrainingAdmin(
         'trainingMaterials',
         'computingFacilities',
     )
-
+    fieldsets = (
+        (
+            'Training info',
+            {
+                'fields': (
+                    'name',
+                    'shortName',
+                    'description',
+                    'is_draft',
+                    'logo_url',
+                    'homepage',
+                    'topics',
+                    'tess_publishing',
+                )
+            },
+        ),
+        (
+            'Audience',
+            {
+                'fields': (
+                    'maxParticipants',
+                    'accessibility',
+                    'accessibilityNote',
+                    'costs',
+                    'personalised',
+                    'audienceTypes',
+                    'audienceRoles',
+                )
+            },
+        ),
+        (
+            'Organizers and sponsors',
+            {
+                'fields': (
+                    'contactEmail',
+                    'contactId',
+                    'contactName',
+                    'organisedByOrganisations',
+                    'organisedByTeams',
+                    'elixirPlatforms',
+                    'sponsoredBy',
+                )
+            },
+        ),
+        (
+            'Content',
+            {
+                'fields': (
+                    'prerequisites',
+                    'communities',
+                    'computingFacilities',
+                    'trainingMaterials',
+                    'difficultyLevel',
+                    'learningOutcomes',
+                    'hoursPresentations',
+                    'hoursHandsOn',
+                    'hoursTotal',
+                )
+            },
+        ),
+    )
     actions = ["create_new_course"]
 
     @staticmethod
@@ -497,6 +557,7 @@ class TrainingAdmin(
     change_form_template = 'admin/change_form_training.html'
 
     def logo(self, obj):
+        print([f.name for f in obj._meta.get_fields()])
         if not obj.logo_url:
             return ''
         return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
