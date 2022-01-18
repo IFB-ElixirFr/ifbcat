@@ -262,7 +262,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'description',
             'homepage',
             'is_draft',
-            'courseMode',
             'costs',
             'topics',
             'keywords',
@@ -295,6 +294,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'registration_opening',
             'registration_closing',
             'registration_status',
+            'courseMode',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
