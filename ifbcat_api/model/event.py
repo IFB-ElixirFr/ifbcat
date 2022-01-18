@@ -378,7 +378,7 @@ class Event(AbstractEvent):
         if not self.is_draft and self.start_date is None:
             errors.setdefault('start_date', []).append("start date must be provided if the event is not a draft")
         if self.end_date and self.start_date is None:
-            errors.setdefault('end_date', []).append("you should set is_draft to yes if you only know end_date")
+            errors.setdefault('start_date', []).append("start date must be provided if end date is")
         if len(errors) > 0:
             raise ValidationError(errors)
 
