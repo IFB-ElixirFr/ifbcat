@@ -144,7 +144,6 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="URL of event homepage.",
     )
-    is_draft = models.BooleanField(default=False, help_text="Mention whether it's a draft.")
     costs = models.ManyToManyField(
         EventCost,
         blank=True,
@@ -220,6 +219,10 @@ class AbstractEvent(models.Model):
         help_text="An institutional entity that is sponsoring it.",
     )
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event.", blank=True, null=True)
+    is_draft = models.BooleanField(
+        default=False,
+        help_text="Mention whether it's a draft.",
+    )
 
     def clean(self):
         if self.accessibility == self.EventAccessibilityType.PRIVATE and len(self.accessibilityNote or '') == 0:
