@@ -126,12 +126,6 @@ class AbstractEvent(models.Model):
         PUBLIC = 'Public', _('Public')
         PRIVATE = 'Private', _('Private')
 
-    mode_choice = (
-        ('Online', 'Online'),
-        ('Onsite', 'Onsite'),
-        ('Blended', 'Blended'),
-    )
-
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(
         max_length=255,
