@@ -278,3 +278,11 @@ def get_not_to_be_deleted_group_names():
         __BASIC_PERMISSION_GRP_NAME,
         __NO_RESTRICTION,
     )
+
+
+def get_no_restriction_group_name():
+    return __NO_RESTRICTION
+
+
+def get_basic_permissions_group_name():
+    return __BASIC_PERMISSION_GRP_NAME
