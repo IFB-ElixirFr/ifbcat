@@ -1,4 +1,5 @@
 import itertools
+import re
 
 import requests
 from django import forms
@@ -18,7 +19,7 @@ from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext, ngettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
@@ -186,13 +187,6 @@ class UserProfileAdmin(
     def can_manager_user(self, request, obj):
         return business_logic.can_edit_user(request.user, obj)
 
-    def has_change_permission(self, request, obj=None):
-        return (
-            request.user.is_superuser
-            or self.can_manager_user(request=request, obj=obj)
-            or super().has_change_permission(request=request, obj=obj)
-        )
-
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
         if not request.user.is_superuser:
@@ -225,7 +219,7 @@ class UserProfileAdmin(
         for k, f in fieldsets:
             if request.user.is_superuser or (
                 (self.can_manager_user(request=request, obj=obj) or request.user == obj)
-                and k != 'Permissions'
+                and (business_logic.is_curator(request.user) or k != 'Permissions')
                 and (request.user == obj or k != "Password")
             ):
                 ret.append((k, f))
@@ -235,6 +229,135 @@ class UserProfileAdmin(
         if request.user.is_superuser or business_logic.is_user_manager(user=request.user):
             return super().get_queryset(request)
         return super().get_queryset(request).filter(pk=request.user.pk)
+
+    @staticmethod
+    def make_revoke_group_action(group: Group, manage_is_staff: bool = False):
+        def _action(modeladmin, request, qset):
+            updated = qset.filter(groups=group).count()
+            for o in qset:
+                o.groups.remove(group)
+            if manage_is_staff:
+                qset.update(is_staff=False)
+            count = qset.count()
+            already_there = count - updated
+            if updated == 0:
+                modeladmin.message_user(
+                    request,
+                    'All were already out of the group "%s"' % group.name,
+                    messages.WARNING,
+                )
+            else:
+                msg = (
+                    ngettext(
+                        '%(d)d user was successfully removed from group "%(s)s".',
+                        '%(d)d user were successfully removed from group "%(s)s".',
+                        updated,
+                    )
+                    % dict(d=updated, s=group.name)
+                )
+                if already_there > 0:
+                    msg += (
+                        ngettext(
+                            '(and %d was already absent)',
+                            '(and %d were already absent)',
+                            already_there,
+                        )
+                        % already_there
+                    )
+                modeladmin.message_user(
+                    request,
+                    msg,
+                    messages.SUCCESS,
+                )
+
+        name = 'revoke_%s' % re.sub('[\W]+', '_', str(group))
+        return name, (_action, name, 'Revoke permissions "%s"' % group)
+
+    @staticmethod
+    def make_grant_group_action(group: Group, manage_is_staff: bool = False):
+        def _action(modeladmin, request, qset):
+            already_there = qset.filter(groups=group).count()
+            if manage_is_staff:
+                not_staff = qset.filter(Q(is_active=False) | Q(is_staff=False)).count()
+                if not_staff > 0:
+                    modeladmin.message_user(
+                        request,
+                        "%i users have been newly granted access to the admin UI" % not_staff,
+                        messages.SUCCESS,
+                    )
+                qset.update(is_staff=True, is_active=True)
+            for o in qset:
+                o.groups.add(group)
+            count = qset.count()
+            updated = count - already_there
+            if updated == 0:
+                modeladmin.message_user(
+                    request,
+                    'All were already in the group "%s"' % group.name,
+                    messages.WARNING,
+                )
+            else:
+                msg = (
+                    ngettext(
+                        '%(d)d user was successfully add to group "%(s)s"',
+                        '%(d)d user where successfully add to group "%(s)s"',
+                        updated,
+                    )
+                    % dict(d=updated, s=group.name)
+                )
+                if already_there > 0:
+                    msg += (
+                        ngettext(
+                            '(and %d was already associated)',
+                            '(and %d were already associated)',
+                            already_there,
+                        )
+                        % already_there
+                    )
+                modeladmin.message_user(
+                    request,
+                    msg + ".",
+                    messages.SUCCESS,
+                )
+
+        name = 'grant_%s' % re.sub('[\W]+', '_', str(group))
+        return name, (_action, name, 'Grant permissions "%s"' % group)
+
+    @staticmethod
+    def get_group_actions():
+        groups = Group.objects.filter(
+            name__in=set(business_logic.get_not_to_be_deleted_group_names())
+            - {business_logic.get_no_restriction_group_name()}
+        ).order_by('name')
+        return dict(
+            itertools.chain(
+                [
+                    UserProfileAdmin.make_grant_group_action(
+                        group=o,
+                        manage_is_staff=o.name == business_logic.get_basic_permissions_group_name(),
+                    )
+                    for o in groups
+                ],
+                [
+                    UserProfileAdmin.make_revoke_group_action(
+                        group=o,
+                        manage_is_staff=o.name == business_logic.get_basic_permissions_group_name(),
+                    )
+                    for o in groups
+                ],
+            )
+        )
+
+    @classmethod
+    def get_static_actions(cls):
+        return dict(
+            **cls.get_group_actions(),
+        )
+
+    def get_actions(self, request):
+        actions = super().get_actions(request=request)
+        actions.update(self.get_static_actions())
+        return actions
 
 
 # "search_fields" defines the searchable 'fields'
