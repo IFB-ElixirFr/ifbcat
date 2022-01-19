@@ -903,6 +903,7 @@ _tool_fields = (
     # 'scientific_operations',
     'tool_credit',
     'tool_license',
+    'documentation',
     'maturity',
     'cost',
     'unique_visits',
