@@ -113,6 +113,15 @@ class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
     view_in_api_in_list.short_description = format_html('<center>View in API<center>')
 
 
+class AllFieldInAutocompleteModelAdmin(admin.ModelAdmin):
+    class Meta:
+        abstract = True
+
+    @property
+    def autocomplete_fields(self):
+        return list(set([f.name for f in self.model._meta.local_many_to_many]) - set(self.filter_horizontal))
+
+
 class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
     slug_name = "name"
 
@@ -124,6 +133,7 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
 @admin.register(models.UserProfile)
 class UserProfileAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
     UserAdmin,
 ):
@@ -171,7 +181,6 @@ class UserProfileAdmin(
         "user_permissions",
         "groups",
     )
-    autocomplete_fields = ("expertise",)
     add_form = modelform_factory(models.UserProfile, fields=('email',))
 
     def can_manager_user(self, request, obj):
@@ -235,6 +244,7 @@ class UserProfileAdmin(
 class EventAdmin(
     ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     """Enables search, filtering and widgets in Django admin interface."""
@@ -279,15 +289,6 @@ class EventAdmin(
     )
     #
     filter_horizontal = ()
-    autocomplete_fields = (
-        'costs',
-        'topics',
-        'keywords',
-        'prerequisites',
-        'elixirPlatforms',
-        'communities',
-        'sponsoredBy',
-    )
     fieldsets = (
         (
             'Event info',
@@ -417,6 +418,7 @@ class EventAdmin(
 class TrainingAdmin(
     ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     list_display = (
@@ -455,10 +457,6 @@ class TrainingAdmin(
         'tess_publishing',
         # 'databases',
         # 'tools',
-    )
-    autocomplete_fields = (
-        'trainingMaterials',
-        'computingFacilities',
     )
     fieldsets = (
         (
@@ -579,6 +577,7 @@ class TrainingAdmin(
 @admin.register(models.Keyword)
 class KeywordAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ['keyword']
@@ -587,6 +586,7 @@ class KeywordAdmin(
 @admin.register(models.EventPrerequisite)
 class EventPrerequisiteAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ['prerequisite']
@@ -595,6 +595,7 @@ class EventPrerequisiteAdmin(
 @admin.register(models.Topic)
 class TopicAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ['uri', 'label', 'description', 'synonyms']
@@ -617,6 +618,7 @@ class TopicAdmin(
 @admin.register(models.EventCost)
 class EventCostAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ['cost']
@@ -625,6 +627,7 @@ class EventCostAdmin(
 @admin.register(models.Trainer)
 class TrainerAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -634,12 +637,12 @@ class TrainerAdmin(
         'trainerId__firstname',
         'trainerId__lastname',
     )
-    autocomplete_fields = ('trainerId',)
 
 
 @admin.register(models.TrainingCourseMetrics)
 class TrainingCourseMetricsAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -649,7 +652,6 @@ class TrainingCourseMetricsAdmin(
         'event__shortName',
         'event__description',
     )
-    autocomplete_fields = ('event',)
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -660,18 +662,19 @@ class TrainingCourseMetricsAdmin(
 @admin.register(models.EventSponsor)
 class EventSponsorAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
         'name',
         'organisationId__name',
     )
-    autocomplete_fields = ('organisationId',)
 
 
 @admin.register(models.Certification)
 class CertificationAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -683,6 +686,7 @@ class CertificationAdmin(
 @admin.register(models.Community)
 class CommunityAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -691,12 +695,12 @@ class CommunityAdmin(
         'homepage',
         'organisations__name',
     )
-    autocomplete_fields = ('organisations',)
 
 
 @admin.register(models.ElixirPlatform)
 class ElixirPlatformAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -715,6 +719,7 @@ class ElixirPlatformAdmin(
 @admin.register(models.Organisation)
 class OrganisationAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -726,12 +731,12 @@ class OrganisationAdmin(
         'city',
     )
     list_filter = ('fields',)
-    autocomplete_fields = ('fields',)
 
 
 @admin.register(models.Field)
 class FieldAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ('field',)
@@ -740,6 +745,7 @@ class FieldAdmin(
 @admin.register(models.Doi)
 class DoiAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ('doi',)
@@ -769,6 +775,7 @@ class DoiAdmin(
 @admin.register(models.Project)
 class ProjectAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -784,20 +791,12 @@ class ProjectAdmin(
         'uses__name',
     )
     list_filter = ('elixirPlatforms', 'communities', 'hostedBy', 'uses')
-    autocomplete_fields = (
-        'topics',
-        'elixirPlatforms',
-        'communities',
-        'team',
-        'hostedBy',
-        'fundedBy',
-        'uses',
-    )
 
 
 @admin.register(models.AudienceRole)
 class AudienceRoleAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ['audienceRole']
@@ -806,6 +805,7 @@ class AudienceRoleAdmin(
 @admin.register(models.AudienceType)
 class AudienceTypeAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = ['audienceType']
@@ -814,6 +814,7 @@ class AudienceTypeAdmin(
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -828,19 +829,11 @@ class TrainingMaterialAdmin(
         'license',
     )
 
-    autocomplete_fields = (
-        'communities',
-        'elixirPlatforms',
-        'topics',
-        'keywords',
-        'audienceTypes',
-        'audienceRoles',
-    )
-
 
 @admin.register(models.ComputingFacility)
 class ComputingFacilityAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -852,15 +845,11 @@ class ComputingFacilityAdmin(
 
     list_filter = ('accessibility',)
 
-    autocomplete_fields = (
-        'providedBy',
-        'trainingMaterials',
-    )
-
 
 @admin.register(models.Team)
 class TeamAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     ordering = (Upper(Unaccent("name")),)
@@ -880,15 +869,6 @@ class TeamAdmin(
         'members__lastname',
         'maintainers__firstname',
         'maintainers__lastname',
-    )
-
-    autocomplete_fields = (
-        'leader',
-        'deputies',
-        'scientificLeaders',
-        'technicalLeaders',
-        'members',
-        'maintainers',
     )
     filter_horizontal = (
         'scientificLeaders',
@@ -910,68 +890,10 @@ class TeamAdmin(
     logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
-# @admin.register(models.BioinformaticsTeam)
-# class BioinformaticsTeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
-#     ordering = (Unaccent("name"),)
-#     search_fields = (
-#         'name',
-#         'description',
-#         'expertise__uri',
-#         'leader__firstname',
-#         'leader__lastname',
-#         'deputies__firstname',
-#         'deputies__lastname',
-#         'scientificLeaders__firstname',
-#         'scientificLeaders__lastname',
-#         'technicalLeaders__firstname',
-#         'technicalLeaders__lastname',
-#         'members__firstname',
-#         'members__lastname',
-#         'maintainers__firstname',
-#         'maintainers__lastname',
-#         'orgid',
-#         'unitId',
-#         'address',
-#         'fields__field',
-#         'keywords__keyword',
-#         'communities__name',
-#         'projects__name',
-#         'fundedBy__name',
-#         'publications__doi',
-#         'certifications__name',
-#     )
-#
-#     list_filter = ('fields',)
-#
-#     autocomplete_fields = (
-#         'fields',
-#         'platforms',
-#         'communities',
-#         'projects',
-#     )
-#     filter_horizontal = (
-#         'scientificLeaders',
-#         'technicalLeaders',
-#         'members',
-#         'maintainers',
-#         'deputies',
-#     )
-#     list_display = (
-#         'name',
-#         'logo',
-#     )
-#
-#     def logo(self, obj):
-#         if obj.logo_url:
-#             return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
-#         return format_html('<center style="margin: -8px;">-<center>')
-#
-#     logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
-
-
 @admin.register(models.Service)
 class ServiceAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -984,17 +906,11 @@ class ServiceAdmin(
         'publications__doi',
     )
 
-    autocomplete_fields = (
-        'computingFacilities',
-        'trainings',
-        'trainingMaterials',
-        'teams',
-    )
-
 
 @admin.register(models.ServiceSubmission)
 class ServiceSubmissionAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -1012,12 +928,11 @@ class ServiceSubmissionAdmin(
         'sustainability',
     )
 
-    autocomplete_fields = ('service',)
-
 
 @admin.register(models.Tool)
 class ToolAdmin(
     PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
     search_fields = (
@@ -1215,6 +1130,41 @@ class DefaultPermissionInClassModelAdmin(
     PermissionInClassModelAdmin,
 ):
     pass
+
+
+@admin.register(models.Collection)
+class CollectionAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ('name',)
+
+
+@admin.register(models.OperatingSystem)
+class CollectionAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ('name',)
+
+
+@admin.register(models.TypeRole)
+class CollectionAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ('name',)
+
+
+@admin.register(models.ToolCredit)
+class CollectionAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ('name',)
+
+
+@admin.register(models.ToolType)
+class CollectionAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ('name',)
 
 
 models = apps.get_app_config('ifbcat_api').get_models()
