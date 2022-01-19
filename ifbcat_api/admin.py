@@ -122,7 +122,11 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
 
 
 @admin.register(models.UserProfile)
-class UserProfileAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin, UserAdmin):
+class UserProfileAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+    UserAdmin,
+):
     # Enables search, filtering and widgets in Django admin interface.
     ordering = ("email",)
     list_display = (
@@ -573,17 +577,26 @@ class TrainingAdmin(
 
 
 @admin.register(models.Keyword)
-class KeywordAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class KeywordAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ['keyword']
 
 
 @admin.register(models.EventPrerequisite)
-class EventPrerequisiteAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class EventPrerequisiteAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ['prerequisite']
 
 
 @admin.register(models.Topic)
-class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class TopicAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ['uri', 'label', 'description', 'synonyms']
     list_display = (
         'label',
@@ -602,12 +615,18 @@ class TopicAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.EventCost)
-class EventCostAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class EventCostAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ['cost']
 
 
 @admin.register(models.Trainer)
-class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class TrainerAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'trainerName',
         'trainerEmail',
@@ -619,7 +638,10 @@ class TrainerAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.TrainingCourseMetrics)
-class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class TrainingCourseMetricsAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'dateStart',
         'dateEnd',
@@ -636,7 +658,10 @@ class TrainingCourseMetricsAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmi
 
 
 @admin.register(models.EventSponsor)
-class EventSponsorAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class EventSponsorAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'organisationId__name',
@@ -645,7 +670,10 @@ class EventSponsorAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Certification)
-class CertificationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class CertificationAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'description',
@@ -653,7 +681,10 @@ class CertificationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Community)
-class CommunityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class CommunityAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'description',
@@ -664,7 +695,10 @@ class CommunityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.ElixirPlatform)
-class ElixirPlatformAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class ElixirPlatformAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'description',
@@ -679,7 +713,10 @@ class ElixirPlatformAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Organisation)
-class OrganisationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class OrganisationAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'description',
@@ -693,12 +730,18 @@ class OrganisationAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Field)
-class FieldAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class FieldAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ('field',)
 
 
 @admin.register(models.Doi)
-class DoiAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class DoiAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ('doi',)
     list_display = (
         'doi',
@@ -724,7 +767,10 @@ class DoiAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Project)
-class ProjectAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class ProjectAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'homepage',
@@ -750,17 +796,26 @@ class ProjectAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.AudienceRole)
-class AudienceRoleAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class AudienceRoleAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ['audienceRole']
 
 
 @admin.register(models.AudienceType)
-class AudienceTypeAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class AudienceTypeAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = ['audienceType']
 
 
 @admin.register(models.TrainingMaterial)
-class TrainingMaterialAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class TrainingMaterialAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'doi__doi',
         'fileName',
@@ -784,7 +839,10 @@ class TrainingMaterialAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.ComputingFacility)
-class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class ComputingFacilityAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'homepage',
         'providedBy__name',
@@ -801,7 +859,10 @@ class ComputingFacilityAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Team)
-class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class TeamAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     ordering = (Upper(Unaccent("name")),)
     search_fields = (
         'name',
@@ -909,7 +970,10 @@ class TeamAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Service)
-class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class ServiceAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'description',
@@ -929,7 +993,10 @@ class ServiceAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.ServiceSubmission)
-class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class ServiceSubmissionAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'service__name',
         'authors__firstname',
@@ -949,7 +1016,10 @@ class ServiceSubmissionAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
 
 
 @admin.register(models.Tool)
-class ToolAdmin(PermissionInClassModelAdmin, ViewInApiModelAdmin):
+class ToolAdmin(
+    PermissionInClassModelAdmin,
+    ViewInApiModelAdmin,
+):
     search_fields = (
         'name',
         'biotoolsID',
@@ -1055,7 +1125,10 @@ admin.site.unregister(Group)
 
 # Create a new Group admin.
 @admin.register(Group)
-class GroupAdmin(PermissionInClassModelAdmin, GroupAdmin):
+class GroupAdmin(
+    PermissionInClassModelAdmin,
+    GroupAdmin,
+):
     # Use our custom form.
     form = GroupAdminForm
     # Filter permissions horizontal as well.
@@ -1110,7 +1183,10 @@ admin.site.unregister(Token)
 
 
 @admin.register(Token)
-class TokenAdmin(PermissionInClassModelAdmin, admin.ModelAdmin):
+class TokenAdmin(
+    PermissionInClassModelAdmin,
+    admin.ModelAdmin,
+):
     list_display = ('key', 'user', 'created')
     fields = ('user',)
     ordering = ('-created',)
@@ -1135,7 +1211,9 @@ class TokenAdmin(PermissionInClassModelAdmin, admin.ModelAdmin):
 from django.apps import apps
 
 
-class DefaultPermissionInClassModelAdmin(PermissionInClassModelAdmin):
+class DefaultPermissionInClassModelAdmin(
+    PermissionInClassModelAdmin,
+):
     pass
 
 
