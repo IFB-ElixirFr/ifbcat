@@ -187,13 +187,6 @@ class UserProfileAdmin(
     def can_manager_user(self, request, obj):
         return business_logic.can_edit_user(request.user, obj)
 
-    def has_change_permission(self, request, obj=None):
-        return (
-            request.user.is_superuser
-            or self.can_manager_user(request=request, obj=obj)
-            or super().has_change_permission(request=request, obj=obj)
-        )
-
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
         if not request.user.is_superuser:
