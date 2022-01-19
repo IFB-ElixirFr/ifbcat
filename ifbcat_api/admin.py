@@ -559,7 +559,6 @@ class TrainingAdmin(
     change_form_template = 'admin/change_form_training.html'
 
     def logo(self, obj):
-        print([f.name for f in obj._meta.get_fields()])
         if not obj.logo_url:
             return ''
         return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
