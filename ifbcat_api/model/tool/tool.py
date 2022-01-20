@@ -45,7 +45,7 @@ class Tool(models.Model):
     tool_credit = models.ManyToManyField(ToolCredit, blank=True)
     tool_license = models.CharField(max_length=1000, blank=True, null=True)
     documentation = models.URLField(
-        max_length=255, null=True, blank=True, help_text="Link toward general documentation of the tool"
+        max_length=512, null=True, blank=True, help_text="Link toward general documentation of the tool"
     )
     # add operation/function here
     # Primary publication DOI storedin DOI table
@@ -146,7 +146,12 @@ class Tool(models.Model):
         # downloads = tool['download']
         self.tool_license = tool['license']
         for doc in tool['documentation']:
-            self.documentation = doc['url']
+            if 'General' or 'User manual' in doc['type']:
+                self.documentation = doc['url']
+            elif 'API documentation' or 'FAQ' in doc['type']:
+                self.documentation = doc['url']
+            else:
+                self.documentation = None
         # language = tool['language']
         # otherID = tool['otherID']
         self.maturity = tool['maturity']

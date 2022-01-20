@@ -16,6 +16,7 @@ from ifbcat_api.model.team import Team
 from ifbcat_api.models import EventCost
 from ifbcat_api.models import EventPrerequisite
 from ifbcat_api.models import Keyword
+from ifbcat_api.management.commands.load_events import parse_date
 from ifbcat_api import models
 
 logger = logging.getLogger(__name__)
@@ -94,17 +95,11 @@ class Command(BaseCommand):
 
                 if data_object[7]:
                     if "to" in data_object[7]:
-                        training_start_date = datetime.datetime.strptime(
-                            data_object[7].split(" to ")[0], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        training_start_date = make_aware(training_start_date, timezone=pytz.timezone('Europe/Paris'))
-                        training_end_date = datetime.datetime.strptime(data_object[7].split(" to ")[1], "%d-%m-%Y")
-                        training_end_date = make_aware(training_end_date, timezone=pytz.timezone('Europe/Paris'))
+                        data_object[7] = data_object[7].split(" to ")
+                        training_start_date = parse_date(data_object[7][0])
+                        training_end_date = parse_date(data_object[7][1])
                     else:
-                        training_start_date = datetime.datetime.strptime(
-                            data_object[7], "%d-%m-%Y"
-                        )  # .strftime("%Y-%m-%d")
-                        training_start_date = make_aware(training_start_date, timezone=pytz.timezone('Europe/Paris'))
+                        training_start_date = parse_date(data_object[7])
                         training_end_date = None
                 else:
                     training_start_date = None

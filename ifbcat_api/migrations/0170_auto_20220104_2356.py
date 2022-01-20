@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tool',
             name='documentation',
-            field=models.URLField(blank=True, help_text='Link toward general documentation of the tool', max_length=255,
+            field=models.URLField(blank=True, help_text='Link toward general documentation of the tool', max_length=512,
                                   null=True),
         ),
     ]
