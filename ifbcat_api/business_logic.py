@@ -168,7 +168,11 @@ def set_user_manager(user, status: bool):
 
 
 def can_edit_user(acting_user, edited_user):
-    return acting_user.groups.filter(name=__USER_MANAGER_GRP_NAME).exists()
+    return acting_user is not None and (
+        acting_user.is_superuser
+        or (is_user_manager(acting_user) and is_curator(acting_user))
+        or acting_user == edited_user
+    )
 
 
 ###############################################################################

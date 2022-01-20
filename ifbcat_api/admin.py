@@ -184,7 +184,16 @@ class UserProfileAdmin(
     )
     add_form = modelform_factory(models.UserProfile, fields=('email',))
 
-    def can_manager_user(self, request, obj):
+    def has_change_permission(self, request, obj=None):
+        return self.has_change_permission_static(request, obj) and (
+            request.user.is_superuser or obj is not None and not obj.is_superuser
+        )
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser or obj is None or request.user == obj
+
+    @staticmethod
+    def has_change_permission_static(request, obj=None):
         return business_logic.can_edit_user(request.user, obj)
 
     def get_readonly_fields(self, request, obj=None):
@@ -201,7 +210,7 @@ class UserProfileAdmin(
                 readonly_fields.discard("homepage")
                 readonly_fields.discard("orcidid")
                 readonly_fields.discard("expertise")
-            if self.can_manager_user(request=request, obj=obj):
+            if self.has_change_permission(request=request, obj=obj):
                 readonly_fields.discard("firstname")
                 readonly_fields.discard("lastname")
                 readonly_fields.discard("homepage")
@@ -217,10 +226,14 @@ class UserProfileAdmin(
         fieldsets = super().get_fieldsets(request=request, obj=obj)
         ret = []
         for k, f in fieldsets:
-            if request.user.is_superuser or (
-                (self.can_manager_user(request=request, obj=obj) or request.user == obj)
-                and (business_logic.is_curator(request.user) or k != 'Permissions')
-                and (request.user == obj or k != "Password")
+            if (
+                request.user.is_superuser
+                or (
+                    (self.has_change_permission(request=request, obj=obj) or request.user == obj)
+                    and (business_logic.is_curator(request.user) or k != 'Permissions')
+                    and (request.user == obj or k != "Password")
+                )
+                or k in ["Personal info", "Important dates"]
             ):
                 ret.append((k, f))
         return ret
@@ -233,12 +246,16 @@ class UserProfileAdmin(
     @staticmethod
     def make_revoke_group_action(group: Group, manage_is_staff: bool = False):
         def _action(modeladmin, request, qset):
-            updated = qset.filter(groups=group).count()
+            updated = 0
+            count = 0
             for o in qset:
-                o.groups.remove(group)
-            if manage_is_staff:
-                qset.update(is_staff=False)
-            count = qset.count()
+                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                    count += 1
+                    updated += qset.filter(groups=group).filter(pk=o.pk).count()
+                    o.groups.remove(group)
+                    if manage_is_staff:
+                        o.is_staff = False
+                        o.save()
             already_there = count - updated
             if updated == 0:
                 modeladmin.message_user(
@@ -276,19 +293,26 @@ class UserProfileAdmin(
     @staticmethod
     def make_grant_group_action(group: Group, manage_is_staff: bool = False):
         def _action(modeladmin, request, qset):
-            already_there = qset.filter(groups=group).count()
-            if manage_is_staff:
-                not_staff = qset.filter(Q(is_active=False) | Q(is_staff=False)).count()
-                if not_staff > 0:
-                    modeladmin.message_user(
-                        request,
-                        "%i users have been newly granted access to the admin UI" % not_staff,
-                        messages.SUCCESS,
-                    )
-                qset.update(is_staff=True, is_active=True)
+            already_there = 0
+            not_staff = 0
+            count = 0
             for o in qset:
-                o.groups.add(group)
-            count = qset.count()
+                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                    already_there += qset.filter(groups=group).filter(pk=o.pk).count()
+                    count += 1
+                    o.groups.add(group)
+                    if manage_is_staff:
+                        if not o.is_active or not o.is_staff:
+                            not_staff += 1
+                            o.is_active = True
+                            o.is_staff = True
+                            o.save()
+            if not_staff > 0:
+                modeladmin.message_user(
+                    request,
+                    "%i users have been newly granted access to the admin UI" % not_staff,
+                    messages.SUCCESS,
+                )
             updated = count - already_there
             if updated == 0:
                 modeladmin.message_user(
