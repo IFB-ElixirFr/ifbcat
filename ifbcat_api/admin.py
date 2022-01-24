@@ -972,7 +972,7 @@ class TrainingMaterialAdmin(
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'license',
+        'licence__name',
     )
 
 
