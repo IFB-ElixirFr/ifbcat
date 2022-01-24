@@ -196,8 +196,8 @@ class Team(WithGridIdOrRORId, models.Model):
         if self.ifbMembership != 'Not a member':
             errors = {}
             if self.expertise.count() == 0:
-                errors.setdefault('expertise', []).append("expertise is required form IFB Teams")
+                errors.setdefault('expertise', []).append("expertise is required from IFB Teams")
             if self.platforms.count() == 0:
-                errors.setdefault('platforms', []).append("platforms is required form IFB Teams")
+                errors.setdefault('platforms', []).append("platforms is required from IFB Teams")
             if len(errors) > 0:
                 raise ValidationError(errors)
