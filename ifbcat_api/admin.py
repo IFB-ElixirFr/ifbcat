@@ -972,7 +972,7 @@ class TrainingMaterialAdmin(
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'license',
+        'licence__name',
     )
 
 
@@ -1311,6 +1311,13 @@ class CollectionAdmin(
     PermissionInClassModelAdmin,
 ):
     search_fields = ('name',)
+
+
+@admin.register(models.Licence)
+class LicenceAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ['name']
 
 
 models = apps.get_app_config('ifbcat_api').get_models()

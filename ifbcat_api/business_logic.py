@@ -95,6 +95,7 @@ def init_business_logic():
         models.Tool,
         models.OperatingSystem,
         models.TypeRole,
+        models.Licence,
     ]
     service_related = [
         models.Service,
@@ -108,6 +109,7 @@ def init_business_logic():
         models.TrainingCourseMetrics,
         models.Training,
         models.TrainingMaterial,
+        models.Licence,
     ]
     needed_by_all = [
         models.Doi,

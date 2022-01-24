@@ -679,7 +679,6 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'license',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
         'topics',
@@ -688,7 +687,7 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles',
         'difficultyLevel',
         'providedBy',
-        'license',
+        'licence',
     )
 
 
@@ -872,6 +871,11 @@ class AudienceTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.AudienceRole.objects.all()
     serializer_class = serializers.modelserializer_factory(models.AudienceRole, fields=['id', 'audienceRole'])
+
+
+class LicenceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.Licence.objects.all()
+    serializer_class = serializers.modelserializer_factory(models.Licence, fields=['id', 'name'])
 
 
 @staff_member_required
