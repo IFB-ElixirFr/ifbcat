@@ -419,6 +419,7 @@ class EventAdmin(
     )
     list_display = (
         'short_name_or_name_trim',
+        'logo',
         'date_range',
         'is_tess_publishing',
     )
@@ -518,6 +519,13 @@ class EventAdmin(
         ),
     )
     date_hierarchy = 'start_date'
+
+    def logo(self, obj):
+        if obj.logo_url:
+            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+        return format_html('<center style="margin: -8px;">-<center>')
+
+    logo.short_description = format_html("<center>" + ugettext("Logo") + "<center>")
 
     def get_queryset(self, request):
         return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
