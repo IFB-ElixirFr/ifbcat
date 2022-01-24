@@ -67,9 +67,11 @@ class TrainingMaterial(Resource):
     )
     dateCreation = models.DateField(blank=True, null=True, help_text="Date when the training material was created.")
     dateUpdate = models.DateField(blank=True, null=True, help_text="Date when the training material was updated.")
-    licence = models.ManyToManyField(
+    licence = models.ForeignKey(
         Licence,
         blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
         help_text="Licence under which the training material is made available.",
     )
 
