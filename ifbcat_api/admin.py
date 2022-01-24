@@ -1313,6 +1313,13 @@ class CollectionAdmin(
     search_fields = ('name',)
 
 
+@admin.register(models.Licence)
+class LicenceAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ['name']
+
+
 models = apps.get_app_config('ifbcat_api').get_models()
 for model in models:
     try:
