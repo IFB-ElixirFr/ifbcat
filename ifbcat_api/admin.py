@@ -43,6 +43,7 @@ class ModelAdminFillingContactId(admin.ModelAdmin):
                     contactId=request.user,
                 )
             )
+        initial['maintainers'] = list(get_user_model().objects.filter(pk=request.user.pk))
         return initial
 
 
@@ -959,6 +960,7 @@ class AudienceTypeAdmin(
 
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(
+    ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
@@ -994,6 +996,7 @@ class ComputingFacilityAdmin(
 
 @admin.register(models.Team)
 class TeamAdmin(
+    ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
