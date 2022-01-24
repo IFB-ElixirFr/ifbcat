@@ -961,7 +961,7 @@ class AudienceTypeAdmin(
 class TrainingMaterialAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'doi__doi',
@@ -980,7 +980,7 @@ class TrainingMaterialAdmin(
 class ComputingFacilityAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'homepage',
@@ -996,7 +996,7 @@ class ComputingFacilityAdmin(
 class TeamAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     ordering = (Upper(Unaccent("name")),)
     search_fields = (
