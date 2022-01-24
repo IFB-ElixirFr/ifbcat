@@ -16,16 +16,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
             data = csv.DictReader(data_file, delimiter='\t')
-            if 'French_keywords' and 'English_keywords' in data.fieldnames:
+            if not 'French_keywords' and 'English_keywords' in data.fieldnames:
+                raise "The file is not conform!"
+            else:
                 count = 0
+                uncount = 0
                 for line in data:
-                    for cle in Keyword.objects.all().order_by('keyword'):
-                        if line['French_keywords'] == str(cle):
+                    for cle in Keyword.objects.all().order_by('keyword').values():
+                        if line['English_keywords'] == cle['keyword']:
                             cle.keyword = str(line['English_keywords'])
                             cle.save()
                             count += 1
-                        else:
-                            pass
+
                 print(str(count) + " Items have been updated")
-            else:
-                raise "The file is not conform!"
+                print(str(uncount) + " Items have not been updated")
