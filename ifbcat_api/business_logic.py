@@ -95,6 +95,7 @@ def init_business_logic():
         models.Tool,
         models.OperatingSystem,
         models.TypeRole,
+        models.Licence,
     ]
     service_related = [
         models.Service,
@@ -108,6 +109,7 @@ def init_business_logic():
         models.TrainingCourseMetrics,
         models.Training,
         models.TrainingMaterial,
+        models.Licence,
     ]
     needed_by_all = [
         models.Doi,
@@ -168,7 +170,11 @@ def set_user_manager(user, status: bool):
 
 
 def can_edit_user(acting_user, edited_user):
-    return acting_user.groups.filter(name=__USER_MANAGER_GRP_NAME).exists()
+    return acting_user is not None and (
+        acting_user.is_superuser
+        or (is_user_manager(acting_user) and is_curator(acting_user))
+        or acting_user == edited_user
+    )
 
 
 ###############################################################################
@@ -278,3 +284,11 @@ def get_not_to_be_deleted_group_names():
         __BASIC_PERMISSION_GRP_NAME,
         __NO_RESTRICTION,
     )
+
+
+def get_no_restriction_group_name():
+    return __NO_RESTRICTION
+
+
+def get_basic_permissions_group_name():
+    return __BASIC_PERMISSION_GRP_NAME

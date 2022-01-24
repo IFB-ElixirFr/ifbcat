@@ -261,7 +261,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'shortName',
             'description',
             'homepage',
-            'onlineOnly',
+            'is_draft',
             'costs',
             'topics',
             'keywords',
@@ -294,6 +294,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'registration_opening',
             'registration_closing',
             'registration_status',
+            'courseMode',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -636,6 +637,13 @@ class TrainingMaterialSerializer(ResourceSerializer):
         queryset=models.Doi.objects,
         required=False,
     )
+    licence = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
 
     class Meta:
         model = models.TrainingMaterial
@@ -652,7 +660,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
             'providedBy',
             'dateCreation',
             'dateUpdate',
-            'license',
+            'licence',
         )
 
         extra_kwargs = {

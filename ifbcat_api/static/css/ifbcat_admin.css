@@ -9,10 +9,18 @@
 .select2.select2-container .select2-selection__choice{
     color: #278bc7 !important;
     background-color: white !important;
-    border-color: #278bc7 !important;
+    border: 1px solid #278bc7 !important;
+    padding-left:0px !important;
 }
-.select2.select2-container .select2-selection__choice>span{
+.select2.select2-container .select2-selection__choice>span:not(:first-child){
     margin-left:14px;
+    padding-left:7px;
+}
+.select2.select2-container .select2-selection__choice>span:first-child{
+    margin-left:0px;
+    margin-right: 4px;
+    padding:0px 5px;
+    border-right: 1px solid #278bc7 !important;
 }
 .select2.select2-container .select2-selection__choice>button{
     border-width: 0px;
@@ -21,19 +29,38 @@
     color: #278bc7 !important;
     background-color: transparent !important;
     margin-left:0px;
-    padding-left: 6px;
-    padding-right: 6px;
+    padding-left: 4px;
+    padding-right: 4px;
+    border-right: 1px solid #278bc7 !important;
 }
+.select2.select2-container .select2-selection__choice>span:hover,
 .select2.select2-container .select2-selection__choice>button:hover{
         background-color: #00000033 !important;
+}
+.select2.select2-container .select2-selection__choice{
 }
 .select2.select2-container .select2-selection__choice:hover{
     color: white !important;
     background-color: #278bc7 !important;
-    border-color: #278bc7 !important;
 }
+.select2-container--admin-autocomplete .select2-results__option--highlighted[aria-selected],
 .select2.select2-container .select2-selection__choice:hover>button{
     color: white !important;
+}
+ul.select2-selection__rendered{
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+.select2-container.select2-container--open ul.select2-selection__rendered {
+    border-color: #80bdff;
+}
+.select2-container.select2-container--open.select2-container--above ul.select2-selection__rendered {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+.select2-container.select2-container--open.select2-container--below ul.select2-selection__rendered {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
 }
 .theme-default .sidebar-light-primary+.content-wrapper{
     background-color: #eff4fb;
@@ -108,15 +135,14 @@
     max-height: calc( 57px - 0.4em );
     height: calc( 57px - 0.4em );
     margin-top: -0.6em;
-    content:url("https://www.france-bioinformatique.fr/wp-content/uploads/logo-ifb_small.png");
+    content:url("/static/img/logo-ifb_small.png");
     border-radius:0!important;
 }
 .theme-default.sidebar-collapse .sidebar-light-primary .brand-link .brand-image{
-    margin-top: -0.63em;
-    margin-left: .5rem;
-    max-height: 200px;
-    height: 52px;
-    content:url("https://avatars0.githubusercontent.com/u/24292199?s=200&v=4");
+    margin-top: -0.5em;
+    margin-left: 0.95em;
+    height: 45px;
+    content:url(/static/img/ifb_avatar.png);
 }
 .theme-default .sidebar-light-primary+.content-wrapper .timeline-item .timeline-header:last-child{
     border-bottom:0;
@@ -204,5 +230,34 @@
 }
 .form-group.errors label {
     color: #a00;
+}
+aside .sidebar .image .user-profile{
+    color: #278bc7;
+}
+.card, .card-header, .modal-content, .content-wrapper{
+    background: #fff !important;
+}
+html, body{
+    color: #212529;
+}
+.modal-header{
+    border-bottom: 1px solid #e9ecef;
+}
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: #495057;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+.nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+}
+.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+    border-color: #e9ecef #e9ecef #dee2e6;
+}
+.accent-primary .btn-link, .accent-primary .nav-tabs .nav-link, .accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn) {
+    color: #007bff;
+}
+.accent-primary .btn-link:hover, .accent-primary .nav-tabs .nav-link:hover, .accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn):hover {
+    color: #0056b3;
 }
 /**/

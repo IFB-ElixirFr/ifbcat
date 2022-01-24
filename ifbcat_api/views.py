@@ -294,6 +294,8 @@ class EventFilter(AutoSubsetFilterSet):
             'organisedByTeams',
             'organisedByOrganisations',
             'sponsoredBy',
+            'is_draft',
+            'courseMode',
         ]
 
 
@@ -330,7 +332,8 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         '-start_date',
     ]
 
-    queryset = models.Event.objects.annotate(
+    queryset = models.Event.objects
+    queryset = queryset.annotate(
         realisation_status=Case(
             When(Q(start_date__gt=timezone.now()), then=Value('future')),
             When(
@@ -340,7 +343,8 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
             default=Value('ongoing'),
             output_field=CharField(),
         )
-    ).annotate(
+    )
+    queryset = queryset.annotate(
         registration_status=Case(
             When(
                 Q(registration_opening__gt=timezone.now()),
@@ -360,6 +364,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
             output_field=CharField(),
         )
     )
+    queryset = queryset.filter(is_draft=False)
     search_fields_from_abstract_event = (
         'name',
         'shortName',
@@ -674,7 +679,6 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'license',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
         'topics',
@@ -683,7 +687,7 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles',
         'difficultyLevel',
         'providedBy',
-        'license',
+        'licence',
     )
 
 
@@ -866,6 +870,11 @@ class AudienceTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.AudienceRole.objects.all()
     serializer_class = serializers.modelserializer_factory(models.AudienceRole, fields=['id', 'audienceRole'])
+
+
+class LicenceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.Licence.objects.all()
+    serializer_class = serializers.modelserializer_factory(models.Licence, fields=['id', 'name'])
 
 
 @staff_member_required

@@ -85,9 +85,13 @@ def get_general_instance(context: Context) -> List[Dict]:
         model['my'] = True
         if model['object_name'] == 'Event':
             if model['perms']['change']:
-                model['instances'] = models.Event.objects.filter(
+                qs = models.Event.objects
+                qs = qs.filter(is_draft=False)
+                qs = qs.filter(
                     Q(start_date__gte=timezone.now()) | Q(end_date__isnull=False) & Q(end_date__gte=timezone.now())
-                ).order_by('-start_date')
+                )
+                qs = qs.order_by('-start_date')
+                model['instances'] = qs
 
                 model['order'] = 1
                 model['my'] = False
