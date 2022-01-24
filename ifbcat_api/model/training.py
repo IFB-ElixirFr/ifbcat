@@ -129,6 +129,7 @@ class Training(AbstractEvent):
             name=f'New session of {self.name}',
             type=Event.EventType.TRAINING_COURSE,
             training=self,
+            is_draft=True,
         )
         if self.shortName:
             event_attrs['shortName'] = f'New session of {self.shortName}'

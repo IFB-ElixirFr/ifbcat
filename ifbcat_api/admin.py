@@ -675,7 +675,7 @@ class TrainingAdmin(
         course.contactEmail = request.user.email
         course.contactId = request.user
         course.save()
-        messages.success(request, "New session of the training created, you can now update it, or delete it.")
+        messages.success(request, "A draft for a new session have been created, you can now update it, or delete it.")
 
         courseModel = course._meta.model
 
