@@ -637,6 +637,13 @@ class TrainingMaterialSerializer(ResourceSerializer):
         queryset=models.Doi.objects,
         required=False,
     )
+    licence = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
 
     class Meta:
         model = models.TrainingMaterial
@@ -653,7 +660,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
             'providedBy',
             'dateCreation',
             'dateUpdate',
-            'license',
+            'licence',
         )
 
         extra_kwargs = {
