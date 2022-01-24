@@ -67,10 +67,10 @@ class TrainingMaterial(Resource):
     )
     dateCreation = models.DateField(blank=True, null=True, help_text="Date when the training material was created.")
     dateUpdate = models.DateField(blank=True, null=True, help_text="Date when the training material was updated.")
-    license = models.ManyToManyField(
+    licence = models.ManyToManyField(
         Licence,
         blank=True,
-        help_text="License under which the training material is made available.",
+        help_text="Licence under which the training material is made available.",
     )
 
     def __str__(self):
