@@ -910,7 +910,7 @@ _tool_fields = (
     'operating_system',
     # 'scientific_operations',
     'tool_credit',
-    'tool_license',
+    'tool_licence',
     'documentation',
     'maturity',
     'cost',

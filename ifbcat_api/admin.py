@@ -1088,6 +1088,7 @@ class ToolAdmin(
     )
     list_filter = (
         'tool_type',
+        'tool_licence',
         'collection',
         'operating_system',
     )
