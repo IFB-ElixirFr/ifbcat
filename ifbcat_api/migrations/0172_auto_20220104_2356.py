@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ifbcat_api', '0169_alter_topic_uri'),
+        ('ifbcat_api', '0171_auto_20220124_1118'),
     ]
 
     operations = [

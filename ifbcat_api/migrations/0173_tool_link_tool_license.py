@@ -15,8 +15,7 @@ def migrate_tool_license(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('ifbcat_api', '0170_auto_20220104_2356'),
-        ('ifbcat_api', '0171_auto_20220124_1118'),
+        ('ifbcat_api', '0172_auto_20220104_2356'),
     ]
 
     operations = [
