@@ -75,6 +75,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'teamsTechnicalLeaders',
             'teamsMembers',
             'teamsMaintainers',
+            'trainingMaterialMaintainers',
         )
         read_only = (
             'is_superuser',
@@ -661,6 +662,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
             'dateCreation',
             'dateUpdate',
             'licence',
+            'maintainers',
         )
 
         extra_kwargs = {

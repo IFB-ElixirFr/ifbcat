@@ -43,6 +43,7 @@ class ModelAdminFillingContactId(admin.ModelAdmin):
                     contactId=request.user,
                 )
             )
+        initial['maintainers'] = list(get_user_model().objects.filter(pk=request.user.pk))
         return initial
 
 
@@ -418,6 +419,7 @@ class EventAdmin(
     )
     list_display = (
         'short_name_or_name_trim',
+        'logo',
         'date_range',
         'is_tess_publishing',
     )
@@ -517,6 +519,13 @@ class EventAdmin(
         ),
     )
     date_hierarchy = 'start_date'
+
+    def logo(self, obj):
+        if obj.logo_url:
+            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+        return format_html('<center style="margin: -8px;">-<center>')
+
+    logo.short_description = format_html("<center>" + ugettext("Logo") + "<center>")
 
     def get_queryset(self, request):
         return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
@@ -747,7 +756,7 @@ class TopicAdmin(
     search_fields = ['uri', 'label', 'description', 'synonyms']
     list_display = (
         'label',
-        'uri',
+        'uri_browser',
     )
     readonly_fields = ('label', 'description', 'synonyms')
 
@@ -759,6 +768,11 @@ class TopicAdmin(
     def update_information_from_ebi_ols(self, request, queryset):
         for o in queryset:
             o.update_information_from_ebi_ols()
+
+    def uri_browser(self, obj):
+        return format_html(f'<center><a href="{obj.edam_browser_url}" target="_blank">{obj.uri}</a></center>')
+
+    uri_browser.short_description = format_html("<center>" + ugettext("URI") + "<center>")
 
 
 @admin.register(models.EventCost)
@@ -959,9 +973,10 @@ class AudienceTypeAdmin(
 
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(
+    ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'doi__doi',
@@ -980,7 +995,7 @@ class TrainingMaterialAdmin(
 class ComputingFacilityAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'homepage',
@@ -994,9 +1009,10 @@ class ComputingFacilityAdmin(
 
 @admin.register(models.Team)
 class TeamAdmin(
+    ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     ordering = (Upper(Unaccent("name")),)
     search_fields = (

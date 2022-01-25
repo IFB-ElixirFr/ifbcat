@@ -24,7 +24,7 @@ def migrate_back(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('ifbcat_api', '0172_auto_20220104_2356'),
+        ('ifbcat_api', '0174_auto_20220104_2356'),
     ]
 
     operations = [

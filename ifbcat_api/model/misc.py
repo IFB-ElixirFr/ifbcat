@@ -83,6 +83,10 @@ class Topic(models.Model):
     def edam_id(self):
         return self.uri[24:]
 
+    @property
+    def edam_browser_url(self):
+        return f'https://edamontology.github.io/edam-browser/#{self.edam_id}'
+
     def __str__(self):
         """Return the Topic model as a string."""
         return f'{self.label} ({self.uri})'

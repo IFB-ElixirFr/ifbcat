@@ -332,7 +332,7 @@ class Event(AbstractEvent):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        help_text="The training proposed, must be null if type is 'Training session', null otherwise.",
+        help_text="The training proposed, must be provided if event type is 'Training session'.",
     )
     trainers = models.ManyToManyField(
         to="Trainer",
