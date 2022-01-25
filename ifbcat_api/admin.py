@@ -748,7 +748,7 @@ class TopicAdmin(
     search_fields = ['uri', 'label', 'description', 'synonyms']
     list_display = (
         'label',
-        'uri',
+        'uri_browser',
     )
     readonly_fields = ('label', 'description', 'synonyms')
 
@@ -760,6 +760,11 @@ class TopicAdmin(
     def update_information_from_ebi_ols(self, request, queryset):
         for o in queryset:
             o.update_information_from_ebi_ols()
+
+    def uri_browser(self, obj):
+        return format_html(f'<center><a href="{obj.edam_browser_url}" target="_blank">{obj.uri}</a></center>')
+
+    uri_browser.short_description = format_html("<center>" + ugettext("URI") + "<center>")
 
 
 @admin.register(models.EventCost)
