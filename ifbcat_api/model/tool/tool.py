@@ -44,6 +44,9 @@ class Tool(models.Model):
     )
     tool_credit = models.ManyToManyField(ToolCredit, blank=True)
     tool_license = models.CharField(max_length=1000, blank=True, null=True)
+    link_tool_license = models.ForeignKey(
+        Licence, blank=True, null=True, on_delete=models.SET_NULL, help_text="Licence of the tool."
+    )
     documentation = models.URLField(
         max_length=512, null=True, blank=True, help_text="Link toward general documentation of the tool"
     )
