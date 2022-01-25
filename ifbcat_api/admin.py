@@ -11,6 +11,7 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.lookups import Unaccent
+from django.core.exceptions import ValidationError
 from django.db.models import Count, Q, When, Value, BooleanField, Case, CharField, F
 from django.db.models.functions import Upper, Length
 from django.forms import modelform_factory
@@ -992,12 +993,26 @@ class ComputingFacilityAdmin(
     list_filter = ('accessibility',)
 
 
+class TeamForm(forms.ModelForm):
+    def clean(self):
+        super().clean()
+        if self.cleaned_data["ifbMembership"] != 'Not a member':
+            errors = {}
+            if self.cleaned_data["expertise"].count() == 0:
+                errors.setdefault('expertise', []).append("expertise is required for IFB Teams")
+            if self.cleaned_data["platforms"].count() == 0:
+                errors.setdefault('platforms', []).append("platforms is required for IFB Teams")
+            if len(errors) > 0:
+                raise ValidationError(errors)
+
+
 @admin.register(models.Team)
 class TeamAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
+    form = TeamForm
     ordering = (Upper(Unaccent("name")),)
     search_fields = (
         'name',
