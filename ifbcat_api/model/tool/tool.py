@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
 
 from ifbcat_api import permissions
-from ifbcat_api.model.misc import Topic, Doi, Keyword
+from ifbcat_api.model.misc import Topic, Doi, Keyword, Licence
 from ifbcat_api.model.tool.collection import Collection
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
