@@ -7,7 +7,7 @@ import django.db.models.deletion
 def migrate_tool_license(apps, schema_editor):
     Tool = apps.get_model("ifbcat_api", "Tool")
     Licence = apps.get_model("ifbcat_api", "Licence")
-    for tool in Tool.objects.all():
+    for tool in Tool.objects.filter(tool_license__isnull=False):
         licence, created = Licence.objects.get_or_create(name=tool.tool_license)
         tool.link_tool_license = licence
         tool.save()
