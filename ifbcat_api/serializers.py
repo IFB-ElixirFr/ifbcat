@@ -639,7 +639,6 @@ class TrainingMaterialSerializer(ResourceSerializer):
         required=False,
     )
     licence = CreatableSlugRelatedField(
-        many=True,
         read_only=False,
         slug_field="name",
         queryset=models.Licence.objects,
@@ -968,6 +967,13 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     tool_credit = ToolCreditSerializer(read_only=True, many=True)
+
+    tool_licence = CreatableSlugRelatedField(
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
 
     teams = serializers.SlugRelatedField(
         many=True,
