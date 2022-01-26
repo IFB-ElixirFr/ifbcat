@@ -417,6 +417,7 @@ class EventAdmin(
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
+    save_as = True
     list_display = (
         'short_name_or_name_trim',
         'logo',
