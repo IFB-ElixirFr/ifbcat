@@ -979,15 +979,18 @@ class TrainingMaterialAdmin(
     ViewInApiModelByNameAdmin,
 ):
     search_fields = (
+        'name',
+        'description',
         'doi__doi',
         'fileName',
+        'fileLocation',
         'topics__uri',
+        'topics__label',
         'keywords__keyword',
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'licence__name',
     )
 
 
