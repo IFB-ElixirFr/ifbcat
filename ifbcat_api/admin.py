@@ -577,6 +577,7 @@ class TrainingAdmin(
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
+    save_as = True
     list_display = (
         "name",
         "logo",
