@@ -55,38 +55,7 @@ class Command(BaseCommand):
             if is_line_should_be_skipped(index, row):
                 continue
 
-            try:
-                user = UserProfile.objects.get(
-                    firstname__unaccent__iexact=row["firstname"].strip(),
-                    lastname__unaccent__iexact=row["lastname"].strip(),
-                )
-            except UserProfile.DoesNotExist:
-                try:
-                    # logger.warning("Test Search for %s %s. Make sure this user is first loaded with a valid email." % (row["firstname"],row["lastname"]))
-
-                    user = UserProfile.objects.get(
-                        firstname__search=row["firstname"].strip(),
-                        lastname__search=row["lastname"].strip(),
-                    )
-                except UserProfile.DoesNotExist:
-                    logger.warning(
-                        "No matching user for lookup by first and last name for %s %s. Make sure this user is first loaded with a valid email."
-                        % (row["firstname"], row["lastname"])
-                    )
-
-            except UserProfile.MultipleObjectsReturned:
-
-                user = UserProfile.objects.filter(
-                    firstname__unaccent__iexact=row["firstname"].strip(),
-                    lastname__unaccent__iexact=row["lastname"].strip(),
-                ).first()
-                logger.warning(
-                    "More than one matching user for lookup by first and last name for %s %s. Make sure this user is not loaded more than one time because of multiple emails. For now, additional informations are added to its first email %s."
-                    % (row["firstname"], row["lastname"], user.email)
-                )
-
-            except Exception as e:
-                logger.warning(e)
+            user = find_user(row["firstname"], row["lastname"])
 
             if "homepage" in df:
                 user.homepage = row["homepage"]
@@ -94,3 +63,48 @@ class Command(BaseCommand):
             # We could add function and other columns here
 
             user.save()
+
+
+def find_user(firstname, lastname, logger_fcn=logger.warning, allow_firstname_first_letter_only=False):
+    try:
+        return UserProfile.objects.get(
+            firstname__unaccent__iexact=firstname.strip(),
+            lastname__unaccent__iexact=lastname.strip(),
+        )
+    except UserProfile.DoesNotExist:
+        try:
+            return UserProfile.objects.get(
+                firstname__search=firstname.strip(),
+                lastname__search=lastname.strip(),
+            )
+        except UserProfile.DoesNotExist:
+            pass
+        if allow_firstname_first_letter_only and len(firstname) == 2 and firstname[1] == '.':
+            try:
+                return UserProfile.objects.get(
+                    firstname__startswith=firstname[0],
+                    lastname__search=lastname.strip(),
+                )
+            except UserProfile.DoesNotExist:
+                pass
+        logger_fcn(
+            "No matching user for lookup by first and last name for %s %s. "
+            "Make sure this user is first loaded with a valid email." % (firstname, lastname)
+        )
+
+    except UserProfile.MultipleObjectsReturned:
+
+        user = UserProfile.objects.filter(
+            firstname__unaccent__iexact=firstname.strip(),
+            lastname__unaccent__iexact=lastname.strip(),
+        ).first()
+        logger_fcn(
+            "More than one matching user for lookup by first and last name for %s %s. "
+            "Make sure this user is not loaded more than one time because of multiple emails. "
+            "For now, additional informations are added to its first email %s." % (firstname, lastname, user.email)
+        )
+        return user
+
+    except Exception as e:
+        logger.warning(e)
+    return None
