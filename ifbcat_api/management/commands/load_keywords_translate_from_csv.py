@@ -21,24 +21,20 @@ class Command(BaseCommand):
             else:
                 count = 0
                 uncounted = 0
-                untranslated = []
+                untranslated_fr = list()
                 for line in data:
-                    for cle in Keyword.objects.filter(keyword=line['French_keywords']):
+                    for cle in Keyword.objects.all():
                         if cle.keyword != line['French_keywords']:
-                            print(uncounted, cle.keyword)
                             uncounted += 1
-                            untranslated.append(cle.keyword)
-                            print("non")
-
+                            untranslated_fr.append([cle.keyword])
                         else:
                             cle.keyword = line['English_keywords']
                             cle.save()
                             count += 1
-                with open("import_data/keywords_english_translate.csv", 'a') as f_object:
+                with open("import_data/keywords_english_translate.csv", 'a', newline='') as f_object:
                     writer_object = csv.writer(f_object)
-                    print(untranslated)
-                    for keyword in untranslated:
-                        writer_object.writerow(keyword)
+                    for keyword in range(len(untranslated_fr)):
+                        writer_object.writerow(untranslated_fr[keyword])
                     f_object.close()
                 print(str(count) + " Items have been updated")
                 print(str(uncounted) + " Items have been added to the csvfile")
