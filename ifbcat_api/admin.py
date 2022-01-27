@@ -417,6 +417,7 @@ class EventAdmin(
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
+    save_as = True
     list_display = (
         'short_name_or_name_trim',
         'logo',
@@ -577,6 +578,7 @@ class TrainingAdmin(
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
+    save_as = True
     list_display = (
         "name",
         "logo",
@@ -978,6 +980,7 @@ class TrainingMaterialAdmin(
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelByNameAdmin,
 ):
+    save_as = True
     search_fields = (
         'doi__doi',
         'fileName',
