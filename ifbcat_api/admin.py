@@ -980,6 +980,7 @@ class TrainingMaterialAdmin(
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelByNameAdmin,
 ):
+    save_as = True
     search_fields = (
         'doi__doi',
         'fileName',
