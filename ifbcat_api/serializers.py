@@ -361,6 +361,7 @@ class TrainingSerializer(EventSerializer):
         queryset=models.AudienceRole.objects,
         required=False,
     )
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta(EventSerializer.Meta):
         model = models.Training
@@ -572,6 +573,8 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
 # Model serializer for computing facilities
 class ComputingFacilitySerializer(ResourceSerializer):
     """Serializes a computing facility (ComputingFacility object)."""
+
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.ComputingFacility
