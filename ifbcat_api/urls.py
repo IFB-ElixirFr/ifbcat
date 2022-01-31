@@ -46,7 +46,7 @@ router.register('topic', views.TopicViewSet)
 router.register('trainer', views.TrainerViewSet)
 router.register('trainingcoursemetrics', views.TrainingCourseMetricsViewSet)
 router.register('training', views.TrainingViewSet)
-router.register('trainingmaterial', views.TrainingMaterialViewSet)
+router.register('trainingmaterial', views.TrainingMaterialViewSet, basename='trainingmaterial')
 router.register('userprofile', views.UserProfileViewSet)
 
 urlpatterns = [

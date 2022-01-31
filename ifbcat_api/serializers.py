@@ -244,6 +244,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     organisedByOrganisations = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
     realisation_status = serializers.CharField()
     registration_status = serializers.CharField()
 
