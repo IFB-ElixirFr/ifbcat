@@ -569,6 +569,8 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
             'elixirPlatforms': {'lookup_field': 'name'},
         }
 
+    elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+
 
 # Model serializer for computing facilities
 class ComputingFacilitySerializer(ResourceSerializer):
@@ -649,6 +651,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
         queryset=models.Licence.objects,
         required=False,
     )
+    providedBy = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.TrainingMaterial
