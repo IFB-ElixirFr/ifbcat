@@ -461,8 +461,8 @@ class EventAdmin(
             'Dates',
             {
                 'fields': (
-                    'registration_closing',
                     'registration_opening',
+                    'registration_closing',
                     'start_date',
                     'end_date',
                 )
