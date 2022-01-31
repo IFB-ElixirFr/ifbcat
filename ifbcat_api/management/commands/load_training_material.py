@@ -87,6 +87,8 @@ class Command(BaseCommand):
                     ('N.Lapalu', 'N. Lapalu'),
                 ]:
                     data_object[9] = data_object[9].replace(raw, corrected)
+                if data_object[9] == "PRABI":
+                    data_object[9] = "PRABI-AMSB"
 
                 for author_str in data_object[9].split(','):
                     if len(data_object[9]) == 0:
