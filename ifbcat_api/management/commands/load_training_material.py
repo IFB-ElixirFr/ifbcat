@@ -48,6 +48,13 @@ class Command(BaseCommand):
             for data_object in data:
                 if data_object == []:
                     continue  # Check for empty lines
+                for raw, corrected in [
+                    ("&", "-"),
+                    (".", "-"),
+                    ("/", " - "),
+                    ("—", " - "),
+                ]:
+                    data_object[0] = data_object[0].replace(raw, corrected)
                 training_material_name = data_object[0]
                 if training_material_name in ["Supports de cours", "Programme"]:
                     continue  # Two random materials with no relevant metadata
@@ -150,6 +157,7 @@ class Command(BaseCommand):
                             fileLocation=training_material_url_file,
                         ),
                     )
+                    # training_material.clean_fields()
                     for o in training_material_keywords_list:
                         training_material.keywords.add(o)
                     for o in maintainers:
