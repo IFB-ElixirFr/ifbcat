@@ -59,7 +59,7 @@ class Command(BaseCommand):
                 if training_material_name in ["Supports de cours", "Programme"]:
                     continue  # Two random materials with no relevant metadata
                 training_material_description = data_object[1]
-                training_material_file_name = data_object[2]
+                training_material_file_name = data_object[2] or "missing.txt"
                 training_material_keywords = data_object[3].split("\n")
                 training_material_keywords_list = []
                 training_material_keyword = ""
@@ -146,6 +146,9 @@ class Command(BaseCommand):
                     if training_material_url_file.endswith('…'):
                         training_material_description += '\n\n' + training_material_url_file
                         logger.warning("training_material_url_file invalid:" + training_material_url_file)
+                        training_material_url_file = "https://catalogue.france-bioinformatique.fr/404"
+                    if training_material_url_file is None or len(training_material_url_file) == 0:
+                        logger.warning("no training_material_url_file for " + training_material_name)
                         training_material_url_file = "https://catalogue.france-bioinformatique.fr/404"
                     training_material, created = TrainingMaterial.objects.update_or_create(
                         name=training_material_name,
