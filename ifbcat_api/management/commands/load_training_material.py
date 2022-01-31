@@ -136,6 +136,7 @@ class Command(BaseCommand):
                 try:
                     if training_material_url_file.endswith('…'):
                         training_material_description += '\n\n' + training_material_url_file
+                        logger.warning("training_material_url_file invalid:" + training_material_url_file)
                         training_material_url_file = "https://catalogue.france-bioinformatique.fr/404"
                     training_material, created = TrainingMaterial.objects.update_or_create(
                         name=training_material_name,
