@@ -645,7 +645,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
         required=False,
     )
     licence = CreatableSlugRelatedField(
-        many=True,
+        many=False,
         read_only=False,
         slug_field="name",
         queryset=models.Licence.objects,
