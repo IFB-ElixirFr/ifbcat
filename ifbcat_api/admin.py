@@ -52,37 +52,53 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         abstract = True
 
     def has_view_permission(self, request, obj=None):
-        from_super = super().has_view_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_view_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
 
-        return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
+            return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
 
     def has_add_permission(self, request):
-        from_super = super().has_add_permission(request=request)
-        if not from_super:
-            return False
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_add_permission(request=request)
+            if not from_super:
+                return False
 
-        return business_logic.has_add_permission(model=self.model, request=request)
+            return business_logic.has_add_permission(model=self.model, request=request)
 
     def has_change_permission(self, request, obj=None):
-        from_super = super().has_change_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_change_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
 
-        return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
+            return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
 
     def has_delete_permission(self, request, obj=None):
-        from_super = super().has_delete_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
-        return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_delete_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
+            return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
 
 
 class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):

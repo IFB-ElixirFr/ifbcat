@@ -269,6 +269,18 @@ class UserCanDeleteIfNotStaffAndNotUsed(permissions.BasePermission):
         return True
 
 
+class IsFromAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_from_admin(request)
+
+    def has_object_permission(self, request, view, obj):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_from_admin(request)
+
+
 class SuperuserCanDelete(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_superuser and request.method == "DELETE"

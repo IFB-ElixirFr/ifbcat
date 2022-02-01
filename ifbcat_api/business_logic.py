@@ -269,6 +269,36 @@ def has_delete_permission(model, request, obj=None):
 
 
 ###############################################################################
+# Request upgrade
+###############################################################################
+class RequestUpgrade:
+    def __init__(
+        self,
+        *,
+        request,
+        from_admin: bool = False,
+    ):
+        self.request = request
+        self.from_admin = from_admin
+        setattr(self.request, "upgrade_attributes", dict())
+
+    def __enter__(self):
+        self.request.upgrade_attributes["from_admin"] = self.from_admin
+        return self.request
+
+    def __exit__(self, type, value, tb):
+        delattr(self.request, "upgrade_attributes")
+
+
+def is_request_upgraded(request):
+    return getattr(request, "upgrade_attributes", None) is not None
+
+
+def is_from_admin(request):
+    return getattr(request, "upgrade_attributes", dict()).get("from_admin", False)
+
+
+###############################################################################
 # Permission classes
 ###############################################################################
 def get_not_to_be_deleted_group_names():

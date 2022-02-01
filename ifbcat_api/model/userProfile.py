@@ -155,9 +155,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return (
             permissions.ReadOnly
             | permissions.UserCanAddNew
-            | permissions.UserCanEditIfNotStaff
-            | permissions.UserCanDeleteIfNotStaffAndNotUsed
-            | permissions.UpdateOwnProfile
-            | permissions.ReadWriteByCurator,
+            | permissions.UserCanEditIfNotStaff & permissions.IsFromAdmin
+            | permissions.UserCanDeleteIfNotStaffAndNotUsed & permissions.IsFromAdmin
+            | permissions.ReadWriteByCurator & permissions.IsFromAdmin
+            | permissions.UpdateOwnProfile,
             IsAuthenticatedOrReadOnly,
         )
