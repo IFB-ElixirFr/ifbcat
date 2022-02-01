@@ -185,18 +185,6 @@ class UserProfileAdmin(
     )
     add_form = modelform_factory(models.UserProfile, fields=('email',))
 
-    def has_change_permission(self, request, obj=None):
-        return self.has_change_permission_static(request, obj) and (
-            request.user.is_superuser or obj is not None and not obj.is_superuser
-        )
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser or obj is None or request.user == obj
-
-    @staticmethod
-    def has_change_permission_static(request, obj=None):
-        return business_logic.can_edit_user(request.user, obj)
-
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
         if not request.user.is_superuser:
@@ -239,18 +227,13 @@ class UserProfileAdmin(
                 ret.append((k, f))
         return ret
 
-    def get_queryset(self, request):
-        if request.user.is_superuser or business_logic.is_user_manager(user=request.user):
-            return super().get_queryset(request)
-        return super().get_queryset(request).filter(pk=request.user.pk)
-
     @staticmethod
     def make_revoke_group_action(group: Group, manage_is_staff: bool = False):
         def _action(modeladmin, request, qset):
             updated = 0
             count = 0
             for o in qset:
-                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                if business_logic.can_edit_user(request.user, o):
                     count += 1
                     updated += qset.filter(groups=group).filter(pk=o.pk).count()
                     o.groups.remove(group)
@@ -298,7 +281,7 @@ class UserProfileAdmin(
             not_staff = 0
             count = 0
             for o in qset:
-                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                if business_logic.can_edit_user(request.user, o):
                     already_there += qset.filter(groups=group).filter(pk=o.pk).count()
                     count += 1
                     o.groups.add(group)
@@ -374,7 +357,13 @@ class UserProfileAdmin(
         )
 
     @classmethod
-    def get_static_actions(cls):
+    def get_static_actions(cls, request=None):
+        if (
+            request is None
+            or not business_logic.is_curator(request.user)
+            or not business_logic.is_user_manager(request.user)
+        ):
+            return {}
         return dict(
             **cls.get_group_actions(),
         )
