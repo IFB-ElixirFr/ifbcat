@@ -82,11 +82,11 @@ def init_business_logic():
     team_and_more_related = [
         models.Team,
         models.Certification,
-        models.Team,
         models.Community,
         models.ElixirPlatform,
         models.Organisation,
         models.Project,
+        models.UserProfile,
     ]
     tool_related = [
         models.Collection,
