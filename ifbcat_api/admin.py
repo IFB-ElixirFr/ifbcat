@@ -175,7 +175,7 @@ class UserProfileAdmin(
             None,
             {
                 'classes': ('wide',),
-                'fields': ('email',),
+                'fields': ('email', 'firstname', 'lastname'),
             },
         ),
     )
@@ -183,7 +183,7 @@ class UserProfileAdmin(
         "user_permissions",
         "groups",
     )
-    add_form = modelform_factory(models.UserProfile, fields=('email',))
+    add_form = modelform_factory(models.UserProfile, fields=('email', 'firstname', 'lastname'))
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
