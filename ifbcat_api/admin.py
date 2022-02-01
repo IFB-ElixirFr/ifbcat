@@ -221,6 +221,8 @@ class UserProfileAdmin(
                 readonly_fields.discard("homepage")
                 readonly_fields.discard("orcidid")
                 readonly_fields.discard("expertise")
+                if obj is not None and not obj.is_superuser and not obj.is_staff:
+                    readonly_fields.discard("email")
                 if obj is not None and not obj.is_superuser:
                     readonly_fields.discard("groups")
                     readonly_fields.discard("is_active")
