@@ -154,7 +154,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
-            | permissions.UserCanAddNew
+            | permissions.UserCanAddNew & permissions.IsFromAdmin
             | permissions.UserCanEditIfNotStaff & permissions.IsFromAdmin
             | permissions.UserCanDeleteIfNotStaffAndNotUsed & permissions.IsFromAdmin
             | permissions.ReadWriteByCurator & permissions.IsFromAdmin
