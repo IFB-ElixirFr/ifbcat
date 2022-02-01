@@ -375,7 +375,7 @@ class UserProfileAdmin(
         )
 
     @classmethod
-    def get_static_actions(cls, request=None):
+    def get_static_actions(cls, request):
         if (
             request is None
             or not business_logic.is_curator(request.user)
@@ -388,7 +388,7 @@ class UserProfileAdmin(
 
     def get_actions(self, request):
         actions = super().get_actions(request=request)
-        actions.update(self.get_static_actions())
+        actions.update(self.get_static_actions(request=request))
         return actions
 
 
