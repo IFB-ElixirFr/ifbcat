@@ -4,7 +4,7 @@
 {% block object-tools-items %}
     <div id="content-related">
         <div class="module" id="recent-actions-module">
-            <h3>{% trans 'Recent actions' %}</h3>
+            <h3>{% trans 'Recent changes' %}</h3>
             {% load log %}
             {% get_admin_log_for_instance 10 as admin_log for_instance original %}
             {% if not admin_log %}
