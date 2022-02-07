@@ -24,7 +24,7 @@ from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
-from ifbcat_api.misc import BibliographicalEntryNotFound
+from ifbcat_api.misc import BibliographicalEntryNotFound, get_usage_in_related_field
 from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
 
@@ -745,6 +745,65 @@ class KeywordAdmin(
     ViewInApiModelAdmin,
 ):
     search_fields = ['keyword']
+
+    actions = [
+        'split_by_comma_and_remove',
+        'merge_other_where_only_case_differs',
+    ]
+
+    def get_actions(self, request):
+        actions = super().get_actions(request=request)
+        if not business_logic.is_curator(request.user):
+            if 'split_by_comma_and_remove' in actions:
+                del actions['split_by_comma_and_remove']
+            if 'merge_other_where_only_case_differs' in actions:
+                del actions['merge_other_where_only_case_differs']
+        return actions
+
+    def merge_other_where_only_case_differs(self, request, queryset):
+        attrs = get_usage_in_related_field(queryset)
+        studied = set()
+        to_remove = set()
+        for o in queryset:
+            if o.id in studied:  # ignore if already seen, to prevent cross removal
+                continue
+            studied.add(o.id)
+            for other in queryset.model.objects.filter(keyword__icontains=o.keyword.strip()).exclude(id=o.id).all():
+                if other.keyword.strip().casefold() != o.keyword.strip().casefold():
+                    continue
+                studied.add(other.id)
+                to_remove.add(other)
+                for model_field, attr_name, reverse_name in attrs:
+                    for r in getattr(other, attr_name).all():
+                        print(r)
+                        getattr(r, reverse_name).add(o)
+        for o in to_remove:
+            o.delete()
+
+    def split_by_comma_and_remove(self, request, queryset):
+        attrs = get_usage_in_related_field(queryset)
+        studied = set()
+        to_remove = set()
+        for o in queryset.filter(keyword__contains=",").exclude(keyword__contains="("):
+            if o.id in studied:  # ignore if already seen, to prevent cross removal
+                continue
+            studied.add(o.id)
+            to_remove.add(o)
+            for model_field, attr_name, reverse_name in attrs:
+                sub_keywords = []
+                for k in o.keyword.split(','):
+                    sub_keyword = queryset.model.objects.filter(keyword__iexact=k.strip()).first()
+                    if sub_keyword is None:
+                        sub_keyword = queryset.model.objects.create(keyword=k.strip())
+                    sub_keywords.append(sub_keyword)
+                for r in getattr(o, attr_name).all():
+                    reverse_attr = getattr(r, reverse_name)
+                    for k in sub_keywords:
+                        studied.add(k.id)
+                        reverse_attr.add(k)
+        for o in to_remove:
+            o.delete()
+        return True
 
 
 @admin.register(models.EventPrerequisite)

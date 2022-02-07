@@ -1,6 +1,7 @@
 import csv
 import logging
 import os
+import re
 from functools import reduce
 
 from django.contrib.auth import get_user_model
@@ -60,9 +61,8 @@ class Command(BaseCommand):
                     continue  # Two random materials with no relevant metadata
                 training_material_description = data_object[1]
                 training_material_file_name = data_object[2] or "missing.txt"
-                training_material_keywords = data_object[3].split("\n")
+                training_material_keywords = re.split(r',|\n|;', data_object[3])  # as we do not have `blabla (aa,bb)`
                 training_material_keywords_list = []
-                training_material_keyword = ""
                 for keyword in training_material_keywords:
                     training_material_keyword, created = Keyword.objects.get_or_create(keyword=keyword)
                     training_material_keywords_list.append(training_material_keyword)

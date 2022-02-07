@@ -2,6 +2,7 @@ import json
 import os
 
 import requests
+from django.db.models import ManyToManyRel, ManyToOneRel
 
 
 class BibliographicalEntryNotFound(Exception):
@@ -88,3 +89,13 @@ def get_doi_info(doi: str) -> dict:
         with open(os.path.join(cache_dir, key), 'w') as f:
             json.dump(response, f)
     return response
+
+
+def get_usage_in_related_field(queryset):
+    attrs = []
+    for model_field in queryset.model._meta.get_fields():
+        if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
+            attr_name = model_field.related_name or (model_field.name + "_set")
+            reverse_name = model_field.remote_field.name
+            attrs.append((model_field, attr_name, reverse_name))
+    return attrs
