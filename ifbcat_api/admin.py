@@ -52,37 +52,53 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         abstract = True
 
     def has_view_permission(self, request, obj=None):
-        from_super = super().has_view_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_view_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
 
-        return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
+            return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
 
     def has_add_permission(self, request):
-        from_super = super().has_add_permission(request=request)
-        if not from_super:
-            return False
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_add_permission(request=request)
+            if not from_super:
+                return False
 
-        return business_logic.has_add_permission(model=self.model, request=request)
+            return business_logic.has_add_permission(model=self.model, request=request)
 
     def has_change_permission(self, request, obj=None):
-        from_super = super().has_change_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_change_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
 
-        return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
+            return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
 
     def has_delete_permission(self, request, obj=None):
-        from_super = super().has_delete_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
-        return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_delete_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
+            return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
 
 
 class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
@@ -175,7 +191,7 @@ class UserProfileAdmin(
             None,
             {
                 'classes': ('wide',),
-                'fields': ('email',),
+                'fields': ('email', 'firstname', 'lastname'),
             },
         ),
     )
@@ -183,19 +199,7 @@ class UserProfileAdmin(
         "user_permissions",
         "groups",
     )
-    add_form = modelform_factory(models.UserProfile, fields=('email',))
-
-    def has_change_permission(self, request, obj=None):
-        return self.has_change_permission_static(request, obj) and (
-            request.user.is_superuser or obj is not None and not obj.is_superuser
-        )
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser or obj is None or request.user == obj
-
-    @staticmethod
-    def has_change_permission_static(request, obj=None):
-        return business_logic.can_edit_user(request.user, obj)
+    add_form = modelform_factory(models.UserProfile, fields=('email', 'firstname', 'lastname'))
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
@@ -217,6 +221,8 @@ class UserProfileAdmin(
                 readonly_fields.discard("homepage")
                 readonly_fields.discard("orcidid")
                 readonly_fields.discard("expertise")
+                if obj is not None and not obj.is_superuser and not obj.is_staff:
+                    readonly_fields.discard("email")
                 if obj is not None and not obj.is_superuser:
                     readonly_fields.discard("groups")
                     readonly_fields.discard("is_active")
@@ -239,18 +245,13 @@ class UserProfileAdmin(
                 ret.append((k, f))
         return ret
 
-    def get_queryset(self, request):
-        if request.user.is_superuser or business_logic.is_user_manager(user=request.user):
-            return super().get_queryset(request)
-        return super().get_queryset(request).filter(pk=request.user.pk)
-
     @staticmethod
     def make_revoke_group_action(group: Group, manage_is_staff: bool = False):
         def _action(modeladmin, request, qset):
             updated = 0
             count = 0
             for o in qset:
-                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                if business_logic.can_edit_user(request.user, o):
                     count += 1
                     updated += qset.filter(groups=group).filter(pk=o.pk).count()
                     o.groups.remove(group)
@@ -298,7 +299,7 @@ class UserProfileAdmin(
             not_staff = 0
             count = 0
             for o in qset:
-                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                if business_logic.can_edit_user(request.user, o):
                     already_there += qset.filter(groups=group).filter(pk=o.pk).count()
                     count += 1
                     o.groups.add(group)
@@ -374,14 +375,20 @@ class UserProfileAdmin(
         )
 
     @classmethod
-    def get_static_actions(cls):
+    def get_static_actions(cls, request):
+        if (
+            request is None
+            or not business_logic.is_curator(request.user)
+            or not business_logic.is_user_manager(request.user)
+        ):
+            return {}
         return dict(
             **cls.get_group_actions(),
         )
 
     def get_actions(self, request):
         actions = super().get_actions(request=request)
-        actions.update(self.get_static_actions())
+        actions.update(self.get_static_actions(request=request))
         return actions
 
 
