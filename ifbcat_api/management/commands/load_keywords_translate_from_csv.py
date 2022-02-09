@@ -16,33 +16,30 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not os.path.exists(options["file"]):
-            logger.error(f"Cannot find the file named {options['file'][12:]}")
-        else:
-            with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
-                data = csv.DictReader(data_file, delimiter='\t')
-                if 'French_keywords' and 'English_keywords' in data.fieldnames:
-                    count = 0
-                    untranslated = 0
-                    qs_dict = Keyword.objects.all().values().order_by('keyword')
-                    file_dict = list(data)
+            return logger.error(f"Cannot find the file named {options['file'][12:]}")
+        with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
+            data = csv.DictReader(data_file, delimiter='\t')
+            if 'French_keywords' and 'English_keywords' in data.fieldnames:
+                count = 0
+                untranslated = 0
+                qs_dict = Keyword.objects.all().values().order_by('keyword')
+                file_dict = list(data)
 
-                    dict_to_list_qs = [item_qs['keyword'] for item_qs in qs_dict]
-                    dict_to_list_file = [line_file['French_keywords'] for line_file in file_dict]
-                    diff_list = list(set(dict_to_list_qs) - set(dict_to_list_file))
-                    untranslated_fr = [[line, ''] for line in diff_list]
+                dict_to_list_qs = [item_qs['keyword'] for item_qs in qs_dict]
+                dict_to_list_file = [line_file['French_keywords'] for line_file in file_dict]
+                diff_list = list(set(dict_to_list_qs) - set(dict_to_list_file))
+                untranslated_fr = [[line, ''] for line in diff_list]
 
-                    for line in data:
-                        for cle in Keyword.objects.filter(keyword__iexact=line['French_keywords']):
-                            cle.keyword = line['English_keywords']
-                            cle.save()
-                            count += 1
-                    with open("import_data/keywords_english_translate.csv", 'a', newline='') as f_object:
-                        writer_object = csv.writer(f_object)
-                        for line in untranslated_fr:
-                            writer_object.writerow(line)
-                            untranslated += 1
-                        f_object.close()
-                    logger.info(f"{count} Items have been updated")
-                    logger.info(f"{untranslated} Items have been added to the csv file")
-                else:
-                    logger.error(f"The file named {options['file'][12:]} does not have expected header")
+                for line in data:
+                    for cle in Keyword.objects.filter(keyword__iexact=line['French_keywords']):
+                        cle.keyword = line['English_keywords']
+                        cle.save()
+                        count += 1
+                with open("import_data/keywords_english_translate.csv", 'a', newline='') as f_object:
+                    writer_object = csv.writer(f_object)
+                    for line in untranslated_fr:
+                        writer_object.writerow(line)
+                        untranslated += 1
+                    f_object.close()
+                logger.info(f"{count} Items have been updated")
+                logger.info(f"{untranslated} Items have been added to the csv file")
