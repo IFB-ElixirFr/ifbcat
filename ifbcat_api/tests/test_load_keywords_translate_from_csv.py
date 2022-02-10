@@ -33,3 +33,17 @@ class TestLoadKeywords(TestCase):
             french_words = set(entry["French_keywords"] for entry in data)
 
         self.assertSetEqual(set(models.Keyword.objects.values_list("keyword", flat=True)), french_words, f.name)
+
+    def test_translate_works_1(self):
+        models.Keyword.objects.create(keyword="KW1-fr")  # will be translated
+        models.Keyword.objects.create(keyword="KW2-en")  # is already translated
+        models.Keyword.objects.create(keyword="KW3-fr")  # will be added
+        with NamedTemporaryFile(delete=False, suffix=".csv", mode="w") as f:
+            f.write('French_keywords\tEnglish_keywords\n')
+            f.write('KW1-fr\tKW1-en\n')
+            f.write('KW2-fr\tKW2-en\n')
+        management.call_command('load_keywords_translate_from_csv', file=f.name)
+
+        self.assertSetEqual(
+            set(models.Keyword.objects.values_list("keyword", flat=True)), {"KW1-en", "KW2-en", "KW3-fr"}, f.name
+        )
