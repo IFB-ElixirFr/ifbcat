@@ -11,15 +11,26 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
-            "--file", type=str, default="import_data/keywords_english_translate.csv", help="Path to the CSV source file"
+            "--file",
+            type=str,
+            default="import_data/keywords_english_translate1.csv",
+            help="Path to the CSV source file",
         )
 
     def handle(self, *args, **options):
         if not os.path.exists(options["file"]):
-            return logger.error(f"Cannot find the file named {options['file'][12:]}")
-        with open(os.path.join(options["file"]), encoding='utf-8') as data_file:
+            logger.error(f"Cannot find the file named {options['file'][12:]}")
+            with open(os.path.join(options["file"]), 'a+', encoding='utf-8', newline='') as data_file:
+                data = csv.DictWriter(data_file, delimiter='\t', fieldnames=['French_keywords', 'English_keywords'])
+                data.writeheader()
+
+                qs_dict = Keyword.objects.all().values().order_by('keyword')
+                data.writerows({'French_keywords': row['keyword'], 'English_keywords': 'Something'} for row in qs_dict)
+                logger.info(f"{len(qs_dict)} have been added to the new file named {options['file'][12:]}")
+
+        with open(os.path.join(options["file"]), encoding='utf-8', newline='') as data_file:
             data = csv.DictReader(data_file, delimiter='\t')
-            if 'French_keywords' and 'English_keywords' in data.fieldnames:
+            if ['French_keywords', 'English_keywords'] == data.fieldnames:
                 count = 0
                 untranslated = 0
                 qs_dict = Keyword.objects.all().values().order_by('keyword')
