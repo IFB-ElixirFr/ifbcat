@@ -90,6 +90,7 @@ class TrainingMaterial(Resource):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
+            | permissions.UserCanAddNew
             | permissions.ReadWriteByProvidedByLeader
             | permissions.ReadWriteByProvidedByDeputies
             | permissions.ReadWriteByProvidedByMaintainer
