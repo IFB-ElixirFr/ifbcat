@@ -153,6 +153,11 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.UpdateOwnProfile | permissions.ReadWriteByCurator,
+            permissions.ReadOnly
+            | permissions.UserCanAddNew & permissions.IsFromAdmin
+            | permissions.UserCanEditIfNotStaff & permissions.IsFromAdmin
+            | permissions.UserCanDeleteIfNotStaffAndNotUsed & permissions.IsFromAdmin
+            | permissions.ReadWriteByCurator & permissions.IsFromAdmin
+            | permissions.UpdateOwnProfile,
             IsAuthenticatedOrReadOnly,
         )
