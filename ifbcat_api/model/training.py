@@ -69,30 +69,6 @@ class Training(AbstractEvent):
         help_text="Training material that the training event uses.",
     )
     learningOutcomes = models.TextField(blank=True, help_text="Expected learning outcomes from the training event.")
-    hoursPresentations = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        help_text="Total time (hours) of presented training material.",
-        validators=[
-            MinValueValidator(1),
-        ],
-    )
-    hoursHandsOn = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        help_text="Total time (hours) of hands-on / practical work.",
-        validators=[
-            MinValueValidator(1),
-        ],
-    )
-    hoursTotal = models.PositiveSmallIntegerField(
-        null=True,
-        blank=True,
-        help_text="Total time investment (hours) of the training event, including recommended prework.",
-        validators=[
-            MinValueValidator(1),
-        ],
-    )
     personalised = models.BooleanField(
         null=True,
         blank=True,
@@ -146,6 +122,9 @@ class Training(AbstractEvent):
             'contactEmail',
             'contactId',
             'logo_url',
+            'hoursPresentations',
+            'hoursHandsOn',
+            'hoursTotal',
         ]:
             event_attrs[field] = getattr(self, field)
         event = Event.objects.create(**event_attrs)
