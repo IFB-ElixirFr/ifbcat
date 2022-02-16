@@ -35,7 +35,7 @@ class TestLoadKeywords(TestCase):
             self.assertEqual(
                 len(data_file.readlines()),
                 models.Keyword.objects.count() + 1,
-                "1 plus the number of keyword to translate",
+                "1 plus the number of keyword to translate2",
             )
 
     def test_append_to_empty_file(self):
