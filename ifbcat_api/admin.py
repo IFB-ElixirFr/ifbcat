@@ -948,7 +948,7 @@ class ElixirPlatformAdmin(
 class OrganisationAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'name',
