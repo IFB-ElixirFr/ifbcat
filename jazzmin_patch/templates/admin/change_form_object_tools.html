@@ -21,7 +21,7 @@
                                 <i class="fas fa-plus-circle bg-success"></i>
                             {% endif %}
 
-                            <div class="timeline-item">
+                            <div class="timeline-item with-author">
                                 <span class="time">
                                     <i class="fas fa-clock"></i> {% blocktrans with timesince=entry.action_time|timesince %}{{ timesince }} ago{% endblocktrans %}<br/>
                                     <i class="fas fa-user"></i> {{entry.user}}

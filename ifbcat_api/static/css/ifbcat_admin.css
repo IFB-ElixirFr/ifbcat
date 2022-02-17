@@ -260,4 +260,7 @@ html, body{
 .accent-primary .btn-link:hover, .accent-primary .nav-tabs .nav-link:hover, .accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn):hover {
     color: #0056b3;
 }
+.timeline>div>.timeline-item.with-author>.timeline-header {
+    min-height: 3.5em;
+}
 /**/
