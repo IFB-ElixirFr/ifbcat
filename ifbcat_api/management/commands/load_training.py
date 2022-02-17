@@ -18,6 +18,7 @@ from ifbcat_api.models import EventPrerequisite
 from ifbcat_api.models import Keyword
 from ifbcat_api.management.commands.load_events import parse_date
 from ifbcat_api import models
+from ifbcat_api.management.commands.load_events import parse_date
 
 logger = logging.getLogger(__name__)
 

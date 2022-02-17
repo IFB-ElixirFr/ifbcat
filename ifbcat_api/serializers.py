@@ -244,6 +244,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     organisedByOrganisations = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
     realisation_status = serializers.CharField()
     registration_status = serializers.CharField()
 
@@ -360,6 +361,7 @@ class TrainingSerializer(EventSerializer):
         queryset=models.AudienceRole.objects,
         required=False,
     )
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta(EventSerializer.Meta):
         model = models.Training
@@ -567,10 +569,14 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
             'elixirPlatforms': {'lookup_field': 'name'},
         }
 
+    elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+
 
 # Model serializer for computing facilities
 class ComputingFacilitySerializer(ResourceSerializer):
     """Serializes a computing facility (ComputingFacility object)."""
+
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.ComputingFacility
@@ -644,6 +650,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
         queryset=models.Licence.objects,
         required=False,
     )
+    providedBy = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.TrainingMaterial

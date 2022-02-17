@@ -67,6 +67,22 @@ class TeamInlineSerializer(serializers.HyperlinkedModelSerializer):
     )
 
 
+class TrainingMaterialInlineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.TrainingMaterial
+        fields = [
+            'id',
+            'name',
+            'url',
+        ]
+
+    url = serializers.HyperlinkedIdentityField(
+        read_only=True,
+        view_name='team-detail',
+        lookup_field='name',
+    )
+
+
 class EventSponsorInlineSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.EventSponsor
