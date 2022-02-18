@@ -71,7 +71,7 @@ class ReadWriteByTrainers(ReadWriteBySomething):
 
 
 class ReadWriteByLeader(ReadWriteBySomething):
-    target = 'leader'
+    target = 'leaders'
 
 
 class ReadWriteByDeputies(ReadWriteBySomething):
@@ -95,7 +95,7 @@ class ReadWriteBySubmitters(ReadWriteBySomething):
 
 
 class ReadWriteByTeamLeader(ReadWriteBySomething):
-    target = 'team__leader'
+    target = 'team__leaders'
 
 
 class ReadWriteByTeamDeputies(ReadWriteBySomething):
@@ -107,7 +107,7 @@ class ReadWriteByTeamMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByTeamsLeader(ReadWriteBySomething):
-    target = 'teams__leader'
+    target = 'teams__leaders'
 
 
 class ReadWriteByTeamsDeputies(ReadWriteBySomething):
@@ -119,7 +119,7 @@ class ReadWriteByTeamsMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByOrgByTeamsLeader(ReadWriteBySomething):
-    target = 'organisedByTeams__leader'
+    target = 'organisedByTeams__leaders'
 
 
 class ReadWriteByOrgByTeamsDeputies(ReadWriteBySomething):
@@ -135,7 +135,7 @@ class ReadWriteByOrgByTeamsMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByProvidedByLeader(ReadWriteBySomething):
-    target = 'providedBy__leader'
+    target = 'providedBy__leaders'
 
 
 class ReadWriteByProvidedByDeputies(ReadWriteBySomething):

@@ -728,7 +728,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     )
     filterset_fields = (
         'expertise',
-        'leader',
+        'leaders',
         'deputies',
         'scientificLeaders',
         'technicalLeaders',
