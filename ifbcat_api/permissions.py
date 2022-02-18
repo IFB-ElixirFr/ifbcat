@@ -236,6 +236,51 @@ class UserCanDeleteIfNotUsed(UserCanEditAndDeleteIfNotUsed):
     allowed_methods = ("DELETE",)
 
 
+class UserCanEditIfNotStaff(permissions.BasePermission):
+    allowed_methods = ("PUT", "POST")
+
+    def has_permission(self, request, view):
+        return request.method in self.allowed_methods
+
+    def has_object_permission(self, request, view, obj):
+        if request.method not in self.allowed_methods:
+            return False
+        if obj is not None and (obj.is_staff or obj.is_superuser):
+            return False
+        return True
+
+
+class UserCanDeleteIfNotStaffAndNotUsed(permissions.BasePermission):
+    allowed_methods = ("DELETE",)
+
+    def has_permission(self, request, view):
+        return request.method in self.allowed_methods
+
+    def has_object_permission(self, request, view, obj):
+        if request.method not in self.allowed_methods:
+            return False
+        if obj is not None and (obj.is_staff or obj.is_superuser):
+            return False
+        for model_field in obj._meta.get_fields():
+            if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
+                attr_name = model_field.related_name or (model_field.name + "_set")
+                if hasattr(obj, attr_name) and getattr(obj, attr_name).count() > 0:
+                    return False
+        return True
+
+
+class IsFromAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_from_admin(request)
+
+    def has_object_permission(self, request, view, obj):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_from_admin(request)
+
+
 class SuperuserCanDelete(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_superuser and request.method == "DELETE"

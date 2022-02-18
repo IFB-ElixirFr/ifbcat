@@ -7,6 +7,7 @@ from ifbcat_api import permissions
 from ifbcat_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType, Doi, Licence
 from ifbcat_api.model.resource import Resource
 from ifbcat_api.model.team import Team
+from ifbcat_api.model.userProfile import UserProfile
 
 
 class TrainingMaterial(Resource):
@@ -74,6 +75,12 @@ class TrainingMaterial(Resource):
         on_delete=models.SET_NULL,
         help_text="Licence under which the training material is made available.",
     )
+    maintainers = models.ManyToManyField(
+        UserProfile,
+        related_name='trainingMaterialMaintainers',
+        help_text="Maintainer(s) of the training material.",
+        blank=True,
+    )
 
     def __str__(self):
         """Return the TrainingMaterial model as a string."""
@@ -83,9 +90,11 @@ class TrainingMaterial(Resource):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
+            | permissions.UserCanAddNew
             | permissions.ReadWriteByProvidedByLeader
             | permissions.ReadWriteByProvidedByDeputies
             | permissions.ReadWriteByProvidedByMaintainer
+            | permissions.ReadWriteByMaintainers
             | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,
