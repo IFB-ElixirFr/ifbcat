@@ -62,13 +62,11 @@ class Team(WithGridIdOrRORId, models.Model):
     linkCovid19 = models.TextField(
         blank=True, help_text="Describe the ways your team contributes to resources related to Covid-19."
     )
-    leader = models.ForeignKey(
+    leaders = models.ManyToManyField(
         UserProfile,
-        related_name='teamLeader',
-        null=True,
+        related_name='teamsLeaders',
         blank=True,
-        on_delete=models.SET_NULL,
-        help_text="Leader of the team.",
+        help_text="Leader(s) of the team.",
     )
     deputies = models.ManyToManyField(
         UserProfile,
