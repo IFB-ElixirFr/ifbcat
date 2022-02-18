@@ -1167,15 +1167,17 @@ class ServiceSubmissionAdmin(
 class ToolAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'name',
         'biotoolsID',
+        'tool_licence__name',
         'description',
     )
     list_filter = (
         'tool_type',
+        'tool_licence',
         'collection',
         'operating_system',
     )
