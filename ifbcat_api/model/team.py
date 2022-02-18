@@ -55,9 +55,9 @@ class Team(WithGridIdOrRORId, models.Model):
         Topic,
         related_name='teamsExpertise',
         blank=True,
-        help_text='Please enter here one or several keywords describing the general and specific expertises of the '
-        'team. Please note that individual expertises will also be documented in the "members" tab. '
-        'Multiple expertises should be separated by semicolumns.',
+        help_text='Required for IFB platform and associated team. Please enter here one or several keywords '
+        'describing the general and specific expertises of the team. Please note that individual '
+        'expertises will also be documented in the "members" tab.',
     )
     linkCovid19 = models.TextField(
         blank=True, help_text="Describe the ways your team contributes to resources related to Covid-19."
