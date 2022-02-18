@@ -69,7 +69,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'homepage',
             'expertise',
             'homepage',
-            'teamLeader',
+            'teamLeaders',
             'teamsDeputies',
             'teamsScientificLeaders',
             'teamsTechnicalLeaders',
@@ -755,7 +755,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'orgid',
             'tools',
             # fields below are legacy
-            'leader',
+            'leaders',
             'deputies',
             'scientificLeaders',
             'technicalLeaders',
