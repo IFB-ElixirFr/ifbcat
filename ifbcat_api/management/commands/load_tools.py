@@ -46,26 +46,8 @@ class Command(BaseCommand):
                 if tool_name == "Regulatory Sequence Analysis Tools (RSAT)":
                     tool_name = "rsat"
                 tool_citation_count = data_object[1]
-                tool_logo = data_object[2]
-                tool_access_condition = data_object[3]
                 tool_description = data_object[5]
                 tool_link = data_object[8]
-                tool_keywords_bis = data_object[9]
-                tool_keywords = tool_keywords_bis.split("\n")
-                tool_keywords_list = []
-                tool_keyword = ""
-                for keyword in tool_keywords:
-                    if len(keyword) > 2:
-                        try:
-                            tool_keyword, created = Keyword.objects.get_or_create(
-                                keyword=keyword,
-                            )
-                            tool_keywords_list.append(tool_keyword)
-                            logger.debug(f"Keyword, {tool_keyword}, has been saved.")
-                        except Exception as ex:
-                            print(str(ex))
-                            msg = "\n\nSomething went wrong saving this keyword: {}\n{}".format(tool_keyword, str(ex))
-                            print(msg)
 
                 tool_types_bis = data_object[13]
                 tool_types = tool_types_bis.split(",")
@@ -81,7 +63,7 @@ class Command(BaseCommand):
                             )
                             tool_type.save()
                             tool_type_list.append(tool_type)
-                            logger.debug(f"Type, {tool_keyword}, has been saved.")
+                            logger.debug(f"Type, {tool_type}, has been saved.")
                         except Exception as ex:
                             print(str(ex))
                             msg = "\n\nSomething went wrong saving this type: {}\n{}".format(tool_type, str(ex))
@@ -117,8 +99,6 @@ class Command(BaseCommand):
                         tool = Tool.objects.filter(name__iexact=tool_item['name']).first()
                         if tool is not None and (tool.biotoolsID is None or tool.biotoolsID == ""):
                             tool.biotoolsID = tool_item['biotoolsID']
-                            tool.logo = tool_logo
-                            tool.access_condition = tool_access_condition
                             tool.annual_visits = int(tool_annual_visits)
                             tool.unique_visits = int(tool_unique_visits)
                             tool.save()
@@ -128,8 +108,6 @@ class Command(BaseCommand):
                             name=tool_item['biotoolsID'],
                         )
                         tool.biotoolsID = tool_item['biotoolsID']
-                        tool.logo = tool_logo
-                        tool.access_condition = tool_access_condition
                         tool.annual_visits = int(tool_annual_visits)
                         tool.unique_visits = int(tool_unique_visits)
                         tool.update_information_from_json(tool_item)
@@ -142,8 +120,6 @@ class Command(BaseCommand):
                         )
                         tool.teams.add(team.id)
 
-                    for keyword in tool_keywords_list:
-                        tool.keywords.add(keyword)
                     for type in tool_type_list:
                         tool.tool_type.add(type)
 

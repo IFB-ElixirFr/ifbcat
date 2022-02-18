@@ -645,7 +645,6 @@ class TrainingMaterialSerializer(ResourceSerializer):
         required=False,
     )
     licence = CreatableSlugRelatedField(
-        many=False,
         read_only=False,
         slug_field="name",
         queryset=models.Licence.objects,
@@ -910,7 +909,6 @@ _tool_fields = (
     'name',
     'description',
     'homepage',
-    'logo',
     'biotoolsID',
     'biotoolsCURIE',
     'tool_type',
@@ -920,18 +918,17 @@ _tool_fields = (
     'operating_system',
     # 'scientific_operations',
     'tool_credit',
-    'tool_license',
+    'tool_licence',
+    'documentation',
     'maturity',
     'cost',
     'unique_visits',
-    'access_condition',
     'citations',
     'annual_visits',
     'unique_visits',
     'last_update',
     # 'increase_last_update',
     # 'access_condition',
-    'keywords',
     'teams',
     # 'language',
     # 'topic',
@@ -947,12 +944,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         slug_field="name",
         required=False,
     )
-    keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="keyword",
-        required=False,
-    )
+
     collection = VerboseSlugRelatedField(
         many=True,
         read_only=True,
@@ -982,6 +974,13 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     tool_credit = ToolCreditSerializer(read_only=True, many=True)
+
+    tool_licence = CreatableSlugRelatedField(
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
 
     teams = serializers.SlugRelatedField(
         many=True,

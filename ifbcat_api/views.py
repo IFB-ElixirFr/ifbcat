@@ -830,7 +830,6 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
     filterset_fields = (
         'tool_type',
         'scientific_topics',
-        'keywords',
         'operating_system',
         'collection',
     )
