@@ -148,14 +148,8 @@ class Tool(models.Model):
         # downloads = tool['download']
         self.tool_license = tool['license']
         for doc in tool['documentation']:
-            if 'General' in doc['type'] or 'User manual' in doc['type']:
+            if 'General' in doc['type']:
                 self.documentation = doc['url']
-                break
-            elif 'API documentation' in doc['type'] or 'FAQ' in doc['type']:
-                self.documentation = doc['url']
-                break
-            else:
-                self.documentation = None
         # language = tool['language']
         # otherID = tool['otherID']
         self.maturity = tool['maturity']
