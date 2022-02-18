@@ -94,7 +94,7 @@ class ReadWriteBySubmitters(ReadWriteBySomething):
     target = 'submitters'
 
 
-class ReadWriteByTeamLeader(ReadWriteBySomething):
+class ReadWriteByTeamLeaders(ReadWriteBySomething):
     target = 'team__leaders'
 
 

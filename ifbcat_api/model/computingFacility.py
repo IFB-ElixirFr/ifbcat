@@ -108,7 +108,7 @@ class ComputingFacility(Resource):
         return (
             permissions.ReadOnly
             | permissions.UserCanAddNew
-            | permissions.ReadWriteByTeamLeader
+            | permissions.ReadWriteByTeamLeaders
             | permissions.ReadWriteByTeamDeputies
             | permissions.ReadWriteByTeamMaintainers
             | permissions.ReadWriteByCurator
