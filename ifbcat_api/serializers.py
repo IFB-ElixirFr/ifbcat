@@ -69,7 +69,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'homepage',
             'expertise',
             'homepage',
-            'teamLeaders',
+            'teamsLeaders',
             'teamsDeputies',
             'teamsScientificLeaders',
             'teamsTechnicalLeaders',
