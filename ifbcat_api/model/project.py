@@ -79,7 +79,7 @@ class Project(models.Model):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
-            | permissions.ReadWriteByTeamLeader
+            | permissions.ReadWriteByTeamLeaders
             | permissions.ReadWriteByTeamDeputies
             | permissions.ReadWriteByTeamMaintainers
             | permissions.ReadWriteByCurator

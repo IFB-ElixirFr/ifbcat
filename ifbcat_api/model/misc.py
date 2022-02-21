@@ -20,6 +20,29 @@ from ifbcat_api.validators import validate_grid_or_ror_id
 logger = logging.getLogger(__name__)
 
 
+class Licence(models.Model):
+
+    name = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text="Such as GLPv3, Apache 2.0, ...",
+    )
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_permission_classes(cls):
+        return (
+            permissions.ReadOnly
+            | permissions.UserCanAddNew
+            | permissions.UserCanEditAndDeleteIfNotUsed
+            | permissions.ReadWriteByCurator
+            | permissions.ReadWriteBySuperEditor,
+            IsAuthenticatedOrReadOnly,
+        )
+
+
 class Topic(models.Model):
     """Event topic model: URI of EDAM Topic term describing scope or expertise."""
 
@@ -59,6 +82,10 @@ class Topic(models.Model):
     @property
     def edam_id(self):
         return self.uri[24:]
+
+    @property
+    def edam_browser_url(self):
+        return f'https://edamontology.github.io/edam-browser/#{self.edam_id}'
 
     def __str__(self):
         """Return the Topic model as a string."""

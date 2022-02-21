@@ -217,6 +217,30 @@ class AbstractEvent(models.Model):
         default=False,
         help_text="Mention whether it's a draft.",
     )
+    hoursPresentations = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total time (hours) of presented training material.",
+        validators=[
+            MinValueValidator(1),
+        ],
+    )
+    hoursHandsOn = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total time (hours) of hands-on / practical work.",
+        validators=[
+            MinValueValidator(1),
+        ],
+    )
+    hoursTotal = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total time investment (hours) of the training event, including recommended prework.",
+        validators=[
+            MinValueValidator(1),
+        ],
+    )
 
     def clean(self):
         if self.accessibility == self.EventAccessibilityType.PRIVATE and len(self.accessibilityNote or '') == 0:
@@ -332,7 +356,7 @@ class Event(AbstractEvent):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        help_text="The training proposed, must be null if type is 'Training session', null otherwise.",
+        help_text="The training proposed, must be provided if event type is 'Training session'.",
     )
     trainers = models.ManyToManyField(
         to="Trainer",

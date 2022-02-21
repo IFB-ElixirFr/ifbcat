@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
 
 from ifbcat_api import permissions
-from ifbcat_api.model.misc import Topic, Doi, Keyword
+from ifbcat_api.model.misc import Topic, Doi, Keyword, Licence
 from ifbcat_api.model.tool.collection import Collection
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
@@ -38,18 +38,17 @@ class Tool(models.Model):
         Topic,
         blank=True,
     )
-    keywords = models.ManyToManyField(
-        Keyword,
-        blank=True,
-        related_name='toolsKeywords',
-        help_text="A keyword (beyond EDAM ontology scope) describing the tool.",
-    )
     operating_system = models.ManyToManyField(
         OperatingSystem,
         blank=True,
     )
     tool_credit = models.ManyToManyField(ToolCredit, blank=True)
-    tool_license = models.CharField(max_length=1000, blank=True, null=True)
+    tool_licence = models.ForeignKey(
+        Licence, blank=True, null=True, on_delete=models.SET_NULL, help_text="Licence of the tool."
+    )
+    documentation = models.URLField(
+        max_length=512, null=True, blank=True, help_text="Link toward general documentation of the tool"
+    )
     # add operation/function here
     # Primary publication DOI storedin DOI table
     primary_publication = models.ManyToManyField(
@@ -59,23 +58,17 @@ class Tool(models.Model):
         help_text="Publication(s) that describe the tool as a whole.",
     )
     collection = models.ManyToManyField(Collection, blank=True)
-
     biotoolsCURIE = models.CharField(blank=False, null=False, max_length=109)  # because of biotools: prefix
 
     # software_version = models.CharField(max_length=200, blank=True, null=True)
 
     citations = models.CharField(max_length=1000, blank=True, null=True)
-    logo = models.URLField(max_length=200, blank=True, null=True)
-    access_condition = models.TextField(blank=True, null=True)
-    contact_support = models.CharField(max_length=1000, blank=True, null=True)
 
     # link = models.CharField(max_length=1000, blank=True, null=True)
     # keywords = models.ManyToManyField(Keyword, blank=True)
-    prerequisites = models.TextField(blank=True, null=True)
     # operating_system = models.CharField(max_length=50, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
     # topic = models.CharField(max_length=1000, blank=True, null=True)
     downloads = models.CharField(max_length=1000, blank=True, null=True)
-
     annual_visits = models.IntegerField(blank=True, null=True)
     unique_visits = models.IntegerField(blank=True, null=True)
 
@@ -112,7 +105,6 @@ class Tool(models.Model):
     # to remove ?
     input_data = models.CharField(max_length=1000, blank=True, null=True)
     output_data = models.CharField(max_length=1000, blank=True, null=True)
-    primary = models.CharField(max_length=1000, blank=True, null=True)
 
     # metadata
     addition_date = models.DateTimeField(blank=True, null=True)
@@ -155,6 +147,9 @@ class Tool(models.Model):
         # software_version = tool['version']
         # downloads = tool['download']
         self.tool_license = tool['license']
+        for doc in tool['documentation']:
+            if 'General' in doc['type']:
+                self.documentation = doc['url']
         # language = tool['language']
         # otherID = tool['otherID']
         self.maturity = tool['maturity']

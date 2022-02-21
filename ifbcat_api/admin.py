@@ -11,6 +11,7 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.lookups import Unaccent
+from django.core.exceptions import ValidationError
 from django.db.models import Count, Q, When, Value, BooleanField, Case, CharField, F
 from django.db.models.functions import Upper, Length
 from django.forms import modelform_factory
@@ -24,7 +25,7 @@ from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
 from ifbcat_api import models, business_logic
-from ifbcat_api.misc import BibliographicalEntryNotFound
+from ifbcat_api.misc import BibliographicalEntryNotFound, get_usage_in_related_field
 from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
 
@@ -43,6 +44,7 @@ class ModelAdminFillingContactId(admin.ModelAdmin):
                     contactId=request.user,
                 )
             )
+        initial['maintainers'] = list(get_user_model().objects.filter(pk=request.user.pk))
         return initial
 
 
@@ -51,37 +53,53 @@ class PermissionInClassModelAdmin(admin.ModelAdmin):
         abstract = True
 
     def has_view_permission(self, request, obj=None):
-        from_super = super().has_view_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_view_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
 
-        return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
+            return business_logic.has_view_permission(model=self.model, request=request, obj=obj)
 
     def has_add_permission(self, request):
-        from_super = super().has_add_permission(request=request)
-        if not from_super:
-            return False
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_add_permission(request=request)
+            if not from_super:
+                return False
 
-        return business_logic.has_add_permission(model=self.model, request=request)
+            return business_logic.has_add_permission(model=self.model, request=request)
 
     def has_change_permission(self, request, obj=None):
-        from_super = super().has_change_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_change_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
 
-        return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
+            return business_logic.has_change_permission(model=self.model, request=request, obj=obj)
 
     def has_delete_permission(self, request, obj=None):
-        from_super = super().has_delete_permission(request=request, obj=obj)
-        if not from_super:
-            return False
-        if obj is None:
-            return from_super
-        return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
+        with business_logic.RequestUpgrade(
+            request=request,
+            from_admin=True,
+        ):
+            from_super = super().has_delete_permission(request=request, obj=obj)
+            if not from_super:
+                return False
+            if obj is None:
+                return from_super
+            return business_logic.has_delete_permission(model=self.model, request=request, obj=obj)
 
 
 class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
@@ -174,7 +192,7 @@ class UserProfileAdmin(
             None,
             {
                 'classes': ('wide',),
-                'fields': ('email',),
+                'fields': ('email', 'firstname', 'lastname'),
             },
         ),
     )
@@ -182,19 +200,7 @@ class UserProfileAdmin(
         "user_permissions",
         "groups",
     )
-    add_form = modelform_factory(models.UserProfile, fields=('email',))
-
-    def has_change_permission(self, request, obj=None):
-        return self.has_change_permission_static(request, obj) and (
-            request.user.is_superuser or obj is not None and not obj.is_superuser
-        )
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser or obj is None or request.user == obj
-
-    @staticmethod
-    def has_change_permission_static(request, obj=None):
-        return business_logic.can_edit_user(request.user, obj)
+    add_form = modelform_factory(models.UserProfile, fields=('email', 'firstname', 'lastname'))
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = set(super().get_readonly_fields(request=request, obj=obj))
@@ -216,6 +222,8 @@ class UserProfileAdmin(
                 readonly_fields.discard("homepage")
                 readonly_fields.discard("orcidid")
                 readonly_fields.discard("expertise")
+                if obj is not None and not obj.is_superuser and not obj.is_staff:
+                    readonly_fields.discard("email")
                 if obj is not None and not obj.is_superuser:
                     readonly_fields.discard("groups")
                     readonly_fields.discard("is_active")
@@ -238,18 +246,13 @@ class UserProfileAdmin(
                 ret.append((k, f))
         return ret
 
-    def get_queryset(self, request):
-        if request.user.is_superuser or business_logic.is_user_manager(user=request.user):
-            return super().get_queryset(request)
-        return super().get_queryset(request).filter(pk=request.user.pk)
-
     @staticmethod
     def make_revoke_group_action(group: Group, manage_is_staff: bool = False):
         def _action(modeladmin, request, qset):
             updated = 0
             count = 0
             for o in qset:
-                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                if business_logic.can_edit_user(request.user, o):
                     count += 1
                     updated += qset.filter(groups=group).filter(pk=o.pk).count()
                     o.groups.remove(group)
@@ -297,7 +300,7 @@ class UserProfileAdmin(
             not_staff = 0
             count = 0
             for o in qset:
-                if UserProfileAdmin.has_change_permission_static(request=request, obj=o):
+                if business_logic.can_edit_user(request.user, o):
                     already_there += qset.filter(groups=group).filter(pk=o.pk).count()
                     count += 1
                     o.groups.add(group)
@@ -373,14 +376,20 @@ class UserProfileAdmin(
         )
 
     @classmethod
-    def get_static_actions(cls):
+    def get_static_actions(cls, request):
+        if (
+            request is None
+            or not business_logic.is_curator(request.user)
+            or not business_logic.is_user_manager(request.user)
+        ):
+            return {}
         return dict(
             **cls.get_group_actions(),
         )
 
     def get_actions(self, request):
         actions = super().get_actions(request=request)
-        actions.update(self.get_static_actions())
+        actions.update(self.get_static_actions(request=request))
         return actions
 
 
@@ -416,8 +425,10 @@ class EventAdmin(
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
+    save_as = True
     list_display = (
         'short_name_or_name_trim',
+        'logo',
         'date_range',
         'is_tess_publishing',
     )
@@ -458,8 +469,8 @@ class EventAdmin(
             'Dates',
             {
                 'fields': (
-                    'registration_closing',
                     'registration_opening',
+                    'registration_closing',
                     'start_date',
                     'end_date',
                 )
@@ -512,11 +523,21 @@ class EventAdmin(
                     'computingFacilities',
                     'training',
                     'trainingMaterials',
+                    'hoursPresentations',
+                    'hoursHandsOn',
+                    'hoursTotal',
                 )
             },
         ),
     )
     date_hierarchy = 'start_date'
+
+    def logo(self, obj):
+        if obj.logo_url:
+            return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
+        return format_html('<center style="margin: -8px;">-<center>')
+
+    logo.short_description = format_html("<center>" + ugettext("Logo") + "<center>")
 
     def get_queryset(self, request):
         return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
@@ -568,6 +589,7 @@ class TrainingAdmin(
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
+    save_as = True
     list_display = (
         "name",
         "logo",
@@ -656,9 +678,9 @@ class TrainingAdmin(
                     'prerequisites',
                     'communities',
                     'computingFacilities',
-                    'trainingMaterials',
                     'difficultyLevel',
                     'learningOutcomes',
+                    'trainingMaterials',
                     'hoursPresentations',
                     'hoursHandsOn',
                     'hoursTotal',
@@ -675,7 +697,7 @@ class TrainingAdmin(
         course.contactEmail = request.user.email
         course.contactId = request.user
         course.save()
-        messages.success(request, "New session of the training created, you can now update it, or delete it.")
+        messages.success(request, "A draft for a new session have been created, you can now update it, or delete it.")
 
         courseModel = course._meta.model
 
@@ -728,6 +750,65 @@ class KeywordAdmin(
 ):
     search_fields = ['keyword']
 
+    actions = [
+        'split_by_comma_and_remove',
+        'merge_other_where_only_case_differs',
+    ]
+
+    def get_actions(self, request):
+        actions = super().get_actions(request=request)
+        if not business_logic.is_curator(request.user):
+            if 'split_by_comma_and_remove' in actions:
+                del actions['split_by_comma_and_remove']
+            if 'merge_other_where_only_case_differs' in actions:
+                del actions['merge_other_where_only_case_differs']
+        return actions
+
+    def merge_other_where_only_case_differs(self, request, queryset):
+        attrs = get_usage_in_related_field(queryset)
+        studied = set()
+        to_remove = set()
+        for o in queryset:
+            if o.id in studied:  # ignore if already seen, to prevent cross removal
+                continue
+            studied.add(o.id)
+            for other in queryset.model.objects.filter(keyword__icontains=o.keyword.strip()).exclude(id=o.id).all():
+                if other.keyword.strip().casefold() != o.keyword.strip().casefold():
+                    continue
+                studied.add(other.id)
+                to_remove.add(other)
+                for model_field, attr_name, reverse_name in attrs:
+                    for r in getattr(other, attr_name).all():
+                        print(r)
+                        getattr(r, reverse_name).add(o)
+        for o in to_remove:
+            o.delete()
+
+    def split_by_comma_and_remove(self, request, queryset):
+        attrs = get_usage_in_related_field(queryset)
+        studied = set()
+        to_remove = set()
+        for o in queryset.filter(keyword__contains=",").exclude(keyword__contains="("):
+            if o.id in studied:  # ignore if already seen, to prevent cross removal
+                continue
+            studied.add(o.id)
+            to_remove.add(o)
+            for model_field, attr_name, reverse_name in attrs:
+                sub_keywords = []
+                for k in o.keyword.split(','):
+                    sub_keyword = queryset.model.objects.filter(keyword__iexact=k.strip()).first()
+                    if sub_keyword is None:
+                        sub_keyword = queryset.model.objects.create(keyword=k.strip())
+                    sub_keywords.append(sub_keyword)
+                for r in getattr(o, attr_name).all():
+                    reverse_attr = getattr(r, reverse_name)
+                    for k in sub_keywords:
+                        studied.add(k.id)
+                        reverse_attr.add(k)
+        for o in to_remove:
+            o.delete()
+        return True
+
 
 @admin.register(models.EventPrerequisite)
 class EventPrerequisiteAdmin(
@@ -747,7 +828,7 @@ class TopicAdmin(
     search_fields = ['uri', 'label', 'description', 'synonyms']
     list_display = (
         'label',
-        'uri',
+        'uri_browser',
     )
     readonly_fields = ('label', 'description', 'synonyms')
 
@@ -759,6 +840,11 @@ class TopicAdmin(
     def update_information_from_ebi_ols(self, request, queryset):
         for o in queryset:
             o.update_information_from_ebi_ols()
+
+    def uri_browser(self, obj):
+        return format_html(f'<center><a href="{obj.edam_browser_url}" target="_blank">{obj.uri}</a></center>')
+
+    uri_browser.short_description = format_html("<center>" + ugettext("URI") + "<center>")
 
 
 @admin.register(models.EventCost)
@@ -866,7 +952,7 @@ class ElixirPlatformAdmin(
 class OrganisationAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'name',
@@ -959,20 +1045,25 @@ class AudienceTypeAdmin(
 
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(
+    ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
+    save_as = True
     search_fields = (
+        'name',
+        'description',
         'doi__doi',
         'fileName',
+        'fileLocation',
         'topics__uri',
+        'topics__label',
         'keywords__keyword',
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'license',
     )
 
 
@@ -980,7 +1071,7 @@ class TrainingMaterialAdmin(
 class ComputingFacilityAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'homepage',
@@ -992,19 +1083,34 @@ class ComputingFacilityAdmin(
     list_filter = ('accessibility',)
 
 
+class TeamForm(forms.ModelForm):
+    def clean(self):
+        super().clean()
+        if self.cleaned_data["ifbMembership"] != 'Not a member':
+            errors = {}
+            if self.cleaned_data["expertise"].count() == 0:
+                errors.setdefault('expertise', []).append("expertise is required for IFB Teams")
+            if self.cleaned_data["platforms"].count() == 0:
+                errors.setdefault('platforms', []).append("platforms is required for IFB Teams")
+            if len(errors) > 0:
+                raise ValidationError(errors)
+
+
 @admin.register(models.Team)
 class TeamAdmin(
+    ModelAdminFillingContactId,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
+    form = TeamForm
     ordering = (Upper(Unaccent("name")),)
     search_fields = (
         'name',
         'description',
         'expertise__uri',
-        'leader__firstname',
-        'leader__lastname',
+        'leaders__firstname',
+        'leaders__lastname',
         'deputies__firstname',
         'deputies__lastname',
         'scientificLeaders__firstname',
@@ -1079,15 +1185,17 @@ class ServiceSubmissionAdmin(
 class ToolAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
+    ViewInApiModelByNameAdmin,
 ):
     search_fields = (
         'name',
         'biotoolsID',
+        'tool_licence__name',
         'description',
     )
     list_filter = (
         'tool_type',
+        'tool_licence',
         'collection',
         'operating_system',
     )
@@ -1311,6 +1419,13 @@ class CollectionAdmin(
     PermissionInClassModelAdmin,
 ):
     search_fields = ('name',)
+
+
+@admin.register(models.Licence)
+class LicenceAdmin(
+    PermissionInClassModelAdmin,
+):
+    search_fields = ['name']
 
 
 models = apps.get_app_config('ifbcat_api').get_models()

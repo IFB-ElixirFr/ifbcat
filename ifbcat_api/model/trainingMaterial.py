@@ -4,18 +4,14 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
-from ifbcat_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType, Doi
+from ifbcat_api.model.misc import Keyword, Topic, AudienceRole, AudienceType, DifficultyLevelType, Doi, Licence
 from ifbcat_api.model.resource import Resource
 from ifbcat_api.model.team import Team
+from ifbcat_api.model.userProfile import UserProfile
 
 
 class TrainingMaterial(Resource):
     """Training material model: Digital media such as a presentation or tutorial that can be used for bioinformatics training or teaching."""
-
-    class TrainingMaterialLicenseName(models.TextChoices):
-        """Controlled vocabulary of training material licenses."""
-
-        LICENSE_A = 'License A', _('License A')
 
     # fileLocation, fileName is mandatory
     # TO-DO:  providedBy
@@ -72,11 +68,18 @@ class TrainingMaterial(Resource):
     )
     dateCreation = models.DateField(blank=True, null=True, help_text="Date when the training material was created.")
     dateUpdate = models.DateField(blank=True, null=True, help_text="Date when the training material was updated.")
-    license = models.CharField(
-        max_length=255,
-        choices=TrainingMaterialLicenseName.choices,
+    licence = models.ForeignKey(
+        Licence,
         blank=True,
-        help_text="License under which the training material is made available.",
+        null=True,
+        on_delete=models.SET_NULL,
+        help_text="Licence under which the training material is made available.",
+    )
+    maintainers = models.ManyToManyField(
+        UserProfile,
+        related_name='trainingMaterialMaintainers',
+        help_text="Maintainer(s) of the training material.",
+        blank=True,
     )
 
     def __str__(self):
@@ -87,9 +90,11 @@ class TrainingMaterial(Resource):
     def get_permission_classes(cls):
         return (
             permissions.ReadOnly
+            | permissions.UserCanAddNew
             | permissions.ReadWriteByProvidedByLeader
             | permissions.ReadWriteByProvidedByDeputies
             | permissions.ReadWriteByProvidedByMaintainer
+            | permissions.ReadWriteByMaintainers
             | permissions.ReadWriteByCurator
             | permissions.ReadWriteBySuperEditor,
             IsAuthenticatedOrReadOnly,

@@ -234,7 +234,7 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     )
     filterset_fields = (
         'expertise',
-        'teamLeader',
+        'teamsLeaders',
         'teamsMembers',
         'elixirPlatformDeputies',
         'elixirPlatformCoordinator',
@@ -679,7 +679,6 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'license',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
         'topics',
@@ -688,7 +687,7 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles',
         'difficultyLevel',
         'providedBy',
-        'license',
+        'licence',
     )
 
 
@@ -704,8 +703,8 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'name',
         'description',
         'expertise__uri',
-        'leader__firstname',
-        'leader__lastname',
+        'leaders__firstname',
+        'leaders__lastname',
         'deputies__firstname',
         'deputies__lastname',
         'scientificLeaders__firstname',
@@ -729,7 +728,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     )
     filterset_fields = (
         'expertise',
-        'leader',
+        'leaders',
         'deputies',
         'scientificLeaders',
         'technicalLeaders',
@@ -831,7 +830,6 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
     filterset_fields = (
         'tool_type',
         'scientific_topics',
-        'keywords',
         'operating_system',
         'collection',
     )
@@ -872,6 +870,11 @@ class AudienceTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.AudienceRole.objects.all()
     serializer_class = serializers.modelserializer_factory(models.AudienceRole, fields=['id', 'audienceRole'])
+
+
+class LicenceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.Licence.objects.all()
+    serializer_class = serializers.modelserializer_factory(models.Licence, fields=['id', 'name'])
 
 
 @staff_member_required
