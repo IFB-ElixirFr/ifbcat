@@ -35,7 +35,16 @@ class TestLoadKeywords(TestCase):
             self.assertEqual(
                 len(data_file.readlines()),
                 models.Keyword.objects.count() + 1,
-                "1 plus the number of keyword to translate2",
+                "1 plus the number of keyword to translate",
+            )
+        models.Keyword.objects.create(keyword="KW3-fr")
+        management.call_command('load_keywords_translate_from_csv', file=f.name)
+
+        with open(f.name, 'r') as data_file:
+            self.assertEqual(
+                len(data_file.readlines()),
+                models.Keyword.objects.count() + 1,
+                "1 plus the number of keyword to translate",
             )
 
     def test_append_to_empty_file(self):
