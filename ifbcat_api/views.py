@@ -234,7 +234,7 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     )
     filterset_fields = (
         'expertise',
-        'teamLeaders',
+        'teamsLeaders',
         'teamsMembers',
         'elixirPlatformDeputies',
         'elixirPlatformCoordinator',
@@ -703,8 +703,8 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'name',
         'description',
         'expertise__uri',
-        'leader__firstname',
-        'leader__lastname',
+        'leaders__firstname',
+        'leaders__lastname',
         'deputies__firstname',
         'deputies__lastname',
         'scientificLeaders__firstname',
