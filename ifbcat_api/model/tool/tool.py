@@ -152,8 +152,10 @@ class Tool(models.Model):
         all_type_json = dict()
         n = 0
         for doc in docs:
-            all_type_json[''.join(doc['type'])] = n
-            n += 1
+            if doc['type'] is not None:
+                for type_doc in doc['type']:
+                    all_type_json[type_doc] = n
+                    n += 1
         for elt in type_list:
             if elt in all_type_json.keys():
                 self.documentation = docs[all_type_json[elt]]['url']
