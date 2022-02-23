@@ -32,18 +32,16 @@ class Command(BaseCommand):
                     file_dict[data_object[0]] = data_object[1]
 
                 qs_keyword = Keyword.objects.all().order_by('keyword')
-
                 for key in qs_keyword:
                     str_key = key.keyword.strip()
-                    # print(key.keyword, type(key.keyword))
-                    if str_key != file_dict.get(str_key) and file_dict.get(str_key) != "To_translate":
+                    if file_dict.get(str_key) == "To_translate":
+                        pass
+                    elif str_key in file_dict.keys() and str_key not in file_dict.values():
                         key.keyword = file_dict.get(str_key)
                         key.save()
                         count += 1
-                    elif str_key == file_dict.get(str_key):
+                    elif str_key in file_dict.values():
                         logger.info(f"{str_key} has already been translated!")
-                    elif file_dict.get(str_key) == "To_translate":
-                        pass
                     else:
                         print(untranslated_nb, str_key)
                         print("___________")
@@ -52,15 +50,17 @@ class Command(BaseCommand):
 
                 # f = open(options["file"], 'r+')
                 # f.truncate(0)
+                print(file_dict)
+                with open(os.path.join(options["file"]), 'w', newline='') as csv_file:
+                    writer = csv.DictWriter(
+                        csv_file, fieldnames=['French_keywords', 'English_keywords'], delimiter='\t'
+                    )
+                    writer.writeheader()
+                    for key in file_dict:
+                        writer.writerow({'French_keywords': key, 'English_keywords': file_dict[key]})
 
-            with open('myFile.csv', 'w', newline='') as csv_file:
-                writer = csv.DictWriter(csv_file, fieldnames=['French_keywords', 'English_keywords'], delimiter='\t')
-                writer.writeheader()
-                for key in file_dict:
-                    writer.writerow({'French_keywords': key, 'English_keywords': file_dict[key]})
-
-            logger.info(f"{count} Items have been updated")
-            logger.info(f"{untranslated_nb} Items have been added to the csv file {options['file']}")
+                logger.info(f"{count} Items have been updated")
+                logger.info(f"{untranslated_nb} Items have been added to the csv file {options['file']}")
         else:
             with open(os.path.join(options["file"]), 'w+', encoding='utf-8', newline='') as data_file:
                 data = csv.DictWriter(data_file, fieldnames=['French_keywords', 'English_keywords'], delimiter='\t')
