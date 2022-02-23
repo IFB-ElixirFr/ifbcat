@@ -779,7 +779,6 @@ class KeywordAdmin(
                 to_remove.add(other)
                 for model_field, attr_name, reverse_name in attrs:
                     for r in getattr(other, attr_name).all():
-                        print(r)
                         getattr(r, reverse_name).add(o)
         for o in to_remove:
             o.delete()
