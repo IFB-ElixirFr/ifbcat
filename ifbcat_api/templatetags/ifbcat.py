@@ -27,7 +27,9 @@ def get_editable_instance(context: Context) -> List[Dict]:
         model['my'] = True
         if model['object_name'] == 'Team':
             if model['perms']['change']:
-                model['instances'] = models.Team.objects.filter(Q(leader=user) | Q(maintainers=user) | Q(deputies=user))
+                model['instances'] = models.Team.objects.filter(
+                    Q(leaders=user) | Q(maintainers=user) | Q(deputies=user)
+                )
                 model['order'] = 3
                 editable.append(model)
         # elif model['object_name'] == 'Organisation':
@@ -50,7 +52,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
                     Q(contactId=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
-                    | Q(organisedByTeams__leader=user)
+                    | Q(organisedByTeams__leaders=user)
                     | Q(organisedByTeams__deputies=user)
                     | Q(organisedByTeams__maintainers=user)
                 )
@@ -63,7 +65,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
                     | Q(trainers__trainerId=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
-                    | Q(organisedByTeams__leader=user)
+                    | Q(organisedByTeams__leaders=user)
                     | Q(organisedByTeams__deputies=user)
                     | Q(organisedByTeams__maintainers=user)
                 ).order_by('-start_date')
