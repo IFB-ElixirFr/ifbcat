@@ -23,6 +23,7 @@ class Command(BaseCommand):
         call_command('load_training_material')
         # call_command('load_infrastructure')
         # call_command('load_services')
+        call_command('cleanup_catalog')
 
     def handle(self, *args, **options):
         """
