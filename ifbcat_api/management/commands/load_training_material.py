@@ -64,6 +64,9 @@ class Command(BaseCommand):
                 training_material_keywords = re.split(r',|\n|;', data_object[3])  # as we do not have `blabla (aa,bb)`
                 training_material_keywords_list = []
                 for keyword in training_material_keywords:
+                    keyword = keyword.strip()
+                    if len(keyword) < 2:
+                        continue
                     training_material_keyword, created = Keyword.objects.get_or_create(keyword=keyword)
                     training_material_keywords_list.append(training_material_keyword)
                     display_format = "\nKeyword, {}, has been saved."
