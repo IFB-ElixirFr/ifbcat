@@ -656,7 +656,7 @@ class ComputingFacilityViewSet(ResourceViewSet):
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy__name',
-        'open_to',  # TODO: change accessibility to `open_to`
+        'accessibility',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
         'providedBy',

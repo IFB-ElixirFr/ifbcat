@@ -1075,7 +1075,7 @@ class ComputingFacilityAdmin(
     search_fields = (
         'homepage',
         'providedBy__name',
-        'open_to',  # TODO: change accessibility to `open_to`
+        'accessibility',
     )
     save_as = True
 

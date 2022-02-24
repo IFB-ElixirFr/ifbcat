@@ -584,7 +584,7 @@ class ComputingFacilitySerializer(ResourceSerializer):
         fields = ResourceSerializer.Meta.fields + (
             'homepage',
             'providedBy',
-            'open_to',  # TODO: Change this to open_to
+            'accessibility',
             'requestAccount',
             'termsOfUse',
             'trainingMaterials',
