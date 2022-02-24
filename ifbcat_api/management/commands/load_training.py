@@ -148,7 +148,7 @@ class Command(BaseCommand):
                         name=training_name,
                         # training_type=training_type,
                         description=training_description,
-                        accessibilityNote=training_access_condition,
+                        access_conditions=training_access_condition,  # TODO: change to `access_conditions`
                         homepage=training_link,
                         # organizer=training_organizer,
                         # sponsors=training_sponsors,

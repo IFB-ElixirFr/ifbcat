@@ -112,11 +112,12 @@ class Training(AbstractEvent):
         if start_date:
             event_attrs['start_date'] = start_date
             event_attrs['end_date'] = end_date
+        # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
         for field in [
             'description',
             'homepage',
-            'accessibility',
-            'accessibilityNote',
+            'open_to',
+            'access_conditions',
             'maxParticipants',
             'contactName',
             'contactEmail',

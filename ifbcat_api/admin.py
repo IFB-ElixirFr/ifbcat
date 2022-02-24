@@ -416,7 +416,7 @@ class EventAdmin(
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        'accessibilityNote',
+        'access_conditions',  # TODO: change to `access_conditions`
         'contactName',
         'contactId__email',
         'contactEmail',
@@ -437,7 +437,7 @@ class EventAdmin(
         'costs',
         'courseMode',
         'is_draft',
-        'accessibility',
+        'open_to',  # TODO: change accessibility to `open_to`
         'elixirPlatforms',
         'communities',
         'organisedByTeams',
@@ -492,8 +492,8 @@ class EventAdmin(
             {
                 'fields': (
                     'maxParticipants',
-                    'accessibility',
-                    'accessibilityNote',
+                    'open_to',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
+                    'access_conditions',
                     'costs',
                     'geographical_range',
                 )
@@ -602,7 +602,7 @@ class TrainingAdmin(
         # 'topics__uri',
         'keywords__keyword',
         # 'prerequisites__prerequisite',
-        # 'accessibilityNote',
+        # 'access_conditions',
         'contactName',
         # 'contactId__email',
         'contactEmail',
@@ -648,8 +648,8 @@ class TrainingAdmin(
             {
                 'fields': (
                     'maxParticipants',
-                    'accessibility',
-                    'accessibilityNote',
+                    'open_to',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
+                    'access_conditions',
                     'costs',
                     'personalised',
                     'audienceTypes',
@@ -1075,7 +1075,7 @@ class ComputingFacilityAdmin(
     search_fields = (
         'homepage',
         'providedBy__name',
-        'accessibility',
+        'open_to',  # TODO: change accessibility to `open_to`
     )
     save_as = True
 

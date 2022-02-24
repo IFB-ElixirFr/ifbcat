@@ -373,8 +373,8 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        'accessibility',
-        'accessibilityNote',
+        'open_to',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
+        'access_conditions',
         'contactName',
         'contactId__email',
         'contactEmail',
@@ -656,7 +656,7 @@ class ComputingFacilityViewSet(ResourceViewSet):
     search_fields = ResourceViewSet.search_fields + (
         'homepage',
         'providedBy__name',
-        'accessibility',
+        'open_to',  # TODO: change accessibility to `open_to`
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
         'providedBy',

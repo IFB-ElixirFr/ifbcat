@@ -208,7 +208,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     # "many=True" for keyword etc. instantiates a ListSerializer, see https://www.django-rest-framework.org/api-guide/serializers/#listserializer
     # "allow_empty=False" disallows empty lists as valid input.
 
-    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
+    # name, description, homepage, open_to, contactName and contactEmail are mandatory
 
     costs = VerboseSlugRelatedField(
         many=True,
@@ -268,8 +268,8 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'topics',
             'keywords',
             'prerequisites',
-            'accessibility',
-            'accessibilityNote',
+            'open_to',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
+            'access_conditions',
             'maxParticipants',
             'contactName',
             'contactEmail',
@@ -584,7 +584,7 @@ class ComputingFacilitySerializer(ResourceSerializer):
         fields = ResourceSerializer.Meta.fields + (
             'homepage',
             'providedBy',
-            'accessibility',
+            'open_to',  # TODO: Change this to open_to
             'requestAccount',
             'termsOfUse',
             'trainingMaterials',
