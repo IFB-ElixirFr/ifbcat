@@ -147,7 +147,12 @@ class Tool(models.Model):
         # software_version = tool['version']
         # downloads = tool['download']
         self.tool_license = tool['license']
-        type_list = ["General", "User manual", "FAQ", "API documentation", None]
+        type_list = [
+            "General",
+            "User manual",
+            "FAQ",
+            "API documentation",
+        ]
         all_type_json = dict()
         for doc in tool['documentation']:
             for type_doc in doc['type']:
