@@ -10,6 +10,18 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+    def create_file_if_not_exists(self, data_file):
+        data = csv.DictWriter(data_file, fieldnames=['French_keywords', 'English_keywords'], delimiter='\t')
+        data.writeheader()
+
+        qs_dict = Keyword.objects.all().values().order_by('keyword')
+        result = 0
+        for row in qs_dict:
+            data.writerow({'French_keywords': row['keyword'], 'English_keywords': 'To translate'})
+            result += 1
+        data_file.close()
+        return result
+
     def add_arguments(self, parser):
         parser.add_argument(
             "--file",
@@ -20,7 +32,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not os.path.exists(options["file"]):
-            logger.error(f"Cannot find the file named {options['file'][12:]}")
+            logger.warning(f"Cannot find the file named {options['file']} let's create it")
+            with open(os.path.join(options["file"]), 'w+', encoding='utf-8', newline='') as data_file:
+                i = self.create_file_if_not_exists(data_file)
+            logger.info(f"{i} keywords have been added to the new file named {options['file']}")
             return
 
         file_dict = {}
@@ -39,7 +54,7 @@ class Command(BaseCommand):
                 str_key = key.keyword.strip()
                 if file_dict.get(str_key) == "To_translate":
                     pass
-                elif str_key in file_dict.keys() and str_key not in file_dict.values():
+                elif str_key in file_dict and str_key not in file_dict.values():
                     key.keyword = file_dict.get(str_key)
                     key.save()
                     count += 1
@@ -61,3 +76,5 @@ class Command(BaseCommand):
 
             logger.info(f"{count} Items have been updated")
             logger.info(f"{untranslated_nb} Items have been added to the csv file {options['file']}")
+
+    # TODO how to write todo in `handle`
