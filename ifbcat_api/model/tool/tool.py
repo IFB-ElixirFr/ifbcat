@@ -147,9 +147,21 @@ class Tool(models.Model):
         # software_version = tool['version']
         # downloads = tool['download']
         self.tool_license = tool['license']
+        type_list = [
+            "General",
+            "User manual",
+            "FAQ",
+            "API documentation",
+        ]
+        all_type_json = dict()
         for doc in tool['documentation']:
-            if 'General' in doc['type']:
-                self.documentation = doc['url']
+            for type_doc in doc['type']:
+                all_type_json[type_doc] = doc['url']
+
+        for elt in type_list:
+            if elt in all_type_json.keys():
+                self.documentation = all_type_json.get(elt)
+                break
         # language = tool['language']
         # otherID = tool['otherID']
         self.maturity = tool['maturity']
