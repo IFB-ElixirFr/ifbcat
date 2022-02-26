@@ -268,7 +268,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'topics',
             'keywords',
             'prerequisites',
-            'open_to',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`.
+            'open_to',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
             'access_conditions',
             'maxParticipants',
             'contactName',
