@@ -416,7 +416,8 @@ class EventAdmin(
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        'access_conditions',  # TODO: change to `access_conditions`
+        # 'accessibilityNote', # TODO: change to `access_conditions`
+        'access_conditions',
         'contactName',
         'contactId__email',
         'contactEmail',
@@ -437,7 +438,8 @@ class EventAdmin(
         'costs',
         'courseMode',
         'is_draft',
-        'open_to',  # TODO: change accessibility to `open_to`
+        # 'accessibility',  # TODO: change accessibility to `open_to`
+        'open_to',
         'elixirPlatforms',
         'communities',
         'organisedByTeams',
@@ -492,8 +494,10 @@ class EventAdmin(
             {
                 'fields': (
                     'maxParticipants',
-                    'open_to',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
+                    # 'accessibility',  # TODO: change accessibility to `open_to` and accessibilityNote to `access_conditions`
+                    'open_to',
                     'access_conditions',
+                    # 'accessibilityNote',
                     'costs',
                     'geographical_range',
                 )
@@ -621,6 +625,7 @@ class TrainingAdmin(
         'computingFacilities',
         'organisedByTeams',
         'organisedByOrganisations',
+        'open_to',  # TODO: change TO open_to
         'sponsoredBy',
         'costs',
         'tess_publishing',

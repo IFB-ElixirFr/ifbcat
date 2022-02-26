@@ -105,7 +105,7 @@ class Command(BaseCommand):
                 else:
                     training_start_date = None
                     training_end_date = None
-                training_access_condition = data_object[8]
+                training_access_condition = data_object[8]  # TODO: change to access_condition
                 training_link = data_object[9]
                 training_location = data_object[10]
                 training_organizer = data_object[11]
