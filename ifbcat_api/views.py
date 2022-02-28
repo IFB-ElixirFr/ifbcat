@@ -11,13 +11,16 @@
 import json
 
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model, get_permission_codename
+from django.contrib.auth.decorators import user_passes_test
 from django.core.cache import cache
 from django.db.models import When, Q, Case, Value, CharField
 from django.http import HttpResponseRedirect, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.text import capfirst
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django_filters import rest_framework as django_filters
@@ -903,3 +906,27 @@ def view_training_courses(request, training_pk):
         + f'?training__id__exact={training_pk}'
     )
     return HttpResponseRedirect(redirect_url)
+
+
+@staff_member_required
+def user_edition_history(request, user_id):
+    object = get_object_or_404(get_user_model().objects, pk=user_id)
+    # Adapted from django.contrib.admin.options.history_view
+    from django.contrib.admin.models import LogEntry
+
+    opts = get_user_model()._meta
+    action_list = LogEntry.objects.filter(user_id=user_id).select_related().order_by('-action_time')
+
+    print(get_permission_codename('change', opts))
+    context = {
+        'action_list': action_list,
+        'module_name': str(capfirst(opts.verbose_name_plural)),
+        'object': object,
+        'opts': opts,
+    }
+
+    return render(
+        request=request,
+        template_name='admin/user_history.html',
+        context=context,
+    )
