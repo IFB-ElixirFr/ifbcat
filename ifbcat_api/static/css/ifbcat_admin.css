@@ -263,4 +263,8 @@ html, body{
 .timeline>div>.timeline-item.with-author>.timeline-header {
     min-height: 3.5em;
 }
+.theme-default .sidebar-light-primary+.content-wrapper .timeline-item.see-all{
+    box-shadow:unset;
+    font-style: italic;
+}
 /**/
