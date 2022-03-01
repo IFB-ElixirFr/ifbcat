@@ -116,7 +116,7 @@ class Training(AbstractEvent):
             'description',
             'homepage',
             'accessibility',
-            'accessibilityNote',
+            'accessConditions',
             'maxParticipants',
             'contactName',
             'contactEmail',

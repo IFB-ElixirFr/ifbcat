@@ -416,7 +416,7 @@ class EventAdmin(
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        'accessibilityNote',
+        #'accessConditions',
         'contactName',
         'contactId__email',
         'contactEmail',
@@ -437,7 +437,7 @@ class EventAdmin(
         'costs',
         'courseMode',
         'is_draft',
-        'accessibility',
+        'openTo',
         'elixirPlatforms',
         'communities',
         'organisedByTeams',
@@ -492,8 +492,8 @@ class EventAdmin(
             {
                 'fields': (
                     'maxParticipants',
-                    'accessibility',
-                    'accessibilityNote',
+                    'openTo',
+                    'accessConditions',
                     'costs',
                     'geographical_range',
                 )
@@ -602,7 +602,7 @@ class TrainingAdmin(
         # 'topics__uri',
         'keywords__keyword',
         # 'prerequisites__prerequisite',
-        # 'accessibilityNote',
+        # 'accessConditions',
         'contactName',
         # 'contactId__email',
         'contactEmail',
@@ -648,8 +648,8 @@ class TrainingAdmin(
             {
                 'fields': (
                     'maxParticipants',
-                    'accessibility',
-                    'accessibilityNote',
+                    'openTo',
+                    'accessConditions',
                     'costs',
                     'personalised',
                     'audienceTypes',
