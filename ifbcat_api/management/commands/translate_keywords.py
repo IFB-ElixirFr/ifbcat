@@ -23,6 +23,7 @@ class Command(BaseCommand):
         call_command('cleanup_catalog')
         trans = dict()
         to_add = set()
+        pending_validation = set()
         keyword_attrs = get_usage_in_related_field(Keyword.objects.all())
         translated, merged = 0, 0
 
@@ -30,12 +31,15 @@ class Command(BaseCommand):
         try:
             with open(os.path.join(options["file"]), mode='r', encoding='utf-8') as file:
                 for line in file.readlines():
-                    line_tab = line.split(';')
-                    en = line_tab[1].strip()
-                    trans[line_tab[0].strip()] = en
+                    line_tab = [s.strip() for s in line.split(';')]
+                    en = line_tab[1]
+                    if line_tab[2] == "True":
+                        trans[line_tab[0]] = en
+                    else:
+                        pending_validation.add(line_tab[0])
         except FileNotFoundError:
             with open(os.path.join(options["file"]), mode='w', encoding='utf-8', newline='') as file:
-                file.write('French;English\n')
+                file.write('French;English;Validated\n')
 
         # Translation
         for kw in Keyword.objects.exclude(keyword__in=trans.values()):
@@ -60,12 +64,28 @@ class Command(BaseCommand):
             except KeyError:
                 to_add.add(kw_keyword)
 
+        try:
+            from translate import Translator
+
+            translator = Translator(to_lang="en", from_lang="autodetect", email="contact@france-bioinformatique.fr")
+        except ImportError:
+            logging.warning("translate package not found, if we had it we could have tried to translate keywords")
+            translator = None
         # write the file
         with open(os.path.join(options["file"]), mode='a+', encoding='utf-8', newline='') as file:
-            for kw in to_add:
-                file.write(f'{kw};\n')
+            for kw in to_add - pending_validation:
+                guess = ""
+                if translator:
+                    guess = translator.translate(kw)
+                    if "MYMEMORY WARNING" in guess:
+                        # We hit the limit
+                        translator = None
+                        guess = ""
+                file.write(f'{kw};{guess};{False}\n')
+        call_command('cleanup_catalog')
         logger.info(
             f'{translated} keyword translated, '
             f'{merged} were merged, '
-            f'{len(to_add)} have been added to the translation file'
+            f'{len(to_add - pending_validation)} have been added to the translation file, '
+            f'{len( pending_validation)} are still pending validation/translation'
         )
