@@ -1020,7 +1020,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     class Meta:
-        model = models.Database
+        model = models.Tool
         fields = _tool_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
 
@@ -1081,7 +1081,7 @@ class DatabaseSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = models.Database
-        fields = _tool_fields
+        fields = _database_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'fairsharingID')
 
 
