@@ -82,11 +82,11 @@ def init_business_logic():
     team_and_more_related = [
         models.Team,
         models.Certification,
-        models.Team,
         models.Community,
         models.ElixirPlatform,
         models.Organisation,
         models.Project,
+        models.UserProfile,
     ]
     tool_related = [
         models.Collection,
@@ -95,6 +95,7 @@ def init_business_logic():
         models.Tool,
         models.OperatingSystem,
         models.TypeRole,
+        models.Licence,
     ]
     service_related = [
         models.Service,
@@ -108,6 +109,7 @@ def init_business_logic():
         models.TrainingCourseMetrics,
         models.Training,
         models.TrainingMaterial,
+        models.Licence,
     ]
     needed_by_all = [
         models.Doi,
@@ -264,6 +266,36 @@ def has_change_permission(model, request, obj=None):
 
 def has_delete_permission(model, request, obj=None):
     return __has_permission_for_methods(model=model, request=request, obj=obj, methods=["DELETE"])
+
+
+###############################################################################
+# Request upgrade
+###############################################################################
+class RequestUpgrade:
+    def __init__(
+        self,
+        *,
+        request,
+        from_admin: bool = False,
+    ):
+        self.request = request
+        self.from_admin = from_admin
+        setattr(self.request, "upgrade_attributes", dict())
+
+    def __enter__(self):
+        self.request.upgrade_attributes["from_admin"] = self.from_admin
+        return self.request
+
+    def __exit__(self, type, value, tb):
+        delattr(self.request, "upgrade_attributes")
+
+
+def is_request_upgraded(request):
+    return getattr(request, "upgrade_attributes", None) is not None
+
+
+def is_from_admin(request):
+    return getattr(request, "upgrade_attributes", dict()).get("from_admin", False)
 
 
 ###############################################################################

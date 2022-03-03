@@ -69,12 +69,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'homepage',
             'expertise',
             'homepage',
-            'teamLeader',
+            'teamsLeaders',
             'teamsDeputies',
             'teamsScientificLeaders',
             'teamsTechnicalLeaders',
             'teamsMembers',
             'teamsMaintainers',
+            'trainingMaterialMaintainers',
         )
         read_only = (
             'is_superuser',
@@ -243,6 +244,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     organisedByOrganisations = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
     realisation_status = serializers.CharField()
     registration_status = serializers.CharField()
 
@@ -359,6 +361,7 @@ class TrainingSerializer(EventSerializer):
         queryset=models.AudienceRole.objects,
         required=False,
     )
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta(EventSerializer.Meta):
         model = models.Training
@@ -566,10 +569,14 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
             'elixirPlatforms': {'lookup_field': 'name'},
         }
 
+    elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+
 
 # Model serializer for computing facilities
 class ComputingFacilitySerializer(ResourceSerializer):
     """Serializes a computing facility (ComputingFacility object)."""
+
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.ComputingFacility
@@ -637,6 +644,13 @@ class TrainingMaterialSerializer(ResourceSerializer):
         queryset=models.Doi.objects,
         required=False,
     )
+    licence = CreatableSlugRelatedField(
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
+    providedBy = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.TrainingMaterial
@@ -653,7 +667,8 @@ class TrainingMaterialSerializer(ResourceSerializer):
             'providedBy',
             'dateCreation',
             'dateUpdate',
-            'license',
+            'licence',
+            'maintainers',
         )
 
         extra_kwargs = {
@@ -740,7 +755,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'orgid',
             'tools',
             # fields below are legacy
-            'leader',
+            'leaders',
             'deputies',
             'scientificLeaders',
             'technicalLeaders',
@@ -894,7 +909,6 @@ _tool_fields = (
     'name',
     'description',
     'homepage',
-    'logo',
     'biotoolsID',
     'biotoolsCURIE',
     'tool_type',
@@ -904,18 +918,17 @@ _tool_fields = (
     'operating_system',
     # 'scientific_operations',
     'tool_credit',
-    'tool_license',
+    'tool_licence',
+    'documentation',
     'maturity',
     'cost',
     'unique_visits',
-    'access_condition',
     'citations',
     'annual_visits',
     'unique_visits',
     'last_update',
     # 'increase_last_update',
     # 'access_condition',
-    'keywords',
     'teams',
     # 'language',
     # 'topic',
@@ -931,12 +944,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         slug_field="name",
         required=False,
     )
-    keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="keyword",
-        required=False,
-    )
+
     collection = VerboseSlugRelatedField(
         many=True,
         read_only=True,
@@ -966,6 +974,13 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     tool_credit = ToolCreditSerializer(read_only=True, many=True)
+
+    tool_licence = CreatableSlugRelatedField(
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
 
     teams = serializers.SlugRelatedField(
         many=True,
