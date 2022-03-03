@@ -54,7 +54,7 @@ class Command(BaseCommand):
                     for r in getattr(kw, attr_name).all():
                         # getattr(r, reverse_name) == myTeam.keywords
                         # we add the already-in-english keyword to the team
-                        getattr(r, reverse_name).add(Keyword.objects.get(keyword=kw_keyword))
+                        getattr(r, reverse_name).add(Keyword.objects.get(keyword=trans[kw_keyword]))
                 kw.delete()
                 merged += 1
             except KeyError:
