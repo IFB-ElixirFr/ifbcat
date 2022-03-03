@@ -1257,7 +1257,7 @@ class DatabaseAdmin(
 ):
     search_fields = (
         'name',
-        'biotoolsID',
+        'fairsharingID',
         'tool_licence__name',
         'description',
     )
