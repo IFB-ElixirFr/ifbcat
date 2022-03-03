@@ -166,7 +166,7 @@ class Database(models.Model):
         # link = tool['link']
         # software_version = tool['version']
         # downloads = tool['download']
-        # TODO : We got many licence which one should we take?
+        # TODO : We got many licences which one should we take?
         # self.tool_license = tool['attributes']['licence-links'][0]['licence-name']
         # language = tool['language']
         # otherID = tool['otherID']
