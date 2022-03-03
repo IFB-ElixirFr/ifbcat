@@ -4,6 +4,7 @@ import os
 from django.core.management import BaseCommand, call_command
 from django.db import IntegrityError
 
+from ifbcat_api.misc import get_usage_in_related_field
 from ifbcat_api.models import Keyword
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,8 @@ class Command(BaseCommand):
         call_command('cleanup_catalog')
         trans = dict()
         to_add = set()
+        keyword_attrs = get_usage_in_related_field(Keyword.objects.all())
+        translated, merged = 0, 0
 
         # Read the file
         try:
@@ -43,8 +46,17 @@ class Command(BaseCommand):
                 kw.keyword = trans[kw_keyword]
                 if len(kw.keyword) > 0:
                     kw.save()
+                    translated += 1
             except IntegrityError:
-                print(f'Cannot translate {kw} as target kw already exists')
+                for _, attr_name, reverse_name in keyword_attrs:
+                    # for all instance pointer by attr_name
+                    # r is a Team for example
+                    for r in getattr(kw, attr_name).all():
+                        # getattr(r, reverse_name) == myTeam.keywords
+                        # we add the already-in-english keyword to the team
+                        getattr(r, reverse_name).add(Keyword.objects.get(keyword=kw_keyword))
+                kw.delete()
+                merged += 1
             except KeyError:
                 to_add.add(kw_keyword)
 
@@ -52,3 +64,8 @@ class Command(BaseCommand):
         with open(os.path.join(options["file"]), mode='a+', encoding='utf-8', newline='') as file:
             for kw in to_add:
                 file.write(f'{kw};\n')
+        logger.info(
+            f'{translated} keyword translated, '
+            f'{merged} were merged, '
+            f'{len(to_add)} have been added to the translation file'
+        )
