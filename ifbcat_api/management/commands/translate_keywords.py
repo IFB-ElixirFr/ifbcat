@@ -15,8 +15,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--file",
             type=str,
-            default="import_data/keywords_english_translate.csv",
-            help="Path to the CSV source file",
+            default="import_data/keywords_english_translate.tsv",
+            help="Path to the TSV source file",
         )
 
     def handle(self, *args, **options):
@@ -31,7 +31,7 @@ class Command(BaseCommand):
         try:
             with open(os.path.join(options["file"]), mode='r', encoding='utf-8') as file:
                 for line in file.readlines():
-                    line_tab = [s.strip() for s in line.split(';')]
+                    line_tab = [s.strip() for s in line.split('	')]
                     en = line_tab[1]
                     if line_tab[2] == "True":
                         trans[line_tab[0]] = en
@@ -39,7 +39,7 @@ class Command(BaseCommand):
                         pending_validation.add(line_tab[0])
         except FileNotFoundError:
             with open(os.path.join(options["file"]), mode='w', encoding='utf-8', newline='') as file:
-                file.write('French;English;Validated\n')
+                file.write('French	English	Validated\n')
 
         # Translation
         for kw in Keyword.objects.exclude(keyword__in=trans.values()):
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                         # We hit the limit
                         translator = None
                         guess = ""
-                file.write(f'{kw};{guess};{False}\n')
+                file.write(f'{kw}	{guess}	{False}\n')
         call_command('cleanup_catalog')
         logger.info(
             f'{translated} keyword translated, '

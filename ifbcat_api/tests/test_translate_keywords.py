@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class TestLoadKeywords(TestCase):
     def test_create_new_file(self):
         models.Keyword.objects.create(keyword="KW1-fr")
-        with NamedTemporaryFile(delete=True, suffix=".csv") as f:
+        with NamedTemporaryFile(delete=True, suffix=".tsv") as f:
             pass
 
         self.assertFalse(os.path.exists(f.name))
@@ -51,12 +51,12 @@ class TestLoadKeywords(TestCase):
         models.Keyword.objects.create(keyword="KW1")
         models.Keyword.objects.create(keyword="KW2")
         models.Keyword.objects.create(keyword="KW3")
-        with NamedTemporaryFile(delete=True, suffix=".csv") as f:
+        with NamedTemporaryFile(delete=True, suffix=".tsv") as f:
             pass
         management.call_command('translate_keywords', file=f.name)
 
         with open(f.name, 'r') as data_file:
-            data = csv.DictReader(data_file, delimiter=';')
+            data = csv.DictReader(data_file, delimiter='	')
             french_words = set(entry["French"] for entry in data)
 
         self.assertSetEqual(set(models.Keyword.objects.values_list("keyword", flat=True)), french_words, f.name)
@@ -66,11 +66,11 @@ class TestLoadKeywords(TestCase):
         models.Keyword.objects.create(keyword="KW2-en")  # is already translated
         models.Keyword.objects.create(keyword="KW3-fr")  # will be added
         models.Keyword.objects.create(keyword="KW4-fr")  # is not validated
-        with NamedTemporaryFile(delete=False, suffix=".csv", mode="w") as f:
-            f.write('French_keywords;English_keywords;Validated\n')
-            f.write('KW1-fr;KW1-en;True\n')
-            f.write('KW2-fr;KW2-en;True\n')
-            f.write('KW4-fr;KW4-en;False\n')
+        with NamedTemporaryFile(delete=False, suffix=".tsv", mode="w") as f:
+            f.write('French_keywords	English_keywords	Validated\n')
+            f.write('KW1-fr	KW1-en	True\n')
+            f.write('KW2-fr	KW2-en	True\n')
+            f.write('KW4-fr	KW4-en	False\n')
         management.call_command('translate_keywords', file=f.name)
 
         self.assertSetEqual(
