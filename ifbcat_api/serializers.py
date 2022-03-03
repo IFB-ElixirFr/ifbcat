@@ -934,6 +934,36 @@ _tool_fields = (
     # 'topic',
 )
 
+# Model serializer for databases
+_database_fields = (
+    'id',
+    'name',
+    'description',
+    # 'homepage',
+    'fairsharingID',
+    'tool_type',
+    'collection',
+    'scientific_topics',
+    'primary_publication',
+    'operating_system',
+    # 'scientific_operations',
+    'tool_credit',
+    'tool_licence',
+    'documentation',
+    'maturity',
+    'cost',
+    'unique_visits',
+    'citations',
+    'annual_visits',
+    'unique_visits',
+    'last_update',
+    # 'increase_last_update',
+    # 'access_condition',
+    'teams',
+    # 'language',
+    # 'topic',
+)
+
 
 class ToolSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a tool (Tool object)."""
@@ -990,7 +1020,67 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     class Meta:
-        model = models.Tool
+        model = models.Database
+        fields = _tool_fields
+        read_only_fields = tuple(f for f in _tool_fields if f != 'fairsharingID')
+
+
+class DatabaseSerializer(serializers.HyperlinkedModelSerializer):
+    """Serializes a database (Database object)."""
+
+    tool_type = VerboseSlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        required=False,
+    )
+
+    collection = VerboseSlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        required=False,
+    )
+
+    scientific_topics = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="edam_id",
+        required=False,
+    )
+
+    primary_publication = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="doi",
+        required=False,
+    )
+
+    operating_system = VerboseSlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        required=False,
+    )
+
+    tool_credit = ToolCreditSerializer(read_only=True, many=True)
+
+    tool_licence = CreatableSlugRelatedField(
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
+
+    teams = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="name",
+        required=False,
+    )
+
+    class Meta:
+        model = models.Database
         fields = _tool_fields
         read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
 
