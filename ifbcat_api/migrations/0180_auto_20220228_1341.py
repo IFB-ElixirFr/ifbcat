@@ -106,12 +106,4 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(code=migrate_accessibility_to_openTo_event, reverse_code=migrate_back_event),
         migrations.RunPython(code=migrate_accessibility_to_openTo_training, reverse_code=migrate_back_training),
-        migrations.RemoveField(
-            model_name='event',
-            name='accessibility',
-        ),
-        migrations.RemoveField(
-            model_name='training',
-            name='accessibility',
-        ),
     ]
