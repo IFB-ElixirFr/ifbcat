@@ -139,6 +139,13 @@ sudo docker-compose exec web python manage.py createsuperuser
 ```
 
 ## Do some import
+
+First copy the data
+```shell
+# go into your local git clone of ifbcat-importdata, and then:
+rsync -avz . catalogue-ifb:/var/ifbcat-importdata/ --exclude=".git"
+```
+
 ```
 cd /var/ifbcat-src
 sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_users
