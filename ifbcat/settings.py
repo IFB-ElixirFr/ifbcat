@@ -366,3 +366,8 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioi
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ################################################################################
+# FAIRSHARING CREDENTIALS
+################################################################################
+USERNAME = config('USERNAME')
+PASSWORD = config('PASSWORD')
+################################################################################
