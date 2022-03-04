@@ -622,6 +622,8 @@ class TrainingAdmin(
         'organisedByTeams',
         'organisedByOrganisations',
         'sponsoredBy',
+        'is_draft',
+        'openTo',
         'costs',
         'tess_publishing',
         # 'databases',
