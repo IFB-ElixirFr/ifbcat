@@ -67,7 +67,7 @@ class Migration(migrations.Migration):
             name='accessConditions',
             field=models.TextField(
                 blank=True,
-                help_text='Comment on how to access to the event. Mandatory if not open to everyone',
+                help_text='Comment on how one can access. Mandatory if not open to everyone',
                 null=True,
             ),
         ),
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
             name='accessConditions',
             field=models.TextField(
                 blank=True,
-                help_text='Comment on how to access to the event. Mandatory if not open to everyone',
+                help_text='Comment on how one can access. Mandatory if not open to everyone',
                 null=True,
             ),
         ),
