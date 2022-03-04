@@ -148,7 +148,7 @@ class Command(BaseCommand):
                         name=training_name,
                         # training_type=training_type,
                         description=training_description,
-                        accessibilityNote=training_access_condition,
+                        accessConditions=training_access_condition,
                         homepage=training_link,
                         # organizer=training_organizer,
                         # sponsors=training_sponsors,
