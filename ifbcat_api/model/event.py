@@ -127,13 +127,7 @@ class AbstractEvent(models.Model):
         INTERNAL_PERSONNEL = 'Internal personnel', _('Internal personnel')
         OTHERS = 'Others', _('Others')
 
-    class EventAccessibilityType(models.TextChoices):
-        """Controlled vocabulary for whether an event is opened to Everyone, Internal personnel or Others."""
-
-        PUBLIC = 'Public', _('Public')
-        PRIVATE = 'Private', _('Private')
-
-    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
+    # name, description, homepage, openTo, contactName and contactEmail are mandatory
     name = models.CharField(
         max_length=255,
         help_text="Full name / title of the event.",
@@ -165,18 +159,13 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
     )
-    accessibility = models.CharField(
-        max_length=255,
-        choices=EventAccessibilityType.choices,
-        help_text="Whether the event is public or private.",
-    )
     openTo = models.CharField(
         max_length=255,
         choices=EventOpenToType.choices,
         help_text="Whether the event is for everyone, internal personnel or others.",
     )
     accessConditions = models.TextField(
-        help_text="Comment about the audience an event is open to and tailored for.",
+        help_text="Comment on how one can access. Mandatory if not open to everyone",
         blank=True,
         null=True,
     )
@@ -255,13 +244,8 @@ class AbstractEvent(models.Model):
     )
 
     def clean(self):
-        errors = {}
-        if self.openTo != self.EventOpenToType.EVERYONE and len(self.accessConditions or '') == 0:
-            errors.setdefault('accessConditions', []).append(
-                "access conditions must be provided if openTo is not everyone"
-            )
-        if errors:
-            raise ValidationError(errors)
+        if self.openTo != self.EventOpenToType.Everyone and len(self.accessConditions or '') == 0:
+            raise ValidationError(dict(accessConditions="Details have to be provided when openTo is not Everyone"))
 
     def __str__(self):
         """Return the Event model as a string."""

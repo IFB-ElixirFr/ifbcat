@@ -4,56 +4,26 @@ from django.db import migrations, models
 from django.db.models import Case, When, Value
 
 
-def migrate_accessibility_to_openTo_event(apps, schema_editor):
-    Event = apps.get_model("ifbcat_api", "Event")
-    result = Event.objects.all()
-    for e in result:
-        if e.accessibility == "Private":
-            e.openTo = "Internal personnel"
-        elif e.accessibility == "Public":
-            e.openTo = "Everyone"
-        else:
-            e.openTo = "Others"
-        e.save()
+def migrate(apps, schema_editor):
+    for klass in [apps.get_model("ifbcat_api", "Event"), apps.get_model("ifbcat_api", "Training")]:
+        klass.objects.update(
+            openTo=Case(
+                When(accessibility='Public', then=Value('Everyone')),
+                # When(accessibility='Private', then=Value('Internal personnel')),
+                default=Value('Internal personnel'),
+            )
+        )
 
 
-def migrate_back_event(apps, schema_editor):
-    Event = apps.get_model("ifbcat_api", "Event")
-    result = Event.objects.all()
-    for e in result:
-        if e.openTo == "Internal personnel":
-            e.accessibility = "Private"
-        elif e.openTo == "Everyone":
-            e.accessibility = "Public"
-        else:
-            e.accessibility = ""
-        e.save()
-
-
-def migrate_accessibility_to_openTo_training(apps, schema_editor):
-    Training = apps.get_model("ifbcat_api", "Training")
-    result = Training.objects.all()
-    for t in result:
-        if t.accessibility == "Private":
-            t.openTo = "Internal personnel"
-        elif t.accessibility == "Public":
-            t.openTo = "Everyone"
-        else:
-            t.openTo = "Others"
-        t.save()
-
-
-def migrate_back_training(apps, schema_editor):
-    Training = apps.get_model("ifbcat_api", "Training")
-    result = Training.objects.all()
-    for t in result:
-        if t.openTo == "Internal personnel":
-            t.accessibility = "Private"
-        elif t.openTo == "Everyone":
-            t.accessibility = "Public"
-        else:
-            t.accessibility = ""
-        t.save()
+def migrate_back(apps, schema_editor):
+    for klass in [apps.get_model("ifbcat_api", "Event"), apps.get_model("ifbcat_api", "Training")]:
+        klass.objects.update(
+            accessibility=Case(
+                When(openTo='Everyone', then=Value('Public')),
+                # When(openTo='Internal personnel', then=Value('Private')),
+                default=Value('Private'),
+            )
+        )
 
 
 class Migration(migrations.Migration):
@@ -62,6 +32,26 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='event',
+            name='accessibility',
+            field=models.CharField(
+                choices=[('Public', 'Public'), ('Private', 'Private')],
+                default='',
+                help_text='Whether the event is public or private.',
+                max_length=255,
+            ),
+        ),
+        migrations.AlterField(
+            model_name='training',
+            name='accessibility',
+            field=models.CharField(
+                choices=[('Public', 'Public'), ('Private', 'Private')],
+                default='',
+                help_text='Whether the event is public or private.',
+                max_length=255,
+            ),
+        ),
         migrations.RenameField(
             model_name='event',
             old_name='accessibilityNote',
@@ -75,24 +65,30 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='event',
             name='accessConditions',
-            field=models.TextField(blank=True,
-                                   help_text='Comment about the audience an event is open to and tailored for.',
-                                   null=True),
+            field=models.TextField(
+                blank=True,
+                help_text='Comment on how to access to the event. Mandatory if not open to everyone',
+                null=True,
+            ),
         ),
         migrations.AlterField(
             model_name='training',
             name='accessConditions',
-            field=models.TextField(blank=True,
-                                   help_text='Comment about the audience an event is open to and tailored for.',
-                                   null=True),
+            field=models.TextField(
+                blank=True,
+                help_text='Comment on how to access to the event. Mandatory if not open to everyone',
+                null=True,
+            ),
         ),
         migrations.AddField(
             model_name='event',
             name='openTo',
             field=models.CharField(
                 choices=[('Everyone', 'Everyone'), ('Internal personnel', 'Internal personnel'), ('Others', 'Others')],
-                default='', help_text='Whether the event is for everyone, internal personnel or others.',
-                max_length=255),
+                default='Others',
+                help_text='Whether the event is for everyone, internal personnel or others.',
+                max_length=255,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
@@ -100,10 +96,19 @@ class Migration(migrations.Migration):
             name='openTo',
             field=models.CharField(
                 choices=[('Everyone', 'Everyone'), ('Internal personnel', 'Internal personnel'), ('Others', 'Others')],
-                default='', help_text='Whether the event is for everyone, internal personnel or others.',
-                max_length=255),
+                default='Others',
+                help_text='Whether the event is for everyone, internal personnel or others.',
+                max_length=255,
+            ),
             preserve_default=False,
         ),
-        migrations.RunPython(code=migrate_accessibility_to_openTo_event, reverse_code=migrate_back_event),
-        migrations.RunPython(code=migrate_accessibility_to_openTo_training, reverse_code=migrate_back_training),
+        migrations.RunPython(code=migrate, reverse_code=migrate_back),
+        migrations.RemoveField(
+            model_name='event',
+            name='accessibility',
+        ),
+        migrations.RemoveField(
+            model_name='training',
+            name='accessibility',
+        ),
     ]
