@@ -903,18 +903,15 @@ class ToolCreditSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-# Model serializer for tools
-_tool_fields = (
+# Model serializer for base_tools
+_base_tool_fields = (
     'id',
     'name',
     'description',
     'homepage',
-    'biotoolsID',
-    'biotoolsCURIE',
     'tool_type',
     'collection',
     'scientific_topics',
-    'primary_publication',
     'operating_system',
     # 'scientific_operations',
     'tool_credit',
@@ -929,45 +926,12 @@ _tool_fields = (
     'last_update',
     # 'increase_last_update',
     # 'access_condition',
-    'teams',
-    # 'language',
-    # 'topic',
-)
-
-# Model serializer for databases
-_database_fields = (
-    'id',
-    'name',
-    'description',
-    # 'homepage',
-    'fairsharingID',
-    'tool_type',
-    'collection',
-    'scientific_topics',
-    'primary_publication',
-    'operating_system',
-    # 'scientific_operations',
-    'tool_credit',
-    'tool_licence',
-    'documentation',
-    'maturity',
-    'cost',
-    'unique_visits',
-    'citations',
-    'annual_visits',
-    'unique_visits',
-    'last_update',
-    # 'increase_last_update',
-    # 'access_condition',
-    'teams',
     # 'language',
     # 'topic',
 )
 
 
-class ToolSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializes a tool (Tool object)."""
-
+class ToolBaseSerializer(serializers.HyperlinkedModelSerializer):
     tool_type = VerboseSlugRelatedField(
         many=True,
         read_only=True,
@@ -1018,71 +982,32 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         slug_field="name",
         required=False,
     )
+
+    class Meta:
+        fields = _base_tool_fields
+
+
+class ToolSerializer(ToolBaseSerializer):
+    """Serializes a tool (Tool object)."""
 
     class Meta:
         model = models.Tool
-        fields = _tool_fields
-        read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
+        fields = ToolBaseSerializer.Meta.fields + (
+            'biotoolsID',
+            'biotoolsCURIE',
+            'primary_publication',
+            'teams',
+        )
+        read_only_fields = tuple(f for f in _base_tool_fields)
 
 
-class DatabaseSerializer(serializers.HyperlinkedModelSerializer):
+class DatabaseSerializer(ToolBaseSerializer):
     """Serializes a database (Database object)."""
-
-    tool_type = VerboseSlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="name",
-        required=False,
-    )
-
-    collection = VerboseSlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="name",
-        required=False,
-    )
-
-    scientific_topics = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="edam_id",
-        required=False,
-    )
-
-    primary_publication = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="doi",
-        required=False,
-    )
-
-    operating_system = VerboseSlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="name",
-        required=False,
-    )
-
-    tool_credit = ToolCreditSerializer(read_only=True, many=True)
-
-    tool_licence = CreatableSlugRelatedField(
-        read_only=False,
-        slug_field="name",
-        queryset=models.Licence.objects,
-        required=False,
-    )
-
-    teams = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="name",
-        required=False,
-    )
 
     class Meta:
         model = models.Database
-        fields = _database_fields
-        read_only_fields = tuple(f for f in _tool_fields if f != 'fairsharingID')
+        fields = ToolBaseSerializer.Meta.fields + ('fairsharingID',)
+        read_only_fields = tuple(f for f in _base_tool_fields)
 
 
 def modelserializer_factory(model, serializer=serializers.ModelSerializer, fields=None, exclude=None):

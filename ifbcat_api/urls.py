@@ -55,7 +55,7 @@ urlpatterns = [
     path('tool/<int:pk>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
     path('tool/<biotoolsID>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
     path('database/<int:pk>/', views.DatabaseViewSet.as_view({'get': 'retrieve'})),
-    path('tool/<fairsharingID>/', views.DatabaseViewSet.as_view({'get': 'retrieve'})),
+    path('database/<fairsharingID>/', views.DatabaseViewSet.as_view({'get': 'retrieve'})),
     re_path('topic/(?P<uri>topic_\d+)/', views.TopicViewSet.as_view({'get': 'retrieve'})),
     path('login/', views.UserLoginApiView.as_view()),
     path('', include(router.urls)),

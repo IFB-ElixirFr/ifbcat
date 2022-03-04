@@ -3,14 +3,13 @@ import logging
 from json.decoder import JSONDecodeError
 
 import requests
-import urllib3
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
-from decouple import config
 
+from ifbcat.settings import LOGIN, PASSWORD
 from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic, Doi, Keyword, Licence
 from ifbcat_api.model.tool.collection import Collection
@@ -53,57 +52,29 @@ class Database(models.Model):
     )
     # add operation/function here
     # Primary publication DOI storedin DOI table
-    # primary_publication = models.ManyToManyField(
-    #     Doi,
-    #     related_name='tools',
-    #     blank=True,
-    #     help_text="Publication(s) that describe the tool as a whole.",
-    # )
+    primary_publication = models.ManyToManyField(
+        Doi,
+        related_name='database_doi',
+        blank=True,
+        help_text="Publication(s) that describe the tool as a whole.",
+    )
     collection = models.ManyToManyField(Collection, blank=True)
-
     # software_version = models.CharField(max_length=200, blank=True, null=True)
-
     citations = models.CharField(max_length=1000, blank=True, null=True)
-
-    # link = models.CharField(max_length=1000, blank=True, null=True)
+    link = models.CharField(max_length=1000, blank=True, null=True, help_text="Link of the tool toward FAIRsharing.")
     # keywords = models.ManyToManyField(Keyword, blank=True)
-    # operating_system = models.CharField(max_length=50, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
-    # topic = models.CharField(max_length=1000, blank=True, null=True)
     downloads = models.CharField(max_length=1000, blank=True, null=True)
     annual_visits = models.IntegerField(blank=True, null=True)
     unique_visits = models.IntegerField(blank=True, null=True)
 
-    # many_to_many
-    # platform = models.ManyToManyField(Platform, blank=True)
-    # team = models.ManyToManyField(
-    #     Team,
-    #     blank=True,
-    #     related_name='ToolsTeams',
-    #     help_text="Team developping the tool.",
-    # )
-    # language = models.ManyToManyField(Language, blank=True)
-
-    # elixir_platform = models.ManyToManyField(ElixirPlatform, blank=True)
-    # elixir_node = models.ManyToManyField(ElixirNode, blank=True)
-    # accessibility = models.ManyToManyField(Accessibility, blank=True)
-
-    # link = models.ManyToManyField(Link, blank=True)
-
     # added fields
-    # language = models.CharField(max_length=1000, null=True, blank=True)
-    # otherID = models.CharField(max_length=1000, null=True, blank=True)
     maturity = models.CharField(max_length=1000, null=True, blank=True)
-
     # collectionID = models.CharField(max_length=1000, null=True, blank=True)
     # credit = models.TextField(null=True, blank=True)
-    # elixirNode = models.CharField(max_length=1000, null=True, blank=True)
-    # elixirPlatform = models.CharField(max_length=1000, null=True, blank=True)
     cost = models.CharField(max_length=1000, null=True, blank=True)
     # accessibility = models.CharField(max_length=1000, null=True, blank=True)
-    # function = models.TextField(null=True, blank=True)
-    # relation = models.CharField(max_length=1000, null=True, blank=True)
 
-    # to remove ?
+    # TODO: Should be useful ?
     input_data = models.CharField(max_length=1000, blank=True, null=True)
     output_data = models.CharField(max_length=1000, blank=True, null=True)
 
@@ -128,7 +99,7 @@ class Database(models.Model):
         url = "https://api.fairsharing.org/users/sign_in"
         payload = dict(user=dict(login=username, password=password))
         headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+        response = requests.request("POST", url, headers=headers, data=payload)
 
         # Get the JWT from the response.text to use in the next part.
         data = response.json()
@@ -142,8 +113,7 @@ class Database(models.Model):
     def update_information_from_fairsharing(self):
         try:
             url = f"https://api.fairsharing.org/search/fairsharing_records?q={self.fairsharingID}"
-            username, password = config('username'), config('password')
-            response = requests.request("POST", url, headers=self.get_jwt_with_credentials(username, password))
+            response = requests.request("POST", url, headers=self.get_jwt_with_credentials(LOGIN, PASSWORD))
             entries = response.json()
         except (JSONDecodeError, MaxRetryError) as e:
             logger.error(f"Error with {self.fairsharingID}: {e}")
@@ -161,40 +131,27 @@ class Database(models.Model):
         self.description = tool['attributes']['description'][35:]
         # self.homepage = tool['homepage']
         self.fairsharingID = tool['attributes']['abbreviation']
-        # link = tool['link']
+        self.link = tool['attributes']['url']
         # software_version = tool['version']
-        # downloads = tool['download']
         # TODO : We got many licences which one should we take?
         # self.tool_license = tool['attributes']['licence-links'][0]['licence-name']
-        # language = tool['language']
-        # otherID = tool['otherID']
-        # self.maturity = tool['maturity']
-        # elixirPlatform = tool['elixirPlatform']
-        # elixirNode = tool['elixirNode']
-        # self.cost = tool['cost']
-        # accessibility = tool['accessibility']
-        # function = tool['function']
-        # relation = tool['relation']
         self.last_update = tool['attributes']['updated-at']
-
         self.save()
 
-        # TODO: Check if `pubmed_id` == `pmid`
-
         # entry for publications DOI
-        # for publication in tool['attributes']['publications']:
-        #     doi = None
-        #     if publication['doi'] != None:
-        #         doi = publication['doi']
-        #     if publication['doi'] == None and publication['pubmed_id'] != None:
-        #         doi = Doi.get_doi_from_pmid(publication['pubmed_id'])
-        #         # print('*Get DOI from PUBMED_ID: ' + str(doi))
-        #     if publication['doi'] == None and publication['pubmed_id'] != None:
-        #         doi = Doi.get_doi_from_pmid(publication['pubmed_id'])
-        #     if doi != None:
-        #         doi_entry, created = Doi.objects.get_or_create(doi=doi)
-        #         doi_entry.save()
-        #         self.primary_publication.add(doi_entry.id)
+        for publication in tool['attributes']['publications']:
+            doi = None
+            if publication['doi'] != None:
+                doi = publication['doi']
+            if publication['doi'] == None and publication['pubmed_id'] != None:
+                doi = Doi.get_doi_from_pmid(publication['pubmed_id'])
+                # print('*Get DOI from PUBMED_ID: ' + str(doi))
+            if publication['doi'] == None and publication['pubmed_id'] != None:
+                doi = Doi.get_doi_from_pmid(publication['pubmed_id'])
+            if doi != None:
+                doi_entry, created = Doi.objects.get_or_create(doi=doi)
+                doi_entry.save()
+                self.primary_publication.add(doi_entry.id)
 
 
 @receiver(post_save, sender=Database)
