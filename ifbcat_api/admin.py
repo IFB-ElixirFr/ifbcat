@@ -492,6 +492,7 @@ class EventAdmin(
             {
                 'fields': (
                     'maxParticipants',
+                    'accessibility',
                     'openTo',
                     'accessConditions',
                     'costs',
@@ -648,6 +649,7 @@ class TrainingAdmin(
             {
                 'fields': (
                     'maxParticipants',
+                    'accessibility',
                     'openTo',
                     'accessConditions',
                     'costs',

@@ -127,6 +127,12 @@ class AbstractEvent(models.Model):
         INTERNAL_PERSONNEL = 'Internal personnel', _('Internal personnel')
         OTHERS = 'Others', _('Others')
 
+    class EventAccessibilityType(models.TextChoices):
+        """Controlled vocabulary for whether an event is opened to Everyone, Internal personnel or Others."""
+
+        PUBLIC = 'Public', _('Public')
+        PRIVATE = 'Private', _('Private')
+
     # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(
         max_length=255,
@@ -158,6 +164,11 @@ class AbstractEvent(models.Model):
         EventPrerequisite,
         blank=True,
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
+    )
+    accessibility = models.CharField(
+        max_length=255,
+        choices=EventAccessibilityType.choices,
+        help_text="Whether the event is public or private.",
     )
     openTo = models.CharField(
         max_length=255,
