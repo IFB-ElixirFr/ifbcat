@@ -126,9 +126,7 @@ class Database(models.Model):
 
     def get_jwt_with_credentials(self, username, password):
         url = "https://api.fairsharing.org/users/sign_in"
-        login, payload = {}, {}
-        login["login"] = username
-        login["password"], payload["user"] = password, login
+        payload = dict(user=dict(login=username, password=password))
         headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
 
