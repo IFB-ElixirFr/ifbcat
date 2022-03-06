@@ -8,8 +8,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
+from django.conf import settings
 
-from ifbcat.settings import LOGIN, PASSWORD
 from ifbcat_api import permissions
 from ifbcat_api.model.misc import Topic, Doi, Keyword, Licence
 from ifbcat_api.model.tool.collection import Collection
@@ -99,7 +99,7 @@ class Database(models.Model):
         url = "https://api.fairsharing.org/users/sign_in"
         payload = dict(user=dict(login=username, password=password))
         headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
 
         # Get the JWT from the response.text to use in the next part.
         data = response.json()
@@ -113,7 +113,9 @@ class Database(models.Model):
     def update_information_from_fairsharing(self):
         try:
             url = f"https://api.fairsharing.org/search/fairsharing_records?q={self.fairsharingID}"
-            response = requests.request("POST", url, headers=self.get_jwt_with_credentials(LOGIN, PASSWORD))
+            response = requests.request(
+                "POST", url, headers=self.get_jwt_with_credentials(settings.LOGIN, settings.PASSWORD)
+            )
             entries = response.json()
         except (JSONDecodeError, MaxRetryError) as e:
             logger.error(f"Error with {self.fairsharingID}: {e}")

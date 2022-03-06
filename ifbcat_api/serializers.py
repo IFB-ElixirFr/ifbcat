@@ -916,6 +916,7 @@ _base_tool_fields = (
     # 'scientific_operations',
     'tool_credit',
     'tool_licence',
+    'primary_publication',
     'documentation',
     'maturity',
     'cost',
@@ -985,6 +986,7 @@ class ToolBaseSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         fields = _base_tool_fields
+        read_only_fields = tuple(f for f in _base_tool_fields)
 
 
 class ToolSerializer(ToolBaseSerializer):
@@ -995,10 +997,8 @@ class ToolSerializer(ToolBaseSerializer):
         fields = ToolBaseSerializer.Meta.fields + (
             'biotoolsID',
             'biotoolsCURIE',
-            'primary_publication',
             'teams',
         )
-        read_only_fields = tuple(f for f in _base_tool_fields)
 
 
 class DatabaseSerializer(ToolBaseSerializer):
@@ -1007,7 +1007,6 @@ class DatabaseSerializer(ToolBaseSerializer):
     class Meta:
         model = models.Database
         fields = ToolBaseSerializer.Meta.fields + ('fairsharingID',)
-        read_only_fields = tuple(f for f in _base_tool_fields)
 
 
 def modelserializer_factory(model, serializer=serializers.ModelSerializer, fields=None, exclude=None):
