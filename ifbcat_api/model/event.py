@@ -244,7 +244,7 @@ class AbstractEvent(models.Model):
     )
 
     def clean(self):
-        if self.openTo != self.EventOpenToType.Everyone and len(self.accessConditions or '') == 0:
+        if self.openTo != self.EventOpenToType.EVERYONE and len(self.accessConditions or '') == 0:
             raise ValidationError(dict(accessConditions="Details have to be provided when openTo is not Everyone"))
 
     def __str__(self):
