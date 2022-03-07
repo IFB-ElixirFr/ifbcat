@@ -119,14 +119,15 @@ class AbstractEvent(models.Model):
     # The enums support internatonalization (using the '_' shorthand convention for gettext_lazy() function)
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
 
-    # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
-    class EventAccessibilityType(models.TextChoices):
-        """Controlled vocabulary for whether an event is public or private."""
+    # EventOpenToType: Controlled vocabulary for whether an event is everyone, internal personnel or others.
+    class EventOpenToType(models.TextChoices):
+        """Controlled vocabulary for whether an event is opened to Everyone, Internal personnel or Others."""
 
-        PUBLIC = 'Public', _('Public')
-        PRIVATE = 'Private', _('Private')
+        EVERYONE = 'Everyone', _('Everyone')
+        INTERNAL_PERSONNEL = 'Internal personnel', _('Internal personnel')
+        OTHERS = 'Others', _('Others')
 
-    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
+    # name, description, homepage, openTo, contactName and contactEmail are mandatory
     name = models.CharField(
         max_length=255,
         help_text="Full name / title of the event.",
@@ -158,13 +159,13 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
     )
-    accessibility = models.CharField(
+    openTo = models.CharField(
         max_length=255,
-        choices=EventAccessibilityType.choices,
-        help_text="Whether the event is public or private.",
+        choices=EventOpenToType.choices,
+        help_text="Whether the event is for everyone, internal personnel or others.",
     )
-    accessibilityNote = models.TextField(
-        help_text="Comment about the audience a private event is open to and tailored for.",
+    accessConditions = models.TextField(
+        help_text="Comment on how one can access. Mandatory if not open to everyone",
         blank=True,
         null=True,
     )
@@ -243,8 +244,8 @@ class AbstractEvent(models.Model):
     )
 
     def clean(self):
-        if self.accessibility == self.EventAccessibilityType.PRIVATE and len(self.accessibilityNote or '') == 0:
-            raise ValidationError(dict(accessibilityNote="Details have to be provided when accessibility is private"))
+        if self.openTo != self.EventOpenToType.Everyone and len(self.accessConditions or '') == 0:
+            raise ValidationError(dict(accessConditions="Details have to be provided when openTo is not Everyone"))
 
     def __str__(self):
         """Return the Event model as a string."""

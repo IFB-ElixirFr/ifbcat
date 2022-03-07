@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ifbcat_api', '0179_alter_community_name'),
+        ('ifbcat_api', '0180_auto_20220228_1341'),
     ]
 
     operations = [
