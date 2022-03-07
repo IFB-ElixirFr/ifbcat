@@ -273,7 +273,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'maxParticipants',
             'contactName',
             'contactEmail',
-            'contactId',
             'elixirPlatforms',
             'communities',
             'sponsoredBy',

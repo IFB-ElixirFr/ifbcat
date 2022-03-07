@@ -82,10 +82,6 @@ class ReadWriteByMaintainers(ReadWriteBySomething):
     target = 'maintainers'
 
 
-class ReadWriteByContact(ReadWriteBySomething):
-    target = 'contactId'
-
-
 class ReadWriteByAuthors(ReadWriteBySomething):
     target = 'authors'
 

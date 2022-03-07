@@ -30,20 +30,12 @@ from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
 
 
-class ModelAdminFillingContactId(admin.ModelAdmin):
+class ModelAdminFillingMaintainers(admin.ModelAdmin):
     class Meta:
         abstract = True
 
     def get_changeform_initial_data(self, request):
         initial = super().get_changeform_initial_data(request)
-        if 'contactId' in super().get_fields(request):
-            initial.update(
-                dict(
-                    contactName=str(request.user),
-                    contactEmail=request.user.email,
-                    contactId=request.user,
-                )
-            )
         initial['maintainers'] = list(get_user_model().objects.filter(pk=request.user.pk))
         return initial
 
@@ -398,7 +390,7 @@ class UserProfileAdmin(
 # "filter_horizontal" adds widgets for item selection from lists
 @admin.register(models.Event)
 class EventAdmin(
-    ModelAdminFillingContactId,
+    ModelAdminFillingMaintainers,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
@@ -416,9 +408,7 @@ class EventAdmin(
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        #'accessConditions',
         'contactName',
-        'contactId__email',
         'contactEmail',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
@@ -462,6 +452,7 @@ class EventAdmin(
                     'keywords',
                     'topics',
                     'tess_publishing',
+                    'maintainers',
                 )
             },
         ),
@@ -504,7 +495,6 @@ class EventAdmin(
             {
                 'fields': (
                     'contactEmail',
-                    'contactId',
                     'contactName',
                     'organisedByOrganisations',
                     'organisedByTeams',
@@ -584,7 +574,7 @@ class EventAdmin(
 
 @admin.register(models.Training)
 class TrainingAdmin(
-    ModelAdminFillingContactId,
+    ModelAdminFillingMaintainers,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
@@ -604,7 +594,6 @@ class TrainingAdmin(
         # 'prerequisites__prerequisite',
         # 'accessConditions',
         'contactName',
-        # 'contactId__email',
         'contactEmail',
         # 'organisedByTeams__name',
         # 'organisedByOrganisations__name',
@@ -642,6 +631,7 @@ class TrainingAdmin(
                     'homepage',
                     'topics',
                     'tess_publishing',
+                    'maintainers',
                 )
             },
         ),
@@ -664,7 +654,6 @@ class TrainingAdmin(
             {
                 'fields': (
                     'contactEmail',
-                    'contactId',
                     'contactName',
                     'organisedByOrganisations',
                     'organisedByTeams',
@@ -697,8 +686,8 @@ class TrainingAdmin(
         course = training.create_new_event(None, None)
         course.contactName = f'{request.user.firstname} {request.user.lastname}'
         course.contactEmail = request.user.email
-        course.contactId = request.user
         course.save()
+        course.maintainers.add(request.user)
         messages.success(request, "A draft for a new session have been created, you can now update it, or delete it.")
 
         courseModel = course._meta.model
@@ -1044,7 +1033,7 @@ class AudienceTypeAdmin(
 
 @admin.register(models.TrainingMaterial)
 class TrainingMaterialAdmin(
-    ModelAdminFillingContactId,
+    ModelAdminFillingMaintainers,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelByNameAdmin,
@@ -1097,7 +1086,7 @@ class TeamForm(forms.ModelForm):
 
 @admin.register(models.Team)
 class TeamAdmin(
-    ModelAdminFillingContactId,
+    ModelAdminFillingMaintainers,
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelByNameAdmin,

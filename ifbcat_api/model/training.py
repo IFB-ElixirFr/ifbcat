@@ -92,7 +92,7 @@ class Training(AbstractEvent):
     @classmethod
     def get_edition_permission_classes(cls):
         return super().get_edition_permission_classes() + (
-            permissions.ReadWriteByContact,
+            permissions.ReadWriteByMaintainers,
             permissions.ReadWriteBySuperEditor,
         )
 
@@ -120,7 +120,6 @@ class Training(AbstractEvent):
             'maxParticipants',
             'contactName',
             'contactEmail',
-            'contactId',
             'logo_url',
             'hoursPresentations',
             'hoursHandsOn',
@@ -139,6 +138,7 @@ class Training(AbstractEvent):
             'organisedByTeams',
             'organisedByOrganisations',
             'sponsoredBy',
+            'maintainers',
         ]:
             for o in getattr(self, m2m_name).all():
                 getattr(event, m2m_name).add(o)
