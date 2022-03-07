@@ -129,7 +129,7 @@ class Database(models.Model):
             logger.error(f"We do not have data for: {self.fairsharingID}")
             return
         for entry in entries['data']:
-            if entry['attributes']['abbreviation'] == self.fairsharingID:
+            if entry['attributes']['abbreviation'].casefold() == self.fairsharingID.casefold():
                 self.update_information_from_json(entry)
 
     def update_information_from_json(self, tool: dict):
