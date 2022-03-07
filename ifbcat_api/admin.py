@@ -630,6 +630,7 @@ class TrainingAdmin(
                     'logo_url',
                     'homepage',
                     'topics',
+                    'keywords',
                     'tess_publishing',
                     'maintainers',
                 )
