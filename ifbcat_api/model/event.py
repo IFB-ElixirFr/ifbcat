@@ -179,11 +179,10 @@ class AbstractEvent(models.Model):
     )
     contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
     contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
-    contactId = models.ForeignKey(
+    maintainers = models.ManyToManyField(
         UserProfile,
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="IFB ID of person to contact about the event.",
+        help_text="Maintainer(s) can edit this object.",
+        blank=True,
     )
     elixirPlatforms = models.ManyToManyField(
         ElixirPlatform,
@@ -267,7 +266,7 @@ class AbstractEvent(models.Model):
         return (
             permissions.ReadOnly,
             permissions.UserCanAddNew,
-            permissions.ReadWriteByContact,
+            permissions.ReadWriteByMaintainers,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,
             permissions.ReadWriteByOrgByTeamsMaintainers,
