@@ -49,7 +49,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
                     dict(url='view_training_courses', text=mark_safe('<i class="fa fa-eye"></i> sessions')),
                 ]
                 model['instances'] = models.Training.objects.filter(
-                    Q(contactId=user)
+                    Q(maintainers=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
                     | Q(organisedByTeams__leaders=user)
@@ -61,7 +61,7 @@ def get_editable_instance(context: Context) -> List[Dict]:
         elif model['object_name'] == 'Event':
             if model['perms']['change']:
                 model['instances'] = models.Event.objects.filter(
-                    Q(contactId=user)
+                    Q(maintainers=user)
                     | Q(trainers__trainerId=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
