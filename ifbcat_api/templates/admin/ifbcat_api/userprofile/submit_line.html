@@ -1,0 +1,11 @@
+{% extends "admin/submit_line.html" %}
+{% load ifbcat %}
+
+{% block extra-actions %}
+{% if original.pk %}
+<hr/>
+<a role="button" href="{% url 'user_edition_history' original.pk %}" class="btn btn-outline-primary form-control">
+    View performed changes
+</a>
+{% endif %}
+{% endblock %}

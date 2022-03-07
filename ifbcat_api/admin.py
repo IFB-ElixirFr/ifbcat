@@ -727,8 +727,6 @@ class TrainingAdmin(
             request, mark_safe(f'New session created, go to <a href="{url}">{url}</a> to complete it'), messages.SUCCESS
         )
 
-    change_form_template = 'admin/change_form_training.html'
-
     def logo(self, obj):
         if not obj.logo_url:
             return ''
