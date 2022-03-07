@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ifbcat_api import models
+from ifbcat_api import models, misc
 
 
 class OrganisationInlineSerializer(serializers.HyperlinkedModelSerializer):
@@ -51,36 +51,10 @@ class ElixirPlatformInlineSerializer(serializers.HyperlinkedModelSerializer):
     )
 
 
-class TeamInlineSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.Team
-        fields = [
-            'id',
-            'name',
-            'url',
-        ]
-
-    url = serializers.HyperlinkedIdentityField(
-        read_only=True,
-        view_name='team-detail',
-        lookup_field='name',
-    )
-
-
-class TrainingMaterialInlineSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = models.TrainingMaterial
-        fields = [
-            'id',
-            'name',
-            'url',
-        ]
-
-    url = serializers.HyperlinkedIdentityField(
-        read_only=True,
-        view_name='team-detail',
-        lookup_field='name',
-    )
+EventInlineSerializer = misc.inline_serializer_factory(models.Event)
+TeamInlineSerializer = misc.inline_serializer_factory(models.Team, lookup_field='name')
+TrainingInlineSerializer = misc.inline_serializer_factory(models.Training)
+TrainingMaterialInlineSerializer = misc.inline_serializer_factory(models.TrainingMaterial, url=False)
 
 
 class EventSponsorInlineSerializer(serializers.HyperlinkedModelSerializer):
