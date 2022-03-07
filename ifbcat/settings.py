@@ -368,6 +368,6 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioi
 ################################################################################
 # FAIRSHARING CREDENTIALS
 ################################################################################
-LOGIN = config('LOGIN')
-PASSWORD = config('PASSWORD')
+FAIRSHARING_LOGIN = config('FAIRSHARING_LOGIN', default=None)
+FAIRSHARING_PASSWORD = config('FAIRSHARING_PASSWORD', default=None)
 ################################################################################

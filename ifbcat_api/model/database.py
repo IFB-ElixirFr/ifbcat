@@ -114,7 +114,12 @@ class Database(models.Model):
         try:
             url = f"https://api.fairsharing.org/search/fairsharing_records?q={self.fairsharingID}"
             response = requests.request(
-                "POST", url, headers=self.get_jwt_with_credentials(settings.LOGIN, settings.PASSWORD)
+                "POST",
+                url,
+                headers=self.get_jwt_with_credentials(
+                    settings.FAIRSHARING_LOGIN,
+                    settings.FAIRSHARING_PASSWORD,
+                ),
             )
             entries = response.json()
         except (JSONDecodeError, MaxRetryError) as e:
