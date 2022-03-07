@@ -145,6 +145,10 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
     slug_name = "name"
 
 
+class ViewInApiModelByFairsharingIDAdmin(ViewInApiModelAdmin):
+    slug_name = "fairsharingID"
+
+
 # Models are registered below
 # Enable Django admin for user profile and news item models - i.e. make them accessible through admin interface
 
@@ -1253,7 +1257,7 @@ class ToolAdmin(
 class DatabaseAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelByNameAdmin,
+    ViewInApiModelByFairsharingIDAdmin,
 ):
     search_fields = (
         'name',
