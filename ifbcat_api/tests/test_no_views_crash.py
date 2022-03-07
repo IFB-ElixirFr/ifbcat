@@ -1,9 +1,11 @@
 import logging
 
 from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import management
 from django.core.exceptions import FieldError
+from django.test import TestCase
 from django.urls import reverse, NoReverseMatch
 
 from ifbcat_api.model.misc import Topic, Keyword, Field
@@ -40,6 +42,23 @@ def add_everywhere(instance):
         for f in related_instance._meta.get_fields():
             if f.related_model == instance.__class__:
                 getattr(related_instance, f.name).add(instance)
+
+
+class TestNoViewsCrashWithoutData(TestCase):
+    def setUp(self):
+        self.superuser, _ = get_user_model().objects.get_or_create(
+            is_superuser=True,
+            is_staff=True,
+            defaults=dict(
+                firstname="superuser",
+                lastname="ifb",
+                email='superuser@ifb.fr',
+            ),
+        )
+
+    def test_dashboard(self):
+        self.client.force_login(self.superuser)
+        self.assertEqual(self.client.get('/admin/').status_code, 200)
 
 
 class TestNoViewsCrash(EnsureImportDataAreHere):
