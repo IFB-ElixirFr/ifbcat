@@ -137,6 +137,10 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
     slug_name = "name"
 
 
+class ViewInApiModelByBiotoolsIDAdmin(ViewInApiModelAdmin):
+    slug_name = "biotoolsID"
+
+
 # Models are registered below
 # Enable Django admin for user profile and news item models - i.e. make them accessible through admin interface
 
@@ -1173,7 +1177,7 @@ class ServiceSubmissionAdmin(
 class ToolAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelByNameAdmin,
+    ViewInApiModelByBiotoolsIDAdmin,
 ):
     search_fields = (
         'name',
