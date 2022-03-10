@@ -47,6 +47,30 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterField(
+            model_name='event',
+            name='contactEmail',
+            field=models.EmailField(
+                default='', help_text='Email of person to contact about the event.', max_length=254
+            ),
+        ),
+        migrations.AlterField(
+            model_name='event',
+            name='contactName',
+            field=models.CharField(default='', help_text='Name of person to contact about the event.', max_length=255),
+        ),
+        migrations.AlterField(
+            model_name='training',
+            name='contactEmail',
+            field=models.EmailField(
+                default='', help_text='Email of person to contact about the event.', max_length=254
+            ),
+        ),
+        migrations.AlterField(
+            model_name='training',
+            name='contactName',
+            field=models.CharField(default='', help_text='Name of person to contact about the event.', max_length=255),
+        ),
         migrations.RenameField(
             model_name='event',
             old_name='trainers',
