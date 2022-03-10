@@ -294,6 +294,7 @@ JAZZMIN_SETTINGS = {
         "ifbcat_api.ToolCredit": "fas fa-circle",
         "ifbcat_api.ToolType": "fas fa-circle",
         "ifbcat_api.Tool": "fas fa-tools",
+        "ifbcat_api.Database": "fas fa-database",
         "ifbcat_api.Topic": "fas fa-circle",
         "ifbcat_api.Trainer": "fas fa-chalkboard-teacher",
         "ifbcat_api.TrainingCourseMetrics": "fas fa-tachometer-alt",
@@ -364,4 +365,9 @@ EMAIL_PORT = config('EMAIL_PORT', default='25')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioinformatique.fr')
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+################################################################################
+# FAIRSHARING CREDENTIALS
+################################################################################
+FAIRSHARING_LOGIN = config('FAIRSHARING_LOGIN', default=None)
+FAIRSHARING_PASSWORD = config('FAIRSHARING_PASSWORD', default=None)
 ################################################################################

@@ -902,22 +902,20 @@ class ToolCreditSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 
-# Model serializer for tools
-_tool_fields = (
+# Model serializer for base_tools
+_base_tool_fields = (
     'id',
     'name',
     'description',
     'homepage',
-    'biotoolsID',
-    'biotoolsCURIE',
     'tool_type',
     'collection',
     'scientific_topics',
-    'primary_publication',
     'operating_system',
     # 'scientific_operations',
     'tool_credit',
     'tool_licence',
+    'primary_publication',
     'documentation',
     'maturity',
     'cost',
@@ -928,15 +926,12 @@ _tool_fields = (
     'last_update',
     # 'increase_last_update',
     # 'accessConditions',
-    'teams',
     # 'language',
     # 'topic',
 )
 
 
-class ToolSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializes a tool (Tool object)."""
-
+class ToolBaseSerializer(serializers.HyperlinkedModelSerializer):
     tool_type = VerboseSlugRelatedField(
         many=True,
         read_only=True,
@@ -989,9 +984,28 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     class Meta:
+        fields = _base_tool_fields
+        read_only_fields = tuple(f for f in _base_tool_fields)
+
+
+class ToolSerializer(ToolBaseSerializer):
+    """Serializes a tool (Tool object)."""
+
+    class Meta:
         model = models.Tool
-        fields = _tool_fields
-        read_only_fields = tuple(f for f in _tool_fields if f != 'biotoolsID')
+        fields = ToolBaseSerializer.Meta.fields + (
+            'biotoolsID',
+            'biotoolsCURIE',
+            'teams',
+        )
+
+
+class DatabaseSerializer(ToolBaseSerializer):
+    """Serializes a database (Database object)."""
+
+    class Meta:
+        model = models.Database
+        fields = ToolBaseSerializer.Meta.fields + ('fairsharingID',)
 
 
 def modelserializer_factory(model, serializer=serializers.ModelSerializer, fields=None, exclude=None):

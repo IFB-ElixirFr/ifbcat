@@ -137,6 +137,10 @@ class ViewInApiModelByNameAdmin(ViewInApiModelAdmin):
     slug_name = "name"
 
 
+class ViewInApiModelByFairsharingIDAdmin(ViewInApiModelAdmin):
+    slug_name = "fairsharingID"
+
+
 # Models are registered below
 # Enable Django admin for user profile and news item models - i.e. make them accessible through admin interface
 
@@ -1235,6 +1239,75 @@ class ToolAdmin(
     def get_fields(self, request, obj=None):
         if obj is None:
             return ('biotoolsID',)
+        return super().get_fields(request=request, obj=obj)
+
+
+@admin.register(models.Database)
+class DatabaseAdmin(
+    PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
+    ViewInApiModelByFairsharingIDAdmin,
+):
+    search_fields = (
+        'name',
+        'fairsharingID',
+        'tool_licence__name',
+        'description',
+    )
+    list_filter = (
+        'tool_type',
+        'tool_licence',
+        'collection',
+        'operating_system',
+    )
+    list_display_links = (
+        'name',
+        'fairsharingID',
+    )
+    list_display = (
+        'name',
+        'fairsharingID',
+        'update_needed',
+    )
+
+    actions = [
+        'update_information_from_fairsharing',
+        'update_information_from_fairsharing_when_needed',
+    ]
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .annotate(name_len=Length('name'))
+            .annotate(
+                update_needed=Case(
+                    When(Q(name_len=0), then=True),
+                    When(Q(name="None"), then=True),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                )
+            )
+        )
+
+    def update_needed(self, obj):
+        return obj.update_needed
+
+    update_needed.boolean = True
+
+    update_needed.admin_order_field = 'update_needed'
+
+    def update_information_from_fairsharing(self, request, queryset):
+        for o in queryset:
+            o.update_information_from_fairsharing()
+
+    def update_information_from_fairsharing_when_needed(self, request, queryset):
+        for o in queryset.filter(update_needed=True):
+            o.update_information_from_fairsharing()
+
+    def get_fields(self, request, obj=None):
+        if obj is None:
+            return ('fairsharingID',)
         return super().get_fields(request=request, obj=obj)
 
 

@@ -40,6 +40,7 @@ router.register('source-info', views.SourceInfoViewSet, basename='source_info')
 router.register('team', views.TeamViewSet, basename='team')
 router.register('team-cnp', CachedNoPaginationFactory(views.TeamViewSet), basename='team-cnp')
 router.register('tool', views.ToolViewSet)
+router.register('database', views.DatabaseViewSet)
 router.register('tool-cnp', CachedNoPaginationFactory(views.ToolViewSet), basename='tool-cnp')
 router.register('tooltype', views.ToolTypeViewSet)
 router.register('topic', views.TopicViewSet)
@@ -53,6 +54,8 @@ urlpatterns = [
     # path('testapiview/', views.TestApiView.as_view()),
     path('tool/<int:pk>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
     path('tool/<biotoolsID>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
+    path('database/<int:pk>/', views.DatabaseViewSet.as_view({'get': 'retrieve'})),
+    path('database/<fairsharingID>/', views.DatabaseViewSet.as_view({'get': 'retrieve'})),
     re_path('topic/(?P<uri>topic_\d+)/', views.TopicViewSet.as_view({'get': 'retrieve'})),
     path('login/', views.UserLoginApiView.as_view()),
     path('', include(router.urls)),

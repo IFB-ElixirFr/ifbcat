@@ -835,6 +835,27 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
     )
 
 
+# Model ViewSet for databases
+class DatabaseViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    pagination_class = pagination.LimitOffsetPagination
+    """Handles creating, reading and updating database."""
+
+    serializer_class = serializers.DatabaseSerializer
+    queryset = models.Database.objects.all()
+    lookup_fields = ['pk', 'fairsharingID__iexact']
+    search_fields = (
+        'name',
+        'description',
+        'tool_type__name',
+    )
+    filterset_fields = (
+        'tool_type',
+        'scientific_topics',
+        'operating_system',
+        'collection',
+    )
+
+
 class OperatingSystemChoicesViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.OperatingSystem.objects.all()
     serializer_class = serializers.modelserializer_factory(models.OperatingSystem, fields=['id', 'name'])
