@@ -83,8 +83,6 @@ class Training(AbstractEvent):
             'openTo',
             'accessConditions',
             'maxParticipants',
-            'contactName',
-            'contactEmail',
             'logo_url',
             'hoursPresentations',
             'hoursHandsOn',
@@ -104,6 +102,7 @@ class Training(AbstractEvent):
             'organisedByOrganisations',
             'sponsoredBy',
             'maintainers',
+            'contacts',
         ]:
             for o in getattr(self, m2m_name).all():
                 getattr(event, m2m_name).add(o)
