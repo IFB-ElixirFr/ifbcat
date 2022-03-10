@@ -18,4 +18,5 @@ django-cors-headers
 requests
 pylev
 django-extensions
+markdown
 #end of file
