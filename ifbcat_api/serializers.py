@@ -140,6 +140,18 @@ class KeywordSerializer(serializers.ModelSerializer):
         return attrs
 
 
+# Model serializer for event keyword
+class KeywordDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Keyword
+        fields = '__all__'
+
+    teamsKeywords = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    event_set = inlineSerializers.EventInlineSerializer(many=True, read_only=True)
+    training_set = inlineSerializers.TrainingInlineSerializer(many=True, read_only=True)
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
+
+
 # Model serializer for event prerequisite
 class EventPrerequisiteSerializer(serializers.ModelSerializer):
     """Serializes an event prerequisite (EventPrerequisite object)."""

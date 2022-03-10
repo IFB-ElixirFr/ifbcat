@@ -436,6 +436,7 @@ class KeywordViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating keywords."""
 
     serializer_class = serializers.KeywordSerializer
+    retrieve_serializer_class = serializers.KeywordDetailedSerializer
     queryset = models.Keyword.objects.all()
     # lookup_field = 'keyword__unaccent__iexact'
     search_fields = ('keyword',)
@@ -443,6 +444,12 @@ class KeywordViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action == "retrieve":
+            kwargs['context'] = self.get_serializer_context()
+            return self.retrieve_serializer_class(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
 
 
 # Model ViewSet for event prerequisites
