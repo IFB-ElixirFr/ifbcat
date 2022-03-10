@@ -49,6 +49,16 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='event',
+            name='maintainers',
+            field=models.ManyToManyField(blank=True, help_text='Maintainer(s) can edit this object.', related_name='_ifbcat_api_event_maintainers_+', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AlterField(
+            model_name='training',
+            name='maintainers',
+            field=models.ManyToManyField(blank=True, help_text='Maintainer(s) can edit this object.', related_name='_ifbcat_api_training_maintainers_+', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AlterField(
+            model_name='event',
             name='contactEmail',
             field=models.EmailField(
                 default='', help_text='Email of person to contact about the event.', max_length=254
@@ -100,7 +110,6 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 help_text='Person(s) to contact about the event.',
-                related_name='_ifbcat_api_event_contacts_+',
                 to=settings.AUTH_USER_MODEL,
             ),
         ),
@@ -110,7 +119,6 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 help_text='Person(s) to contact about the event.',
-                related_name='_ifbcat_api_training_contacts_+',
                 to=settings.AUTH_USER_MODEL,
             ),
         ),
