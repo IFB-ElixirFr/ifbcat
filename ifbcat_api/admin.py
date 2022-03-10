@@ -412,8 +412,7 @@ class EventAdmin(
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        'contactName',
-        'contactEmail',
+        'contacts__email',
         'organisedByTeams__name',
         'organisedByOrganisations__name',
         'sponsoredBy__name',
@@ -498,8 +497,7 @@ class EventAdmin(
             'Organizers and sponsors',
             {
                 'fields': (
-                    'contactEmail',
-                    'contactName',
+                    'contacts',
                     'organisedByOrganisations',
                     'organisedByTeams',
                     'sponsoredBy',
@@ -597,8 +595,7 @@ class TrainingAdmin(
         'keywords__keyword',
         # 'prerequisites__prerequisite',
         # 'accessConditions',
-        'contactName',
-        'contactEmail',
+        'contacts__email',
         # 'organisedByTeams__name',
         # 'organisedByOrganisations__name',
         # 'sponsoredBy__name',
@@ -657,8 +654,7 @@ class TrainingAdmin(
             'Organizers and sponsors',
             {
                 'fields': (
-                    'contactEmail',
-                    'contactName',
+                    'contacts',
                     'organisedByOrganisations',
                     'organisedByTeams',
                     'elixirPlatforms',
@@ -688,9 +684,6 @@ class TrainingAdmin(
     @staticmethod
     def create_new_course_and_get_admin_url(request, training):
         course = training.create_new_event(None, None)
-        course.contactName = f'{request.user.firstname} {request.user.lastname}'
-        course.contactEmail = request.user.email
-        course.save()
         course.maintainers.add(request.user)
         messages.success(request, "A draft for a new session have been created, you can now update it, or delete it.")
 
