@@ -99,7 +99,6 @@ class Tool(models.Model):
     # elixirPlatform = models.CharField(max_length=1000, null=True, blank=True)
     cost = models.CharField(max_length=1000, null=True, blank=True)
     # accessibility = models.CharField(max_length=1000, null=True, blank=True)
-    # function = models.TextField(null=True, blank=True)
     # relation = models.CharField(max_length=1000, null=True, blank=True)
 
     # to remove ?
@@ -169,7 +168,6 @@ class Tool(models.Model):
         # elixirNode = tool['elixirNode']
         self.cost = tool['cost']
         # accessibility = tool['accessibility']
-        # function = tool['function']
         # relation = tool['relation']
         self.last_update = tool['lastUpdate']
 
