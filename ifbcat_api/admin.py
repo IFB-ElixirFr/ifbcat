@@ -848,21 +848,6 @@ class EventCostAdmin(
     search_fields = ['cost']
 
 
-@admin.register(models.Trainer)
-class TrainerAdmin(
-    PermissionInClassModelAdmin,
-    AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
-):
-    search_fields = (
-        'trainerName',
-        'trainerEmail',
-        'trainerId__email',
-        'trainerId__firstname',
-        'trainerId__lastname',
-    )
-
-
 @admin.register(models.TrainingCourseMetrics)
 class TrainingCourseMetricsAdmin(
     PermissionInClassModelAdmin,

@@ -458,25 +458,6 @@ class EventPrerequisiteViewSet(PermissionInClassModelViewSet, viewsets.ModelView
         serializer.save()
 
 
-# Model ViewSet for trainer
-class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating trainers."""
-
-    serializer_class = serializers.TrainerSerializer
-    queryset = models.Trainer.objects.all()
-    search_fields = (
-        'trainerName',
-        'trainerEmail',
-        'trainerId__email',
-        'trainerId__firstname',
-        'trainerId__lastname',
-    )
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
-
-
 # Model ViewSet for training event metrics
 class TrainingCourseMetricsViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating training event metrics."""

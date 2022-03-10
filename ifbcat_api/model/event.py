@@ -359,9 +359,10 @@ class Event(AbstractEvent):
         help_text="The training proposed, must be provided if event type is 'Training session'.",
     )
     trainers = models.ManyToManyField(
-        to="Trainer",
+        to=UserProfile,
         blank=True,
         help_text="Details of people who are providing training at the event.",
+        related_name="eventTrainers",
     )
     trainingMaterials = models.ManyToManyField(
         TrainingMaterial,

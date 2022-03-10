@@ -105,7 +105,6 @@ def init_business_logic():
     training_related = [
         models.AudienceRole,
         models.AudienceType,
-        models.Trainer,
         models.TrainingCourseMetrics,
         models.Training,
         models.TrainingMaterial,
