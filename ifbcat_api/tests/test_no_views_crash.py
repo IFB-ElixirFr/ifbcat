@@ -9,6 +9,9 @@ from django.test import TestCase
 from django.urls import reverse, NoReverseMatch
 
 from ifbcat_api.model.misc import Topic, Keyword, Field
+from ifbcat_api.model.userProfile import UserProfile
+from ifbcat_api.model.organisation import Organisation
+from ifbcat_api.model.team import Team
 from ifbcat_api.tests.test_with_importdata import EnsureImportDataAreHere
 from ifbcat_api.urls import router
 
@@ -77,6 +80,21 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         logger.warning('Data loaded')
 
     def test_all_at_once_to_spare_resource(self):
+        #######################################################################
+        # test_loadcatalog
+        #######################################################################
+        self.assertEqual(
+            UserProfile.objects.count(),
+            715,
+        )
+        self.assertEqual(
+            Team.objects.count(),
+            36,
+        )
+        self.assertEqual(
+            Organisation.objects.count(),
+            76,
+        )
         available_formats_dict = dict()
         ignored_formats = {'rdf'}
         #######################################################################
