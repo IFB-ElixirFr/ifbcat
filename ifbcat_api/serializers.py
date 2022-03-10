@@ -1016,3 +1016,7 @@ def modelserializer_factory(model, serializer=serializers.ModelSerializer, field
 
     # Instantiate type(form) in order to use the same metaclass as form.
     return type(serializer)(class_name, (serializer,), form_class_attrs)
+
+
+class MarkdownToHTMLSerializer(serializers.Serializer):
+    md = serializers.CharField()

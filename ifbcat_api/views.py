@@ -10,6 +10,8 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
+import markdown
+import rest_framework.parsers
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model, get_permission_codename
 from django.contrib.auth.decorators import user_passes_test
@@ -24,10 +26,12 @@ from django.utils.text import capfirst
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django_filters import rest_framework as django_filters
+from markdown import markdown
 from rest_framework import pagination
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.renderers import StaticHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
@@ -927,3 +931,35 @@ def user_edition_history(request, user_id):
         template_name='admin/user_history.html',
         context=context,
     )
+
+
+class MarkdownToHTMLJob(APIView):
+
+    renderer_classes = [
+        StaticHTMLRenderer,
+    ]
+
+    def post(self, request, format=None):
+        serializer = serializers.MarkdownToHTMLSerializer(data=request.data, context={**request.data})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=rest_framework.status.HTTP_400_BAD_REQUEST)
+        return Response(
+            markdown(
+                serializer.data["md"],
+                extensions=['markdown.extensions.fenced_code'],
+            )
+        )
+
+
+# @api_view(['POST'])
+# @renderer_classes([StaticHTMLRenderer])
+# @parser_classes([JSONParser])
+# def md_to_html_view(request):
+#     print(request.data)
+#     serializer = serializers.MdToHTMLSerializer(data=request.data, context={**request.data})
+#     if not serializer.is_valid():
+#         return Response(serializer.errors, status=rest_framework.status.HTTP_400_BAD_REQUEST)
+#     return Response(markdown(
+#         serializer.data["md"],
+#         extensions=['markdown.extensions.fenced_code'],
+#     ))

@@ -66,4 +66,5 @@ urlpatterns = [
         views.view_training_courses,
         name='view_training_courses',
     ),
+    path('md-to-html/', views.MarkdownToHTMLJob.as_view(), name='md_to_html'),
 ]
