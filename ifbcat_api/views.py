@@ -394,8 +394,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'venue',
         'city',
         'country',
-        'trainers__trainerName',
-        'trainers__trainerId__email',
+        'trainers__email',
     )
     filterset_class = EventFilter
 
