@@ -6,5 +6,5 @@ ElixirPlatformInlineSerializer = misc.inline_serializer_factory(models.ElixirPla
 EventInlineSerializer = misc.inline_serializer_factory(models.Event)
 TeamInlineSerializer = misc.inline_serializer_factory(models.Team, lookup_field='name')
 TrainingInlineSerializer = misc.inline_serializer_factory(models.Training)
-TrainingMaterialInlineSerializer = misc.inline_serializer_factory(models.TrainingMaterial, url=False)
+TrainingMaterialInlineSerializer = misc.inline_serializer_factory(models.TrainingMaterial, lookup_field='name')
 EventSponsorInlineSerializer = misc.inline_serializer_factory(models.EventSponsor, lookup_field='name')
