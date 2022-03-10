@@ -390,21 +390,6 @@ class TrainingSerializer(EventSerializer):
         }
 
 
-# Model serializer for trainer
-class TrainerSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializes a trainer (Trainer object)."""
-
-    class Meta:
-        model = models.Trainer
-
-        fields = (
-            'id',
-            'trainerName',
-            'trainerEmail',
-            'trainerId',
-        )
-
-
 # Model serializer for training event metrics
 class TrainingCourseMetricsSerializer(serializers.ModelSerializer):
     class Meta:

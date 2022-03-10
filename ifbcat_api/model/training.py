@@ -1,46 +1,11 @@
 # Imports
-from django.core.validators import MinValueValidator
 from django.db import models
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
 from ifbcat_api.model.event import AbstractEvent, Event
 from ifbcat_api.model.misc import AudienceType, AudienceRole, DifficultyLevelType
 from ifbcat_api.model.trainingMaterial import TrainingMaterial
-from ifbcat_api.model.userProfile import UserProfile
-
-
-class Trainer(models.Model):
-    """Trainer model: A person who is providing training at a training event."""
-
-    # trainerEmail is mandatory
-    trainerName = models.CharField(
-        max_length=255, blank=True, help_text="Name of person who is providing training at the training event."
-    )
-    trainerEmail = models.EmailField(help_text="Email of person who is providing training at the training event.")
-
-    trainerId = models.ForeignKey(
-        UserProfile,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        help_text="IFB ID of person who is providing training at the training event.",
-    )
-
-    def __str__(self):
-        """Return the Trainer model as a string."""
-        return self.trainerEmail.__str__()
-
-    @classmethod
-    def get_permission_classes(cls):
-        return (
-            permissions.ReadOnly
-            | permissions.UserCanAddNew
-            | permissions.UserCanEditAndDeleteIfNotUsed
-            | permissions.ReadWriteBySuperuser,
-            IsAuthenticatedOrReadOnly,
-        )
 
 
 class Training(AbstractEvent):
