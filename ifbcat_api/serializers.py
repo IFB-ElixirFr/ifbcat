@@ -74,8 +74,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'teamsScientificLeaders',
             'teamsTechnicalLeaders',
             'teamsMembers',
-            'teamsMaintainers',
-            'trainingMaterialMaintainers',
+            'event_set',
         )
         read_only = (
             'is_superuser',
@@ -220,8 +219,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     # "many=True" for keyword etc. instantiates a ListSerializer, see https://www.django-rest-framework.org/api-guide/serializers/#listserializer
     # "allow_empty=False" disallows empty lists as valid input.
 
-    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
-
     costs = VerboseSlugRelatedField(
         many=True,
         read_only=False,
@@ -283,8 +280,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'openTo',
             'accessConditions',
             'maxParticipants',
-            'contactName',
-            'contactEmail',
+            'contacts',
             'elixirPlatforms',
             'communities',
             'sponsoredBy',
@@ -400,21 +396,6 @@ class TrainingSerializer(EventSerializer):
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
-
-
-# Model serializer for trainer
-class TrainerSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializes a trainer (Trainer object)."""
-
-    class Meta:
-        model = models.Trainer
-
-        fields = (
-            'id',
-            'trainerName',
-            'trainerEmail',
-            'trainerId',
-        )
 
 
 # Model serializer for training event metrics

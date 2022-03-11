@@ -127,7 +127,6 @@ class AbstractEvent(models.Model):
         INTERNAL_PERSONNEL = 'Internal personnel', _('Internal personnel')
         OTHERS = 'Others', _('Others')
 
-    # name, description, homepage, openTo, contactName and contactEmail are mandatory
     name = models.CharField(
         max_length=255,
         help_text="Full name / title of the event.",
@@ -177,12 +176,16 @@ class AbstractEvent(models.Model):
             MinValueValidator(1),
         ],
     )
-    contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
-    contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
+    contacts = models.ManyToManyField(
+        UserProfile,
+        help_text="Person(s) to contact about the event.",
+        blank=True,
+    )
     maintainers = models.ManyToManyField(
         UserProfile,
         help_text="Maintainer(s) can edit this object.",
         blank=True,
+        related_name='+',
     )
     elixirPlatforms = models.ManyToManyField(
         ElixirPlatform,
@@ -359,9 +362,10 @@ class Event(AbstractEvent):
         help_text="The training proposed, must be provided if event type is 'Training session'.",
     )
     trainers = models.ManyToManyField(
-        to="Trainer",
+        to=UserProfile,
         blank=True,
         help_text="Details of people who are providing training at the event.",
+        related_name="eventTrainers",
     )
     trainingMaterials = models.ManyToManyField(
         TrainingMaterial,

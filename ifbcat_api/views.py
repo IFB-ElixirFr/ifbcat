@@ -380,8 +380,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'prerequisites__prerequisite',
         'openTo',
         'accessConditions',
-        'contactName',
-        'contactEmail',
+        'contacts__email',
         'elixirPlatforms__name',
         'communities__name',
         'organisedByTeams__name',
@@ -394,8 +393,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'venue',
         'city',
         'country',
-        'trainers__trainerName',
-        'trainers__trainerId__email',
+        'trainers__email',
     )
     filterset_class = EventFilter
 
@@ -463,25 +461,6 @@ class EventPrerequisiteViewSet(PermissionInClassModelViewSet, viewsets.ModelView
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
-
-
-# Model ViewSet for trainer
-class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating trainers."""
-
-    serializer_class = serializers.TrainerSerializer
-    queryset = models.Trainer.objects.all()
-    search_fields = (
-        'trainerName',
-        'trainerEmail',
-        'trainerId__email',
-        'trainerId__firstname',
-        'trainerId__lastname',
-    )
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for training event metrics

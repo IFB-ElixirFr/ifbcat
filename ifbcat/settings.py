@@ -295,7 +295,6 @@ JAZZMIN_SETTINGS = {
         "ifbcat_api.ToolType": "fas fa-circle",
         "ifbcat_api.Tool": "fas fa-tools",
         "ifbcat_api.Topic": "fas fa-circle",
-        "ifbcat_api.Trainer": "fas fa-chalkboard-teacher",
         "ifbcat_api.TrainingCourseMetrics": "fas fa-tachometer-alt",
         "ifbcat_api.Training": "fas fa-graduation-cap",
         "ifbcat_api.TrainingMaterial": "fas fa-book",
