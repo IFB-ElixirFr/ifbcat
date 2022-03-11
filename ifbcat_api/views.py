@@ -369,7 +369,6 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
             output_field=CharField(),
         )
     )
-    queryset = queryset.filter(is_draft=False)
     search_fields_from_abstract_event = (
         'name',
         'shortName',
@@ -404,7 +403,7 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 # Model ViewSet for training events that should be published in TES
 class TessEventViewSet(EventViewSet):
-    queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
+    queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True).filter(is_draft=False)
 
 
 # Model ViewSet for training
@@ -426,7 +425,7 @@ class TrainingViewSet(EventViewSet):
 
 # Model ViewSet for training that should be published in TES
 class TessTrainingViewSet(TrainingViewSet):
-    queryset = models.Training.objects.filter(tess_publishing=True)
+    queryset = models.Training.objects.filter(tess_publishing=True).filter(is_draft=False)
 
 
 # Model ViewSet for keywords
