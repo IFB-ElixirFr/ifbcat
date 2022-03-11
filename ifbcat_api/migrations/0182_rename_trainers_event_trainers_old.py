@@ -38,6 +38,8 @@ def migrate_contacts(apps, schema_editor):
         o.contactEmail = o.contactEmail.lower()
         if o.contactEmail == 'helene.chiapello@inra.fr':
             o.contactEmail = 'helene.chiapello@inrae.fr'
+        if o.contactEmail == 'mthomas@bio.ens.psl.eu':
+            o.contactEmail = 'mthomas@biologie.ens.fr'
         if o.contactEmail == "none@nowhere.fr":
             continue
         try:
