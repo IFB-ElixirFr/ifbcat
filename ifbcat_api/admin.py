@@ -111,7 +111,12 @@ class ViewInApiModelAdmin(admin.ModelAdmin, DynamicArrayMixin):
         self.list_display += ('view_in_api_in_list',)
         super().__init__(model, admin_site)
 
+    def render_link_view_in_api(self, obj):
+        return True
+
     def view_in_api_in_list(self, obj):
+        if not self.render_link_view_in_api(obj):
+            return ""
         try:
             return format_html(
                 '<center><a href="'
@@ -524,6 +529,9 @@ class EventAdmin(
     )
     date_hierarchy = 'start_date'
 
+    def render_link_view_in_api(self, obj):
+        return not obj.is_draft
+
     def logo(self, obj):
         if obj.logo_url:
             return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
@@ -681,6 +689,9 @@ class TrainingAdmin(
         ),
     )
     actions = ["create_new_course"]
+
+    def render_link_view_in_api(self, obj):
+        return not obj.is_draft
 
     @staticmethod
     def create_new_course_and_get_admin_url(request, training):
