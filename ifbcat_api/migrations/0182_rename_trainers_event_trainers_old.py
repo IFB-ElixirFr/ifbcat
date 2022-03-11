@@ -7,14 +7,17 @@ from django.db import migrations, models
 def migrate(apps, schema_editor):
     for o in apps.get_model("ifbcat_api", "Event").objects.filter(trainers_old__isnull=False).distinct():
         for t in o.trainers_old.all():
+            t.trainerEmail = t.trainerEmail.lower()
             user = t.trainerId
             if user is None:
                 names = t.trainerName.split(" ")
                 assert len(names) == 2
-                user, _ = apps.get_model("ifbcat_api", "UserProfile").objects.get_or_create(
+                user, created = apps.get_model("ifbcat_api", "UserProfile").objects.get_or_create(
                     email=t.trainerEmail,
                     defaults=dict(firstname=names[0], lastname=names[1]),
                 )
+                if created:
+                    print(f"New user {user.email} created as trainer for {o}")
             o.trainers.add(user)
         # o.trainers.add(o.contactId)
 
@@ -30,8 +33,27 @@ def migrate_back(apps, schema_editor):
 
 
 def migrate_contacts(apps, schema_editor):
-    for o in apps.get_model("ifbcat_api", "Event").objects.filter(contactEmail__isnull=False).exclude(contactEmail=""):
-        o.contacts.add(apps.get_model("ifbcat_api", "UserProfile").objects.get(email=o.contactEmail))
+    qs = apps.get_model("ifbcat_api", "Event").objects
+    for o in qs.filter(contactEmail__isnull=False).exclude(contactEmail=""):
+        o.contactEmail = o.contactEmail.lower()
+        if o.contactEmail == 'helene.chiapello@inra.fr':
+            o.contactEmail = 'helene.chiapello@inrae.fr'
+        if o.contactEmail == "none@nowhere.fr":
+            continue
+        try:
+            user = apps.get_model("ifbcat_api", "UserProfile").objects.get(email=o.contactEmail)
+        except Exception as e:
+            if type(e).__name__ != "DoesNotExist":
+                raise e
+            names = o.contactName.split(" ")
+            assert len(names) == 2, f'{o.contactName} for {o.contactEmail}'
+            user = apps.get_model("ifbcat_api", "UserProfile").objects.create(
+                email=o.contactEmail,
+                firstname=names[0],
+                lastname=names[1],
+            )
+            print(f"New user {user.email} created as contact for {o}")
+        o.contacts.add(user)
 
 
 def migrate_back_contacts(apps, schema_editor):
