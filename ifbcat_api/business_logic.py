@@ -78,6 +78,7 @@ def init_business_logic():
         models.EventPrerequisite,
         models.EventSponsor,
         models.Event,
+        models.UserProfile,
     ]
     team_and_more_related = [
         models.Team,
