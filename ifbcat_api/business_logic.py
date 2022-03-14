@@ -88,7 +88,6 @@ def init_business_logic():
         models.Organisation,
         models.Project,
         models.UserProfile,
-        models.Tool,
     ]
     tool_related = [
         models.Collection,
@@ -117,6 +116,7 @@ def init_business_logic():
         models.Field,
         models.Keyword,
         models.Topic,
+        models.Tool,
         Token,
     ]
 
