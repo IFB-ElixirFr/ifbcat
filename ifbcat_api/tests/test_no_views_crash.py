@@ -143,6 +143,8 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 ] + [f'?format={fmt}' for fmt in available_formats]:
                     response = self.client.get(url_detail + suffix)
                     status_code = 200
+                    if getattr(o, 'is_draft', False):
+                        status_code = 404
                     self.assertEqual(
                         response.status_code,
                         status_code,

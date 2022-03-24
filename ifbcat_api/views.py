@@ -329,15 +329,7 @@ class TrainingFilter(AutoSubsetFilterSet):
 
 
 # Model ViewSet for events
-class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating events."""
-
-    serializer_class = serializers.EventSerializer
-    ordering = [
-        '-start_date',
-    ]
-
-    queryset = models.Event.objects
+class AbstractEventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields_from_abstract_event = (
         'name',
         'shortName',
@@ -356,7 +348,18 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
-    search_fields = search_fields_from_abstract_event + (
+
+
+class EventViewSet(AbstractEventViewSet):
+    """Handles creating, reading and updating events."""
+
+    serializer_class = serializers.EventSerializer
+    ordering = [
+        '-start_date',
+    ]
+
+    queryset = models.Event.objects.filter(is_draft=False)
+    search_fields = AbstractEventViewSet.search_fields_from_abstract_event + (
         'type',
         'venue',
         'city',
@@ -398,7 +401,6 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
                 output_field=CharField(),
             )
         )
-        queryset = queryset.filter(is_draft=False)
         return queryset
 
     def perform_create(self, serializer):
@@ -408,16 +410,16 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 # Model ViewSet for training events that should be published in TES
 class TessEventViewSet(EventViewSet):
-    queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
+    def get_queryset(self):
+        return models.Event.annotate_is_tess_publishing(qs=super().get_queryset()).filter(is_tess_publishing=True)
 
 
 # Model ViewSet for training
-class TrainingViewSet(EventViewSet):
+class TrainingViewSet(AbstractEventViewSet):
     """Handles creating, reading and updating training events."""
 
     serializer_class = serializers.TrainingSerializer
-    ordering = []
-    queryset = models.Training.objects.all()
+    queryset = models.Training.objects.filter(is_draft=False)
 
     search_fields = EventViewSet.search_fields_from_abstract_event + (
         'audienceTypes__audienceType',
@@ -430,7 +432,8 @@ class TrainingViewSet(EventViewSet):
 
 # Model ViewSet for training that should be published in TES
 class TessTrainingViewSet(TrainingViewSet):
-    queryset = models.Training.objects.filter(tess_publishing=True)
+    def get_queryset(self):
+        return super().get_queryset().filter(tess_publishing=True)
 
 
 # Model ViewSet for keywords
