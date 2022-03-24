@@ -338,38 +338,6 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     ]
 
     queryset = models.Event.objects
-    queryset = queryset.annotate(
-        realisation_status=Case(
-            When(Q(start_date__gt=timezone.now()), then=Value('future')),
-            When(
-                Q(start_date__lt=timezone.now()) & (Q(end_date__isnull=True) | Q(end_date__lt=timezone.now())),
-                then=Value('past'),
-            ),
-            default=Value('ongoing'),
-            output_field=CharField(),
-        )
-    )
-    queryset = queryset.annotate(
-        registration_status=Case(
-            When(
-                Q(registration_opening__gt=timezone.now()),
-                then=Value('future'),
-            ),
-            When(
-                (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
-                & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
-                & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
-                then=Value('open'),
-            ),
-            When(
-                Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
-                then=Value('unknown'),
-            ),
-            default=Value('closed'),
-            output_field=CharField(),
-        )
-    )
-    queryset = queryset.filter(is_draft=False)
     search_fields_from_abstract_event = (
         'name',
         'shortName',
@@ -396,6 +364,42 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'trainers__email',
     )
     filterset_class = EventFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.annotate(
+            realisation_status=Case(
+                When(Q(start_date__gt=timezone.now()), then=Value('future')),
+                When(
+                    Q(start_date__lt=timezone.now()) & (Q(end_date__isnull=True) | Q(end_date__lt=timezone.now())),
+                    then=Value('past'),
+                ),
+                default=Value('ongoing'),
+                output_field=CharField(),
+            )
+        )
+        queryset = queryset.annotate(
+            registration_status=Case(
+                When(
+                    Q(registration_opening__gt=timezone.now()),
+                    then=Value('future'),
+                ),
+                When(
+                    (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
+                    & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
+                    & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
+                    then=Value('open'),
+                ),
+                When(
+                    Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
+                    then=Value('unknown'),
+                ),
+                default=Value('closed'),
+                output_field=CharField(),
+            )
+        )
+        queryset = queryset.filter(is_draft=False)
+        return queryset
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
