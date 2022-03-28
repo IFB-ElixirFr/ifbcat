@@ -924,6 +924,7 @@ _tool_fields = (
     'teams',
     # 'language',
     # 'topic',
+    'source_repository',
 )
 
 
