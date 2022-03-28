@@ -59,12 +59,16 @@ class Tool(models.Model):
     )
     collection = models.ManyToManyField(Collection, blank=True)
     biotoolsCURIE = models.CharField(blank=False, null=False, max_length=109)  # because of biotools: prefix
-
+    source_repository = models.URLField(
+        max_length=512,
+        help_text="URL to sources (GitLab, GitHub, ...)",
+        blank=True,
+        null=True,
+    )
     # software_version = models.CharField(max_length=200, blank=True, null=True)
 
     citations = models.CharField(max_length=1000, blank=True, null=True)
 
-    # link = models.CharField(max_length=1000, blank=True, null=True)
     # keywords = models.ManyToManyField(Keyword, blank=True)
     # operating_system = models.CharField(max_length=50, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
     # topic = models.CharField(max_length=1000, blank=True, null=True)
@@ -85,8 +89,6 @@ class Tool(models.Model):
     # elixir_platform = models.ManyToManyField(ElixirPlatform, blank=True)
     # elixir_node = models.ManyToManyField(ElixirNode, blank=True)
     # accessibility = models.ManyToManyField(Accessibility, blank=True)
-
-    # link = models.ManyToManyField(Link, blank=True)
 
     # added fields
     # language = models.CharField(max_length=1000, null=True, blank=True)
@@ -141,7 +143,9 @@ class Tool(models.Model):
         self.description = tool['description']
         self.homepage = tool['homepage']
         self.biotoolsID = tool['biotoolsID']
-        # link = tool['link']
+        for link in tool['link']:
+            if "Repository" in link["type"]:
+                self.source_repository = link['url']
         self.biotoolsCURIE = tool['biotoolsCURIE']
         # software_version = tool['version']
         # downloads = tool['download']
