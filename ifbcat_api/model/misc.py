@@ -280,7 +280,7 @@ class Doi(models.Model):
 
     def __str__(self):
         """Return the Doi model as a string."""
-        return self.doi
+        return f'{self.title} - {self.authors_list} ({self.doi})'
 
     def fill_from_doi(self):
         info = misc.get_doi_info(str(self.doi))

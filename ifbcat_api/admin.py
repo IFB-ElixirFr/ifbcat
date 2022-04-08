@@ -962,7 +962,7 @@ class DoiAdmin(
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelAdmin,
 ):
-    search_fields = ('doi',)
+    search_fields = ('doi', 'title', 'authors_list')
     list_display = (
         'doi',
         'title',
