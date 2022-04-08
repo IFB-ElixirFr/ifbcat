@@ -94,7 +94,7 @@ class Team(WithGridIdOrRORId, models.Model):
     maintainers = models.ManyToManyField(
         UserProfile,
         related_name='teamsMaintainers',
-        help_text="Maintainer(s) of the team metadata in IFB catalogue.",
+        help_text="A maintainer of a team in the IFB catalogue can edit its metadata.",
         blank=True,
     )
     unitId = models.CharField(

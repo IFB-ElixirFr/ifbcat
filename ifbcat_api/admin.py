@@ -1105,15 +1105,87 @@ class TeamAdmin(
         'maintainers__lastname',
     )
     filter_horizontal = (
-        'scientificLeaders',
-        'technicalLeaders',
-        'members',
-        'maintainers',
-        'deputies',
+        # 'scientificLeaders',
+        # 'technicalLeaders',
+        # 'members',
+        # 'maintainers',
+        # 'deputies',
     )
     list_display = (
         'name',
         'logo',
+    )
+    fieldsets = (
+        (
+            'Team info',
+            {
+                'fields': (
+                    'name',
+                    'description',
+                    'orgid',
+                    'homepage',
+                    'logo_url',
+                    'maintainers',
+                )
+            },
+        ),
+        (
+            'Location',
+            {
+                'fields': (
+                    'address',
+                    'city',
+                    'country',
+                )
+            },
+        ),
+        (
+            'Skills',
+            {
+                'fields': (
+                    'fields',
+                    'keywords',
+                    'expertise',
+                    'certifications',
+                    'linkCovid19',
+                )
+            },
+        ),
+        (
+            'Results',
+            {
+                'fields': (
+                    'tools',
+                    'publications',
+                )
+            },
+        ),
+        (
+            'Persons',
+            {
+                'fields': (
+                    'leaders',
+                    'scientificLeaders',
+                    'technicalLeaders',
+                    'deputies',
+                    'members',
+                )
+            },
+        ),
+        (
+            'Organisations',
+            {
+                'fields': (
+                    'unitId',
+                    'communities',
+                    'projects',
+                    'fundedBy',
+                    'affiliatedWith',
+                    'ifbMembership',
+                    'platforms',
+                )
+            },
+        ),
     )
 
     def logo(self, obj):
