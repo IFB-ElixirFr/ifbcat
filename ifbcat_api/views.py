@@ -699,7 +699,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields = (
         'name',
         'description',
-        'expertise__uri',
+        'expertise__label',
         'leaders__firstname',
         'leaders__lastname',
         'deputies__firstname',
@@ -708,10 +708,8 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'scientificLeaders__lastname',
         'technicalLeaders__firstname',
         'technicalLeaders__lastname',
-        'members__firstname',
-        'members__lastname',
-        'maintainers__firstname',
-        'maintainers__lastname',
+        # 'members__firstname', # take 9s more to answer, removing it
+        # 'members__lastname',  # take 9s more to answer, removing it
         'certifications__name',
         'orgid',
         'unitId',
@@ -720,7 +718,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'communities__name',
         'projects__name',
         'fundedBy__name',
-        'publications__doi',
+        # 'publications__doi', # take 3s more to answer, removing it
         'keywords__keyword',
     )
     filterset_fields = (
