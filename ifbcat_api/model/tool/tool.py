@@ -134,6 +134,8 @@ class Tool(models.Model):
             return
         if entry.get('detail', None) is not None:
             logger.error(f"Error with {self.biotoolsID}: {entry['detail']}")
+            self.name = f'{self.biotoolsID} {entry["detail"]}'
+            self.save()
             return
         self.update_information_from_json(entry)
 
