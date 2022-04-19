@@ -727,9 +727,9 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
     @property
     def search_fields(self):
-        if self.request.GET.get('light', 'True') == 'True':
-            return self.search_fields_light
-        return self.search_fields_all
+        if self.request.GET.get('wide', 'False') == 'True':
+            return self.search_fields_all
+        return self.search_fields_light
 
     filterset_fields = (
         'expertise',
