@@ -695,13 +695,15 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.TeamSerializer
     queryset = models.Team.objects.all()
     lookup_field = 'name'
-    # TODO: : add to "search_fields" below:   'team', 'providedBy'
-    search_fields = (
+    search_fields_light = (
         'name',
         'description',
         'expertise__label',
         'leaders__firstname',
         'leaders__lastname',
+        'keywords__keyword',
+    )
+    search_fields_all = search_fields_light + (
         'deputies__firstname',
         'deputies__lastname',
         'scientificLeaders__firstname',
@@ -714,13 +716,21 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'orgid',
         'unitId',
         'address',
+        'city',
+        'country',
         'fields__field',
         'communities__name',
         'projects__name',
         'fundedBy__name',
         # 'publications__doi', # take 3s more to answer, removing it
-        'keywords__keyword',
     )
+
+    @property
+    def search_fields(self):
+        if self.request.GET.get('light', 'True') == 'True':
+            return self.search_fields_light
+        return self.search_fields_all
+
     filterset_fields = (
         'expertise',
         'leaders',
