@@ -1482,8 +1482,8 @@ class LicenceAdmin(
     search_fields = ['name']
 
 
-models = apps.get_app_config('ifbcat_api').get_models()
-for model in models:
+all_models = apps.get_app_config('ifbcat_api').get_models()
+for model in all_models:
     try:
         admin.site.register(model, DefaultPermissionInClassModelAdmin)
     except admin.sites.AlreadyRegistered:
