@@ -1072,8 +1072,8 @@ class TeamForm(forms.ModelForm):
             errors = {}
             if self.cleaned_data["expertise"].count() == 0:
                 errors.setdefault('expertise', []).append("expertise is required for IFB Teams")
-            if self.cleaned_data["platforms"].count() == 0:
-                errors.setdefault('platforms', []).append("platforms is required for IFB Teams")
+            # if self.cleaned_data["platforms"].count() == 0:
+            #     errors.setdefault('platforms', []).append("platforms is required for IFB Teams")
             if len(errors) > 0:
                 raise ValidationError(errors)
 
