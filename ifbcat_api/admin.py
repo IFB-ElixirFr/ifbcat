@@ -1265,38 +1265,38 @@ class ToolAdmin(
 
     actions = [
         'update_information_from_biotool',
-        'update_information_from_biotool_when_needed',
+        # 'update_information_from_biotool_when_needed',
     ]
 
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .annotate(name_len=Length('name'))
-            .annotate(
-                update_needed=Case(
-                    When(Q(name_len=0), then=True),
-                    When(Q(name="None"), then=True),
-                    default=Value(False),
-                    output_field=BooleanField(),
-                )
-            )
-        )
-
-    def update_needed(self, obj):
-        return obj.update_needed
-
-    update_needed.boolean = True
-
-    update_needed.admin_order_field = 'update_needed'
+    # def get_queryset(self, request):
+    #     return (
+    #         super()
+    #         .get_queryset(request)
+    #         .annotate(name_len=Length('name'))
+    #         .annotate(
+    #             update_needed=Case(
+    #                 When(Q(name_len=0), then=True),
+    #                 When(Q(name="None"), then=True),
+    #                 default=Value(False),
+    #                 output_field=BooleanField(),
+    #             )
+    #         )
+    #     )
+    #
+    # def update_needed(self, obj):
+    #     return obj.update_needed
+    #
+    # update_needed.boolean = True
+    #
+    # update_needed.admin_order_field = 'update_needed'
 
     def update_information_from_biotool(self, request, queryset):
         for o in queryset:
             o.update_information_from_biotool()
 
-    def update_information_from_biotool_when_needed(self, request, queryset):
-        for o in queryset.filter(update_needed=True):
-            o.update_information_from_biotool()
+    # def update_information_from_biotool_when_needed(self, request, queryset):
+    #     for o in queryset.filter(update_needed=True):
+    #         o.update_information_from_biotool()
 
     def get_fields(self, request, obj=None):
         if obj is None:
