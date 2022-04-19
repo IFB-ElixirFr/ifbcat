@@ -1066,6 +1066,19 @@ class ComputingFacilityAdmin(
 
 
 class TeamForm(forms.ModelForm):
+    publications_batch = forms.CharField(
+        help_text="List of DOI to add to the current Team, one per line.",
+        required=False,
+        widget=forms.widgets.Textarea(attrs={'row': 10, 'class': 'vLargeTextField'}),
+    )
+
+    def _save_m2m(self):
+        super()._save_m2m()
+        for doi_str in self.cleaned_data["publications_batch"].split('\n'):
+            doi_str = doi_str.strip()
+            doi, _ = models.Doi.objects.get_or_create(doi=doi_str)
+            self.instance.publications.add(doi)
+
     def clean(self):
         super().clean()
         if self.cleaned_data["ifbMembership"] != 'Not a member':
@@ -1157,6 +1170,7 @@ class TeamAdmin(
                 'fields': (
                     'tools',
                     'publications',
+                    'publications_batch',
                 )
             },
         ),
