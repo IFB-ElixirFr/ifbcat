@@ -1260,7 +1260,7 @@ class ToolAdmin(
     list_display = (
         'name',
         'biotoolsID',
-        'update_needed',
+        # 'update_needed',
     )
 
     actions = [
