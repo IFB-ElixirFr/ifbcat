@@ -4,7 +4,7 @@ import re
 import requests
 from django import forms
 from django.contrib import admin, messages
-from django.contrib.admin.models import LogEntry, ADDITION
+from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
@@ -254,12 +254,26 @@ class UserProfileAdmin(
             count = 0
             for o in qset:
                 if business_logic.can_edit_user(request.user, o):
+                    fields = []
                     count += 1
-                    updated += qset.filter(groups=group).filter(pk=o.pk).count()
+                    updated_count = qset.filter(groups=group).filter(pk=o.pk).count()
+                    updated += updated_count
+                    if updated_count == 1:
+                        fields.append('groups')
                     o.groups.remove(group)
-                    if manage_is_staff:
+                    if manage_is_staff and o.is_staff:
                         o.is_staff = False
+                        fields.append('is_staff')
                         o.save()
+                    if fields:
+                        LogEntry.objects.log_action(
+                            user_id=request.user.id,
+                            content_type_id=ContentType.objects.get_for_model(o).pk,
+                            object_id=o.id,
+                            object_repr=str(o),
+                            action_flag=CHANGE,
+                            change_message=[{"changed": {"fields": fields}}],
+                        )
             already_there = count - updated
             if updated == 0:
                 modeladmin.message_user(
@@ -302,15 +316,32 @@ class UserProfileAdmin(
             count = 0
             for o in qset:
                 if business_logic.can_edit_user(request.user, o):
-                    already_there += qset.filter(groups=group).filter(pk=o.pk).count()
+                    fields = []
+                    is_already_there_count = qset.filter(groups=group).filter(pk=o.pk).count()
+                    if is_already_there_count == 0:
+                        fields.append('groups')
+                    already_there += is_already_there_count
                     count += 1
                     o.groups.add(group)
                     if manage_is_staff:
                         if not o.is_active or not o.is_staff:
                             not_staff += 1
+                            if not o.is_active:
+                                fields.append('is_active')
+                            if not o.is_staff:
+                                fields.append('is_staff')
                             o.is_active = True
                             o.is_staff = True
                             o.save()
+                    if fields:
+                        LogEntry.objects.log_action(
+                            user_id=request.user.id,
+                            content_type_id=ContentType.objects.get_for_model(o).pk,
+                            object_id=o.id,
+                            object_repr=str(o),
+                            action_flag=CHANGE,
+                            change_message=[{"changed": {"fields": fields}}],
+                        )
             if not_staff > 0:
                 modeladmin.message_user(
                     request,
