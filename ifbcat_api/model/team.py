@@ -152,15 +152,16 @@ class Team(WithGridIdOrRORId, models.Model):
     #############################
 
     class IfbMembershipType(models.TextChoices):
-        IFB_PLATFORM = 'IFB platform', _('IFB platform')
-        IFB_ASSOCIATED_TEAM = 'IFB-associated team', _('IFB-associated team')
-        NOT_A_MEMBER = 'Not a member', _('Not a member')
+        MEMBER_PLATFORM = 'Member platform', _('Member platform')
+        CONTRIBUTING_TEAM = 'Contributing platform', _('Contributing platform')
+        ASSOCIATED_TEAM = 'Associated Team', _('Associated Team')
+        NO_MEMBERSHIP = 'None', _('None')
 
     ifbMembership = models.CharField(
         max_length=255,
         choices=IfbMembershipType.choices,
         help_text="Type of membership the bioinformatics team has to IFB.",
-        default='Not a member',
+        default=IfbMembershipType.NO_MEMBERSHIP,
     )
     platforms = models.ManyToManyField(
         ElixirPlatform,

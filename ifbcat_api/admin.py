@@ -1112,7 +1112,7 @@ class TeamForm(forms.ModelForm):
 
     def clean(self):
         super().clean()
-        if self.cleaned_data["ifbMembership"] != 'Not a member':
+        if self.cleaned_data["ifbMembership"] != models.Team.IfbMembershipType.NO_MEMBERSHIP:
             errors = {}
             if self.cleaned_data["expertise"].count() == 0:
                 errors.setdefault('expertise', []).append("expertise is required for IFB Teams")
