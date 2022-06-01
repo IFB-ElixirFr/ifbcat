@@ -17,7 +17,7 @@ from django.db.models.functions import Upper, Length
 from django.forms import modelform_factory
 from django.http import HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
-from django.utils import dateformat
+from django.utils import dateformat, timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext, ngettext
@@ -1122,6 +1122,22 @@ class TeamForm(forms.ModelForm):
                 raise ValidationError(errors)
 
 
+class IsActiveListFilter(admin.SimpleListFilter):
+    title = 'Is active'
+    parameter_name = 'is_active'
+
+    def lookups(self, request, model_admin):
+        return (
+            ("True", "True"),
+            ("False", "False"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.filter(is_active=self.value() == "True")
+
+
 @admin.register(models.Team)
 class TeamAdmin(
     ModelAdminFillingMaintainers,
@@ -1159,6 +1175,7 @@ class TeamAdmin(
         'name',
         'logo',
     )
+    list_filter = (IsActiveListFilter,)
     fieldsets = (
         (
             'Team info',
@@ -1170,6 +1187,7 @@ class TeamAdmin(
                     'homepage',
                     'logo_url',
                     'maintainers',
+                    'closing_date',
                 )
             },
         ),
@@ -1232,6 +1250,19 @@ class TeamAdmin(
             },
         ),
     )
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request=request)
+            .annotate(
+                is_active=Case(
+                    When(Q(closing_date__lt=timezone.now()), then=Value(False)),
+                    default=Value(True),
+                    output_field=BooleanField(),
+                )
+            )
+        )
 
     def logo(self, obj):
         if obj.logo_url:

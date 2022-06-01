@@ -16,7 +16,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model, get_permission_codename
 from django.contrib.auth.decorators import user_passes_test
 from django.core.cache import cache
-from django.db.models import When, Q, Case, Value, CharField
+from django.db.models import When, Q, Case, Value, CharField, BooleanField
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -688,6 +688,32 @@ class TrainingMaterialViewSet(ResourceViewSet):
     )
 
 
+class TeamFilter(django_filters.FilterSet):
+    is_active = django_filters.BooleanFilter(
+        field_name="is_active",
+        label="Is active",
+    )
+
+    class Meta:
+        model = models.Team
+        fields = (
+            'expertise',
+            'leaders',
+            'deputies',
+            'scientificLeaders',
+            'technicalLeaders',
+            'members',
+            'fields',
+            'communities',
+            'projects',
+            'fundedBy',
+            'keywords',
+            'platforms',
+            'ifbMembership',
+            'is_active',
+        )
+
+
 # Model ViewSet for teams
 class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating teams."""
@@ -724,28 +750,24 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'fundedBy__name',
         # 'publications__doi', # take 3s more to answer, removing it
     )
+    filterset_class = TeamFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.annotate(
+            is_active=Case(
+                When(Q(closing_date__lt=timezone.now()), then=Value(False)),
+                default=Value(True),
+                output_field=BooleanField(),
+            )
+        )
+        return queryset
 
     @property
     def search_fields(self):
         if self.request.GET.get('wide', 'False') == 'True':
             return self.search_fields_all
         return self.search_fields_light
-
-    filterset_fields = (
-        'expertise',
-        'leaders',
-        'deputies',
-        'scientificLeaders',
-        'technicalLeaders',
-        'members',
-        'fields',
-        'communities',
-        'projects',
-        'fundedBy',
-        'keywords',
-        'platforms',
-        'ifbMembership',
-    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
