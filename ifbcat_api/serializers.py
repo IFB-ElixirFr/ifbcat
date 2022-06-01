@@ -714,6 +714,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     affiliatedWith = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     fundedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     platforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+    is_active = serializers.BooleanField()
 
     tools = serializers.SlugRelatedField(
         many=True,
@@ -755,6 +756,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'maintainers',
             'ifbMembership',
             'platforms',
+            'is_active',
+            'closing_date',
         )
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one

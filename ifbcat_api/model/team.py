@@ -146,6 +146,12 @@ class Team(WithGridIdOrRORId, models.Model):
         related_name='teams',
         help_text="Tool(s) developped by the team.",
     )
+    closing_date = models.DateField(
+        help_text="After this date the team is closed. Leave blank if the team is still open/active.",
+        blank=True,
+        null=True,
+        default=None,
+    )
 
     #############################
     # BioTeam related attributes
