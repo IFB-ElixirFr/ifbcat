@@ -361,7 +361,7 @@ MAX_CHOICES_COUNT_IN_SCHEMA = 30
 ################################################################################
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default='25')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioinformatique.fr')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='contact@france-bioinformatique.fr')
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ################################################################################
