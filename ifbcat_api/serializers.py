@@ -69,12 +69,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'homepage',
             'expertise',
             'homepage',
-            'teamLeader',
+            'teamsLeaders',
             'teamsDeputies',
             'teamsScientificLeaders',
             'teamsTechnicalLeaders',
             'teamsMembers',
-            'teamsMaintainers',
+            'event_set',
         )
         read_only = (
             'is_superuser',
@@ -137,6 +137,18 @@ class KeywordSerializer(serializers.ModelSerializer):
         self.Meta.model(**attrs).clean_fields()
         self.Meta.model(**attrs).clean()
         return attrs
+
+
+# Model serializer for event keyword
+class KeywordDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Keyword
+        fields = '__all__'
+
+    teamsKeywords = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
+    event_set = inlineSerializers.EventInlineSerializer(many=True, read_only=True)
+    training_set = inlineSerializers.TrainingInlineSerializer(many=True, read_only=True)
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
 
 # Model serializer for event prerequisite
@@ -207,8 +219,6 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     # "many=True" for keyword etc. instantiates a ListSerializer, see https://www.django-rest-framework.org/api-guide/serializers/#listserializer
     # "allow_empty=False" disallows empty lists as valid input.
 
-    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
-
     costs = VerboseSlugRelatedField(
         many=True,
         read_only=False,
@@ -243,8 +253,9 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     organisedByOrganisations = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
-    # realisation_status = serializers.CharField()
-    # registration_status = serializers.CharField()
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
+    realisation_status = serializers.CharField()
+    registration_status = serializers.CharField()
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),
@@ -261,17 +272,15 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'shortName',
             'description',
             'homepage',
-            'onlineOnly',
+            'is_draft',
             'costs',
             'topics',
             'keywords',
             'prerequisites',
-            'accessibility',
-            'accessibilityNote',
+            'openTo',
+            'accessConditions',
             'maxParticipants',
-            'contactName',
-            'contactEmail',
-            'contactId',
+            'contacts',
             'elixirPlatforms',
             'communities',
             'sponsoredBy',
@@ -288,11 +297,13 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'country',
             'geographical_range',
             'trainers',
+            'trainingMaterials',
             'computingFacilities',
             # 'realisation_status',
             'registration_opening',
             'registration_closing',
-            # 'registration_status',
+            'registration_status',
+            'courseMode',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -310,6 +321,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             # 'organisedBy': {'lookup_field': 'name'},
             'organisedByOrganisations': {'lookup_field': 'name'},
             'organisedByTeams': {'lookup_field': 'name'},
+            'trainingMaterials': {'lookup_field': 'name'},
         }
 
     def update(self, instance, validated_data):
@@ -356,6 +368,7 @@ class TrainingSerializer(EventSerializer):
         queryset=models.AudienceRole.objects,
         required=False,
     )
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta(EventSerializer.Meta):
         model = models.Training
@@ -383,21 +396,6 @@ class TrainingSerializer(EventSerializer):
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
-
-
-# Model serializer for trainer
-class TrainerSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializes a trainer (Trainer object)."""
-
-    class Meta:
-        model = models.Trainer
-
-        fields = (
-            'id',
-            'trainerName',
-            'trainerEmail',
-            'trainerId',
-        )
 
 
 # Model serializer for training event metrics
@@ -563,10 +561,14 @@ class ResourceSerializer(serializers.HyperlinkedModelSerializer):
             'elixirPlatforms': {'lookup_field': 'name'},
         }
 
+    elixirPlatforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+
 
 # Model serializer for computing facilities
 class ComputingFacilitySerializer(ResourceSerializer):
     """Serializes a computing facility (ComputingFacility object)."""
+
+    trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.ComputingFacility
@@ -634,6 +636,13 @@ class TrainingMaterialSerializer(ResourceSerializer):
         queryset=models.Doi.objects,
         required=False,
     )
+    licence = CreatableSlugRelatedField(
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
+    providedBy = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.TrainingMaterial
@@ -650,7 +659,8 @@ class TrainingMaterialSerializer(ResourceSerializer):
             'providedBy',
             'dateCreation',
             'dateUpdate',
-            'license',
+            'licence',
+            'maintainers',
         )
 
         extra_kwargs = {
@@ -704,6 +714,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     affiliatedWith = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     fundedBy = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     platforms = inlineSerializers.ElixirPlatformInlineSerializer(many=True, read_only=True)
+    is_active = serializers.BooleanField()
 
     tools = serializers.SlugRelatedField(
         many=True,
@@ -737,7 +748,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'orgid',
             'tools',
             # fields below are legacy
-            'leader',
+            'leaders',
             'deputies',
             'scientificLeaders',
             'technicalLeaders',
@@ -745,6 +756,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'maintainers',
             'ifbMembership',
             'platforms',
+            'is_active',
+            'closing_date',
         )
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
@@ -891,7 +904,6 @@ _tool_fields = (
     'name',
     'description',
     'homepage',
-    'logo',
     'biotoolsID',
     'biotoolsCURIE',
     'tool_type',
@@ -901,21 +913,21 @@ _tool_fields = (
     'operating_system',
     # 'scientific_operations',
     'tool_credit',
-    'tool_license',
+    'tool_licence',
+    'documentation',
     'maturity',
     'cost',
     'unique_visits',
-    'access_condition',
     'citations',
     'annual_visits',
     'unique_visits',
     'last_update',
     # 'increase_last_update',
-    # 'access_condition',
-    'keywords',
+    # 'accessConditions',
     'teams',
     # 'language',
     # 'topic',
+    'source_repository',
 )
 
 
@@ -928,12 +940,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
         slug_field="name",
         required=False,
     )
-    keywords = CreatableSlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="keyword",
-        required=False,
-    )
+
     collection = VerboseSlugRelatedField(
         many=True,
         read_only=True,
@@ -963,6 +970,13 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     )
 
     tool_credit = ToolCreditSerializer(read_only=True, many=True)
+
+    tool_licence = CreatableSlugRelatedField(
+        read_only=False,
+        slug_field="name",
+        queryset=models.Licence.objects,
+        required=False,
+    )
 
     teams = serializers.SlugRelatedField(
         many=True,
@@ -999,3 +1013,7 @@ def modelserializer_factory(model, serializer=serializers.ModelSerializer, field
 
     # Instantiate type(form) in order to use the same metaclass as form.
     return type(serializer)(class_name, (serializer,), form_class_attrs)
+
+
+class MarkdownToHTMLSerializer(serializers.Serializer):
+    md = serializers.CharField()

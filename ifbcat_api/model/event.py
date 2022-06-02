@@ -16,6 +16,7 @@ from ifbcat_api.model.elixirPlatform import ElixirPlatform
 from ifbcat_api.model.misc import Topic, Keyword
 from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.team import Team
+from ifbcat_api.model.trainingMaterial import TrainingMaterial
 from ifbcat_api.model.userProfile import UserProfile
 
 
@@ -118,14 +119,14 @@ class AbstractEvent(models.Model):
     # The enums support internatonalization (using the '_' shorthand convention for gettext_lazy() function)
     # See https://docs.djangoproject.com/en/3.0/topics/i18n/translation/#internationalization-in-python-code
 
-    # EventAccessibilityType: Controlled vocabulary for whether an event is public or private.
-    class EventAccessibilityType(models.TextChoices):
-        """Controlled vocabulary for whether an event is public or private."""
+    # EventOpenToType: Controlled vocabulary for whether an event is everyone, internal personnel or others.
+    class EventOpenToType(models.TextChoices):
+        """Controlled vocabulary for whether an event is opened to Everyone, Internal personnel or Others."""
 
-        PUBLIC = 'Public', _('Public')
-        PRIVATE = 'Private', _('Private')
+        EVERYONE = 'Everyone', _('Everyone')
+        INTERNAL_PERSONNEL = 'Internal personnel', _('Internal personnel')
+        OTHERS = 'Others', _('Others')
 
-    # name, description, homepage, accessibility, contactName and contactEmail are mandatory
     name = models.CharField(
         max_length=255,
         help_text="Full name / title of the event.",
@@ -137,7 +138,6 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="URL of event homepage.",
     )
-    onlineOnly = models.BooleanField(null=True, blank=True, help_text="Whether the event is hosted online only.")
     costs = models.ManyToManyField(
         EventCost,
         blank=True,
@@ -158,13 +158,13 @@ class AbstractEvent(models.Model):
         blank=True,
         help_text="A skill which the audience should (ideally) possess to get the most out of the event, e.g. 'Python'.",
     )
-    accessibility = models.CharField(
+    openTo = models.CharField(
         max_length=255,
-        choices=EventAccessibilityType.choices,
-        help_text="Whether the event is public or private.",
+        choices=EventOpenToType.choices,
+        help_text="Whether the event is for everyone, internal personnel or others.",
     )
-    accessibilityNote = models.TextField(
-        help_text="Comment about the audience a private event is open to and tailored for.",
+    accessConditions = models.TextField(
+        help_text="Comment on how one can access. Mandatory if not open to everyone",
         blank=True,
         null=True,
     )
@@ -176,13 +176,16 @@ class AbstractEvent(models.Model):
             MinValueValidator(1),
         ],
     )
-    contactName = models.CharField(max_length=255, help_text="Name of person to contact about the event.")
-    contactEmail = models.EmailField(help_text="Email of person to contact about the event.")
-    contactId = models.ForeignKey(
+    contacts = models.ManyToManyField(
         UserProfile,
-        null=True,
-        on_delete=models.SET_NULL,
-        help_text="IFB ID of person to contact about the event.",
+        help_text="Person(s) to contact about the event.",
+        blank=True,
+    )
+    maintainers = models.ManyToManyField(
+        UserProfile,
+        help_text="Maintainer(s) can edit this object.",
+        blank=True,
+        related_name='+',
     )
     elixirPlatforms = models.ManyToManyField(
         ElixirPlatform,
@@ -213,10 +216,38 @@ class AbstractEvent(models.Model):
         help_text="An institutional entity that is sponsoring it.",
     )
     logo_url = models.URLField(max_length=512, help_text="URL of logo of event.", blank=True, null=True)
+    is_draft = models.BooleanField(
+        default=False,
+        help_text="Mention whether it's a draft.",
+    )
+    hoursPresentations = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total time (hours) of presented training material.",
+        validators=[
+            MinValueValidator(1),
+        ],
+    )
+    hoursHandsOn = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total time (hours) of hands-on / practical work.",
+        validators=[
+            MinValueValidator(1),
+        ],
+    )
+    hoursTotal = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        help_text="Total time investment (hours) of the training event, including recommended prework.",
+        validators=[
+            MinValueValidator(1),
+        ],
+    )
 
     def clean(self):
-        if self.accessibility == self.EventAccessibilityType.PRIVATE and len(self.accessibilityNote or '') == 0:
-            raise ValidationError(dict(accessibilityNote="Details have to be provided when accessibility is private"))
+        if self.openTo != self.EventOpenToType.EVERYONE and len(self.accessConditions or '') == 0:
+            raise ValidationError(dict(accessConditions="Details have to be provided when openTo is not Everyone"))
 
     def __str__(self):
         """Return the Event model as a string."""
@@ -238,7 +269,7 @@ class AbstractEvent(models.Model):
         return (
             permissions.ReadOnly,
             permissions.UserCanAddNew,
-            permissions.ReadWriteByContact,
+            permissions.ReadWriteByMaintainers,
             permissions.ReadWriteByOrgByTeamsLeader,
             permissions.ReadWriteByOrgByTeamsDeputies,
             permissions.ReadWriteByOrgByTeamsMaintainers,
@@ -260,6 +291,19 @@ class Event(AbstractEvent):
         MEETING = 'Meeting', _('Meeting')
         CONFERENCE = 'Conference', _('Conference')
 
+    class CourseModeType(models.TextChoices):
+        ONLINE = 'Online', _('Online')
+        ONSITE = 'Onsite', _('Onsite')
+        BLENDED = 'Blended', _('Blended')
+
+    courseMode = models.CharField(
+        choices=CourseModeType.choices,
+        default=None,
+        max_length=10,
+        null=True,
+        blank=False,  # Do not allow to set a blank value in the UI, only allow programmatically
+        help_text="Select the mode for this event",
+    )
     registration_opening = models.DateField(
         help_text="When does the registration for the event opens.",
         blank=True,
@@ -315,12 +359,18 @@ class Event(AbstractEvent):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        help_text="The training proposed, must be null if type is 'Training session', null otherwise.",
+        help_text="The training proposed, must be provided if event type is 'Training session'.",
     )
     trainers = models.ManyToManyField(
-        to="Trainer",
+        to=UserProfile,
         blank=True,
         help_text="Details of people who are providing training at the event.",
+        related_name="eventTrainers",
+    )
+    trainingMaterials = models.ManyToManyField(
+        TrainingMaterial,
+        blank=True,
+        help_text="Training material related to the training session.",
     )
     computingFacilities = models.ManyToManyField(
         ComputingFacility,
@@ -355,6 +405,8 @@ class Event(AbstractEvent):
         errors = {}
         if self.type == Event.EventType.TRAINING_COURSE and self.training is None:
             errors.setdefault('training', []).append("training must be provided when creating a Training session")
+        if not self.is_draft and self.start_date is None:
+            errors.setdefault('start_date', []).append("start date must be provided if the event is not a draft")
         if self.end_date and self.start_date is None:
             errors.setdefault('start_date', []).append("start date must be provided if end date is")
         if len(errors) > 0:

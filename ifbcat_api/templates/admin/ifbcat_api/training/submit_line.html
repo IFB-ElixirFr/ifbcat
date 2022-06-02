@@ -1,0 +1,8 @@
+{% extends "admin/submit_line.html" %}
+
+{% block extra-actions %}
+{% if original.pk %}
+<hr/>
+<a role="button" href="{% url 'new_training_course' original.pk %}" class="btn btn-outline-primary form-control">Create a new session</a>
+{% endif %}
+{% endblock %}

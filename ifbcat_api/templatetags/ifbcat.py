@@ -27,7 +27,9 @@ def get_editable_instance(context: Context) -> List[Dict]:
         model['my'] = True
         if model['object_name'] == 'Team':
             if model['perms']['change']:
-                model['instances'] = models.Team.objects.filter(Q(leader=user) | Q(maintainers=user) | Q(deputies=user))
+                model['instances'] = models.Team.objects.filter(
+                    Q(leaders=user) | Q(maintainers=user) | Q(deputies=user)
+                )
                 model['order'] = 3
                 editable.append(model)
         # elif model['object_name'] == 'Organisation':
@@ -47,10 +49,10 @@ def get_editable_instance(context: Context) -> List[Dict]:
                     dict(url='view_training_courses', text=mark_safe('<i class="fa fa-eye"></i> sessions')),
                 ]
                 model['instances'] = models.Training.objects.filter(
-                    Q(contactId=user)
+                    Q(maintainers=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
-                    | Q(organisedByTeams__leader=user)
+                    | Q(organisedByTeams__leaders=user)
                     | Q(organisedByTeams__deputies=user)
                     | Q(organisedByTeams__maintainers=user)
                 )
@@ -59,11 +61,11 @@ def get_editable_instance(context: Context) -> List[Dict]:
         elif model['object_name'] == 'Event':
             if model['perms']['change']:
                 model['instances'] = models.Event.objects.filter(
-                    Q(contactId=user)
-                    | Q(trainers__trainerId=user)
+                    Q(maintainers=user)
+                    | Q(contacts=user)
                     | Q(elixirPlatforms__coordinator=user)
                     | Q(elixirPlatforms__deputies=user)
-                    | Q(organisedByTeams__leader=user)
+                    | Q(organisedByTeams__leaders=user)
                     | Q(organisedByTeams__deputies=user)
                     | Q(organisedByTeams__maintainers=user)
                 ).order_by('-start_date')
@@ -85,9 +87,13 @@ def get_general_instance(context: Context) -> List[Dict]:
         model['my'] = True
         if model['object_name'] == 'Event':
             if model['perms']['change']:
-                model['instances'] = models.Event.objects.filter(
+                qs = models.Event.objects
+                qs = qs.filter(is_draft=False)
+                qs = qs.filter(
                     Q(start_date__gte=timezone.now()) | Q(end_date__isnull=False) & Q(end_date__gte=timezone.now())
-                ).order_by('-start_date')
+                )
+                qs = qs.order_by('-start_date')
+                model['instances'] = qs
 
                 model['order'] = 1
                 model['my'] = False

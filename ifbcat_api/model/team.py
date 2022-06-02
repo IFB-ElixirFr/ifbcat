@@ -55,18 +55,18 @@ class Team(WithGridIdOrRORId, models.Model):
         Topic,
         related_name='teamsExpertise',
         blank=True,
-        help_text='Please enter here one or several keywords describing the general and specific expertises of the team. Please note that individual expertises will also be documented in the "members" tab. Multiple expertises should be separated by semicolumns.',
+        help_text='Required for IFB platform and associated team. Please enter here one or several keywords '
+        'describing the general and specific expertises of the team. Please note that individual '
+        'expertises will also be documented in the "members" tab.',
     )
     linkCovid19 = models.TextField(
         blank=True, help_text="Describe the ways your team contributes to resources related to Covid-19."
     )
-    leader = models.ForeignKey(
+    leaders = models.ManyToManyField(
         UserProfile,
-        related_name='teamLeader',
-        null=True,
+        related_name='teamsLeaders',
         blank=True,
-        on_delete=models.SET_NULL,
-        help_text="Leader of the team.",
+        help_text="Leader(s) of the team.",
     )
     deputies = models.ManyToManyField(
         UserProfile,
@@ -94,7 +94,7 @@ class Team(WithGridIdOrRORId, models.Model):
     maintainers = models.ManyToManyField(
         UserProfile,
         related_name='teamsMaintainers',
-        help_text="Maintainer(s) of the team metadata in IFB catalogue.",
+        help_text="A maintainer of a team in the IFB catalogue can edit its metadata.",
         blank=True,
     )
     unitId = models.CharField(
@@ -146,21 +146,28 @@ class Team(WithGridIdOrRORId, models.Model):
         related_name='teams',
         help_text="Tool(s) developped by the team.",
     )
+    closing_date = models.DateField(
+        help_text="After this date the team is closed. Leave blank if the team is still open/active.",
+        blank=True,
+        null=True,
+        default=None,
+    )
 
     #############################
     # BioTeam related attributes
     #############################
 
     class IfbMembershipType(models.TextChoices):
-        IFB_PLATFORM = 'IFB platform', _('IFB platform')
-        IFB_ASSOCIATED_TEAM = 'IFB-associated team', _('IFB-associated team')
-        NOT_A_MEMBER = 'Not a member', _('Not a member')
+        MEMBER_PLATFORM = 'Member platform', _('Member platform')
+        CONTRIBUTING_TEAM = 'Contributing platform', _('Contributing platform')
+        ASSOCIATED_TEAM = 'Associated Team', _('Associated Team')
+        NO_MEMBERSHIP = 'None', _('None')
 
     ifbMembership = models.CharField(
         max_length=255,
         choices=IfbMembershipType.choices,
         help_text="Type of membership the bioinformatics team has to IFB.",
-        default='Not a member',
+        default=IfbMembershipType.NO_MEMBERSHIP,
     )
     platforms = models.ManyToManyField(
         ElixirPlatform,
@@ -190,14 +197,3 @@ class Team(WithGridIdOrRORId, models.Model):
             permissions.ReadWriteBySuperEditor,
             permissions.ReadWriteByCurator,
         )
-
-    def clean(self):
-        super().clean()
-        if self.ifbMembership != 'Not a member':
-            errors = {}
-            if self.expertise.count() == 0:
-                errors.setdefault('expertise', []).append("expertise is required form IFB Teams")
-            if self.platforms.count() == 0:
-                errors.setdefault('platforms', []).append("platforms is required form IFB Teams")
-            if len(errors) > 0:
-                raise ValidationError(errors)

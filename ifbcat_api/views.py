@@ -10,21 +10,28 @@
 # "IsAuthenticated" is used to block access to an entire ViewSet endpoint unless a user is autheticated
 import json
 
+import markdown
+import rest_framework.parsers
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import get_user_model, get_permission_codename
+from django.contrib.auth.decorators import user_passes_test
 from django.core.cache import cache
-from django.db.models import When, Q, Case, Value, CharField
+from django.db.models import When, Q, Case, Value, CharField, BooleanField
 from django.http import HttpResponseRedirect, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.text import capfirst
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django_filters import rest_framework as django_filters
+from markdown import markdown
 from rest_framework import pagination
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.renderers import StaticHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
@@ -237,7 +244,7 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     )
     filterset_fields = (
         'expertise',
-        'teamLeader',
+        'teamsLeaders',
         'teamsMembers',
         'elixirPlatformDeputies',
         'elixirPlatformCoordinator',
@@ -291,12 +298,13 @@ class EventFilter(AutoSubsetFilterSet):
             'topics',
             'keywords',
             'prerequisites',
-            'contactId',
             'elixirPlatforms',
             'communities',
             'organisedByTeams',
             'organisedByOrganisations',
             'sponsoredBy',
+            'is_draft',
+            'courseMode',
         ]
 
 
@@ -314,7 +322,6 @@ class TrainingFilter(AutoSubsetFilterSet):
             'topics',
             'keywords',
             'prerequisites',
-            'contactId',
             'elixirPlatforms',
             'communities',
             'organisedByTeams',
@@ -325,45 +332,7 @@ class TrainingFilter(AutoSubsetFilterSet):
 
 
 # Model ViewSet for events
-class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating events."""
-
-    # renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
-    serializer_class = serializers.EventSerializer
-    ordering = [
-        '-start_date',
-    ]
-
-    queryset = models.Event.objects.annotate(
-        realisation_status=Case(
-            When(Q(start_date__gt=timezone.now()), then=Value('future')),
-            When(
-                Q(start_date__lt=timezone.now()) & (Q(end_date__isnull=True) | Q(end_date__lt=timezone.now())),
-                then=Value('past'),
-            ),
-            default=Value('ongoing'),
-            output_field=CharField(),
-        )
-    ).annotate(
-        registration_status=Case(
-            When(
-                Q(registration_opening__gt=timezone.now()),
-                then=Value('future'),
-            ),
-            When(
-                (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
-                & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
-                & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
-                then=Value('open'),
-            ),
-            When(
-                Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
-                then=Value('unknown'),
-            ),
-            default=Value('closed'),
-            output_field=CharField(),
-        )
-    )
+class AbstractEventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     search_fields_from_abstract_event = (
         'name',
         'shortName',
@@ -372,11 +341,9 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'topics__uri',
         'keywords__keyword',
         'prerequisites__prerequisite',
-        'accessibility',
-        'accessibilityNote',
-        'contactName',
-        'contactId__email',
-        'contactEmail',
+        'openTo',
+        'accessConditions',
+        'contacts__email',
         'elixirPlatforms__name',
         'communities__name',
         'organisedByTeams__name',
@@ -384,15 +351,61 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'sponsoredBy__name',
         'sponsoredBy__organisationId__name',
     )
-    search_fields = search_fields_from_abstract_event + (
+
+
+class EventViewSet(AbstractEventViewSet):
+    """Handles creating, reading and updating events."""
+
+    # renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
+    serializer_class = serializers.EventSerializer
+    ordering = [
+        '-start_date',
+    ]
+
+    queryset = models.Event.objects.filter(is_draft=False)
+    search_fields = AbstractEventViewSet.search_fields_from_abstract_event + (
         'type',
         'venue',
         'city',
         'country',
-        'trainers__trainerName',
-        'trainers__trainerId__email',
+        'trainers__email',
     )
     filterset_class = EventFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.annotate(
+            realisation_status=Case(
+                When(Q(start_date__gt=timezone.now()), then=Value('future')),
+                When(
+                    Q(start_date__lt=timezone.now()) & (Q(end_date__isnull=True) | Q(end_date__lt=timezone.now())),
+                    then=Value('past'),
+                ),
+                default=Value('ongoing'),
+                output_field=CharField(),
+            )
+        )
+        queryset = queryset.annotate(
+            registration_status=Case(
+                When(
+                    Q(registration_opening__gt=timezone.now()),
+                    then=Value('future'),
+                ),
+                When(
+                    (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
+                    & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
+                    & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
+                    then=Value('open'),
+                ),
+                When(
+                    Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
+                    then=Value('unknown'),
+                ),
+                default=Value('closed'),
+                output_field=CharField(),
+            )
+        )
+        return queryset
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -406,17 +419,16 @@ class TessEventViewSet(EventViewSet):
     serializer_class = serializers.EventSerializer
     ordering = []
 
-    queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
-    # queryset = models.Event.annotate_is_tess_publishing().all()
+    def get_queryset(self):
+        return models.Event.annotate_is_tess_publishing(qs=super().get_queryset()).filter(is_tess_publishing=True)
 
 
 # Model ViewSet for training
-class TrainingViewSet(EventViewSet):
+class TrainingViewSet(AbstractEventViewSet):
     """Handles creating, reading and updating training events."""
 
     serializer_class = serializers.TrainingSerializer
-    ordering = []
-    queryset = models.Training.objects.all()
+    queryset = models.Training.objects.filter(is_draft=False)
 
     search_fields = EventViewSet.search_fields_from_abstract_event + (
         'audienceTypes__audienceType',
@@ -434,9 +446,6 @@ class TessTrainingViewSet(TrainingViewSet):
     serializer_class = serializers.TrainingSerializer
     ordering = []
 
-    queryset = models.Training.objects.filter(tess_publishing=True)
-    # queryset = models.Training.objects.all()
-
     search_fields = EventViewSet.search_fields_from_abstract_event + (
         'audienceTypes__audienceType',
         'audienceRoles__audienceRole',
@@ -445,12 +454,16 @@ class TessTrainingViewSet(TrainingViewSet):
     )
     filterset_class = TrainingFilter
 
+    def get_queryset(self):
+        return super().get_queryset().filter(tess_publishing=True)
+
 
 # Model ViewSet for keywords
 class KeywordViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating keywords."""
 
     serializer_class = serializers.KeywordSerializer
+    retrieve_serializer_class = serializers.KeywordDetailedSerializer
     queryset = models.Keyword.objects.all()
     # lookup_field = 'keyword__unaccent__iexact'
     search_fields = ('keyword',)
@@ -458,6 +471,12 @@ class KeywordViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action == "retrieve":
+            kwargs['context'] = self.get_serializer_context()
+            return self.retrieve_serializer_class(*args, **kwargs)
+        return super().get_serializer(*args, **kwargs)
 
 
 # Model ViewSet for event prerequisites
@@ -471,25 +490,6 @@ class EventPrerequisiteViewSet(PermissionInClassModelViewSet, viewsets.ModelView
     def perform_create(self, serializer):
         """Saves the serializer."""
         serializer.save()
-
-
-# Model ViewSet for trainer
-class TrainerViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating trainers."""
-
-    serializer_class = serializers.TrainerSerializer
-    queryset = models.Trainer.objects.all()
-    search_fields = (
-        'trainerName',
-        'trainerEmail',
-        'trainerId__email',
-        'trainerId__firstname',
-        'trainerId__lastname',
-    )
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged-in user."""
-        serializer.save(user_profile=self.request.user)
 
 
 # Model ViewSet for training event metrics
@@ -698,7 +698,6 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles__audienceRole',
         'difficultyLevel',
         'providedBy__name',
-        'license',
     )
     filterset_fields = ResourceViewSet.filterset_fields + (
         'topics',
@@ -707,8 +706,34 @@ class TrainingMaterialViewSet(ResourceViewSet):
         'audienceRoles',
         'difficultyLevel',
         'providedBy',
-        'license',
+        'licence',
     )
+
+
+class TeamFilter(django_filters.FilterSet):
+    is_active = django_filters.BooleanFilter(
+        field_name="is_active",
+        label="Is active",
+    )
+
+    class Meta:
+        model = models.Team
+        fields = (
+            'expertise',
+            'leaders',
+            'deputies',
+            'scientificLeaders',
+            'technicalLeaders',
+            'members',
+            'fields',
+            'communities',
+            'projects',
+            'fundedBy',
+            'keywords',
+            'platforms',
+            'ifbMembership',
+            'is_active',
+        )
 
 
 # Model ViewSet for teams
@@ -718,49 +743,53 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.TeamSerializer
     queryset = models.Team.objects.all()
     lookup_field = 'name'
-    # TODO: : add to "search_fields" below:   'team', 'providedBy'
-    search_fields = (
+    search_fields_light = (
         'name',
         'description',
-        'expertise__uri',
-        'leader__firstname',
-        'leader__lastname',
+        'expertise__label',
+        'leaders__firstname',
+        'leaders__lastname',
+        'keywords__keyword',
+    )
+    search_fields_all = search_fields_light + (
         'deputies__firstname',
         'deputies__lastname',
         'scientificLeaders__firstname',
         'scientificLeaders__lastname',
         'technicalLeaders__firstname',
         'technicalLeaders__lastname',
-        'members__firstname',
-        'members__lastname',
-        'maintainers__firstname',
-        'maintainers__lastname',
+        # 'members__firstname', # take 9s more to answer, removing it
+        # 'members__lastname',  # take 9s more to answer, removing it
         'certifications__name',
         'orgid',
         'unitId',
         'address',
+        'city',
+        'country',
         'fields__field',
         'communities__name',
         'projects__name',
         'fundedBy__name',
-        'publications__doi',
-        'keywords__keyword',
+        # 'publications__doi', # take 3s more to answer, removing it
     )
-    filterset_fields = (
-        'expertise',
-        'leader',
-        'deputies',
-        'scientificLeaders',
-        'technicalLeaders',
-        'members',
-        'fields',
-        'communities',
-        'projects',
-        'fundedBy',
-        'keywords',
-        'platforms',
-        'ifbMembership',
-    )
+    filterset_class = TeamFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.annotate(
+            is_active=Case(
+                When(Q(closing_date__lt=timezone.now()), then=Value(False)),
+                default=Value(True),
+                output_field=BooleanField(),
+            )
+        )
+        return queryset
+
+    @property
+    def search_fields(self):
+        if self.request.GET.get('wide', 'False') == 'True':
+            return self.search_fields_all
+        return self.search_fields_light
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged-in user."""
@@ -850,7 +879,6 @@ class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, views
     filterset_fields = (
         'tool_type',
         'scientific_topics',
-        'keywords',
         'operating_system',
         'collection',
     )
@@ -893,6 +921,11 @@ class AudienceRoleViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.modelserializer_factory(models.AudienceRole, fields=['id', 'audienceRole'])
 
 
+class LicenceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.Licence.objects.all()
+    serializer_class = serializers.modelserializer_factory(models.Licence, fields=['id', 'name'])
+
+
 @staff_member_required
 def new_training_course(request, training_pk):
     training = get_object_or_404(models.Training, pk=training_pk)
@@ -919,3 +952,59 @@ def view_training_courses(request, training_pk):
         + f'?training__id__exact={training_pk}'
     )
     return HttpResponseRedirect(redirect_url)
+
+
+@staff_member_required
+def user_edition_history(request, user_id):
+    object = get_object_or_404(get_user_model().objects, pk=user_id)
+    # Adapted from django.contrib.admin.options.history_view
+    from django.contrib.admin.models import LogEntry
+
+    opts = get_user_model()._meta
+    action_list = LogEntry.objects.filter(user_id=user_id).select_related().order_by('-action_time')
+
+    print(get_permission_codename('change', opts))
+    context = {
+        'action_list': action_list,
+        'module_name': str(capfirst(opts.verbose_name_plural)),
+        'object': object,
+        'opts': opts,
+    }
+
+    return render(
+        request=request,
+        template_name='admin/user_history.html',
+        context=context,
+    )
+
+
+class MarkdownToHTMLJob(APIView):
+
+    renderer_classes = [
+        StaticHTMLRenderer,
+    ]
+
+    def post(self, request, format=None):
+        serializer = serializers.MarkdownToHTMLSerializer(data=request.data, context={**request.data})
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=rest_framework.status.HTTP_400_BAD_REQUEST)
+        return Response(
+            markdown(
+                serializer.data["md"],
+                extensions=['markdown.extensions.fenced_code'],
+            )
+        )
+
+
+# @api_view(['POST'])
+# @renderer_classes([StaticHTMLRenderer])
+# @parser_classes([JSONParser])
+# def md_to_html_view(request):
+#     print(request.data)
+#     serializer = serializers.MdToHTMLSerializer(data=request.data, context={**request.data})
+#     if not serializer.is_valid():
+#         return Response(serializer.errors, status=rest_framework.status.HTTP_400_BAD_REQUEST)
+#     return Response(markdown(
+#         serializer.data["md"],
+#         extensions=['markdown.extensions.fenced_code'],
+#     ))

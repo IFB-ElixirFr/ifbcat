@@ -29,6 +29,7 @@ router.register('field', views.FieldViewSet)
 router.register('field-cnp', CachedNoPaginationFactory(views.FieldViewSet), basename='field-cnp')
 router.register('keyword', views.KeywordViewSet)
 router.register('keyword-cnp', CachedNoPaginationFactory(views.KeywordViewSet), basename='keyword-cnp')
+router.register('licence', views.LicenceViewSet)
 router.register('operating-system', views.OperatingSystemChoicesViewSet)
 router.register('organisation', views.OrganisationViewSet, basename='organisation')
 router.register('organisation-cnp', CachedNoPaginationFactory(views.OrganisationViewSet), basename='organisation-cnp')
@@ -42,10 +43,9 @@ router.register('tool', views.ToolViewSet)
 router.register('tool-cnp', CachedNoPaginationFactory(views.ToolViewSet), basename='tool-cnp')
 router.register('tooltype', views.ToolTypeViewSet)
 router.register('topic', views.TopicViewSet)
-router.register('trainer', views.TrainerViewSet)
 router.register('trainingcoursemetrics', views.TrainingCourseMetricsViewSet)
 router.register('training', views.TrainingViewSet)
-router.register('trainingmaterial', views.TrainingMaterialViewSet)
+router.register('trainingmaterial', views.TrainingMaterialViewSet, basename='trainingmaterial')
 router.register('userprofile', views.UserProfileViewSet)
 
 urlpatterns = [
@@ -65,4 +65,5 @@ urlpatterns = [
         views.view_training_courses,
         name='view_training_courses',
     ),
+    path('md-to-html/', views.MarkdownToHTMLJob.as_view(), name='md_to_html'),
 ]

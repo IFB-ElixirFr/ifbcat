@@ -2,6 +2,8 @@ import json
 import os
 
 import requests
+from django.db.models import ManyToManyRel, ManyToOneRel
+from rest_framework import serializers
 
 
 class BibliographicalEntryNotFound(Exception):
@@ -88,3 +90,43 @@ def get_doi_info(doi: str) -> dict:
         with open(os.path.join(cache_dir, key), 'w') as f:
             json.dump(response, f)
     return response
+
+
+def get_usage_in_related_field(queryset):
+    attrs = []
+    for model_field in queryset.model._meta.get_fields():
+        if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
+            attr_name = model_field.related_name or (model_field.name + "_set")
+            reverse_name = model_field.remote_field.name
+            attrs.append((model_field, attr_name, reverse_name))
+    return attrs
+
+
+def inline_serializer_factory(klass, fields=None, lookup_field='pk', url=True):
+    if fields is None:
+        serialized_fields = ['id', 'name']
+    else:
+        serialized_fields = list(fields)
+    name = klass._meta.label.split(".")[-1]
+    if url:
+
+        class _tmp(serializers.HyperlinkedModelSerializer):
+            class Meta:
+                model = klass
+                fields = serialized_fields + ['url']
+
+            url = serializers.HyperlinkedIdentityField(
+                read_only=True,
+                view_name=f'{name.lower()}-detail',
+                lookup_field=lookup_field,
+            )
+
+    else:
+
+        class _tmp(serializers.HyperlinkedModelSerializer):
+            class Meta:
+                model = klass
+                fields = serialized_fields
+
+    _tmp.__name__ = name + "InlineSerializer"
+    return _tmp
