@@ -36,6 +36,7 @@ pip install -r requirements.txt
 ```
 # Copy (and optionally tweak) ini 
 cp resources/default.ini local.ini
+cp ifbcat/settings.example.ini ifbcat/settings.ini
 docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml run db
 ```
 Note that a volume is created. To remove it run:

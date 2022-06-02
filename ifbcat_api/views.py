@@ -35,6 +35,7 @@ from ifbcat_api import serializers
 from ifbcat_api.admin import TrainingAdmin
 from ifbcat_api.filters import AutoSubsetFilterSet
 from ifbcat_api.renderers import JsonLDSchemaTrainingRenderer
+from ifbcat_api.renderers import JsonLDSchemaEventRenderer
 
 
 class CachedNoPaginationMixin:
@@ -54,7 +55,7 @@ class CachedNoPaginationMixin:
         super().perform_destroy(instance)
         cache.clear()
 
-    @method_decorator(cache_page(int(60 * 60 * 0.5)))
+    # @method_decorator(cache_page(int(60 * 60 * 0.5)))
     @method_decorator(vary_on_cookie)
     def list(self, *args, **kwargs):
         return super().list(*args, **kwargs)
@@ -106,6 +107,8 @@ class MultipleFieldLookupMixin:
             field_key = field
             if field[-8:] == "__iexact":
                 field_key = field[:-8]
+            if field[-10:] == "__endswith":
+                field_key = field[:-10]
             if self.kwargs.get(field_key):  # Ignore empty fields.
                 filter[field] = self.kwargs[field_key]
         obj = get_object_or_404(queryset, **filter)  # Lookup the object
@@ -325,7 +328,7 @@ class TrainingFilter(AutoSubsetFilterSet):
 class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     """Handles creating, reading and updating events."""
 
-    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
+    # renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
     serializer_class = serializers.EventSerializer
     ordering = [
         '-start_date',
@@ -398,7 +401,13 @@ class EventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 
 # Model ViewSet for training events that should be published in TES
 class TessEventViewSet(EventViewSet):
+
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaEventRenderer]
+    serializer_class = serializers.EventSerializer
+    ordering = []
+
     queryset = models.Event.annotate_is_tess_publishing().filter(is_tess_publishing=True)
+    # queryset = models.Event.annotate_is_tess_publishing().all()
 
 
 # Model ViewSet for training
@@ -420,7 +429,21 @@ class TrainingViewSet(EventViewSet):
 
 # Model ViewSet for training that should be published in TES
 class TessTrainingViewSet(TrainingViewSet):
+
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
+    serializer_class = serializers.TrainingSerializer
+    ordering = []
+
     queryset = models.Training.objects.filter(tess_publishing=True)
+    # queryset = models.Training.objects.all()
+
+    search_fields = EventViewSet.search_fields_from_abstract_event + (
+        'audienceTypes__audienceType',
+        'audienceRoles__audienceRole',
+        'difficultyLevel',
+        'learningOutcomes',
+    )
+    filterset_class = TrainingFilter
 
 
 # Model ViewSet for keywords
@@ -844,9 +867,10 @@ class ToolTypeViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     serializer_class = serializers.modelserializer_factory(models.ToolType, fields=['id', 'name'])
 
 
-class TopicViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+class TopicViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.Topic.objects.all()
     serializer_class = serializers.modelserializer_factory(models.Topic, fields=['id', 'uri', 'label'])
+    lookup_fields = ['pk', 'uri__endswith']
 
 
 class EventCostViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):

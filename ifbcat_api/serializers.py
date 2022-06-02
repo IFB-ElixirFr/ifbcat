@@ -220,7 +220,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -243,8 +243,8 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
     organisedByTeams = inlineSerializers.TeamInlineSerializer(many=True, read_only=True)
     organisedByOrganisations = inlineSerializers.OrganisationInlineSerializer(many=True, read_only=True)
     sponsoredBy = inlineSerializers.EventSponsorInlineSerializer(many=True, read_only=True)
-    realisation_status = serializers.CharField()
-    registration_status = serializers.CharField()
+    # realisation_status = serializers.CharField()
+    # registration_status = serializers.CharField()
 
     #    accessibility = serializers.ChoiceField(
     #         choices = ('Public', 'Private'),
@@ -289,10 +289,10 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'geographical_range',
             'trainers',
             'computingFacilities',
-            'realisation_status',
+            # 'realisation_status',
             'registration_opening',
             'registration_closing',
-            'registration_status',
+            # 'registration_status',
         )
 
         # "{'style': {'rows': 4, 'base_template': 'textarea.html'}}" sets the field style to an HTML textarea
@@ -509,7 +509,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects.all(),
         required=False,
     )
@@ -602,7 +602,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -690,7 +690,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
     expertise = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="uri",
+        slug_field="edam_id",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -944,7 +944,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     scientific_topics = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field="uri",
+        slug_field="edam_id",
         required=False,
     )
 
