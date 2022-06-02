@@ -236,7 +236,13 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 # attr_name starting with a _ are not instance attribut, and out of the scope of this loop
                 if attr_name[0] == '_':
                     continue
-                value = item[attr_name]
+                try:
+                    # get the value from the serialized object
+                    value = item[attr_name]
+                except KeyError:
+                    # attribute not found, assuming it's a methods decorated with @property
+                    value = getattr(serializer.Meta.model.objects.get(id=item['id']), attr_name)
+
                 # We do not render not provided value(s)
                 if value is None or isinstance(value, list) and len(value) == 0:
                     continue
