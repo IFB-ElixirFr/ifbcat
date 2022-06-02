@@ -195,7 +195,11 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
         elif 'detail' in data:
             return
         else:  # not paginated
-            serializer = data.serializer
+            try:
+                serializer = data.serializer
+            except AttributeError:
+                # no serializer, we won't be able to do anything
+                return
             actual_data = data
 
         if type(serializer) == ListSerializer:  # List view
