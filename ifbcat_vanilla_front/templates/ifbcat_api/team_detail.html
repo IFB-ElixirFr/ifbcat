@@ -204,44 +204,16 @@
         <div aria-labelledby="nav-Trainings-tab" class="tab-pane border border-top-0 fade" id="nav-Trainings"
              role="tabpanel">
             <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
-                {%for c in object.trainingevent_set.all%}
-                <div class="card" style="grid-column: span 2;">
-                    <div class="card-body h3 text-center p-2 mb-0">{{c.name}}</div>
-                </div>
-                <div class="card">
-                    <div class="card-body"><dl>
-                        <dt>accessibility</dt>
-                        <dd>{{c.accessibility}}</dd>
-                        <dt>more</dt>
-                        <dd>...</dd>
-                    </dl></div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Description</div>
-                    <div class="card-body">{{c.description|linebreaksbr}}</div>
-                </div>
+                {%for c in object.training_set.all|no_draft%}
+                    {% include "ifbcat_api/training_detail_content.html" with object=c %}
                 {%endfor%}
             </div>
         </div>
         <div aria-labelledby="nav-Events-tab" class="tab-pane border border-top-0 fade" id="nav-Events"
              role="tabpanel">
             <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
-                {%for c in object.event_set.all%}
-                <div class="card" style="grid-column: span 2;">
-                    <div class="card-body h3 text-center p-2 mb-0">{{c.name}}</div>
-                </div>
-                <div class="card">
-                    <div class="card-body"><dl>
-                        <dt>accessibility</dt>
-                        <dd>{{c.accessibility}}</dd>
-                        <dt>more</dt>
-                        <dd>...</dd>
-                    </dl></div>
-                </div>
-                <div class="card">
-                    <div class="card-header">Description</div>
-                    <div class="card-body">{{c.description|linebreaksbr}}</div>
-                </div>
+                {%for c in object.event_set.all|no_draft%}
+                    {% include "ifbcat_api/event_detail_content.html" with object=c %}
                 {%endfor%}
             </div>
         </div>

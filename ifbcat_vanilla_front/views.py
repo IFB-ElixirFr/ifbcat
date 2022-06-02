@@ -19,9 +19,31 @@ class TeamListView(ListView):
     model = models.Team
 
     def get_queryset(self):
-        return super().get_queryset().order_by(Upper('name'))
+        return models.Team.annotate_is_active(super().get_queryset()).filter(is_active=True).order_by(Upper('name'))
 
 
 class TeamDetailView(DetailView):
     slug_field = 'name'
     model = models.Team
+
+
+class EventListView(ListView):
+    model = models.Event
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_draft=False).order_by('-start_date')
+
+
+class EventDetailView(DetailView):
+    model = models.Event
+
+
+class TrainingListView(ListView):
+    model = models.Training
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_draft=False).order_by(Upper('name'))
+
+
+class TrainingDetailView(DetailView):
+    model = models.Training

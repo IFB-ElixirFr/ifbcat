@@ -3,6 +3,8 @@ import functools
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import When, Q, Case, Value, BooleanField
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -175,10 +177,26 @@ class Team(WithGridIdOrRORId, models.Model):
         related_name='teamsPlatforms',
         help_text="ELIXIR Platform(s) in which the bioinformatics team is involved.",
     )
+    updated_at = models.DateTimeField(
+        help_text="When was its the last modification",
+        auto_now=True,
+    )
 
     def __str__(self):
         """Return the Team model as a string."""
         return self.name
+
+    @classmethod
+    def annotate_is_active(cls, qs=None):
+        if qs is None:
+            qs = cls.objects
+        return qs.annotate(
+            is_active=Case(
+                When(Q(closing_date__lt=timezone.now()), then=Value(False)),
+                default=Value(True),
+                output_field=BooleanField(),
+            )
+        )
 
     @classmethod
     def get_permission_classes(cls):

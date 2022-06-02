@@ -1,0 +1,21 @@
+{% load ifbcat_vanilla_front_tags %}
+<div class="card" style="grid-column: span 2;">
+    <div class="card-body h3 text-center p-2 mb-0 d-flex">
+        <div class="flex-grow-1">{{object.name}}</div>
+        <div><small><a href="{{object|get_admin_url}}">Edit</a></small></div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body"><dl>
+        <dt>DifficultyLevel</dt>
+        <dd>{{object.difficultyLevel}}</dd>
+        <dt>OpenTo</dt>
+        <dd>{{object.openTo}}</dd>
+        <dt>more</dt>
+        <dd>...</dd>
+    </dl></div>
+</div>
+<div class="card">
+    <div class="card-header">Description</div>
+    <div class="card-body">{{object.description|linebreaksbr}}</div>
+</div>

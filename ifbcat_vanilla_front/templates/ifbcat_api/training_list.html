@@ -1,0 +1,18 @@
+{% extends "ifbcat_base.html" %}
+
+{%block head_title%}TRAININGS{%endblock head_title%}
+
+{% block title%}Trainings{% endblock title%}
+
+{% block content%}
+<div class="col-12 mb-4">
+    <div style="display: grid;grid-template-columns: repeat(4, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+        {%for object in object_list%}
+            <div class="card">
+                <a href="{% url 'vfront:training-detail' object.pk%}" class="card-header">{{object.name}}</a>
+                <div class="card-body"><small>{{object.description|truncatechars:128}}</small></div>
+            </div>
+        {%endfor%}
+    </div>
+</div>
+{% endblock content%}
