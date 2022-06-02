@@ -214,6 +214,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
         schema_mapping = getattr(serializer.Meta, 'schema_mapping', dict())
 
         # get the type of the object, if not provided the items are not rendered
+        model = serializer.Meta.model
         try:
             klass_types = [schema_mapping['_type']]
         except KeyError:
@@ -221,7 +222,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 klass_types = schema_mapping['_types']
             except KeyError:
                 logging.warning(
-                    f"To serialize {serializer.Meta.model} to json-ld, "
+                    f"To serialize {model} to json-ld, "
                     "you must provide a type in _type or many types in _types, always as String"
                 )
                 yield []
@@ -245,7 +246,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                     value = item[attr_name]
                 except KeyError:
                     # attribute not found, assuming it's a methods decorated with @property
-                    value = getattr(serializer.Meta.model.objects.get(id=item['id']), attr_name)
+                    value = getattr(model.objects.get(id=item['id']), attr_name)
 
                 # We do not render not provided value(s)
                 if value is None or isinstance(value, list) and len(value) == 0:
@@ -265,7 +266,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                         pass
                 # second, try to guess the type
                 if datatype is None:
-                    attr_type = type(serializer.Meta.model._meta.get_field(attr_name))
+                    attr_type = type(model._meta.get_field(attr_name))
                     if isinstance(attr_type(), CharField) or isinstance(attr_type(), TextField):
                         datatype = SCHEMA.Text
                     elif isinstance(attr_type(), DateField):
