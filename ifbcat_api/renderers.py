@@ -233,7 +233,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 G.add((training_uri, RDF.type, getattr(SCHEMA, klass_type)))
 
             for attr_name, mapping in schema_mapping.items():
-                # attr_name starting with a _ are not instance attribut, and out of the scope of this loop
+                # attr_name starting with a _ are not instance attribute, and out of the scope of this loop
                 if attr_name[0] == '_':
                     continue
                 try:
