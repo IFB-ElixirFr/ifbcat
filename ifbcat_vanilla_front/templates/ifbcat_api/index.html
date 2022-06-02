@@ -4,11 +4,14 @@
 
 {% block content%}
 <div class="col-12 col-md-4 offset-md-4 col-lg-2 offset-lg-5 mb-4">
-    <a href="{%url 'vfront:team-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Platforms</a>
     <a href="/api/" role="button" class="btn btn-primary btn-lg btn-block">API</a>
     <a href="/admin/" role="button" class="btn btn-primary btn-lg btn-block">Admin</a>
     <a href="/swagger-ui/" role="button" class="btn btn-primary btn-lg btn-block">Swagger UI</a>
     <a href="/openapi?format=openapi-json" role="button" class="btn btn-primary btn-lg btn-block">openapi</a>
     <a href="/api/tess/" role="button" class="btn btn-primary btn-lg btn-block">TESS</a>
+    <hr/>
+    <a href="{%url 'vfront:team-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Platforms</a>
+    <a href="{%url 'vfront:event-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Events</a>
+    <a href="{%url 'vfront:training-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Trainings</a>
 </div>
 {% endblock content%}

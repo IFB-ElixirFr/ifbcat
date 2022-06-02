@@ -1,0 +1,18 @@
+{% extends "ifbcat_base.html" %}
+
+{%block head_title%}EVENTS{%endblock head_title%}
+
+{% block title%}Events{% endblock title%}
+
+{% block content%}
+<div class="col-12 mb-4">
+    <div style="display: grid;grid-template-columns: repeat(4, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+        {%for object in object_list%}
+            <div class="card">
+                <a href="{% url 'vfront:event-detail' object.pk%}" class="card-header">{{object.name}}</a>
+                <div class="card-body">{{object.start_date}}->{{object.end_date}}</div>
+            </div>
+        {%endfor%}
+    </div>
+</div>
+{% endblock content%}

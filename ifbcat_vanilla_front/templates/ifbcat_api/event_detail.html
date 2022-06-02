@@ -1,0 +1,14 @@
+{% extends "ifbcat_base.html" %}
+{% load ifbcat_vanilla_front_tags %}
+
+{%block head_title%}{{object.name}}{%endblock head_title%}
+
+{% block title%}{% endblock title%}
+
+{% block content%}
+<div class="col-12 mb-4">
+    <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
+        {% include "ifbcat_api/event_detail_content.html" %}
+    </div>
+</div>
+{% endblock content%}
