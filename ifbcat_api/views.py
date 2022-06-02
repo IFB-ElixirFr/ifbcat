@@ -753,15 +753,7 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     filterset_class = TeamFilter
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.annotate(
-            is_active=Case(
-                When(Q(closing_date__lt=timezone.now()), then=Value(False)),
-                default=Value(True),
-                output_field=BooleanField(),
-            )
-        )
-        return queryset
+        return models.Team.annotate_is_active(super().get_queryset())
 
     @property
     def search_fields(self):
