@@ -25,3 +25,25 @@ class TeamListView(ListView):
 class TeamDetailView(DetailView):
     slug_field = 'name'
     model = models.Team
+
+
+class EventListView(ListView):
+    model = models.Event
+
+    def get_queryset(self):
+        return super().get_queryset().order_by('-start_date')
+
+
+class EventDetailView(DetailView):
+    model = models.Event
+
+
+class TrainingListView(ListView):
+    model = models.Training
+
+    def get_queryset(self):
+        return super().get_queryset().order_by(Upper('name'))
+
+
+class TrainingDetailView(DetailView):
+    model = models.Training
