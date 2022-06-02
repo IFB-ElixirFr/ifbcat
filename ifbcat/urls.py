@@ -49,6 +49,7 @@ urlpatterns = [
         'accounts/profile/',
         RedirectView.as_view(url='/admin/'),
     ),
+    path('admin/', include('ifbcat_api.urls-pre-admin')),
     path('admin/', admin.site.urls),
     path('api/', include('ifbcat_api.urls')),
     path('api/tess/', include('ifbcat_api.tess_urls')),

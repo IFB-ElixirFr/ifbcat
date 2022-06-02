@@ -12,7 +12,7 @@ __p_ror_regexp = '^0[0-9a-zA-Z]{6}[0-9]{2}$'
 __p_ror = re.compile(__p_ror_regexp, re.IGNORECASE | re.UNICODE)
 __p_doi_regexp = '^10.\d{4,9}/.+$'
 __p_doi = re.compile(__p_doi_regexp, re.IGNORECASE | re.UNICODE)
-__looked_up_regexp = "^[.\w \\-_~\\']+$"
+__looked_up_regexp = "^[\w \\-_~\\']+$"  # could ba allowed ?;:(),
 __looked_up = re.compile(__looked_up_regexp, re.IGNORECASE | re.UNICODE)
 
 

@@ -1,5 +1,5 @@
 biopython
-Django==3.2.5
+Django~=3.2.12
 djangorestframework==3.11.2
 python-decouple
 psycopg2
@@ -20,4 +20,5 @@ rdflib
 rdflib-jsonld
 pylev
 django-extensions
+markdown
 #end of file

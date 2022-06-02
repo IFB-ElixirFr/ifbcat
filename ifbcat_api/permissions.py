@@ -71,7 +71,7 @@ class ReadWriteByTrainers(ReadWriteBySomething):
 
 
 class ReadWriteByLeader(ReadWriteBySomething):
-    target = 'leader'
+    target = 'leaders'
 
 
 class ReadWriteByDeputies(ReadWriteBySomething):
@@ -82,10 +82,6 @@ class ReadWriteByMaintainers(ReadWriteBySomething):
     target = 'maintainers'
 
 
-class ReadWriteByContact(ReadWriteBySomething):
-    target = 'contactId'
-
-
 class ReadWriteByAuthors(ReadWriteBySomething):
     target = 'authors'
 
@@ -94,8 +90,8 @@ class ReadWriteBySubmitters(ReadWriteBySomething):
     target = 'submitters'
 
 
-class ReadWriteByTeamLeader(ReadWriteBySomething):
-    target = 'team__leader'
+class ReadWriteByTeamLeaders(ReadWriteBySomething):
+    target = 'team__leaders'
 
 
 class ReadWriteByTeamDeputies(ReadWriteBySomething):
@@ -107,7 +103,7 @@ class ReadWriteByTeamMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByTeamsLeader(ReadWriteBySomething):
-    target = 'teams__leader'
+    target = 'teams__leaders'
 
 
 class ReadWriteByTeamsDeputies(ReadWriteBySomething):
@@ -119,7 +115,7 @@ class ReadWriteByTeamsMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByOrgByTeamsLeader(ReadWriteBySomething):
-    target = 'organisedByTeams__leader'
+    target = 'organisedByTeams__leaders'
 
 
 class ReadWriteByOrgByTeamsDeputies(ReadWriteBySomething):
@@ -135,7 +131,7 @@ class ReadWriteByOrgByTeamsMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByProvidedByLeader(ReadWriteBySomething):
-    target = 'providedBy__leader'
+    target = 'providedBy__leaders'
 
 
 class ReadWriteByProvidedByDeputies(ReadWriteBySomething):
@@ -234,6 +230,51 @@ class UserCanEditAndDeleteIfNotUsed(permissions.BasePermission):
 
 class UserCanDeleteIfNotUsed(UserCanEditAndDeleteIfNotUsed):
     allowed_methods = ("DELETE",)
+
+
+class UserCanEditIfNotStaff(permissions.BasePermission):
+    allowed_methods = ("PUT", "POST")
+
+    def has_permission(self, request, view):
+        return request.method in self.allowed_methods
+
+    def has_object_permission(self, request, view, obj):
+        if request.method not in self.allowed_methods:
+            return False
+        if obj is not None and (obj.is_staff or obj.is_superuser):
+            return False
+        return True
+
+
+class UserCanDeleteIfNotStaffAndNotUsed(permissions.BasePermission):
+    allowed_methods = ("DELETE",)
+
+    def has_permission(self, request, view):
+        return request.method in self.allowed_methods
+
+    def has_object_permission(self, request, view, obj):
+        if request.method not in self.allowed_methods:
+            return False
+        if obj is not None and (obj.is_staff or obj.is_superuser):
+            return False
+        for model_field in obj._meta.get_fields():
+            if isinstance(model_field, ManyToManyRel) or isinstance(model_field, ManyToOneRel):
+                attr_name = model_field.related_name or (model_field.name + "_set")
+                if hasattr(obj, attr_name) and getattr(obj, attr_name).count() > 0:
+                    return False
+        return True
+
+
+class IsFromAdmin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_from_admin(request)
+
+    def has_object_permission(self, request, view, obj):
+        from ifbcat_api import business_logic
+
+        return business_logic.is_from_admin(request)
 
 
 class SuperuserCanDelete(permissions.BasePermission):

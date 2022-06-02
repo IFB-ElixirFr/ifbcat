@@ -25,7 +25,11 @@
             <ul>
             {% for instance in model.instances %}
                 <li>
-                    <a href="{{model.admin_url}}{{instance.pk}}">{{instance}}</a>
+                    <a href="{{model.admin_url}}{{instance.pk}}">{{instance}}
+                        {%if instance.is_draft%}
+                        <i class="fab fa-firstdraft" title="Is a draft"></i>
+                        {%endif%}
+                    </a>
                     <div class="btn-group float-right" role="group" aria-label="Basic example">
                     {% for action in model.actions %}
                     <a role="button" href="{% url action.url instance.pk %}" class="btn btn-xs btn-outline-success">{{action.text}}</a>

@@ -1,6 +1,7 @@
 import csv
 import logging
 import os
+import re
 
 from django.core.management import BaseCommand
 
@@ -47,7 +48,10 @@ class Command(BaseCommand):
                             print(msg)
 
                 pf_description_expertises = data_object[2]
-                pf_keywords = data_object[3].split("\n")
+                if ')' in data_object[3] or '(' in data_object[3]:
+                    pf_keywords = data_object[3].split("\n")
+                else:
+                    pf_keywords = re.split(r',|\n|;', data_object[3])  # as we do not have `blabla (aa,bb)`
                 pf_keywords_list = []
                 pf_keyword = ""
                 for keyword in pf_keywords:

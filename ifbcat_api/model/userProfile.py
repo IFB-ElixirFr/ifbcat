@@ -3,7 +3,12 @@
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
+from django.core.mail import EmailMultiAlternatives
 from django.db import models
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
+from django.template.defaultfilters import linebreaksbr
+from django.utils.html import strip_tags
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from ifbcat_api import permissions
@@ -153,6 +158,47 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly | permissions.UpdateOwnProfile,
+            permissions.ReadOnly
+            | permissions.UserCanAddNew & permissions.IsFromAdmin
+            | permissions.UserCanEditIfNotStaff & permissions.IsFromAdmin
+            | permissions.UserCanDeleteIfNotStaffAndNotUsed & permissions.IsFromAdmin
+            | permissions.ReadWriteByCurator & permissions.IsFromAdmin
+            | permissions.UpdateOwnProfile,
             IsAuthenticatedOrReadOnly,
         )
+
+
+@receiver(pre_save, sender=UserProfile)
+def pre_save_user_profile(instance, **kwargs):
+    if instance.id:
+        instance.old_instance = instance.__class__.objects.get(id=instance.id)
+
+
+@receiver(post_save, sender=UserProfile)
+def post_save_user_profile(instance, **kwargs):
+    old_instance = getattr(instance, 'old_instance', None)
+    if old_instance is None:
+        return
+    if not old_instance.is_staff and instance.is_staff:
+        message = (
+            "Dear {firstname} {lastname}\n\nYour account in {url} have been granted new privileges. "
+            "You can now connect to the admin interface and edit elements.\n\n"
+            "If you never accessed the catalogue, you will have to reset your password "
+            "by following the link named \"Forgotten your password or username?\" in the log in page.\n\n"
+            "Best regards"
+        )
+        message = message.format(
+            firstname=instance.firstname,
+            lastname=instance.lastname,
+            url="https://catalogue.france-bioinformatique.fr/admin/",
+        )
+        message = linebreaksbr(message)
+        email = EmailMultiAlternatives(
+            subject="Access granted to the IFB catalogue",
+            body=strip_tags(message),
+            to=[
+                instance.email,
+            ],
+        )
+        email.attach_alternative(message, "text/html")
+        email.send(fail_silently=False)

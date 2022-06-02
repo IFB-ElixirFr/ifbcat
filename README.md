@@ -111,6 +111,14 @@ To remove build and pulled images:
 docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --rmi all
 ```
 
+## How to retore a db dump
+We consider here that no container are started. You have to get the dump, and uncompress it in the root directory of the project, and name it `data`
+```sh
+docker stop $(docker ps -q)
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml run -d db 
+docker exec -e PGPASSWORD=the_super_password $(docker ps -q) psql -h localhost -U postgres -f /code/data
+```
+
 # How to manage the server
 
 *All of this consider that you already are on the server and you are sudoer*
@@ -139,6 +147,13 @@ sudo docker-compose exec web python manage.py createsuperuser
 ```
 
 ## Do some import
+
+First copy the data
+```shell
+# go into your local git clone of ifbcat-importdata, and then:
+rsync -avz . catalogue-ifb:/var/ifbcat-importdata/ --exclude=".git"
+```
+
 ```
 cd /var/ifbcat-src
 sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_users

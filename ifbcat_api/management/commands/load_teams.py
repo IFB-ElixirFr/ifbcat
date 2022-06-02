@@ -61,7 +61,7 @@ def find_person(first_and_last_name):
                 ).get(f_no_quote__iexact=f, lastname__unaccent__iexact=l)
             except models.UserProfile.DoesNotExist:
                 pass
-    print("Did not found", first_and_last_name)
+    print("Did not find", first_and_last_name)
     return None
 
 

@@ -187,6 +187,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ################################################################################
 CORS_ALLOW_METHODS = [
     'GET',
+    'POST',
     'OPTIONS',
 ]
 CORS_ALLOWED_ORIGIN_REGEXES = [
@@ -235,6 +236,9 @@ JAZZMIN_SETTINGS = {
     #
     # Title on the brand, and the login screen (19 chars max)
     "site_header": "IFB Catalogue",
+    #
+    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    "site_brand": "IFB Catalogue",
     #
     # square logo to use for your site, must be present in static files, used for favicon and brand on top left
     "site_logo": "/img/logo-ifb_small.png",
@@ -292,7 +296,6 @@ JAZZMIN_SETTINGS = {
         "ifbcat_api.ToolType": "fas fa-circle",
         "ifbcat_api.Tool": "fas fa-tools",
         "ifbcat_api.Topic": "fas fa-circle",
-        "ifbcat_api.Trainer": "fas fa-chalkboard-teacher",
         "ifbcat_api.TrainingCourseMetrics": "fas fa-tachometer-alt",
         "ifbcat_api.Training": "fas fa-graduation-cap",
         "ifbcat_api.TrainingMaterial": "fas fa-book",
@@ -358,7 +361,7 @@ MAX_CHOICES_COUNT_IN_SCHEMA = 30
 ################################################################################
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default='25')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='catalogue@france-bioinformatique.fr')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='contact@france-bioinformatique.fr')
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ################################################################################

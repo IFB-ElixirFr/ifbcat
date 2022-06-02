@@ -1,12 +1,17 @@
 import logging
 
 from django.apps import apps
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import management
 from django.core.exceptions import FieldError
+from django.test import TestCase
 from django.urls import reverse, NoReverseMatch
 
 from ifbcat_api.model.misc import Topic, Keyword, Field
+from ifbcat_api.model.userProfile import UserProfile
+from ifbcat_api.model.organisation import Organisation
+from ifbcat_api.model.team import Team
 from ifbcat_api.tests.test_with_importdata import EnsureImportDataAreHere
 from ifbcat_api.urls import router
 
@@ -42,6 +47,23 @@ def add_everywhere(instance):
                 getattr(related_instance, f.name).add(instance)
 
 
+class TestNoViewsCrashWithoutData(TestCase):
+    def setUp(self):
+        self.superuser, _ = get_user_model().objects.get_or_create(
+            is_superuser=True,
+            is_staff=True,
+            defaults=dict(
+                firstname="superuser",
+                lastname="ifb",
+                email='superuser@ifb.fr',
+            ),
+        )
+
+    def test_dashboard(self):
+        self.client.force_login(self.superuser)
+        self.assertEqual(self.client.get('/admin/').status_code, 200)
+
+
 class TestNoViewsCrash(EnsureImportDataAreHere):
     def setUp(self):
         super().setUp()
@@ -58,6 +80,21 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         logger.warning('Data loaded')
 
     def test_all_at_once_to_spare_resource(self):
+        #######################################################################
+        # test_loadcatalog
+        #######################################################################
+        self.assertEqual(
+            UserProfile.objects.count(),
+            715,
+        )
+        self.assertEqual(
+            Team.objects.count(),
+            36,
+        )
+        self.assertEqual(
+            Organisation.objects.count(),
+            76,
+        )
         available_formats_dict = dict()
         ignored_formats = {'rdf'}
         #######################################################################
@@ -106,6 +143,8 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 ] + [f'?format={fmt}' for fmt in available_formats]:
                     response = self.client.get(url_detail + suffix)
                     status_code = 200
+                    if getattr(o, 'is_draft', False):
+                        status_code = 404
                     self.assertEqual(
                         response.status_code,
                         status_code,

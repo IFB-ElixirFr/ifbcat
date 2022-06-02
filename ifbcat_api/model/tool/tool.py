@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from urllib3.exceptions import MaxRetryError
 
 from ifbcat_api import permissions
-from ifbcat_api.model.misc import Topic, Doi, Keyword
+from ifbcat_api.model.misc import Topic, Doi, Keyword, Licence
 from ifbcat_api.model.tool.collection import Collection
 from ifbcat_api.model.tool.operatingSystem import OperatingSystem
 from ifbcat_api.model.tool.toolCredit import ToolCredit, TypeRole
@@ -38,18 +38,17 @@ class Tool(models.Model):
         Topic,
         blank=True,
     )
-    keywords = models.ManyToManyField(
-        Keyword,
-        blank=True,
-        related_name='toolsKeywords',
-        help_text="A keyword (beyond EDAM ontology scope) describing the tool.",
-    )
     operating_system = models.ManyToManyField(
         OperatingSystem,
         blank=True,
     )
     tool_credit = models.ManyToManyField(ToolCredit, blank=True)
-    tool_license = models.CharField(max_length=1000, blank=True, null=True)
+    tool_licence = models.ForeignKey(
+        Licence, blank=True, null=True, on_delete=models.SET_NULL, help_text="Licence of the tool."
+    )
+    documentation = models.URLField(
+        max_length=512, null=True, blank=True, help_text="Link toward general documentation of the tool"
+    )
     # add operation/function here
     # Primary publication DOI storedin DOI table
     primary_publication = models.ManyToManyField(
@@ -59,23 +58,21 @@ class Tool(models.Model):
         help_text="Publication(s) that describe the tool as a whole.",
     )
     collection = models.ManyToManyField(Collection, blank=True)
-
     biotoolsCURIE = models.CharField(blank=False, null=False, max_length=109)  # because of biotools: prefix
-
+    source_repository = models.URLField(
+        max_length=512,
+        help_text="URL to sources (GitLab, GitHub, ...)",
+        blank=True,
+        null=True,
+    )
     # software_version = models.CharField(max_length=200, blank=True, null=True)
 
     citations = models.CharField(max_length=1000, blank=True, null=True)
-    logo = models.URLField(max_length=200, blank=True, null=True)
-    access_condition = models.TextField(blank=True, null=True)
-    contact_support = models.CharField(max_length=1000, blank=True, null=True)
 
-    # link = models.CharField(max_length=1000, blank=True, null=True)
     # keywords = models.ManyToManyField(Keyword, blank=True)
-    prerequisites = models.TextField(blank=True, null=True)
     # operating_system = models.CharField(max_length=50, blank=True, null=True, choices=OPERATING_SYSTEM_CHOICES)
     # topic = models.CharField(max_length=1000, blank=True, null=True)
     downloads = models.CharField(max_length=1000, blank=True, null=True)
-
     annual_visits = models.IntegerField(blank=True, null=True)
     unique_visits = models.IntegerField(blank=True, null=True)
 
@@ -93,8 +90,6 @@ class Tool(models.Model):
     # elixir_node = models.ManyToManyField(ElixirNode, blank=True)
     # accessibility = models.ManyToManyField(Accessibility, blank=True)
 
-    # link = models.ManyToManyField(Link, blank=True)
-
     # added fields
     # language = models.CharField(max_length=1000, null=True, blank=True)
     # otherID = models.CharField(max_length=1000, null=True, blank=True)
@@ -106,13 +101,11 @@ class Tool(models.Model):
     # elixirPlatform = models.CharField(max_length=1000, null=True, blank=True)
     cost = models.CharField(max_length=1000, null=True, blank=True)
     # accessibility = models.CharField(max_length=1000, null=True, blank=True)
-    # function = models.TextField(null=True, blank=True)
     # relation = models.CharField(max_length=1000, null=True, blank=True)
 
     # to remove ?
     input_data = models.CharField(max_length=1000, blank=True, null=True)
     output_data = models.CharField(max_length=1000, blank=True, null=True)
-    primary = models.CharField(max_length=1000, blank=True, null=True)
 
     # metadata
     addition_date = models.DateTimeField(blank=True, null=True)
@@ -141,6 +134,8 @@ class Tool(models.Model):
             return
         if entry.get('detail', None) is not None:
             logger.error(f"Error with {self.biotoolsID}: {entry['detail']}")
+            self.name = f'{self.biotoolsID} {entry["detail"]}'
+            self.save()
             return
         self.update_information_from_json(entry)
 
@@ -150,11 +145,28 @@ class Tool(models.Model):
         self.description = tool['description']
         self.homepage = tool['homepage']
         self.biotoolsID = tool['biotoolsID']
-        # link = tool['link']
+        for link in tool['link']:
+            if "Repository" in link["type"]:
+                self.source_repository = link['url']
         self.biotoolsCURIE = tool['biotoolsCURIE']
         # software_version = tool['version']
         # downloads = tool['download']
         self.tool_license = tool['license']
+        type_list = [
+            "General",
+            "User manual",
+            "FAQ",
+            "API documentation",
+        ]
+        all_type_json = dict()
+        for doc in tool['documentation']:
+            for type_doc in doc['type']:
+                all_type_json[type_doc] = doc['url']
+
+        for elt in type_list:
+            if elt in all_type_json.keys():
+                self.documentation = all_type_json.get(elt)
+                break
         # language = tool['language']
         # otherID = tool['otherID']
         self.maturity = tool['maturity']
@@ -162,7 +174,6 @@ class Tool(models.Model):
         # elixirNode = tool['elixirNode']
         self.cost = tool['cost']
         # accessibility = tool['accessibility']
-        # function = tool['function']
         # relation = tool['relation']
         self.last_update = tool['lastUpdate']
 

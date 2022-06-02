@@ -78,15 +78,16 @@ def init_business_logic():
         models.EventPrerequisite,
         models.EventSponsor,
         models.Event,
+        models.UserProfile,
     ]
     team_and_more_related = [
         models.Team,
         models.Certification,
-        models.Team,
         models.Community,
         models.ElixirPlatform,
         models.Organisation,
         models.Project,
+        models.UserProfile,
     ]
     tool_related = [
         models.Collection,
@@ -95,6 +96,7 @@ def init_business_logic():
         models.Tool,
         models.OperatingSystem,
         models.TypeRole,
+        models.Licence,
     ]
     service_related = [
         models.Service,
@@ -104,16 +106,17 @@ def init_business_logic():
     training_related = [
         models.AudienceRole,
         models.AudienceType,
-        models.Trainer,
         models.TrainingCourseMetrics,
         models.Training,
         models.TrainingMaterial,
+        models.Licence,
     ]
     needed_by_all = [
         models.Doi,
         models.Field,
         models.Keyword,
         models.Topic,
+        models.Tool,
         Token,
     ]
 
@@ -168,7 +171,11 @@ def set_user_manager(user, status: bool):
 
 
 def can_edit_user(acting_user, edited_user):
-    return acting_user.groups.filter(name=__USER_MANAGER_GRP_NAME).exists()
+    return acting_user is not None and (
+        acting_user.is_superuser
+        or (is_user_manager(acting_user) and is_curator(acting_user))
+        or acting_user == edited_user
+    )
 
 
 ###############################################################################
@@ -263,6 +270,36 @@ def has_delete_permission(model, request, obj=None):
 
 
 ###############################################################################
+# Request upgrade
+###############################################################################
+class RequestUpgrade:
+    def __init__(
+        self,
+        *,
+        request,
+        from_admin: bool = False,
+    ):
+        self.request = request
+        self.from_admin = from_admin
+        setattr(self.request, "upgrade_attributes", dict())
+
+    def __enter__(self):
+        self.request.upgrade_attributes["from_admin"] = self.from_admin
+        return self.request
+
+    def __exit__(self, type, value, tb):
+        delattr(self.request, "upgrade_attributes")
+
+
+def is_request_upgraded(request):
+    return getattr(request, "upgrade_attributes", None) is not None
+
+
+def is_from_admin(request):
+    return getattr(request, "upgrade_attributes", dict()).get("from_admin", False)
+
+
+###############################################################################
 # Permission classes
 ###############################################################################
 def get_not_to_be_deleted_group_names():
@@ -278,3 +315,11 @@ def get_not_to_be_deleted_group_names():
         __BASIC_PERMISSION_GRP_NAME,
         __NO_RESTRICTION,
     )
+
+
+def get_no_restriction_group_name():
+    return __NO_RESTRICTION
+
+
+def get_basic_permissions_group_name():
+    return __BASIC_PERMISSION_GRP_NAME
