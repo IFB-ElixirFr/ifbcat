@@ -2,6 +2,7 @@ import logging
 from collections import OrderedDict
 
 from django.db.models import CharField, TextField, DateField, URLField, IntegerField
+from django.urls import reverse
 from rest_framework import renderers
 from rest_framework.serializers import ListSerializer
 
@@ -227,15 +228,23 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 )
                 yield []
                 return
+        try:
+            slug_name = schema_mapping['_slug_name']
+        except KeyError:
+            slug_name = 'id'
 
         # we iterate over each result in the results set
         for item in actual_data:
             if not item.get("id"):
                 continue
-            training_uri = URIRef("https://catalogue.france-bioinformatique.fr/api/training/" + str(item['id']))
+            object_uri = URIRef(
+                "https://catalogue.france-bioinformatique.fr"
+                + reverse(f'{model.__name__.lower()}-detail', args=[item[slug_name]])
+            )
+            # print(reverse(f'{serializer.Meta.model.__name__.lower()}-detail', args=[getattr(obj, self.slug_name)]))
             # provide the type of the item
             for klass_type in klass_types:
-                G.add((training_uri, RDF.type, getattr(SCHEMA, klass_type)))
+                G.add((object_uri, RDF.type, getattr(SCHEMA, klass_type)))
 
             for attr_name, mapping in schema_mapping.items():
                 # attr_name starting with a _ are not instance attribute, and out of the scope of this loop
@@ -301,7 +310,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 for v in values:
                     G.add(
                         (
-                            training_uri,
+                            object_uri,
                             getattr(SCHEMA, schema_attr),
                             Literal(v, datatype=datatype),
                         )
