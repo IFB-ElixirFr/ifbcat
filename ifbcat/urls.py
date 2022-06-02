@@ -18,10 +18,13 @@ Including another URLconf
 # ' , include' is a functon used to include URLs from other apps (in this case from ifbcat_api)
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
 from django.views.generic import RedirectView
 from django.views.generic import TemplateView
 from rest_framework.schemas import get_schema_view
+
+from ifbcat_api.sitemap import my_sitemaps
 
 urlpatterns = [
     path('', include('ifbcat_vanilla_front.urls')),
@@ -68,4 +71,5 @@ urlpatterns = [
         ),
         name='openapi-schema',
     ),
+    path('sitemap.xml', sitemap, {'sitemaps': my_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
