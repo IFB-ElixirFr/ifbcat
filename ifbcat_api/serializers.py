@@ -299,7 +299,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'trainers',
             'trainingMaterials',
             'computingFacilities',
-            # 'realisation_status',
+            'realisation_status',
             'registration_opening',
             'registration_closing',
             'registration_status',
