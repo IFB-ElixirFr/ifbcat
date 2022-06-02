@@ -276,14 +276,14 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 # second, try to guess the type
                 if datatype is None:
                     attr_type = type(model._meta.get_field(attr_name))
-                    if isinstance(attr_type(), CharField) or isinstance(attr_type(), TextField):
+                    if isinstance(attr_type(), URLField):
+                        datatype = SCHEMA.URL
+                    elif isinstance(attr_type(), CharField) or isinstance(attr_type(), TextField):
                         datatype = SCHEMA.Text
                     elif isinstance(attr_type(), DateField):
                         datatype = SCHEMA.Date
                     elif isinstance(attr_type(), IntegerField):
                         datatype = SCHEMA.Integer
-                    elif isinstance(attr_type(), URLField):
-                        datatype = SCHEMA.URL
                 # finally, we scream as we were not able to find its type
                 if datatype is None:
                     # type(mapping) == dict and 'xsd_type' in mapping\
