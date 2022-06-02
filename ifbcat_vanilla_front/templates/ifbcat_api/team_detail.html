@@ -204,7 +204,7 @@
         <div aria-labelledby="nav-Trainings-tab" class="tab-pane border border-top-0 fade" id="nav-Trainings"
              role="tabpanel">
             <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
-                {%for c in object.training_set.all%}
+                {%for c in object.training_set.all|no_draft%}
                     {% include "ifbcat_api/training_detail_content.html" with object=c %}
                 {%endfor%}
             </div>
@@ -212,7 +212,7 @@
         <div aria-labelledby="nav-Events-tab" class="tab-pane border border-top-0 fade" id="nav-Events"
              role="tabpanel">
             <div class="p-3" style="display: grid;grid-template-columns: repeat(2, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
-                {%for c in object.event_set.all%}
+                {%for c in object.event_set.all|no_draft%}
                     {% include "ifbcat_api/event_detail_content.html" with object=c %}
                 {%endfor%}
             </div>
