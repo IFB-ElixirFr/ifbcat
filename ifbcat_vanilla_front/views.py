@@ -19,7 +19,7 @@ class TeamListView(ListView):
     model = models.Team
 
     def get_queryset(self):
-        return super().get_queryset().order_by(Upper('name'))
+        return models.Team.annotate_is_active(super().get_queryset()).filter(is_active=True).order_by(Upper('name'))
 
 
 class TeamDetailView(DetailView):
