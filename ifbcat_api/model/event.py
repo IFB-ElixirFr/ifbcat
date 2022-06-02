@@ -244,6 +244,10 @@ class AbstractEvent(models.Model):
             MinValueValidator(1),
         ],
     )
+    updated_at = models.DateTimeField(
+        help_text="When was its the last modification",
+        auto_now=True,
+    )
 
     def clean(self):
         if self.openTo != self.EventOpenToType.EVERYONE and len(self.accessConditions or '') == 0:

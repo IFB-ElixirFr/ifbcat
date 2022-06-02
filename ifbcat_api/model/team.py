@@ -177,6 +177,10 @@ class Team(WithGridIdOrRORId, models.Model):
         related_name='teamsPlatforms',
         help_text="ELIXIR Platform(s) in which the bioinformatics team is involved.",
     )
+    updated_at = models.DateTimeField(
+        help_text="When was its the last modification",
+        auto_now=True,
+    )
 
     def __str__(self):
         """Return the Team model as a string."""
