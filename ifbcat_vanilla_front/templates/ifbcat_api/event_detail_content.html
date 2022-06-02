@@ -1,5 +1,9 @@
+{% load ifbcat_vanilla_front_tags %}
 <div class="card" style="grid-column: span 2;">
-    <div class="card-body h3 text-center p-2 mb-0">{{object.name}}</div>
+    <div class="card-body h3 text-center p-2 mb-0 d-flex">
+        <div class="flex-grow-1">{{object.name}}</div>
+        <div><small><a href="{{object|get_admin_url}}">Edit</a></small></div>
+    </div>
 </div>
 <div class="card">
     <div class="card-body"><dl>
