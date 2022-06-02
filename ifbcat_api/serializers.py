@@ -784,6 +784,15 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'fundedBy': {'lookup_field': 'name'},
             'platforms': {'lookup_field': 'name'},
         }
+        schema_mapping = dict(
+            _type='Organization',
+            _slug_name='name',
+            name='name',
+            description='description',
+            homepage='url',
+            logo_url='logo',
+            members_count=dict(schema_attr='numberOfEmployees', schema_type="Integer"),
+        )
 
 
 #
