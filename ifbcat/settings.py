@@ -177,7 +177,7 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-        'ifbcat_api.renderers.NTriplesRdfRenderer',
+        'ifbcat_api.renderers.JsonLDSchemaRenderer',
     ],
 }
 # From https://gist.github.com/davewongillies/6897161#gistcomment-3017261

@@ -323,6 +323,17 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'organisedByTeams': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
+        schema_mapping = dict(
+            _type='Course',
+            name='name',
+            description='description',
+            city=dict(schema_attr='location'),
+            costs=dict(schema_attr='offers', schema_type='Demand'),
+            start_date='startDate',
+            end_date=dict(schema_attr='startEnd', schema_type='Date'),
+            homepage='url',
+            maxParticipants='maximumAttendeeCapacity',
+        )
 
     def update(self, instance, validated_data):
         sub_instances = dict()
@@ -396,6 +407,7 @@ class TrainingSerializer(EventSerializer):
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
+        schema_mapping = dict()
 
 
 # Model serializer for training event metrics
