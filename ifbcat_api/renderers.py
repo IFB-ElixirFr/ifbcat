@@ -311,7 +311,14 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                     rdf_subject = object_uri
                     rdf_predicate = getattr(SCHEMA, schema_attr)
                     if is_related_object:
-                        rdf_object = URIRef(v)
+                        if type(v) == str:
+                            rdf_object = URIRef(v)
+                        else:
+                            try:
+                                # try to handle value serialized with misc.inline_serializer_factory
+                                rdf_object = URIRef(v['url'])
+                            except Exception:
+                                rdf_object = None
                     else:
                         rdf_object = Literal(v, datatype=datatype)
                     G.add((rdf_subject, rdf_predicate, rdf_object))
