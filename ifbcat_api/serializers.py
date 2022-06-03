@@ -323,9 +323,22 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'organisedByTeams': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
+        # schema_mapping = dict(
+        #     _type='Course',
+        #     name='name',
+        #     description='description',
+        #     # city=dict(schema_attr='location'),
+        #     location=dict(schema_attr='location', _type="Place"),
+        #     costs=dict(schema_attr='offers', _type='Demand'),
+        #     start_date='startDate',
+        #     end_date=dict(schema_attr='startEnd', _type='Date'),
+        #     homepage='url',
+        #     maxParticipants='maximumAttendeeCapacity',
+        # )
         schema_mapping = dict(
             _type='Course',
             name='name',
+            shortName='alternateName',
             description='description',
             # city=dict(schema_attr='location'),
             location=dict(schema_attr='location', _type="Place"),
@@ -334,6 +347,8 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             end_date=dict(schema_attr='startEnd', _type='Date'),
             homepage='url',
             maxParticipants='maximumAttendeeCapacity',
+            organisedByOrganisations='organizer',
+            sponsoredBy=dict(schema_attr='funder', schema_type='Organization')
         )
 
     def update(self, instance, validated_data):
