@@ -348,7 +348,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             homepage='url',
             maxParticipants='maximumAttendeeCapacity',
             organisedByOrganisations='organizer',
-            sponsoredBy=dict(schema_attr='funder', schema_type='Organization')
+            sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
         )
 
     def update(self, instance, validated_data):
