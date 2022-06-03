@@ -41,8 +41,6 @@ from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
 from ifbcat_api.admin import TrainingAdmin
 from ifbcat_api.filters import AutoSubsetFilterSet
-from ifbcat_api.renderers import JsonLDSchemaTrainingRenderer
-from ifbcat_api.renderers import JsonLDSchemaEventRenderer
 
 
 class CachedNoPaginationMixin:
@@ -415,7 +413,7 @@ class EventViewSet(AbstractEventViewSet):
 # Model ViewSet for training events that should be published in TES
 class TessEventViewSet(EventViewSet):
 
-    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaEventRenderer]
+    renderer_classes = [BrowsableAPIRenderer]
     serializer_class = serializers.EventSerializer
     ordering = []
 
@@ -442,7 +440,7 @@ class TrainingViewSet(AbstractEventViewSet):
 # Model ViewSet for training that should be published in TES
 class TessTrainingViewSet(TrainingViewSet):
 
-    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     serializer_class = serializers.TrainingSerializer
     ordering = []
 
