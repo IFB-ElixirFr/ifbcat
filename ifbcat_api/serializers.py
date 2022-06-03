@@ -792,9 +792,9 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             homepage='url',
             logo_url='logo',
             members_count=dict(_type="Integer", schema_attr='numberOfEmployees'),
-            scientificLeaders='employee',
-            leaders='employee',
-            technicalLeaders='employee',
+            scientificLeaders='member',
+            leaders='member',
+            technicalLeaders='member',
         )
 
 
