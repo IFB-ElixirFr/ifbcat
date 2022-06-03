@@ -4,6 +4,7 @@ from collections import OrderedDict
 from django.db.models import CharField, TextField, DateField, URLField, IntegerField, ManyToManyField
 from django.urls import reverse
 from rest_framework import renderers
+from rest_framework.relations import Hyperlink
 from rest_framework.serializers import ListSerializer
 
 import requests
@@ -311,7 +312,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                     rdf_subject = object_uri
                     rdf_predicate = getattr(SCHEMA, schema_attr)
                     if is_related_object:
-                        if type(v) == str:
+                        if type(v) == Hyperlink or type(v) == str:
                             rdf_object = URIRef(v)
                         else:
                             try:
