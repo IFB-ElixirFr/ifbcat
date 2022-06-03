@@ -1,7 +1,7 @@
 import logging
 from collections import OrderedDict
 
-from django.db.models import CharField, TextField, DateField, URLField, IntegerField, ManyToManyField
+from django.db.models import CharField, TextField, DateField, URLField, IntegerField, ManyToManyField, ManyToManyRel
 from django.urls import reverse
 from rest_framework import renderers
 from rest_framework.relations import Hyperlink
@@ -286,7 +286,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 # second, try to guess the type
                 if datatype is None:
                     attr_type = type(model._meta.get_field(attr_name))
-                    if attr_type == ManyToManyField:
+                    if attr_type == ManyToManyField or attr_type == ManyToManyRel:
                         is_related_object = True
                     elif isinstance(attr_type(), URLField):
                         datatype = SCHEMA.URL
