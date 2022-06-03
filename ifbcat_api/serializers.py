@@ -94,6 +94,18 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
             'teamsTechnicalLeaders': {'lookup_field': 'name'},
             'teamsMembers': {'lookup_field': 'name'},
         }
+        rdf_mapping = dict(
+            _type='Person',
+            firstname='givenName',
+            lastname='familyName',
+            homepage=dict(schema_attr='mainEntityOfPage', _type="URL"),
+            get_full_name=dict(schema_attr='name', _type="Text"),
+            teamsLeaders='memberOf',
+            teamsScientificLeaders='memberOf',
+            teamsTechnicalLeaders='memberOf',
+            teamsDeputies='memberOf',
+            teamsMembers='memberOf',
+        )
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
     # This will ensure the password gets created as a hash, rather than clear text
