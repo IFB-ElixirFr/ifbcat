@@ -93,7 +93,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                             pass
 
                 # We do not render not provided value(s)
-                if value is None or isinstance(value, list) and len(value) == 0:
+                if value is None or isinstance(value, list) and len(value) == 0 or value == "":
                     continue
                 # we can both have single value, or multiple, so we are resilient
                 if isinstance(value, list):

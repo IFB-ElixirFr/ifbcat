@@ -698,6 +698,33 @@ class TrainingMaterialSerializer(ResourceSerializer):
             },
         }
 
+        rdf_mapping = dict(
+            _type='LearningResource',
+            # Minimum
+            fileName='name',
+            description='description',
+            topics='keywords',
+            # Recommended
+            audienceTypes='audience',
+            licence='license',
+            difficultyLevel='educationalLevel',
+            fileLocation='url',
+            # Optional
+            dateCreation='dateCreated',
+            dateUpdate='dateModified',
+
+
+
+            # location=dict(schema_attr='location', _type="Place"),
+            # costs=dict(schema_attr='offers', _type='Demand'),
+            # start_date='startDate',
+            # end_date=dict(schema_attr='startEnd', _type='Date'),
+            # homepage='url',
+            # maxParticipants='maximumAttendeeCapacity',
+            # organisedByOrganisations='organizer',
+            # sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
+        )
+
 
 # Model serializer for team
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
