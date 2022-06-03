@@ -196,6 +196,10 @@ class Team(WithGridIdOrRORId, models.Model):
             .count()
         )
 
+    @property
+    def address_one_line(self):
+        return self.address.replace('\r', '').replace('\n', ', ')
+
     def __str__(self):
         """Return the Team model as a string."""
         return self.name

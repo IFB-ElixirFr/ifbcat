@@ -795,6 +795,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             scientificLeaders='member',
             leaders='member',
             technicalLeaders='member',
+            address_one_line=dict(_type="Place", schema_attr='location'),
         )
 
 
