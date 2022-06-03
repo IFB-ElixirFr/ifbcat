@@ -705,8 +705,8 @@ class TrainingMaterialSerializer(ResourceSerializer):
             description='description',
             topics='keywords',
             # Recommended
-            audienceTypes='audience',
-            licence='license',
+            audienceTypes=dict(schema_attr='audience', _type="Text"),
+            licence=dict(schema_attr='license', _type="Text"),
             difficultyLevel='educationalLevel',
             fileLocation='url',
             # Optional
