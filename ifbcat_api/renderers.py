@@ -40,15 +40,15 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
         G = ConjunctiveGraph()
         SCHEMA = Namespace("https://schema.org/")
 
-        schema_mapping = getattr(serializer.Meta, 'schema_mapping', dict())
+        rdf_mapping = getattr(serializer.Meta, 'rdf_mapping', dict())
 
         # get the type of the object, if not provided the items are not rendered
         model = serializer.Meta.model
         try:
-            klass_types = [schema_mapping['_type']]
+            klass_types = [rdf_mapping['_type']]
         except KeyError:
             try:
-                klass_types = schema_mapping['_types']
+                klass_types = rdf_mapping['_types']
             except KeyError:
                 logging.warning(
                     f"To serialize {model} to json-ld, "
@@ -57,7 +57,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 yield []
                 return
         try:
-            slug_name = schema_mapping['_slug_name']
+            slug_name = rdf_mapping['_slug_name']
         except KeyError:
             slug_name = 'id'
 
@@ -76,7 +76,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
             for klass_type in klass_types:
                 G.add((object_uri, RDF.type, getattr(SCHEMA, klass_type)))
 
-            for attr_name, mapping in schema_mapping.items():
+            for attr_name, mapping in rdf_mapping.items():
                 # attr_name starting with a _ are not instance attribute, and out of the scope of this loop
                 if attr_name[0] == '_':
                     continue
@@ -131,8 +131,8 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                         f"{attr_name}=dict(schema_attr='{mapping}', _type='Todo')"
                     )
 
-                # In schema_mapping, for an attr_name dev can provide the schema_attr and optionally its type.
-                # To simplify the writing of schema_mapping, we allow dev to provide a string which is
+                # In rdf_mapping, for an attr_name dev can provide the schema_attr and optionally its type.
+                # To simplify the writing of rdf_mapping, we allow dev to provide a string which is
                 # considered as a schema_attr, and the type is guessed.
                 if isinstance(mapping, str):
                     schema_attr = mapping

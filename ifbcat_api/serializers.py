@@ -335,7 +335,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
         #     homepage='url',
         #     maxParticipants='maximumAttendeeCapacity',
         # )
-        schema_mapping = dict(
+        rdf_mapping = dict(
             _type='Course',
             name='name',
             shortName='alternateName',
@@ -423,7 +423,7 @@ class TrainingSerializer(EventSerializer):
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
-        schema_mapping = dict()
+        rdf_mapping = dict()
 
 
 # Model serializer for training event metrics
@@ -795,7 +795,7 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'fundedBy': {'lookup_field': 'name'},
             'platforms': {'lookup_field': 'name'},
         }
-        schema_mapping = dict(
+        rdf_mapping = dict(
             _type='Organization',
             _slug_name='name',
             name='name',
