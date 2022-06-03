@@ -259,6 +259,11 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 except KeyError:
                     # attribute not found, assuming it's a methods decorated with @property
                     value = getattr(model.objects.get(id=item['id']), attr_name)
+                    if type(value) != str:
+                        try:
+                            value = value()
+                        except TypeError:
+                            pass
 
                 # We do not render not provided value(s)
                 if value is None or isinstance(value, list) and len(value) == 0:
