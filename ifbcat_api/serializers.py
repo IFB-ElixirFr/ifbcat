@@ -712,9 +712,6 @@ class TrainingMaterialSerializer(ResourceSerializer):
             # Optional
             dateCreation='dateCreated',
             dateUpdate='dateModified',
-
-
-
             # location=dict(schema_attr='location', _type="Place"),
             # costs=dict(schema_attr='offers', _type='Demand'),
             # start_date='startDate',
