@@ -701,7 +701,8 @@ class TrainingMaterialSerializer(ResourceSerializer):
         rdf_mapping = dict(
             _type='LearningResource',
             # Minimum
-            fileName='name',
+            name='name',
+            fileName='alternateName',
             description='description',
             topics='keywords',
             # Recommended
