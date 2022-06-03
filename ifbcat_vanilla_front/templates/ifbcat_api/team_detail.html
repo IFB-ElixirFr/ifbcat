@@ -6,7 +6,7 @@
 {% block title%}{{object.name}}{% endblock title%}
 
 {% block content%}
-<div class="col-12 mb-4">
+<div class="col-12 mb-4" data-json-ld-uri="{% url 'team-detail' name=object.name %}?format=json-ld">
     <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <a aria-controls="nav-Information" aria-selected="true" class="nav-item nav-link active" data-toggle="tab"
