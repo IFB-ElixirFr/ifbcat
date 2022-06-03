@@ -474,10 +474,6 @@ class OrganisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Organisation
         fields = ('id', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
-        rdf_mapping = dict(
-            name="http://i-dont-know.org#name",
-            description="http://i-dont-know.org#desc",
-        )
 
 
 class CertificationSerializer(serializers.HyperlinkedModelSerializer):
