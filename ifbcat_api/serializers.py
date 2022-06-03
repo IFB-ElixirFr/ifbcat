@@ -328,10 +328,10 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             name='name',
             description='description',
             # city=dict(schema_attr='location'),
-            location=dict(schema_attr='location', schema_type="Place"),
-            costs=dict(schema_attr='offers', schema_type='Demand'),
+            location=dict(schema_attr='location', _type="Place"),
+            costs=dict(schema_attr='offers', _type='Demand'),
             start_date='startDate',
-            end_date=dict(schema_attr='startEnd', schema_type='Date'),
+            end_date=dict(schema_attr='startEnd', _type='Date'),
             homepage='url',
             maxParticipants='maximumAttendeeCapacity',
         )
@@ -791,7 +791,10 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             description='description',
             homepage='url',
             logo_url='logo',
-            members_count=dict(schema_attr='numberOfEmployees', schema_type="Integer"),
+            members_count=dict(_type="Integer", schema_attr='numberOfEmployees'),
+            scientificLeaders='employee',
+            leaders='employee',
+            technicalLeaders='employee',
         )
 
 

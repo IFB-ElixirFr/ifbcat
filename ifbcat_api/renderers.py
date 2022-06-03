@@ -1,7 +1,7 @@
 import logging
 from collections import OrderedDict
 
-from django.db.models import CharField, TextField, DateField, URLField, IntegerField
+from django.db.models import CharField, TextField, DateField, URLField, IntegerField, ManyToManyField
 from django.urls import reverse
 from rest_framework import renderers
 from rest_framework.serializers import ListSerializer
@@ -240,6 +240,8 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
             object_uri = URIRef(
                 "https://catalogue.france-bioinformatique.fr"
                 + reverse(f'{model.__name__.lower()}-detail', args=[item[slug_name]])
+                + "?format="
+                + self.format
             )
             # print(reverse(f'{serializer.Meta.model.__name__.lower()}-detail', args=[getattr(obj, self.slug_name)]))
             # provide the type of the item
@@ -260,23 +262,27 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 # We do not render not provided value(s)
                 if value is None or isinstance(value, list) and len(value) == 0:
                     continue
+                # we can both have single value, or multiple, so we are resilient
+                if isinstance(value, list):
+                    values = value
+                else:
+                    values = [value]
 
                 # get the type for the attribute
                 datatype = None
+                is_related_object = False
                 # first, try to get the explicitly set type
                 if type(mapping) == dict:
-                    # try:
-                    #     datatype = getattr(XSD, mapping["xsd_type"])
-                    # except KeyError:
-                    #     pass
                     try:
-                        datatype = getattr(SCHEMA, mapping["schema_type"])
+                        datatype = getattr(SCHEMA, mapping["_type"])
                     except KeyError:
                         pass
                 # second, try to guess the type
                 if datatype is None:
                     attr_type = type(model._meta.get_field(attr_name))
-                    if isinstance(attr_type(), URLField):
+                    if attr_type == ManyToManyField:
+                        is_related_object = True
+                    elif isinstance(attr_type(), URLField):
                         datatype = SCHEMA.URL
                     elif isinstance(attr_type(), CharField) or isinstance(attr_type(), TextField):
                         datatype = SCHEMA.Text
@@ -285,12 +291,11 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                     elif isinstance(attr_type(), IntegerField):
                         datatype = SCHEMA.Integer
                 # finally, we scream as we were not able to find its type
-                if datatype is None:
+                if datatype is None and not is_related_object:
                     # type(mapping) == dict and 'xsd_type' in mapping\
                     assert False, (
                         "type not guessed nor provided, you must provide it as "
-                        f"{attr_name}=dict(schema_attr='{mapping}', xsd_type='Todo') or "
-                        f"{attr_name}=dict(schema_attr='{mapping}', schema_type='Todo') or "
+                        f"{attr_name}=dict(schema_attr='{mapping}', _type='Todo')"
                     )
 
                 # In schema_mapping, for an attr_name dev can provide the schema_attr and optionally its type.
@@ -301,19 +306,15 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 else:
                     schema_attr = mapping["schema_attr"]
 
-                # we can both have single value, or multiple, so we are resilient
-                if isinstance(value, list):
-                    values = value
-                else:
-                    values = [value]
                 # add all values to the graph
                 for v in values:
-                    G.add(
-                        (
-                            object_uri,
-                            getattr(SCHEMA, schema_attr),
-                            Literal(v, datatype=datatype),
-                        )
-                    )
+                    rdf_subject = object_uri
+                    rdf_predicate = getattr(SCHEMA, schema_attr)
+                    if is_related_object:
+                        rdf_object = URIRef(v)
+                    else:
+                        rdf_object = Literal(v, datatype=datatype)
+                    G.add((rdf_subject, rdf_predicate, rdf_object))
+
         # render the graph in json-ld
         yield G.serialize(format="json-ld")
