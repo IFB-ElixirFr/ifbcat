@@ -35,7 +35,7 @@ class UserProfileSerializerTiny(serializers.ModelSerializer):
 
 
 # Model serializer for user profile
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
@@ -68,7 +68,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'orcidid',
             'homepage',
             'expertise',
-            'homepage',
             'teamsLeaders',
             'teamsDeputies',
             'teamsScientificLeaders',
@@ -89,6 +88,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True, 'style': {'input_type': 'password'}},
             'email': {'write_only': True},
+            'teamsLeaders': {'lookup_field': 'name'},
+            'teamsDeputies': {'lookup_field': 'name'},
+            'teamsScientificLeaders': {'lookup_field': 'name'},
+            'teamsTechnicalLeaders': {'lookup_field': 'name'},
+            'teamsMembers': {'lookup_field': 'name'},
         }
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
