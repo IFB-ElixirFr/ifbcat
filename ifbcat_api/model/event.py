@@ -387,6 +387,14 @@ class Event(AbstractEvent):
         help_text="Publish it in tess? Auto use training status for training sessions, or Yes otherwise for",
     )
 
+    @property
+    def location(self):
+        if self.country:
+            if self.city:
+                return f'{self.city}, {self.country}'
+            return self.country
+        return self.city
+
     @classmethod
     def annotate_is_tess_publishing(cls, qs=None):
         if qs is None:

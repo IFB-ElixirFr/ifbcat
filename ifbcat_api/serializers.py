@@ -35,7 +35,7 @@ class UserProfileSerializerTiny(serializers.ModelSerializer):
 
 
 # Model serializer for user profile
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
@@ -68,7 +68,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'orcidid',
             'homepage',
             'expertise',
-            'homepage',
             'teamsLeaders',
             'teamsDeputies',
             'teamsScientificLeaders',
@@ -89,7 +88,24 @@ class UserProfileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True, 'style': {'input_type': 'password'}},
             'email': {'write_only': True},
+            'teamsLeaders': {'lookup_field': 'name'},
+            'teamsDeputies': {'lookup_field': 'name'},
+            'teamsScientificLeaders': {'lookup_field': 'name'},
+            'teamsTechnicalLeaders': {'lookup_field': 'name'},
+            'teamsMembers': {'lookup_field': 'name'},
         }
+        rdf_mapping = dict(
+            _type='Person',
+            firstname='givenName',
+            lastname='familyName',
+            homepage=dict(schema_attr='mainEntityOfPage', _type="URL"),
+            get_full_name=dict(schema_attr='name', _type="Text"),
+            teamsLeaders='memberOf',
+            teamsScientificLeaders='memberOf',
+            teamsTechnicalLeaders='memberOf',
+            teamsDeputies='memberOf',
+            teamsMembers='memberOf',
+        )
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
     # This will ensure the password gets created as a hash, rather than clear text
@@ -323,6 +339,21 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'organisedByTeams': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
+        rdf_mapping = dict(
+            _type='Course',
+            name='name',
+            shortName='alternateName',
+            description='description',
+            # city=dict(schema_attr='location'),
+            location=dict(schema_attr='location', _type="Place"),
+            costs=dict(schema_attr='offers', _type='Demand'),
+            start_date='startDate',
+            end_date=dict(schema_attr='startEnd', _type='Date'),
+            homepage='url',
+            maxParticipants='maximumAttendeeCapacity',
+            organisedByOrganisations='organizer',
+            sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
+        )
 
     def update(self, instance, validated_data):
         sub_instances = dict()
@@ -396,6 +427,7 @@ class TrainingSerializer(EventSerializer):
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
+        rdf_mapping = dict()
 
 
 # Model serializer for training event metrics
@@ -446,10 +478,6 @@ class OrganisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Organisation
         fields = ('id', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
-        rdf_mapping = dict(
-            name="http://i-dont-know.org#name",
-            description="http://i-dont-know.org#desc",
-        )
 
 
 class CertificationSerializer(serializers.HyperlinkedModelSerializer):
@@ -630,7 +658,6 @@ class TrainingMaterialSerializer(ResourceSerializer):
         required=False,
     )
     doi = CreatableSlugRelatedField(
-        many=True,
         read_only=False,
         slug_field="doi",
         queryset=models.Doi.objects,
@@ -669,6 +696,31 @@ class TrainingMaterialSerializer(ResourceSerializer):
                 'providedBy': {'lookup_field': 'name'},
             },
         }
+
+        rdf_mapping = dict(
+            _type='LearningResource',
+            # Minimum
+            name='name',
+            fileName='alternateName',
+            description='description',
+            topics='keywords',
+            # Recommended
+            audienceTypes=dict(schema_attr='audience', _type="Text"),
+            licence=dict(schema_attr='license', _type="Text"),
+            difficultyLevel='educationalLevel',
+            fileLocation='url',
+            # Optional
+            dateCreation='dateCreated',
+            dateUpdate='dateModified',
+            # location=dict(schema_attr='location', _type="Place"),
+            # costs=dict(schema_attr='offers', _type='Demand'),
+            # start_date='startDate',
+            # end_date=dict(schema_attr='startEnd', _type='Date'),
+            # homepage='url',
+            # maxParticipants='maximumAttendeeCapacity',
+            # organisedByOrganisations='organizer',
+            # sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
+        )
 
 
 # Model serializer for team
@@ -771,6 +823,19 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'fundedBy': {'lookup_field': 'name'},
             'platforms': {'lookup_field': 'name'},
         }
+        rdf_mapping = dict(
+            _type='Organization',
+            _slug_name='name',
+            name='name',
+            description='description',
+            homepage='url',
+            logo_url='logo',
+            members_count=dict(_type="Integer", schema_attr='numberOfEmployees'),
+            scientificLeaders='member',
+            leaders='member',
+            technicalLeaders='member',
+            address_one_line=dict(_type="Place", schema_attr='location'),
+        )
 
 
 #

@@ -35,6 +35,7 @@ from rest_framework.renderers import StaticHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 
 from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
@@ -353,6 +354,7 @@ class AbstractEventViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet)
 class EventViewSet(AbstractEventViewSet):
     """Handles creating, reading and updating events."""
 
+    # renderer_classes = [BrowsableAPIRenderer, JSONRenderer, JsonLDSchemaTrainingRenderer]
     serializer_class = serializers.EventSerializer
     ordering = [
         '-start_date',
@@ -410,6 +412,11 @@ class EventViewSet(AbstractEventViewSet):
 
 # Model ViewSet for training events that should be published in TES
 class TessEventViewSet(EventViewSet):
+
+    renderer_classes = [BrowsableAPIRenderer]
+    serializer_class = serializers.EventSerializer
+    ordering = []
+
     def get_queryset(self):
         return models.Event.annotate_is_tess_publishing(qs=super().get_queryset()).filter(is_tess_publishing=True)
 
@@ -432,6 +439,19 @@ class TrainingViewSet(AbstractEventViewSet):
 
 # Model ViewSet for training that should be published in TES
 class TessTrainingViewSet(TrainingViewSet):
+
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
+    serializer_class = serializers.TrainingSerializer
+    ordering = []
+
+    search_fields = EventViewSet.search_fields_from_abstract_event + (
+        'audienceTypes__audienceType',
+        'audienceRoles__audienceRole',
+        'difficultyLevel',
+        'learningOutcomes',
+    )
+    filterset_class = TrainingFilter
+
     def get_queryset(self):
         return super().get_queryset().filter(tess_publishing=True)
 

@@ -182,6 +182,24 @@ class Team(WithGridIdOrRORId, models.Model):
         auto_now=True,
     )
 
+    @property
+    def members_count(self):
+        return (
+            UserProfile.objects.filter(
+                Q(teamsMembers=self)
+                | Q(teamsLeaders=self)
+                | Q(teamsScientificLeaders=self)
+                | Q(teamsTechnicalLeaders=self)
+                | Q(teamsDeputies=self)
+            )
+            .distinct()
+            .count()
+        )
+
+    @property
+    def address_one_line(self):
+        return self.address.replace('\r', '').replace('\n', ', ')
+
     def __str__(self):
         """Return the Team model as a string."""
         return self.name
