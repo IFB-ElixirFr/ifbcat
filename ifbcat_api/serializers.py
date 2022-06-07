@@ -348,7 +348,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             location=dict(schema_attr='location', _type="Place"),
             costs=dict(schema_attr='offers', _type='Demand'),
             start_date='startDate',
-            end_date=dict(schema_attr='startEnd', _type='Date'),
+            end_date=dict(schema_attr='endDate', _type='Date'),
             homepage='url',
             maxParticipants='maximumAttendeeCapacity',
             organisedByOrganisations='organizer',
