@@ -413,7 +413,6 @@ class EventViewSet(AbstractEventViewSet):
 # Model ViewSet for training events that should be published in TES
 class TessEventViewSet(EventViewSet):
 
-    renderer_classes = [BrowsableAPIRenderer]
     serializer_class = serializers.EventSerializer
     ordering = []
 
