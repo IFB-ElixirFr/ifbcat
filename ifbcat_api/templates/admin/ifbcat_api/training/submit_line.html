@@ -3,6 +3,15 @@
 {% block extra-actions %}
 {% if original.pk %}
 <hr/>
+<div class="form-group">
 <a role="button" href="{% url 'new_training_course' original.pk %}" class="btn btn-outline-primary form-control">Create a new session</a>
+</div>
+{% if not original.is_draft %}
+<div class="form-group">
+<a role="button" href="{% url 'training-detail' original.pk %}" class="btn btn-outline-primary form-control">
+    View in API
+</a>
+</div>
+{% endif %}
 {% endif %}
 {% endblock %}
