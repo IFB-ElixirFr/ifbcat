@@ -727,7 +727,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
-    publications = serializers.SlugRelatedField(
+    publications = CreatableSlugRelatedField(
         many=True,
         read_only=False,
         slug_field="doi",
