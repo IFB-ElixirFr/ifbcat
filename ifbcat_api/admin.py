@@ -1174,6 +1174,7 @@ class TeamAdmin(
     list_display = (
         'name',
         'logo',
+        'updated_at',
     )
     list_filter = (IsActiveListFilter,)
     fieldsets = (
