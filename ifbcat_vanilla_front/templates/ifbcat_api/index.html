@@ -1,17 +1,54 @@
 {% extends "ifbcat_base.html" %}
-
+{% load static%}
 {% block title%}IFB catalogue{% endblock title%}
 
 {% block content%}
-<div class="col-12 col-md-4 offset-md-4 col-lg-2 offset-lg-5 mb-4">
-    <a href="/api/" role="button" class="btn btn-primary btn-lg btn-block">API</a>
-    <a href="/admin/" role="button" class="btn btn-primary btn-lg btn-block">Admin</a>
-    <a href="/swagger-ui/" role="button" class="btn btn-primary btn-lg btn-block">Swagger UI</a>
-    <a href="/openapi?format=openapi-json" role="button" class="btn btn-primary btn-lg btn-block">openapi</a>
-    <a href="/api/tess/" role="button" class="btn btn-primary btn-lg btn-block">TESS</a>
-    <hr/>
-    <a href="{%url 'vfront:team-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Platforms</a>
-    <a href="{%url 'vfront:event-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Events</a>
-    <a href="{%url 'vfront:training-list'%}" role="button" class="btn btn-primary btn-lg btn-block">Trainings</a>
+<div class="col-12 col-lg-8 offset-lg-2 mb-4">
+    <div class="card border-primary mb-4">
+        <div class="card-header border-primary bg-primary text-white">
+            Provide content and documentation
+        </div>
+        <div class="card-body row ml-lg-1">
+            <div class="d-none d-lg-block col-4"
+                 style="background-image:url(https://user-images.githubusercontent.com/27360084/163156382-9df07118-32eb-4e87-8257-b77342aebe99.png);background-size:300%"
+            ></div>
+            <div class="col-12 col-lg-8">
+                <a href="/admin/" role="button" class="btn btn-outline-primary btn-lg btn-block">Admin</a>
+                <a href="https://community.france-bioinformatique.fr/" role="button" class="btn btn-outline-primary btn-lg btn-block">Community Plateform</a>
+                <a href="https://github.com/IFB-ElixirFr/ifbcat/issues" role="button" class="btn btn-outline-primary btn-lg btn-block">Issue tracking</a>
+            </div>
+        </div>
+    </div>
+    <div class="card border-primary mb-4">
+        <div class="card-header border-primary bg-primary text-white">
+            Browse data
+        </div>
+        <div class="card-body row ml-lg-1">
+            <div class="d-none d-lg-block col-4"
+                 style="background-image:url({% static 'img/vanilla-front.png' %});background-size:200%"
+            ></div>
+                <div class="col-12 col-lg-8">
+                <a href="{%url 'vfront:team-list'%}" role="button" class="btn btn-outline-primary btn-lg btn-block">Platforms</a>
+                <a href="{%url 'vfront:event-list'%}" role="button" class="btn btn-outline-primary btn-lg btn-block">Events</a>
+                <a href="{%url 'vfront:training-list'%}" role="button" class="btn btn-outline-primary btn-lg btn-block">Trainings</a>
+            </div>
+        </div>
+    </div>
+    <div class="card border-primary mb-4">
+        <div class="card-header border-primary bg-primary text-white">
+            Programmatical access
+        </div>
+        <div class="card-body row ml-lg-1">
+            <div class="d-none d-lg-block col-4"
+                 style="background-image:url(https://python.doctor/images/django-rest-framework-api-root.png);background-size:160%"
+            ></div>
+            <div class="col-12 col-lg-8">
+                <a href="/api/" role="button" class="btn btn-outline-primary btn-lg btn-block">API</a>
+                <a href="/swagger-ui/" role="button" class="btn btn-outline-primary btn-lg btn-block">Swagger UI</a>
+                <a href="/openapi?format=openapi-json" role="button" class="btn btn-outline-primary btn-lg btn-block">openapi</a>
+                <a href="/api/tess/" role="button" class="btn btn-outline-primary btn-lg btn-block">TESS</a>
+        </div>
+        </div>
+    </div>
 </div>
 {% endblock content%}
