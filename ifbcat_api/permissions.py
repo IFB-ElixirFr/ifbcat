@@ -44,7 +44,7 @@ class ReadWriteBySomething(permissions.BasePermission):
             # check if __ is in the target, if so we use the queryset to filter and check if the object is
             # still accessible
             # we get the target attribute
-            target_attr = getattr(obj, target)
+            target_attr = getattr(obj, target, None)
             if '__' in target:
                 if obj._meta.model.objects.filter(**{target: request.user, "id": obj.id}).exists():
                     return True
