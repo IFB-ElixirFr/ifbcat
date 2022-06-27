@@ -28,21 +28,34 @@ class ReadWriteBySomething(permissions.BasePermission):
 
     """Allow everyone to see, but only target to update/delete."""
     target = None
+    """Allow everyone to see, but only update/delete if one targets match."""
+    targets = None
 
     def __init__(self, *args, **kwargs):
-        assert self.target is not None, "target cannot be None"
+        assert self.target is not None or self.targets is not None, "target cannot be None"
+        assert (self.target is None and self.targets is not None) or (
+            self.target is not None and self.targets is None
+        ), "either define target or targets, not both"
+        if self.target:
+            self.targets = [self.target]
 
     def has_object_permission(self, request, view, obj):
-        # check if __ is in the target, if so we use the queryset to filter and check if the object is still accessible
-        if '__' in self.target:
-            return obj._meta.model.objects.filter(**{self.target: request.user, "id": obj.id}).exists()
-        # we get the target attribute
-        target_attr = getattr(obj, self.target)
-        # if it is a ManyToMany we test if the user on of them
-        if isinstance(obj._meta.get_field(self.target), ManyToManyField):
-            return target_attr.filter(id=request.user.id).exists()
-        # otherwise we test is the user is the target
-        return target_attr is not None and target_attr.id == request.user.id
+        for target in self.targets:
+            # check if __ is in the target, if so we use the queryset to filter and check if the object is
+            # still accessible
+            # we get the target attribute
+            target_attr = getattr(obj, target, None)
+            if '__' in target:
+                if obj._meta.model.objects.filter(**{target: request.user, "id": obj.id}).exists():
+                    return True
+            # if it is a ManyToMany we test if the user on of them
+            elif isinstance(obj._meta.get_field(target), ManyToManyField):
+                if target_attr.filter(id=request.user.id).exists():
+                    return True
+            # otherwise we test is the user is the target
+            elif target_attr is not None and target_attr.id == request.user.id:
+                return True
+        return False
 
 
 # Custom permissions class for updating object
@@ -71,7 +84,11 @@ class ReadWriteByTrainers(ReadWriteBySomething):
 
 
 class ReadWriteByLeader(ReadWriteBySomething):
-    target = 'leaders'
+    targets = [
+        'leaders',
+        'scientificLeaders',
+        'technicalLeaders',
+    ]
 
 
 class ReadWriteByDeputies(ReadWriteBySomething):
@@ -91,7 +108,11 @@ class ReadWriteBySubmitters(ReadWriteBySomething):
 
 
 class ReadWriteByTeamLeaders(ReadWriteBySomething):
-    target = 'team__leaders'
+    targets = [
+        'team__leaders',
+        'team__scientificLeaders',
+        'team__technicalLeaders',
+    ]
 
 
 class ReadWriteByTeamDeputies(ReadWriteBySomething):
@@ -103,7 +124,11 @@ class ReadWriteByTeamMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByTeamsLeader(ReadWriteBySomething):
-    target = 'teams__leaders'
+    targets = [
+        'teams__leaders',
+        'teams__scientificLeaders',
+        'teams__technicalLeaders',
+    ]
 
 
 class ReadWriteByTeamsDeputies(ReadWriteBySomething):
@@ -115,7 +140,11 @@ class ReadWriteByTeamsMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByOrgByTeamsLeader(ReadWriteBySomething):
-    target = 'organisedByTeams__leaders'
+    targets = [
+        'organisedByTeams__leaders',
+        'organisedByTeams__scientificLeaders',
+        'organisedByTeams__technicalLeaders',
+    ]
 
 
 class ReadWriteByOrgByTeamsDeputies(ReadWriteBySomething):
@@ -131,7 +160,11 @@ class ReadWriteByOrgByTeamsMaintainers(ReadWriteBySomething):
 
 
 class ReadWriteByProvidedByLeader(ReadWriteBySomething):
-    target = 'providedBy__leaders'
+    targets = [
+        'providedBy__leaders',
+        'providedBy__scientificLeaders',
+        'providedBy__technicalLeaders',
+    ]
 
 
 class ReadWriteByProvidedByDeputies(ReadWriteBySomething):
