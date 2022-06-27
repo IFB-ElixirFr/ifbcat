@@ -125,6 +125,9 @@ class Tool(models.Model):
         )
 
     def update_information_from_biotool(self):
+        self.update_information_from_json(self.fetch_json_from_biotool())
+
+    def fetch_json_from_biotool(self):
         try:
             http = urllib3.PoolManager()
             req = http.request('GET', f'https://bio.tools/api/{self.biotoolsID}?format=json')
@@ -137,7 +140,7 @@ class Tool(models.Model):
             self.name = f'{self.biotoolsID} {entry["detail"]}'
             self.save()
             return
-        self.update_information_from_json(entry)
+        return entry
 
     def update_information_from_json(self, tool: dict):
         # insert in DB tool table here
@@ -240,4 +243,6 @@ class Tool(models.Model):
 @receiver(post_save, sender=Tool)
 def update_information_from_biotool(sender, instance, created, **kwargs):
     if created and instance.biotoolsID is not None and instance.biotoolsID != "":
-        instance.update_information_from_biotool()
+        if not instance.json_from_biotool:
+            instance.json_from_biotool = instance.fetch_json_from_biotool()
+        instance.update_information_from_json(instance.json_from_biotool)

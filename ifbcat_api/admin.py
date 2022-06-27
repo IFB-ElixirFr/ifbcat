@@ -1312,6 +1312,21 @@ class ServiceSubmissionAdmin(
     )
 
 
+class ToolAdminForm(forms.ModelForm):
+    class Meta:
+        model = models.Tool
+        fields = ('biotoolsID',)
+
+    def is_valid(self):
+        if not super().is_valid():
+            return False
+        self.instance.json_from_biotool = self.instance.fetch_json_from_biotool()
+        if models.Tool.objects.filter(biotoolsID__iexact=self.instance.json_from_biotool['biotoolsID']).exists():
+            self.add_error('biotoolsID', 'biotoolsID already present in the database')
+            return False
+        return True
+
+
 @admin.register(models.Tool)
 class ToolAdmin(
     PermissionInClassModelAdmin,
@@ -1339,6 +1354,8 @@ class ToolAdmin(
         'biotoolsID',
         # 'update_needed',
     )
+
+    form = ToolAdminForm
 
     actions = [
         'update_information_from_biotool',
@@ -1374,11 +1391,6 @@ class ToolAdmin(
     # def update_information_from_biotool_when_needed(self, request, queryset):
     #     for o in queryset.filter(update_needed=True):
     #         o.update_information_from_biotool()
-
-    def get_fields(self, request, obj=None):
-        if obj is None:
-            return ('biotoolsID',)
-        return super().get_fields(request=request, obj=obj)
 
 
 class GroupAdminForm(forms.ModelForm):
