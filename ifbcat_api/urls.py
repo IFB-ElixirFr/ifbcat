@@ -66,4 +66,9 @@ urlpatterns = [
         name='view_training_courses',
     ),
     path('md-to-html/', views.MarkdownToHTMLJob.as_view(), name='md_to_html'),
+    path(
+        'tool/<int:pk>/update-from-biotools/',
+        views.update_from_biotools_view,
+        name='update_from_biotools_view',
+    ),
 ]

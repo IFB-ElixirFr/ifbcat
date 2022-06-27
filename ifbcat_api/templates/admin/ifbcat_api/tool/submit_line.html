@@ -1,0 +1,17 @@
+{% extends "admin/submit_line.html" %}
+
+{% block extra-actions %}
+{% if original.pk %}
+<hr/>
+<div class="form-group">
+    <a role="button" href="{% url 'update_from_biotools_view' original.pk %}" class="btn btn-outline-primary form-control">
+        Trigger bio.tools update
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block content %}
+{{super}}aa
+{% endblock %}

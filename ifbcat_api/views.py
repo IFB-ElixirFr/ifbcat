@@ -985,6 +985,14 @@ class MarkdownToHTMLJob(APIView):
         )
 
 
+@staff_member_required
+def update_from_biotools_view(request, pk):
+    # Disclaimer : this view allows admin without permission to update a tool to trigger its update anyway
+    opts = models.Tool._meta
+    models.Tool.objects.get(pk=pk).update_information_from_biotool()
+    return HttpResponseRedirect(reverse('admin:%s_%s_change' % (opts.app_label, opts.model_name), args=[pk]))
+
+
 # @api_view(['POST'])
 # @renderer_classes([StaticHTMLRenderer])
 # @parser_classes([JSONParser])
