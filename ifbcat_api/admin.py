@@ -5,7 +5,7 @@ import requests
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
-from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.admin.widgets import FilteredSelectMultiple, AdminTextInputWidget
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
@@ -1097,11 +1097,33 @@ class ComputingFacilityAdmin(
 
 
 class TeamForm(forms.ModelForm):
+    class Meta:
+        model = models.Team
+        widgets = {
+            'lng': AdminTextInputWidget(),
+            'lat': AdminTextInputWidget(),
+        }
+        fields = '__all__'
+
     publications_batch = forms.CharField(
         help_text="List of DOI to add to the current Team, one per line.",
         required=False,
         widget=forms.widgets.Textarea(attrs={'row': 10, 'class': 'vLargeTextField'}),
     )
+    osm_link = forms.URLField(
+        label="Location on a map",
+        help_text="Link to view this gps coordinate in OpenStreetMap",
+        widget=AdminTextInputWidget(),
+        required=False,
+    )
+
+    def __init__(self, *args, instance=None, initial=None, **kwargs):
+        if initial is None:
+            initial = dict()
+        if instance is not None:
+            initial["osm_link"] = instance.get_osm_link()
+        super().__init__(*args, initial=initial, instance=instance, **kwargs)
+        self.fields['osm_link'].widget.attrs["disabled"] = True
 
     def _save_m2m(self):
         super()._save_m2m()
@@ -1199,6 +1221,9 @@ class TeamAdmin(
                     'address',
                     'city',
                     'country',
+                    'lat',
+                    'lng',
+                    'osm_link',
                 )
             },
         ),

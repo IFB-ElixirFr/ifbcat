@@ -154,6 +154,20 @@ class Team(WithGridIdOrRORId, models.Model):
         null=True,
         default=None,
     )
+    lng = models.DecimalField(
+        verbose_name="Longitude",
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        default=None,
+    )
+    lat = models.DecimalField(
+        verbose_name="Latitude",
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        default=None,
+    )
 
     #############################
     # BioTeam related attributes
@@ -203,6 +217,9 @@ class Team(WithGridIdOrRORId, models.Model):
     def __str__(self):
         """Return the Team model as a string."""
         return self.name
+
+    def get_osm_link(self):
+        return f'https://www.openstreetmap.org/?mlat={self.lat}&mlon={self.lng}#map=12/{self.lat}/{self.lng}'
 
     @classmethod
     def annotate_is_active(cls, qs=None):
