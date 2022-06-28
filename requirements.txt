@@ -20,5 +20,6 @@ rdflib
 rdflib-jsonld
 pylev
 django-extensions
+opencage
 markdown
 #end of file

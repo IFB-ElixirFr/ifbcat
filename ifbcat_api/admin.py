@@ -1,5 +1,6 @@
 import itertools
 import re
+import time
 
 import requests
 from django import forms
@@ -1276,6 +1277,52 @@ class TeamAdmin(
             },
         ),
     )
+
+    actions = [
+        'guess_coordinate_from_address',
+        'guess_coordinate_from_address_when_needed',
+    ]
+
+    def guess_coordinate_from_address_when_needed(self, request, queryset):
+        queryset = queryset.filter(lat__isnull=True)
+        if not queryset.exists():
+            messages.info(
+                request,
+                'No team without coordinates were found in selected teams',
+            )
+        return self.guess_coordinate_from_address(request=request, queryset=queryset)
+
+    def guess_coordinate_from_address(self, request, queryset):
+        if queryset.count() > 3:
+            messages.warning(
+                request,
+                'Too many teams selected at once, working only on the top three first',
+            )
+        first = True
+        for o in queryset.all()[:3]:
+            if not first:
+                time.sleep(2)
+            if o.guess_coordinate_from_address():
+                LogEntry.objects.log_action(
+                    user_id=request.user.id,
+                    content_type_id=ContentType.objects.get_for_model(o).pk,
+                    object_id=o.id,
+                    object_repr=str(o),
+                    action_flag=CHANGE,
+                    change_message=[{"changed": {"fields": ['lon', 'lar']}}],
+                )
+                messages.success(
+                    request,
+                    mark_safe(
+                        f'Coordinate of "{o}" guessed at '
+                        f'<a target="_blank" href="{o.get_osm_link()}">{o.get_osm_link()}</a>'
+                    ),
+                )
+            else:
+                messages.warning(
+                    request,
+                    f'Could not guess coordinate of "{o}"',
+                )
 
     def get_queryset(self, request):
         return (

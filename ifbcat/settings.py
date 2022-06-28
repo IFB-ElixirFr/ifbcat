@@ -202,6 +202,11 @@ LOGLEVEL = os.environ.get('LOGLEVEL', 'INFO' if DEBUG else 'WARNING').upper()
 logging.basicConfig(level=LOGLEVEL)
 
 ################################################################################
+# Log level
+################################################################################
+OPEN_CAGE_GEO_CODE_KEY = config('OPEN_CAGE_GEO_CODE_KEY', '')
+
+################################################################################
 # JAZZMIN CONFIGURATION
 ################################################################################
 JAZZMIN_UI_TWEAKS = {
