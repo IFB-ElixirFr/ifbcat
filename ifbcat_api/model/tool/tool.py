@@ -134,12 +134,12 @@ class Tool(models.Model):
             entry = json.loads(req.data.decode('utf-8'))
         except (JSONDecodeError, MaxRetryError) as e:
             logger.error(f"Error with {self.biotoolsID}: {e}")
-            return
+            return None
         if entry.get('detail', None) is not None:
             logger.error(f"Error with {self.biotoolsID}: {entry['detail']}")
             self.name = f'{self.biotoolsID} {entry["detail"]}'
             self.save()
-            return
+            return None
         return entry
 
     def update_information_from_json(self, tool: dict):
@@ -243,6 +243,7 @@ class Tool(models.Model):
 @receiver(post_save, sender=Tool)
 def update_information_from_biotool(sender, instance, created, **kwargs):
     if created and instance.biotoolsID is not None and instance.biotoolsID != "":
-        if not instance.json_from_biotool:
+        if not hasattr(instance, 'json_from_biotool'):
             instance.json_from_biotool = instance.fetch_json_from_biotool()
-        instance.update_information_from_json(instance.json_from_biotool)
+        if instance.json_from_biotool:
+            instance.update_information_from_json(instance.json_from_biotool)
