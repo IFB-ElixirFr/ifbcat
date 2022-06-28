@@ -159,6 +159,7 @@ class Team(WithGridIdOrRORId, models.Model):
         max_digits=9,
         decimal_places=6,
         null=True,
+        blank=True,
         default=None,
     )
     lat = models.DecimalField(
@@ -166,6 +167,7 @@ class Team(WithGridIdOrRORId, models.Model):
         max_digits=9,
         decimal_places=6,
         null=True,
+        blank=True,
         default=None,
     )
 
