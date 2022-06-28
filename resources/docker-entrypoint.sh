@@ -51,4 +51,13 @@ python manage.py collectstatic --noinput
 #    msg_warning "django-crontab missing, passed"
 #fi
 
+if [ "$START_HUEY" == "False" ]
+then
+    msg_info "Do not start huey"
+else
+    msg_info "Start huey"
+    python manage.py run_huey &
+    msg_info "Start huey started"
+fi
+
 exec "$@"

@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework.authtoken',
     'django_better_admin_arrayfield',
+    'huey.contrib.djhuey',
     'ifbcat_api',
     'ifbcat_vanilla_front',
     'django.contrib.postgres',
@@ -364,5 +365,20 @@ EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', default='25')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='contact@france-bioinformatique.fr')
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+################################################################################
+# HUEY
+################################################################################
+HUEY = {
+    'name': DATABASES['default']['NAME'],
+    'huey_class': 'huey.MemoryHuey',
+    'immediate': False,
+    'consumer': {
+        'blocking': True,
+        'loglevel': logging.DEBUG,
+        'workers': 1,
+        'scheduler_interval': 60,
+    },
+}
 
 ################################################################################
