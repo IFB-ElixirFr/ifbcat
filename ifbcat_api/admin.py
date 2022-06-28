@@ -1133,17 +1133,6 @@ class TeamForm(forms.ModelForm):
             doi, _ = models.Doi.objects.get_or_create(doi=doi_str)
             self.instance.publications.add(doi)
 
-    def clean(self):
-        super().clean()
-        if self.cleaned_data["ifbMembership"] != models.Team.IfbMembershipType.NO_MEMBERSHIP:
-            errors = {}
-            if self.cleaned_data["expertise"].count() == 0:
-                errors.setdefault('expertise', []).append("expertise is required for IFB Teams")
-            # if self.cleaned_data["platforms"].count() == 0:
-            #     errors.setdefault('platforms', []).append("platforms is required for IFB Teams")
-            if len(errors) > 0:
-                raise ValidationError(errors)
-
 
 class IsActiveListFilter(admin.SimpleListFilter):
     title = 'Is active'
