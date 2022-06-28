@@ -1,11 +1,12 @@
 import itertools
 import re
+import time
 
 import requests
 from django import forms
 from django.contrib import admin, messages
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
-from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.contrib.admin.widgets import FilteredSelectMultiple, AdminTextInputWidget
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django.contrib.auth.models import Group
@@ -1097,11 +1098,33 @@ class ComputingFacilityAdmin(
 
 
 class TeamForm(forms.ModelForm):
+    class Meta:
+        model = models.Team
+        widgets = {
+            'lng': AdminTextInputWidget(),
+            'lat': AdminTextInputWidget(),
+        }
+        fields = '__all__'
+
     publications_batch = forms.CharField(
         help_text="List of DOI to add to the current Team, one per line.",
         required=False,
         widget=forms.widgets.Textarea(attrs={'row': 10, 'class': 'vLargeTextField'}),
     )
+    osm_link = forms.URLField(
+        label="Location on a map",
+        help_text="Link to view this gps coordinate in OpenStreetMap",
+        widget=AdminTextInputWidget(),
+        required=False,
+    )
+
+    def __init__(self, *args, instance=None, initial=None, **kwargs):
+        if initial is None:
+            initial = dict()
+        if instance is not None:
+            initial["osm_link"] = instance.get_osm_link()
+        super().__init__(*args, initial=initial, instance=instance, **kwargs)
+        self.fields['osm_link'].widget.attrs["disabled"] = True
 
     def _save_m2m(self):
         super()._save_m2m()
@@ -1199,6 +1222,9 @@ class TeamAdmin(
                     'address',
                     'city',
                     'country',
+                    'lat',
+                    'lng',
+                    'osm_link',
                 )
             },
         ),
@@ -1251,6 +1277,52 @@ class TeamAdmin(
             },
         ),
     )
+
+    actions = [
+        'guess_coordinate_from_address',
+        'guess_coordinate_from_address_when_needed',
+    ]
+
+    def guess_coordinate_from_address_when_needed(self, request, queryset):
+        queryset = queryset.filter(lat__isnull=True)
+        if not queryset.exists():
+            messages.info(
+                request,
+                'No team without coordinates were found in selected teams',
+            )
+        return self.guess_coordinate_from_address(request=request, queryset=queryset)
+
+    def guess_coordinate_from_address(self, request, queryset):
+        if queryset.count() > 3:
+            messages.warning(
+                request,
+                'Too many teams selected at once, working only on the top three first',
+            )
+        first = True
+        for o in queryset.all()[:3]:
+            if not first:
+                time.sleep(2)
+            if o.guess_coordinate_from_address():
+                LogEntry.objects.log_action(
+                    user_id=request.user.id,
+                    content_type_id=ContentType.objects.get_for_model(o).pk,
+                    object_id=o.id,
+                    object_repr=str(o),
+                    action_flag=CHANGE,
+                    change_message=[{"changed": {"fields": ['lon', 'lar']}}],
+                )
+                messages.success(
+                    request,
+                    mark_safe(
+                        f'Coordinate of "{o}" guessed at '
+                        f'<a target="_blank" href="{o.get_osm_link()}">{o.get_osm_link()}</a>'
+                    ),
+                )
+            else:
+                messages.warning(
+                    request,
+                    f'Could not guess coordinate of "{o}"',
+                )
 
     def get_queryset(self, request):
         return (

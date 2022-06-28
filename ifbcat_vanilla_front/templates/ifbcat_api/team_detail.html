@@ -36,7 +36,16 @@
             <div class="p-3" style="display: grid;grid-template-columns: repeat(3, 1fr);grid-column-gap: 1em;grid-row-gap: 1em;">
                 <div class="card">
                     <div class="card-header">Address</div>
-                    <div class="card-body">{{object.address}}</div>
+                    <div class="card-body">
+                        {{object.address}}
+                        {%if object.lng%}
+                        <br/>
+                        <a href="{{object.get_osm_link}}" target="_blank">
+                            <i class="fas fa-map-marked-alt"></i>
+                            {{object.lat}}, {{object.lng}}
+                        </a>
+                        {%endif%}
+                    </div>
                 </div>
                 <div class="card">
                     <div class="card-header">Attachment</div>

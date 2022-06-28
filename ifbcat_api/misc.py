@@ -1,8 +1,11 @@
 import json
 import os
 
+import pylev
 import requests
+from django.conf import settings
 from django.db.models import ManyToManyRel, ManyToOneRel
+from opencage.geocoder import OpenCageGeocode
 from rest_framework import serializers
 
 
@@ -130,3 +133,13 @@ def inline_serializer_factory(klass, fields=None, lookup_field='pk', url=True):
 
     _tmp.__name__ = name + "InlineSerializer"
     return _tmp
+
+
+def guess_coordinate_from_address(address):
+    geocoder = OpenCageGeocode(settings.OPEN_CAGE_GEO_CODE_KEY)
+    results = geocoder.geocode(address)
+    if len(results) == 0:
+        return None
+    result = min(results, key=lambda x: pylev.levenshtein(x['formatted'], address))
+    print(result['annotations']['OSM']['url'])
+    return result['geometry']

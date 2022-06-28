@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from ifbcat_api import permissions
+from ifbcat_api import permissions, misc
 from ifbcat_api.model.certification import Certification
 from ifbcat_api.model.community import Community
 from ifbcat_api.model.elixirPlatform import ElixirPlatform
@@ -154,6 +154,20 @@ class Team(WithGridIdOrRORId, models.Model):
         null=True,
         default=None,
     )
+    lng = models.DecimalField(
+        verbose_name="Longitude",
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        default=None,
+    )
+    lat = models.DecimalField(
+        verbose_name="Latitude",
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        default=None,
+    )
 
     #############################
     # BioTeam related attributes
@@ -203,6 +217,22 @@ class Team(WithGridIdOrRORId, models.Model):
     def __str__(self):
         """Return the Team model as a string."""
         return self.name
+
+    def guess_coordinate_from_address(self, save=True):
+        address = self.address_one_line
+        if not address:
+            address = self.city
+        geometry = misc.guess_coordinate_from_address(address)
+        if geometry is None:
+            return False
+        self.lat = geometry['lat']
+        self.lng = geometry['lng']
+        if save:
+            self.save()
+        return True
+
+    def get_osm_link(self):
+        return f'https://www.openstreetmap.org/?mlat={self.lat}&mlon={self.lng}#map=12/{self.lat}/{self.lng}'
 
     @classmethod
     def annotate_is_active(cls, qs=None):

@@ -810,6 +810,8 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'platforms',
             'is_active',
             'closing_date',
+            'lat',
+            'lng',
         )
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
