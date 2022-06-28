@@ -21,4 +21,5 @@ rdflib-jsonld
 pylev
 django-extensions
 markdown
+huey
 #end of file
