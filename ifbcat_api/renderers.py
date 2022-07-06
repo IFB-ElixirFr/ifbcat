@@ -1,6 +1,7 @@
 import logging
 from collections import OrderedDict
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import (
     CharField,
     TextField,
@@ -11,6 +12,7 @@ from django.db.models import (
     ManyToManyRel,
     ForeignKey,
 )
+from django.db.models.fields.related_descriptors import ReverseManyToOneDescriptor
 from django.urls import reverse
 from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal
 from rdflib.namespace import RDF, XSD
@@ -121,8 +123,16 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                         pass
                 # second, try to guess the type
                 if datatype is None:
-                    attr_type = type(model._meta.get_field(attr_name))
-                    if attr_type == ManyToManyField or attr_type == ManyToManyRel or attr_type == ForeignKey:
+                    try:
+                        attr_type = type(model._meta.get_field(attr_name))
+                    except FieldDoesNotExist:  # ReverseManyToOneDescriptor
+                        attr_type = type(getattr(model, attr_name))
+                    if attr_type in (
+                        ManyToManyField,
+                        ManyToManyRel,
+                        ForeignKey,
+                        ReverseManyToOneDescriptor,
+                    ):
                         is_related_object = True
                     elif isinstance(attr_type(), URLField):
                         datatype = SCHEMA.URL
