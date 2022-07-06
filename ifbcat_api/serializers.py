@@ -34,8 +34,33 @@ class UserProfileSerializerTiny(serializers.ModelSerializer):
         read_only = True
 
 
+class JsonLDSerializerMixin:
+    class Meta:
+        abstract = True
+
+    @property
+    def rdf_mapping(self):
+        raise NotImplementedError()
+
+    def get_rdf_mapping(self, instance_id=None):
+        return self.rdf_mapping
+
+
+class DynamicMappingException(BaseException):
+    pass
+
+
+class JsonLDDynamicSerializerMixin(JsonLDSerializerMixin):
+    class Meta:
+        abstract = True
+
+    @property
+    def rdf_mapping(self):
+        raise DynamicMappingException()
+
+
 # Model serializer for user profile
-class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
+class UserProfileSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializer):
     """Serializes a user profile (UserProfile object)."""
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
@@ -94,18 +119,19 @@ class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
             'teamsTechnicalLeaders': {'lookup_field': 'name'},
             'teamsMembers': {'lookup_field': 'name'},
         }
-        rdf_mapping = dict(
-            _type='Person',
-            firstname='givenName',
-            lastname='familyName',
-            homepage=dict(schema_attr='mainEntityOfPage', _type="URL"),
-            get_full_name=dict(schema_attr='name', _type="Text"),
-            teamsLeaders='memberOf',
-            teamsScientificLeaders='memberOf',
-            teamsTechnicalLeaders='memberOf',
-            teamsDeputies='memberOf',
-            teamsMembers='memberOf',
-        )
+
+    rdf_mapping = dict(
+        _type='Person',
+        firstname='givenName',
+        lastname='familyName',
+        homepage=dict(schema_attr='mainEntityOfPage', _type="URL"),
+        get_full_name=dict(schema_attr='name', _type="Text"),
+        teamsLeaders='memberOf',
+        teamsScientificLeaders='memberOf',
+        teamsTechnicalLeaders='memberOf',
+        teamsDeputies='memberOf',
+        teamsMembers='memberOf',
+    )
 
     # Override the defult "create" function of the object manager, with the "create_user" function (defined in models.py)
     # This will ensure the password gets created as a hash, rather than clear text
@@ -218,7 +244,7 @@ class VerboseSlugRelatedField(serializers.SlugRelatedField):
 
 
 # Model serializer for events.
-class EventSerializer(serializers.HyperlinkedModelSerializer):
+class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModelSerializer):
     """Serializes an event (Event object)."""
 
     # CharField in ModelSerializer corresponds to both CharField and TextField in Django models
@@ -339,21 +365,36 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             'organisedByTeams': {'lookup_field': 'name'},
             'trainingMaterials': {'lookup_field': 'name'},
         }
-        rdf_mapping = dict(
-            _type='Course',
-            name='name',
-            shortName='alternateName',
-            description='description',
-            # city=dict(schema_attr='location'),
-            location=dict(schema_attr='location', _type="Place"),
-            costs=dict(schema_attr='offers', _type='Demand'),
-            start_date='startDate',
-            end_date=dict(schema_attr='endDate', _type='Date'),
-            homepage='url',
-            maxParticipants='maximumAttendeeCapacity',
-            organisedByOrganisations='organizer',
-            organisedByTeams='organizer',
-            sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
+
+    AbstractEvent_rdf_mapping = dict(
+        name='name',
+        shortName='alternateName',
+        description='description',
+        # city=dict(schema_attr='location'),
+        costs=dict(schema_attr='offers', _type='Demand'),
+        homepage='url',
+        maxParticipants='maximumAttendeeCapacity',
+        organisedByOrganisations='organizer',
+        organisedByTeams='organizer',
+        sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
+    )
+    Event_rdf_mapping = dict(
+        location=dict(schema_attr='location', _type="Place"),
+        start_date='startDate',
+        end_date=dict(schema_attr='endDate', _type='Date'),
+    )
+
+    def get_rdf_mapping(self, instance_id=None):
+        if self.Meta.model.objects.filter(id=instance_id, type='Training course').exists():
+            return dict(
+                _type='CourseInstance',
+                **self.AbstractEvent_rdf_mapping,
+                **self.Event_rdf_mapping,
+            )
+        return dict(
+            _type='Event',
+            **self.AbstractEvent_rdf_mapping,
+            **self.Event_rdf_mapping,
         )
 
     def update(self, instance, validated_data):
@@ -428,7 +469,8 @@ class TrainingSerializer(EventSerializer):
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
-        rdf_mapping = dict()
+
+    rdf_mapping = dict()
 
 
 # Model serializer for training event metrics
@@ -698,30 +740,30 @@ class TrainingMaterialSerializer(ResourceSerializer):
             },
         }
 
-        rdf_mapping = dict(
-            _type='LearningResource',
-            # Minimum
-            name='name',
-            fileName='alternateName',
-            description='description',
-            topics='keywords',
-            # Recommended
-            audienceTypes=dict(schema_attr='audience', _type="Text"),
-            licence=dict(schema_attr='license', _type="Text"),
-            difficultyLevel='educationalLevel',
-            fileLocation='url',
-            # Optional
-            dateCreation='dateCreated',
-            dateUpdate='dateModified',
-            # location=dict(schema_attr='location', _type="Place"),
-            # costs=dict(schema_attr='offers', _type='Demand'),
-            # start_date='startDate',
-            # end_date=dict(schema_attr='startEnd', _type='Date'),
-            # homepage='url',
-            # maxParticipants='maximumAttendeeCapacity',
-            # organisedByOrganisations='organizer',
-            # sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
-        )
+    rdf_mapping = dict(
+        _type='LearningResource',
+        # Minimum
+        name='name',
+        fileName='alternateName',
+        description='description',
+        topics='keywords',
+        # Recommended
+        audienceTypes=dict(schema_attr='audience', _type="Text"),
+        licence=dict(schema_attr='license', _type="Text"),
+        difficultyLevel='educationalLevel',
+        fileLocation='url',
+        # Optional
+        dateCreation='dateCreated',
+        dateUpdate='dateModified',
+        # location=dict(schema_attr='location', _type="Place"),
+        # costs=dict(schema_attr='offers', _type='Demand'),
+        # start_date='startDate',
+        # end_date=dict(schema_attr='startEnd', _type='Date'),
+        # homepage='url',
+        # maxParticipants='maximumAttendeeCapacity',
+        # organisedByOrganisations='organizer',
+        # sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
+    )
 
 
 # Model serializer for team
@@ -826,19 +868,20 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
             'fundedBy': {'lookup_field': 'name'},
             'platforms': {'lookup_field': 'name'},
         }
-        rdf_mapping = dict(
-            _type='Organization',
-            _slug_name='name',
-            name='name',
-            description='description',
-            homepage='url',
-            logo_url='logo',
-            members_count=dict(_type="Integer", schema_attr='numberOfEmployees'),
-            scientificLeaders='member',
-            leaders='member',
-            technicalLeaders='member',
-            address_one_line=dict(_type="Place", schema_attr='location'),
-        )
+
+    rdf_mapping = dict(
+        _type='Organization',
+        _slug_name='name',
+        name='name',
+        description='description',
+        homepage='url',
+        logo_url='logo',
+        members_count=dict(_type="Integer", schema_attr='numberOfEmployees'),
+        scientificLeaders='member',
+        leaders='member',
+        technicalLeaders='member',
+        address_one_line=dict(_type="Place", schema_attr='location'),
+    )
 
 
 #
