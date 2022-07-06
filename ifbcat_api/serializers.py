@@ -443,6 +443,12 @@ class TrainingSerializer(EventSerializer):
     )
     trainingMaterials = inlineSerializers.TrainingMaterialInlineSerializer(many=True, read_only=True)
 
+    rdf_mapping = dict(
+        _type='Course',
+        event_set='hasCourseInstance',
+        **EventSerializer.AbstractEvent_rdf_mapping,
+    )
+
     class Meta(EventSerializer.Meta):
         model = models.Training
 
@@ -456,6 +462,7 @@ class TrainingSerializer(EventSerializer):
             'hoursHandsOn',
             'hoursTotal',
             'personalised',
+            'event_set',
             # 'databases',
             # 'tools',
         )
@@ -469,8 +476,6 @@ class TrainingSerializer(EventSerializer):
                 'trainingMaterials': {'lookup_field': 'name'},
             },
         }
-
-    rdf_mapping = dict()
 
 
 # Model serializer for training event metrics
