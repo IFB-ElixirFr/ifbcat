@@ -352,6 +352,7 @@ class EventSerializer(serializers.HyperlinkedModelSerializer):
             homepage='url',
             maxParticipants='maximumAttendeeCapacity',
             organisedByOrganisations='organizer',
+            organisedByTeams='organizer',
             sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
         )
 
