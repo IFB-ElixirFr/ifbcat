@@ -1,6 +1,7 @@
 import logging
 from collections import OrderedDict
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import (
     CharField,
     TextField,
@@ -11,6 +12,7 @@ from django.db.models import (
     ManyToManyRel,
     ForeignKey,
 )
+from django.db.models.fields.related_descriptors import ReverseManyToOneDescriptor
 from django.urls import reverse
 from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal
 from rdflib.namespace import RDF, XSD
@@ -20,6 +22,9 @@ from rest_framework.serializers import ListSerializer
 
 
 # Proof of concept on tools before using it on training
+from ifbcat_api.serializers import JsonLDSerializerMixin, DynamicMappingException
+
+
 class JsonLDSchemaRenderer(renderers.BaseRenderer):
     # media_type = 'text/rdf+txt'
     media_type = 'application/ld+json'
@@ -49,43 +54,51 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
         G = ConjunctiveGraph()
         SCHEMA = Namespace("https://schema.org/")
 
-        rdf_mapping = getattr(serializer.Meta, 'rdf_mapping', dict())
+        # skip serializer that don't explicitly indicate that they will provide mapping
+        if not isinstance(serializer, JsonLDSerializerMixin):
+            yield []
+            return
 
         # get the type of the object, if not provided the items are not rendered
         model = serializer.Meta.model
+        # get the static mapping
         try:
-            klass_types = [rdf_mapping['_type']]
-        except KeyError:
+            static_rdf_mapping = serializer.rdf_mapping
+            get_rdf_mapping = lambda x: static_rdf_mapping
+
             try:
-                klass_types = rdf_mapping['_types']
+                klass_types = get_klass_types(static_rdf_mapping, model, None)
             except KeyError:
-                logging.warning(
-                    f"To serialize {model} to json-ld, "
-                    "you must provide a type in _type or many types in _types, always as String"
-                )
                 yield []
                 return
-        try:
-            slug_name = rdf_mapping['_slug_name']
-        except KeyError:
-            slug_name = 'id'
+            slug_name = static_rdf_mapping.get('_slug_name', 'id')
+        except DynamicMappingException:
+            # if the mapping depend of the data, DynamicMappingException is raised, so working with it
+            slug_name = None
+            klass_types = None
+            get_rdf_mapping = serializer.get_rdf_mapping
 
         # we iterate over each result in the results set
         for item in actual_data:
-            if not item.get("id"):
+            object_id = item.get("id")
+            if not object_id:
                 continue
+            item_rdf_mapping = get_rdf_mapping(object_id)
+            if item_rdf_mapping is None or len(item_rdf_mapping) == 0:
+                continue
+            object_slug = item[slug_name or item_rdf_mapping.get('_slug_name', 'id')]
             object_uri = URIRef(
                 "https://catalogue.france-bioinformatique.fr"
-                + reverse(f'{model.__name__.lower()}-detail', args=[item[slug_name]])
+                + reverse(f'{model.__name__.lower()}-detail', args=[object_slug])
                 + "?format="
                 + self.format
             )
             # print(reverse(f'{serializer.Meta.model.__name__.lower()}-detail', args=[getattr(obj, self.slug_name)]))
             # provide the type of the item
-            for klass_type in klass_types:
+            for klass_type in klass_types or get_klass_types(item_rdf_mapping, model, object_slug):
                 G.add((object_uri, RDF.type, getattr(SCHEMA, klass_type)))
 
-            for attr_name, mapping in rdf_mapping.items():
+            for attr_name, mapping in item_rdf_mapping.items():
                 # attr_name starting with a _ are not instance attribute, and out of the scope of this loop
                 if attr_name[0] == '_':
                     continue
@@ -121,8 +134,16 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                         pass
                 # second, try to guess the type
                 if datatype is None:
-                    attr_type = type(model._meta.get_field(attr_name))
-                    if attr_type == ManyToManyField or attr_type == ManyToManyRel or attr_type == ForeignKey:
+                    try:
+                        attr_type = type(model._meta.get_field(attr_name))
+                    except FieldDoesNotExist:  # ReverseManyToOneDescriptor
+                        attr_type = type(getattr(model, attr_name))
+                    if attr_type in (
+                        ManyToManyField,
+                        ManyToManyRel,
+                        ForeignKey,
+                        ReverseManyToOneDescriptor,
+                    ):
                         is_related_object = True
                     elif isinstance(attr_type(), URLField):
                         datatype = SCHEMA.URL
@@ -167,3 +188,17 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
 
         # render the graph in json-ld
         yield G.serialize(format="json-ld")
+
+
+def get_klass_types(rdf_mapping, model, instance_id):
+    try:
+        return [rdf_mapping['_type']]
+    except KeyError:
+        try:
+            return rdf_mapping['_types']
+        except KeyError as e:
+            logging.warning(
+                f"To serialize {model}:{instance_id} to json-ld, "
+                "you must provide a type in _type or many types in _types, always as String"
+            )
+            raise e
