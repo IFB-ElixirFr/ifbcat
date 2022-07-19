@@ -772,7 +772,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
 
 
 # Model serializer for team
-class TeamSerializer(serializers.HyperlinkedModelSerializer):
+class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializer):
     """Serializes a team (Team object)."""
 
     publications = CreatableSlugRelatedField(
