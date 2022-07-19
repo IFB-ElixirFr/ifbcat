@@ -821,7 +821,6 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
         queryset=models.Field.objects.all(),
         required=False,
     )
-
     expertise = CreatableSlugRelatedField(
         many=True,
         read_only=False,
@@ -906,6 +905,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
         description='description',
         homepage='url',
         logo_url='logo',
+        publications='identifier',
         members_count=dict(_type="Integer", schema_attr='numberOfEmployees'),
         scientificLeaders='member',
         leaders='member',
