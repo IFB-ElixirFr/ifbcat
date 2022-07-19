@@ -688,7 +688,7 @@ class ComputingFacilitySerializer(ResourceSerializer):
 
 
 # Model serializer for training materials
-class TrainingMaterialSerializer(ResourceSerializer):
+class TrainingMaterialSerializer(JsonLDSerializerMixin, ResourceSerializer):
     """Serializes a training material (TrainingMaterial object)."""
 
     topics = CreatableSlugRelatedField(
