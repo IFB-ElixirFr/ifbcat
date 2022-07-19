@@ -9,6 +9,23 @@ from rest_framework.exceptions import ValidationError
 from ifbcat_api import models, inlineSerializers
 
 
+# See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
+class CreatableSlugRelatedField(serializers.SlugRelatedField):
+    """Custom SlugRelatedField that creates the new object when one doesn't exist."""
+
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(**{self.slug_field: data})
+        except ObjectDoesNotExist:
+            instance = self.get_queryset().model(**{self.slug_field: data})
+            instance.clean_fields()
+            instance.clean()
+            instance.save()
+            return instance
+        except (TypeError, ValueError):
+            self.fail('invalid')
+
+
 # This is just for testing serialization
 class TestApiViewSerializer(serializers.Serializer):
     """Serializes a test input field."""
@@ -65,6 +82,14 @@ class JsonLDDynamicSerializerMixin(JsonLDSerializerMixin):
 # Model serializer for user profile
 class UserProfileSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializer):
     """Serializes a user profile (UserProfile object)."""
+
+    expertise = CreatableSlugRelatedField(
+        many=True,
+        read_only=False,
+        slug_field="uri",
+        queryset=models.Topic.objects,
+        required=False,
+    )
 
     # Validation isn't specified for fields where basic validation defined in models.py is adequate
     # "allow_null" means None is considered a valid value (it defauls to False)
@@ -127,6 +152,8 @@ class UserProfileSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelS
         _type='Person',
         firstname='givenName',
         lastname='familyName',
+        expertise='expertise',
+        orcidid=dict(schema_attr='orcid', _type="URL"),
         homepage=dict(schema_attr='mainEntityOfPage', _type="URL"),
         get_full_name=dict(schema_attr='name', _type="Text"),
         teamsLeaders='memberOf',
@@ -208,23 +235,6 @@ class EventPrerequisiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EventPrerequisite
         fields = ('id', 'prerequisite')
-
-
-# See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
-class CreatableSlugRelatedField(serializers.SlugRelatedField):
-    """Custom SlugRelatedField that creates the new object when one doesn't exist."""
-
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except ObjectDoesNotExist:
-            instance = self.get_queryset().model(**{self.slug_field: data})
-            instance.clean_fields()
-            instance.clean()
-            instance.save()
-            return instance
-        except (TypeError, ValueError):
-            self.fail('invalid')
 
 
 class VerboseSlugRelatedField(serializers.SlugRelatedField):
