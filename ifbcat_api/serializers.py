@@ -275,7 +275,7 @@ class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModel
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="edam_id",
+        slug_field="uri",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -597,7 +597,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="edam_id",
+        slug_field="uri",
         queryset=models.Topic.objects.all(),
         required=False,
     )
@@ -694,7 +694,7 @@ class TrainingMaterialSerializer(ResourceSerializer):
     topics = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="edam_id",
+        slug_field="uri",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -814,7 +814,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
     expertise = CreatableSlugRelatedField(
         many=True,
         read_only=False,
-        slug_field="edam_id",
+        slug_field="uri",
         queryset=models.Topic.objects,
         required=False,
     )
@@ -1081,7 +1081,7 @@ class ToolSerializer(serializers.HyperlinkedModelSerializer):
     scientific_topics = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field="edam_id",
+        slug_field="uri",
         required=False,
     )
 
