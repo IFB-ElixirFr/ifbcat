@@ -515,7 +515,7 @@ class EventSponsorSerializer(serializers.HyperlinkedModelSerializer):
 
 
 # Organisation serializer
-class OrganisationSerializer(serializers.ModelSerializer):
+class OrganisationSerializer(JsonLDSerializerMixin, serializers.ModelSerializer):
     """Serializes an organisation (Organisation object)."""
 
     fields = VerboseSlugRelatedField(
@@ -529,6 +529,17 @@ class OrganisationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Organisation
         fields = ('id', 'name', 'description', 'homepage', 'orgid', 'fields', 'city', 'logo_url')
+
+    rdf_mapping = dict(
+        _type='Organization',
+        _slug_name='name',
+        name='name',
+        description='description',
+        homepage='url',
+        orgid='identifier',
+        logo_url='logo',
+        city='location',
+    )
 
 
 class CertificationSerializer(serializers.HyperlinkedModelSerializer):
