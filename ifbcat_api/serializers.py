@@ -58,6 +58,9 @@ class JsonLDDynamicSerializerMixin(JsonLDSerializerMixin):
     def rdf_mapping(self):
         raise DynamicMappingException()
 
+    def get_rdf_mapping(self, instance_id=None):
+        raise NotImplementedError()
+
 
 # Model serializer for user profile
 class UserProfileSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializer):
