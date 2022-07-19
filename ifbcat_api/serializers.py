@@ -533,6 +533,7 @@ class OrganisationSerializer(JsonLDSerializerMixin, serializers.ModelSerializer)
     rdf_mapping = dict(
         _type='Organization',
         _slug_name='name',
+        _conformsTo='https://bioschemas.org/profiles/Organization/0.2-DRAFT-2019_07_19',
         name='name',
         description='description',
         homepage='url',

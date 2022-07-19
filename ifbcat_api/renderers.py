@@ -53,6 +53,7 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
         # RDFlib graph object
         G = ConjunctiveGraph()
         SCHEMA = Namespace("https://schema.org/")
+        dct = Namespace("http://purl.org/dc/terms/")
 
         # skip serializer that don't explicitly indicate that they will provide mapping
         if not isinstance(serializer, JsonLDSerializerMixin):
@@ -99,6 +100,10 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
             # provide the type of the item
             for klass_type in klass_types or get_klass_types(item_rdf_mapping, model, object_slug):
                 G.add((object_uri, RDF.type, getattr(SCHEMA, klass_type)))
+            try:
+                G.add((object_uri, dct.conformsTo, URIRef(item_rdf_mapping['_conformsTo'])))
+            except KeyError:
+                pass  # no conformsTo provided
 
             for attr_name, mapping in item_rdf_mapping.items():
                 # attr_name starting with a _ are not instance attribute, and out of the scope of this loop
