@@ -64,7 +64,9 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
         # get the static mapping
         try:
             static_rdf_mapping = serializer.rdf_mapping
-            get_rdf_mapping = lambda x: static_rdf_mapping
+
+            def get_rdf_mapping(instance_id=None):
+                return static_rdf_mapping
 
             try:
                 klass_types = get_klass_types(static_rdf_mapping, model, None)
