@@ -342,6 +342,7 @@ class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModel
             'organisedByOrganisations',
             'organisedByTeams',
             'logo_url',
+            'updated_at',
         )
         fields = fields_from_abstract_event + (
             'type',
@@ -884,6 +885,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
             'closing_date',
             'lat',
             'lng',
+            'updated_at',
         )
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
