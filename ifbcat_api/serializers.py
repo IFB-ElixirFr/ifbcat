@@ -342,6 +342,7 @@ class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModel
             'organisedByOrganisations',
             'organisedByTeams',
             'logo_url',
+            'updated_at',
         )
         fields = fields_from_abstract_event + (
             'type',
@@ -884,6 +885,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
             'closing_date',
             'lat',
             'lng',
+            'updated_at',
         )
 
         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
@@ -912,37 +914,6 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
         technicalLeaders='member',
         address_one_line=dict(_type="Place", schema_attr='location'),
     )
-
-
-#
-# # Model serializer for bioinformatics team
-# class BioinformaticsTeamSerializer(TeamSerializer):
-#     """Serializes a bioinformatics team (BioinformaticsTeam object)."""
-#
-#     edamTopics = CreatableSlugRelatedField(
-#         many=True,
-#         read_only=False,
-#         slug_field="uri",
-#         queryset=models.Topic.objects,
-#         required=False,
-#     )
-#
-#     class Meta(TeamSerializer.Meta):
-#         model = models.BioinformaticsTeam
-#
-#         fields = TeamSerializer.Meta.fields + (
-#             'edamTopics',
-#             'ifbMembership',
-#             'platforms',
-#         )
-#
-#         # '**' syntax is Python 3.5 syntax for combining two dictionaries into one
-#         extra_kwargs = {
-#             **TeamSerializer.Meta.extra_kwargs,
-#             **{
-#                 'platforms': {'lookup_field': 'name'},
-#             },
-#         }
 
 
 # Model serializer for service
