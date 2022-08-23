@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import management
 from django.core.exceptions import FieldError
+from django.db.models import Q
 from django.test import TestCase
 from django.urls import reverse, NoReverseMatch
 
@@ -125,6 +126,10 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         # def test_detail(self):
         #######################################################################
         cpt = 0
+        failing_get_urls = [
+            reverse("team-on-map-detail", kwargs=dict(name=o.name))
+            for o in Team.annotate_is_active().filter(Q(is_active=False) | Q(lat__isnull=True) | Q(lng__isnull=True))
+        ]
         for url_instance in [u for u in router.urls if u.name.endswith("-detail")]:
             lookup_field = getattr(url_instance.callback.cls, "lookup_field")
             attr_field = lookup_field.replace("__unaccent", "")
@@ -143,7 +148,7 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
                 ] + [f'?format={fmt}' for fmt in available_formats]:
                     response = self.client.get(url_detail + suffix)
                     status_code = 200
-                    if getattr(o, 'is_draft', False):
+                    if getattr(o, 'is_draft', False) or url_detail in failing_get_urls:
                         status_code = 404
                     self.assertEqual(
                         response.status_code,
