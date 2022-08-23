@@ -916,6 +916,20 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
     )
 
 
+class TeamOnMapSerializer(TeamSerializer):
+    class Meta:
+        model = models.Team
+        fields = (
+            'id',
+            'name',
+            'logo_url',
+            'description',
+            'lat',
+            'lng',
+            'updated_at',
+        )
+
+
 # Model serializer for service
 class ServiceSerializer(serializers.HyperlinkedModelSerializer):
     """Serializes a service (Service object)."""
