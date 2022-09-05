@@ -39,6 +39,20 @@ class AbstractEventSitemap(sitemaps.Sitemap):
         return reverse(f'{self.location_prefix}{self.klass.__name__.lower()}-detail', args=[item.pk])
 
 
+class TrainingMaterialsSitemap(sitemaps.Sitemap):
+    changefreq = "monthly"
+
+    def __init__(self, location_prefix=''):
+        self.location_prefix = location_prefix
+        super().__init__()
+
+    def items(self):
+        return models.TrainingMaterial.objects.all()
+
+    def location(self, item):
+        return reverse(f'{self.location_prefix}{item.__class__.__name__.lower()}-detail', args=[item.name])
+
+
 my_sitemaps = {
     'team': TeamSitemap(),
     'team-vfront': TeamSitemap(location_prefix='vfront:'),
@@ -46,4 +60,6 @@ my_sitemaps = {
     'event-vfront': AbstractEventSitemap(klass=models.Event, location_prefix='vfront:'),
     'training': AbstractEventSitemap(klass=models.Training),
     'training-vfront': AbstractEventSitemap(klass=models.Training, location_prefix='vfront:'),
+    'training-materials': TrainingMaterialsSitemap(),
+    # 'training-materials-vfront': AbstractEventSitemap(klass=models.TrainingMaterial, location_prefix='vfront:'),
 }
