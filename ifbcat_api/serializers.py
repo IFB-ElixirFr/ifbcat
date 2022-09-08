@@ -1,5 +1,6 @@
 # Imports
 # "re" is regular expression library
+import base64
 
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.utils.encoding import smart_str
@@ -1129,3 +1130,16 @@ def modelserializer_factory(model, serializer=serializers.ModelSerializer, field
 
 class MarkdownToHTMLSerializer(serializers.Serializer):
     md = serializers.CharField()
+    encoding = serializers.ChoiceField(
+        choices=(
+            ('', 'default'),
+            ('base64', 'base64'),
+        ),
+        required=False,
+        default='',
+    )
+
+    def get_md(self):
+        if self.data['encoding'] == "base64":
+            return base64.b64decode(self.data['md'].encode("ascii")).decode("ascii")
+        return self.data['md']

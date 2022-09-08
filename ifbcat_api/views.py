@@ -979,7 +979,7 @@ class MarkdownToHTMLJob(APIView):
             return Response(serializer.errors, status=rest_framework.status.HTTP_400_BAD_REQUEST)
         return Response(
             markdown(
-                serializer.data["md"],
+                serializer.get_md(),
                 extensions=['markdown.extensions.fenced_code'],
             )
         )
