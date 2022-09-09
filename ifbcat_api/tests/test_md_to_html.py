@@ -24,14 +24,14 @@ class TestIt(TestCase):
         for md, html in [
             ("[aa](https://aa.com/)", '<p><a href="https://aa.com/">aa</a></p>'),
             (
-                """# ee
+                """# eê
 
  * a
  * [aa](https://aa.com/)
 """,
-                "<h1>ee</h1>\n<ul>\n<li>a</li>\n<li><a href=\"https://aa.com/\">aa</a></li>\n</ul>",
+                "<h1>eê</h1>\n<ul>\n<li>a</li>\n<li><a href=\"https://aa.com/\">aa</a></li>\n</ul>",
             ),
         ]:
-            md_base64 = base64.b64encode(md.encode("ascii")).decode("ascii")
+            md_base64 = base64.b64encode(md.encode("UTF-8")).decode("ascii")
             response = self.client.post(reverse('md_to_html'), data=dict(md=md_base64, encoding="base64"))
             self.assertEqual(response.content.decode("UTF-8"), html)
