@@ -1141,5 +1141,5 @@ class MarkdownToHTMLSerializer(serializers.Serializer):
 
     def get_md(self):
         if self.data['encoding'] == "base64":
-            return base64.b64decode(self.data['md'].encode("ascii")).decode("ascii")
+            return base64.b64decode(self.data['md'].encode("ascii")).decode("UTF-8")
         return self.data['md']
