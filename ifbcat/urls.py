@@ -24,7 +24,7 @@ from django.views.generic import RedirectView
 from django.views.generic import TemplateView
 from rest_framework.schemas import get_schema_view
 
-from ifbcat_api.sitemap import my_sitemaps
+from ifbcat_api import sitemap as ifbcat_sitemap
 
 urlpatterns = [
     path('', include('ifbcat_vanilla_front.urls')),
@@ -71,5 +71,6 @@ urlpatterns = [
         ),
         name='openapi-schema',
     ),
-    path('sitemap.xml', sitemap, {'sitemaps': my_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('sitemap.xml', sitemap, {'sitemaps': ifbcat_sitemap.general}, name='sitemap-general'),
+    path('sitemap.tess.xml', sitemap, {'sitemaps': ifbcat_sitemap.tess}, name='sitemap-tess'),
 ]
