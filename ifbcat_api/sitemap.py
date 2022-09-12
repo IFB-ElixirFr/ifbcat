@@ -58,7 +58,10 @@ class TrainingMaterialsSitemap(sitemaps.Sitemap):
         return models.TrainingMaterial.objects.all()
 
     def location(self, item):
-        return reverse(f'{self.location_prefix}{item.__class__.__name__.lower()}-detail', args=[item.name])
+        location = reverse(f'{self.location_prefix}{item.__class__.__name__.lower()}-detail', args=[item.name])
+        if self.for_tess:
+            return f'{location}?format=json-ld'
+        return location
 
 
 general = {
