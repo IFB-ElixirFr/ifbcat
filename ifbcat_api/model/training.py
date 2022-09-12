@@ -1,5 +1,6 @@
 # Imports
 from django.db import models
+from django.db.models import Field, F
 
 from ifbcat_api import permissions
 from ifbcat_api.model.computingFacility import ComputingFacility
@@ -108,3 +109,11 @@ class Training(AbstractEvent):
                 getattr(event, m2m_name).add(o)
 
         return event
+
+    @classmethod
+    def annotate_is_tess_publishing(cls, qs=None):
+        if qs is None:
+            qs = cls.objects
+        return qs.annotate(
+            is_tess_publishing=F('tess_publishing'),
+        )
