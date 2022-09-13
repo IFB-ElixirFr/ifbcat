@@ -16,11 +16,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model, get_permission_codename
 from django.contrib.auth.decorators import user_passes_test
 from django.core.cache import cache
-from django.db.models import When, Q, Case, Value, CharField, BooleanField
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.text import capfirst
 from django.views.decorators.cache import cache_page
@@ -31,11 +29,11 @@ from rest_framework import pagination
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.renderers import StaticHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 
 from ifbcat_api import models, business_logic
 from ifbcat_api import serializers
@@ -372,37 +370,7 @@ class EventViewSet(AbstractEventViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.annotate(
-            realisation_status=Case(
-                When(Q(start_date__gt=timezone.now()), then=Value('future')),
-                When(
-                    Q(start_date__lt=timezone.now()) & (Q(end_date__isnull=True) | Q(end_date__lt=timezone.now())),
-                    then=Value('past'),
-                ),
-                default=Value('ongoing'),
-                output_field=CharField(),
-            )
-        )
-        queryset = queryset.annotate(
-            registration_status=Case(
-                When(
-                    Q(registration_opening__gt=timezone.now()),
-                    then=Value('future'),
-                ),
-                When(
-                    (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
-                    & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
-                    & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
-                    then=Value('open'),
-                ),
-                When(
-                    Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
-                    then=Value('unknown'),
-                ),
-                default=Value('closed'),
-                output_field=CharField(),
-            )
-        )
+        queryset = models.Event.annotate_registration_realisation_status(queryset)
         return queryset
 
     def perform_create(self, serializer):

@@ -4,8 +4,8 @@ import functools
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Count, ManyToManyRel, ManyToOneRel, Case, When, Value, BooleanField, Q
-
+from django.db.models import When, Q, Case, Value, CharField, BooleanField
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
@@ -411,6 +411,43 @@ class Event(AbstractEvent):
                 output_field=BooleanField(),
             )
         )
+
+    @classmethod
+    def annotate_registration_realisation_status(cls, qs=None):
+        if qs is None:
+            qs = cls.objects
+        qs = qs.annotate(
+            realisation_status=Case(
+                When(Q(start_date__gt=timezone.now()), then=Value('future')),
+                When(
+                    Q(start_date__lt=timezone.now()) & (Q(end_date__isnull=True) | Q(end_date__lt=timezone.now())),
+                    then=Value('past'),
+                ),
+                default=Value('ongoing'),
+                output_field=CharField(),
+            )
+        )
+        qs = qs.annotate(
+            registration_status=Case(
+                When(
+                    Q(registration_opening__gt=timezone.now()),
+                    then=Value('future'),
+                ),
+                When(
+                    (Q(registration_opening__isnull=False) | Q(registration_closing__isnull=False))
+                    & (Q(registration_opening__isnull=True) | Q(registration_opening__lt=timezone.now()))
+                    & (Q(registration_closing__isnull=True) | Q(registration_closing__gt=timezone.now())),
+                    then=Value('open'),
+                ),
+                When(
+                    Q(registration_opening__isnull=True) & Q(registration_closing__isnull=True),
+                    then=Value('unknown'),
+                ),
+                default=Value('closed'),
+                output_field=CharField(),
+            )
+        )
+        return qs
 
     def clean(self):
         super().clean()
