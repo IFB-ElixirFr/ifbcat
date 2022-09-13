@@ -109,11 +109,3 @@ class Training(AbstractEvent):
                 getattr(event, m2m_name).add(o)
 
         return event
-
-    @classmethod
-    def annotate_is_tess_publishing(cls, qs=None):
-        if qs is None:
-            qs = cls.objects
-        return qs.annotate(
-            is_tess_publishing=F('tess_publishing'),
-        )
