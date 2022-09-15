@@ -101,6 +101,6 @@ general = {
 
 tess = {
     'event': EventSitemap(for_tess=True),
-    'training': TrainingSitemap(for_tess=True),
+    # 'training': TrainingSitemap(for_tess=True),
     'training-materials': TrainingMaterialsSitemap(for_tess=True),
 }
