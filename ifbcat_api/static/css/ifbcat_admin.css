@@ -279,4 +279,7 @@ html, body{
   vertical-align: bottom;
   border-bottom: 2px solid #dee2e6;
 }
+#jazzy-tabs{
+    margin-bottom: 0!important;
+}
 /**/
