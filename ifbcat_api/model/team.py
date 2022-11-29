@@ -105,6 +105,11 @@ class Team(WithGridIdOrRORId, models.Model):
         help_text="Unit ID (unique identifier of research or service unit) that the Team belongs to.",
     )
     address = models.TextField(blank=True, help_text="Postal address of the team.")
+    postalCode = models.CharField(
+        max_length=5,
+        blank=True,
+        help_text="Postal code of the city, example: 29680",
+    )
     city = models.CharField(max_length=255, blank=True, help_text="City where the team is located.")
     country = models.CharField(max_length=255, blank=True, help_text="country where the team is located.")
     communities = models.ManyToManyField(
