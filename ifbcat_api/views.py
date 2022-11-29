@@ -378,16 +378,6 @@ class EventViewSet(AbstractEventViewSet):
         serializer.save(user_profile=self.request.user)
 
 
-# Model ViewSet for training events that should be published in TES
-class TessEventViewSet(EventViewSet):
-
-    serializer_class = serializers.EventSerializer
-    ordering = []
-
-    def get_queryset(self):
-        return models.Event.annotate_is_tess_publishing(qs=super().get_queryset()).filter(is_tess_publishing=True)
-
-
 # Model ViewSet for training
 class TrainingViewSet(AbstractEventViewSet):
     """Handles creating, reading and updating training events."""
@@ -402,25 +392,6 @@ class TrainingViewSet(AbstractEventViewSet):
         'learningOutcomes',
     )
     filterset_class = TrainingFilter
-
-
-# Model ViewSet for training that should be published in TES
-class TessTrainingViewSet(TrainingViewSet):
-
-    renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
-    serializer_class = serializers.TrainingSerializer
-    ordering = []
-
-    search_fields = EventViewSet.search_fields_from_abstract_event + (
-        'audienceTypes__audienceType',
-        'audienceRoles__audienceRole',
-        'difficultyLevel',
-        'learningOutcomes',
-    )
-    filterset_class = TrainingFilter
-
-    def get_queryset(self):
-        return super().get_queryset().filter(tess_publishing=True)
 
 
 # Model ViewSet for keywords
