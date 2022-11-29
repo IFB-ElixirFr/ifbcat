@@ -394,7 +394,16 @@ class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModel
         sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
     )
     Event_rdf_mapping = dict(
-        location=dict(schema_attr='location', _type="Place"),
+        location=dict(
+            schema_attr='location',
+            _type="PostalAddress",
+            _fields=dict(
+                postalCode='postalCode',
+                streetAddress='streetAddress',
+                city='addressLocality',
+                country='addressCountry',
+            ),
+        ),
         start_date='startDate',
         end_date=dict(schema_attr='endDate', _type='Date'),
     )
@@ -913,7 +922,16 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
         scientificLeaders='member',
         leaders='member',
         technicalLeaders='member',
-        address_one_line=dict(_type="Place", schema_attr='location'),
+        location=dict(
+            schema_attr='location',
+            _type="PostalAddress",
+            _fields=dict(
+                city='addressLocality',
+                country='addressCountry',
+                postalCode='postalCode',
+                address='streetAddress',
+            ),
+        ),
     )
 
 

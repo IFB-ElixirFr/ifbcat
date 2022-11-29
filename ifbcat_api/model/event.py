@@ -336,7 +336,17 @@ class Event(AbstractEvent):
     )
     venue = models.TextField(
         blank=True,
-        help_text="The address of the venue where the event will be held.",
+        help_text="Information to access to the event, such as the floor, the building name, the door to use, ...",
+    )
+    streetAddress = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="The street name and number of the address.",
+    )
+    postalCode = models.CharField(
+        max_length=5,
+        blank=True,
+        help_text="Postal Code of the city, example: 29680",
     )
     city = models.CharField(
         max_length=255,

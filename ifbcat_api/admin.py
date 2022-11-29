@@ -511,6 +511,8 @@ class EventAdmin(
             'Location',
             {
                 'fields': (
+                    'streetAddress',
+                    'postalCode',
                     'city',
                     'country',
                     'courseMode',
@@ -1209,6 +1211,7 @@ class TeamAdmin(
             {
                 'fields': (
                     'address',
+                    'postalCode',
                     'city',
                     'country',
                     'lat',
