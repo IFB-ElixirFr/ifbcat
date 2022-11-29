@@ -14,7 +14,7 @@ from django.db.models import (
 )
 from django.db.models.fields.related_descriptors import ReverseManyToOneDescriptor
 from django.urls import reverse
-from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal
+from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal, BNode
 from rdflib.namespace import RDF, XSD
 from rest_framework import renderers
 from rest_framework.relations import Hyperlink
@@ -108,6 +108,20 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
             for attr_name, mapping in item_rdf_mapping.items():
                 # attr_name starting with a _ are not instance attribute, and out of the scope of this loop
                 if attr_name[0] == '_':
+                    continue
+                if type(mapping) == dict and (sub_fields := mapping.get('_fields', None)) is not None:
+                    sub_node = BNode()
+                    G.add((sub_node, RDF.type, getattr(SCHEMA, mapping["_type"])))
+                    for attr_name, schema_attr in sub_fields.items():
+                        G.add(
+                            (
+                                sub_node,
+                                getattr(SCHEMA, schema_attr),
+                                Literal(getattr(model.objects.get(id=item['id']), attr_name)),
+                            )
+                        )
+
+                    G.add((object_uri, getattr(SCHEMA, mapping['schema_attr']), sub_node))
                     continue
                 try:
                     # get the value from the serialized object
