@@ -106,8 +106,6 @@ class Topic(models.Model):
         response = requests.get(url).json()
         try:
             term = response["_embedded"]["terms"][0]
-            print(json.dumps(term, indent=4))
-            # print(json.dumps(term['_links']['children']))
             if term["iri"] != self.uri:
                 logger.error(f"Searched for {self.uri} but got a a response term {term['iri']} aborting update")
                 return
