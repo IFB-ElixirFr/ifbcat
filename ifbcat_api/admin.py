@@ -750,6 +750,7 @@ class TrainingAdmin(
         )
         return course, redirect_url
 
+    @admin.action(description='Create new session')
     def create_new_course(self, request, queryset):
         if queryset.count() != 1:
             self.message_user(request, "Can only create a new session/event one training at a time", messages.ERROR)
