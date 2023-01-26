@@ -195,6 +195,10 @@ CORS_ALLOW_METHODS = [
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://\w+\.france-bioinformatique\.fr$",
 ]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+    "http://0.0.0.0:8080",
+]
 
 ################################################################################
 # Log level
