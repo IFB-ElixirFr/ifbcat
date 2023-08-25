@@ -584,9 +584,9 @@ class EventAdmin(
         )
 
     def short_name_or_name_trim(self, obj):
-        if len(obj.short_name_or_name) <= 67:
+        if len(obj.short_name_or_name) <= 99:
             return obj.short_name_or_name
-        return "%.64s..." % obj.short_name_or_name
+        return "%.96s..." % obj.short_name_or_name
 
     short_name_or_name_trim.short_description = "Name"
     short_name_or_name_trim.admin_order_field = 'short_name_or_name'
