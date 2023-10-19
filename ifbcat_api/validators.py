@@ -55,7 +55,7 @@ def validate_doi(value):
         return value
     if not __p_doi.search(value.__str__()):
         raise ValidationError(
-            'This field can only contain valid EDAM Topic URIs (%s is not). Syntax: %s' % (value, __p_doi_regexp)
+            'This field can only contain valid DOI URIs (%s is not). Syntax: %s' % (value, __p_doi_regexp)
         )
     return value
 
