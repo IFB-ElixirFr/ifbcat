@@ -724,6 +724,30 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
+# Model ViewSet for teams
+class TeamOnMapViewSet(PermissionInClassModelViewSet, viewsets.ReadOnlyModelViewSet):
+    """Handles creating, reading and updating teams."""
+
+    serializer_class = serializers.TeamOnMapSerializer
+
+    queryset = models.Team.objects.all()
+    lookup_field = 'name'
+
+    def get_queryset(self):
+        """
+        get team that are active, and have gps coordinate
+        :return:
+        """
+        return models.Team.annotate_is_active(super().get_queryset()).filter(
+            is_active=True,
+            lat__isnull=False,
+            lng__isnull=False,
+        )
+
+    def paginate_queryset(self, queryset):
+        return None
+
+
 # # Model ViewSet for teams
 # class BioinformaticsTeamViewSet(TeamViewSet):
 #     """Handles creating, reading and updating bioinformatics teams."""
