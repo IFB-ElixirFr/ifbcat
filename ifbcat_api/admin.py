@@ -1338,45 +1338,6 @@ class TeamAdmin(
     logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
-@admin.register(models.Service)
-class ServiceAdmin(
-    PermissionInClassModelAdmin,
-    AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
-):
-    search_fields = (
-        'name',
-        'description',
-        'teams__name',
-        'computingFacilities__name',
-        'trainings__name',
-        'trainingMaterials__name',
-        'publications__doi',
-    )
-
-
-@admin.register(models.ServiceSubmission)
-class ServiceSubmissionAdmin(
-    PermissionInClassModelAdmin,
-    AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
-):
-    search_fields = (
-        'service__name',
-        'authors__firstname',
-        'authors__lastname',
-        'submitters__firstname',
-        'submitters__lastname',
-        'year',
-        'motivation',
-        'scope',
-        'caseForSupport',
-        'qaqc',
-        'usage',
-        'sustainability',
-    )
-
-
 class ToolAdminForm(forms.ModelForm):
     class Meta:
         model = models.Tool

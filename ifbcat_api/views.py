@@ -742,55 +742,6 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 #     )
 
 
-# Model ViewSet for services
-class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating services."""
-
-    serializer_class = serializers.ServiceSerializer
-    queryset = models.Service.objects.all()
-    lookup_field = 'name'
-    # TODO: : add to "search_fields" below:   'team', 'providedBy'
-    search_fields = (
-        'name',
-        'description',
-        'computingFacilities__name',
-        'teams__name',
-        'trainings__name',
-        'trainingMaterials__name',
-        'publications__doi',
-    )
-    filterset_fields = (
-        'teams',
-        'computingFacilities',
-    )
-
-
-# Model ViewSet for service submissions
-class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating service submissions."""
-
-    serializer_class = serializers.ServiceSubmissionSerializer
-    queryset = models.ServiceSubmission.objects.all()
-    search_fields = (
-        'service__name',
-        'authors__firstname',
-        'authors__lastname',
-        'submitters__firstname',
-        'submitters__lastname',
-        'year',
-        'motivation',
-        'scope',
-        'caseForSupport',
-        'qaqc',
-        'usage',
-        'sustainability',
-    )
-    filterset_fields = (
-        'service',
-        'year',
-    )
-
-
 # Model ViewSet for tools
 class ToolViewSet(MultipleFieldLookupMixin, PermissionInClassModelViewSet, viewsets.ModelViewSet):
     pagination_class = pagination.LimitOffsetPagination
