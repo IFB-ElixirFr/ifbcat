@@ -100,8 +100,9 @@ def init_business_logic():
     ]
     service_related = [
         models.Service,
-        models.ComputingFacility,
-        models.ServiceSubmission,
+        models.ServiceDomain,
+        models.KindOfAnalysis,
+        models.LifeScienceCommunity,
     ]
     training_related = [
         models.AudienceRole,

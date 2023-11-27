@@ -1338,6 +1338,51 @@ class TeamAdmin(
     logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
+class AbstractControlledVocabularyAdmin(
+    PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
+    ViewInApiModelAdmin,
+):
+    search_fields = ('name',)
+
+
+admin.site.register(models.ServiceDomain, AbstractControlledVocabularyAdmin)
+admin.site.register(models.LifeScienceCommunity, AbstractControlledVocabularyAdmin)
+admin.site.register(models.KindOfAnalysis, AbstractControlledVocabularyAdmin)
+
+
+@admin.register(models.Service)
+class ServiceAdmin(
+    PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
+    ViewInApiModelAdmin,
+):
+    search_fields = (
+        'domain__name',
+        'analysis__name',
+        'team__name',
+        'communities__name',
+        'comments',
+    )
+    list_filter = (
+        'domain',
+        'analysis',
+        'team',
+        'communities',
+        'training',
+        'collaboration',
+        'prestation',
+    )
+    list_display = (
+        'domain',
+        'analysis',
+        'team',
+        'training',
+        'collaboration',
+        'prestation',
+    )
+
+
 class ToolAdminForm(forms.ModelForm):
     class Meta:
         model = models.Tool

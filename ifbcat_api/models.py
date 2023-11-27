@@ -35,3 +35,4 @@ from .model.trainingCourseMetrics import *
 from .model.misc import *
 from .model.tool.tool import *
 from .model.tool.toolCredit import *
+from .model.serviceIfb import *

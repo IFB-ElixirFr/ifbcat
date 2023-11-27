@@ -882,6 +882,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
             'fields',
             'orgid',
             'tools',
+            'services',
             # fields below are legacy
             'leaders',
             'deputies',
@@ -933,6 +934,22 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
             ),
         ),
     )
+
+
+# Model serializer for service
+class ServiceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Service
+
+        fields = '__all__'
+
+        extra_kwargs = {
+            'comments': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'team': {'lookup_field': 'name'},
+            'domain': {'lookup_field': 'name'},
+            'analysis': {'lookup_field': 'name'},
+            'communities': {'lookup_field': 'name'},
+        }
 
 
 # Model serializer for tool credit
