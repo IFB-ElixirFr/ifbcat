@@ -101,6 +101,7 @@ def init_business_logic():
     service_related = [
         models.Service,
         models.ServiceDomain,
+        models.ServiceCategory,
         models.KindOfAnalysis,
         models.LifeScienceCommunity,
     ]

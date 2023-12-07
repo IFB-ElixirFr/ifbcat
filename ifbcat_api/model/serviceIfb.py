@@ -38,10 +38,7 @@ class AbstractControlledVocabulary(models.Model):
     @classmethod
     def get_permission_classes(cls):
         return (
-            permissions.ReadOnly
-            | permissions.ReadWriteBySuperuser
-            | permissions.ReadWriteByCurator
-            | permissions.UserCanEditAndDeleteIfNotUsed,
+            permissions.ReadOnly | permissions.ReadWriteBySuperuser | permissions.ReadWriteByCurator,
             IsAuthenticatedOrReadOnly,
         )
 
@@ -58,6 +55,10 @@ class LifeScienceCommunity(AbstractControlledVocabulary):
     pass
 
 
+class ServiceCategory(AbstractControlledVocabulary):
+    pass
+
+
 class Service(models.Model):
     class Meta:
         unique_together = (('team', 'domain', 'analysis'),)
@@ -65,7 +66,7 @@ class Service(models.Model):
     class TrainingType(models.TextChoices):
         NO = 'No', _('No')
         RECURRENT = 'Recurrent', _('Recurrent')
-        MENTORING = 'Mentoring', _('Mentoring')
+        CUSTOM = 'Custom', _('Custom')
 
     class StandardAndOrCustom(models.TextChoices):
         NO = 'No', _('No')
@@ -83,6 +84,9 @@ class Service(models.Model):
         max_length=10,
         null=False,
         blank=False,
+    )
+    mentoring = models.BooleanField(
+        default=False,
     )
 
     collaboration = models.CharField(
@@ -122,15 +126,21 @@ class Service(models.Model):
         null=False,
         on_delete=models.CASCADE,
         help_text="Kind of analysis proposed.",
+        verbose_name='Action',
     )
     communities = models.ManyToManyField(
         LifeScienceCommunity,
         blank=True,
         help_text="Biological community concerned. Example: Human, plants, animals, micro-organism, health, ...",
     )
+    category = models.ForeignKey(
+        ServiceCategory,
+        on_delete=models.CASCADE,
+        help_text='Category of service it belongs.',
+    )
 
     def __str__(self):
-        return f'[{self.domain}] {self.analysis} by {self.team} ({self.communities}'
+        return f'[{self.domain}] {self.analysis} by {self.team} ({", ".join(self.communities.all())})'
 
     @classmethod
     def get_permission_classes(cls):

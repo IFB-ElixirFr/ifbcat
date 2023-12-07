@@ -947,6 +947,7 @@ class ServiceSerializer(serializers.HyperlinkedModelSerializer):
             'comments': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
             'team': {'lookup_field': 'name'},
             'domain': {'lookup_field': 'name'},
+            'category': {'lookup_field': 'name'},
             'analysis': {'lookup_field': 'name'},
             'communities': {'lookup_field': 'name'},
         }

@@ -35,6 +35,7 @@ router.register('organisation', views.OrganisationViewSet, basename='organisatio
 router.register('organisation-cnp', CachedNoPaginationFactory(views.OrganisationViewSet), basename='organisation-cnp')
 router.register('project', views.ProjectViewSet)
 router.register('service', views.ServiceViewSet)
+router.register('servicecategory', views.ServiceCategoryViewSet)
 router.register('servicedomain', views.ServiceDomainViewSet)
 router.register('lifesciencecommunity', views.LifeScienceCommunityViewSet)
 router.register('kindofanalysis', views.KindOfAnalysisViewSet)

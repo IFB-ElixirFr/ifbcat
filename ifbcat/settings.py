@@ -345,6 +345,7 @@ JAZZMIN_SETTINGS = {
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {
         "ifbcat_api.UserProfile": "single",
+        "ifbcat_api.Service": "single",
     },
 }
 if config('USE_IFB_THEME', True, cast=bool):

@@ -1347,6 +1347,7 @@ class AbstractControlledVocabularyAdmin(
 
 
 admin.site.register(models.ServiceDomain, AbstractControlledVocabularyAdmin)
+admin.site.register(models.ServiceCategory, AbstractControlledVocabularyAdmin)
 admin.site.register(models.LifeScienceCommunity, AbstractControlledVocabularyAdmin)
 admin.site.register(models.KindOfAnalysis, AbstractControlledVocabularyAdmin)
 
@@ -1359,6 +1360,7 @@ class ServiceAdmin(
 ):
     search_fields = (
         'domain__name',
+        'category__name',
         'analysis__name',
         'team__name',
         'communities__name',
@@ -1366,6 +1368,7 @@ class ServiceAdmin(
     )
     list_filter = (
         'domain',
+        'category',
         'analysis',
         'team',
         'communities',
@@ -1375,11 +1378,38 @@ class ServiceAdmin(
     )
     list_display = (
         'domain',
+        'category',
         'analysis',
         'team',
         'training',
         'collaboration',
         'prestation',
+    )
+    fieldsets = (
+        (
+            '',
+            {
+                'fields': (
+                    'team',
+                    'domain',
+                    'category',
+                    'analysis',
+                    'communities',
+                )
+            },
+        ),
+        (
+            '',
+            {
+                'fields': (
+                    'training',
+                    'mentoring',
+                    'collaboration',
+                    'prestation',
+                    'comments',
+                )
+            },
+        ),
     )
 
 

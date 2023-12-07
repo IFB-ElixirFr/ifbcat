@@ -724,6 +724,12 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
+class ServiceCategoryViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.ServiceCategory.objects.all()
+    serializer_class = misc.inline_serializer_factory(models.ServiceCategory, lookup_field='name')
+    lookup_field = 'name'
+
+
 class ServiceDomainViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.ServiceDomain.objects.all()
     serializer_class = misc.inline_serializer_factory(models.ServiceDomain, lookup_field='name')
@@ -748,6 +754,7 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
     queryset = models.Service.objects.all()
     search_fields = (
         'domain__name',
+        'category__name',
         'team__name',
         'analysis__name',
         'communities__name',
@@ -757,6 +764,7 @@ class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         'team',
         'analysis',
         'domain',
+        'category',
     )
 
 
