@@ -3,6 +3,7 @@
 # "DefaultRouter" is used to generate different routes (endpoints) for any ViewSets
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
+import rest_framework.authtoken.views
 
 from ifbcat_api import views
 
@@ -74,4 +75,5 @@ urlpatterns = [
         views.update_from_biotools_view,
         name='update_from_biotools_view',
     ),
+    path('user_auth/', rest_framework.authtoken.views.obtain_auth_token),
 ]
