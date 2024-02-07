@@ -6,8 +6,12 @@ from decouple import config
 
 if not os.path.exists("settings.ini"):
     with open('settings.ini', 'w') as f:
-        f.writelines(
-            '\n'.join(["[settings]", "username=jdoe@ifb.fr", "password=unsecured", "baseurl=http://127.0.0.1:8092"])
+        f.write(
+            """[settings]
+username=jdoe@ifb.fr
+password=unsecured
+baseurl=http://127.0.0.1:8092
+"""
         )
 
 
