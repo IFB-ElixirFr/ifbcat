@@ -15,7 +15,7 @@ class AdminLogForInstanceNode(template.Node):
 
     def render(self, context):
         instance = context[self.instance_name]
-        entries = LogEntry.objects.filter(object_id=instance.id).filter(
+        entries = LogEntry.objects.filter(object_id=instance.pk).filter(
             content_type=ContentType.objects.get_for_model(instance.__class__)
         )
         context[self.varname] = entries.select_related('content_type', 'user')[: int(self.limit)]
