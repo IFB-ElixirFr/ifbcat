@@ -1338,6 +1338,20 @@ class TeamAdmin(
     logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
 
 
+class AbstractControlledVocabularyAdmin(
+    PermissionInClassModelAdmin,
+    AllFieldInAutocompleteModelAdmin,
+    ViewInApiModelAdmin,
+):
+    search_fields = ('name',)
+
+
+admin.site.register(models.ServiceDomain, AbstractControlledVocabularyAdmin)
+admin.site.register(models.ServiceCategory, AbstractControlledVocabularyAdmin)
+admin.site.register(models.LifeScienceCommunity, AbstractControlledVocabularyAdmin)
+admin.site.register(models.KindOfAnalysis, AbstractControlledVocabularyAdmin)
+
+
 @admin.register(models.Service)
 class ServiceAdmin(
     PermissionInClassModelAdmin,
@@ -1345,35 +1359,57 @@ class ServiceAdmin(
     ViewInApiModelAdmin,
 ):
     search_fields = (
-        'name',
-        'description',
-        'teams__name',
-        'computingFacilities__name',
-        'trainings__name',
-        'trainingMaterials__name',
-        'publications__doi',
+        'domain__name',
+        'category__name',
+        'analysis__name',
+        'team__name',
+        'communities__name',
+        'comments',
     )
-
-
-@admin.register(models.ServiceSubmission)
-class ServiceSubmissionAdmin(
-    PermissionInClassModelAdmin,
-    AllFieldInAutocompleteModelAdmin,
-    ViewInApiModelAdmin,
-):
-    search_fields = (
-        'service__name',
-        'authors__firstname',
-        'authors__lastname',
-        'submitters__firstname',
-        'submitters__lastname',
-        'year',
-        'motivation',
-        'scope',
-        'caseForSupport',
-        'qaqc',
-        'usage',
-        'sustainability',
+    list_filter = (
+        'domain',
+        'category',
+        'analysis',
+        'team',
+        'communities',
+        'training',
+        'collaboration',
+        'prestation',
+    )
+    list_display = (
+        'domain',
+        'category',
+        'analysis',
+        'team',
+        'training',
+        'collaboration',
+        'prestation',
+    )
+    fieldsets = (
+        (
+            '',
+            {
+                'fields': (
+                    'team',
+                    'domain',
+                    'category',
+                    'analysis',
+                    'communities',
+                )
+            },
+        ),
+        (
+            '',
+            {
+                'fields': (
+                    'training',
+                    'mentoring',
+                    'collaboration',
+                    'prestation',
+                    'comments',
+                )
+            },
+        ),
     )
 
 
