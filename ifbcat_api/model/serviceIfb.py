@@ -140,7 +140,7 @@ class Service(models.Model):
     )
 
     def __str__(self):
-        return f'[{self.domain}] {self.analysis} by {self.team} ({", ".join(self.communities.all())})'
+        return f'[{self.domain}] {self.analysis} by {self.team} ({", ".join(str(c) for c in self.communities.all())})'
 
     @classmethod
     def get_permission_classes(cls):
