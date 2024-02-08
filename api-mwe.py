@@ -26,6 +26,8 @@ r = requests.post(
 
 token = json.loads(r.content.decode())["token"]
 
+print(f"Token is {token[:4]}{'*'*(len(token)-7)}{token[-3:]}")
+
 
 headers = {'Authorization': f'Token {token}'}
 r = requests.get(f'{baseUrl}/api/licence/', headers=headers)
