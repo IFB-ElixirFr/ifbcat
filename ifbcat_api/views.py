@@ -251,6 +251,12 @@ class UserProfileViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
             return serializers.UserProfileSerializerTiny
         return serializers.UserProfileSerializer
 
+    def get_serializer_context(self):
+        return dict(
+            hide_id=not self.request.user.is_authenticated,
+            **super().get_serializer_context(),
+        )
+
 
 # Class for handling user authentication.
 # ObtainAuthToken has to be customised so that is enabled in the Django admin site

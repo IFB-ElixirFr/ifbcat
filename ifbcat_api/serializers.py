@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError
 
 from ifbcat_api import models, inlineSerializers
 
+from rest_framework.fields import empty
 
 # See  https://stackoverflow.com/questions/28009829/creating-and-saving-foreign-key-objects-using-a-slugrelatedfield/28011896
 class CreatableSlugRelatedField(serializers.SlugRelatedField):
@@ -38,6 +39,7 @@ class UserProfileSerializerTiny(serializers.ModelSerializer):
     class Meta:
         model = models.UserProfile
         fields = (
+            'id',
             'firstname',
             'lastname',
             'email',
@@ -50,6 +52,11 @@ class UserProfileSerializerTiny(serializers.ModelSerializer):
             'email': {'write_only': True},
         }
         read_only = True
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        super().__init__(instance=instance, data=data, **kwargs)
+        if kwargs['context'].get('hide_id', False):
+            del self.fields['id']
 
 
 class JsonLDSerializerMixin:
