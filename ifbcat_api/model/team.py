@@ -181,9 +181,10 @@ class Team(WithGridIdOrRORId, models.Model):
     #############################
 
     class IfbMembershipType(models.TextChoices):
-        MEMBER_PLATFORM = 'Member platform', _('Member platform')
-        CONTRIBUTING_TEAM = 'Contributing platform', _('Contributing platform')
         ASSOCIATED_TEAM = 'Associated Team', _('Associated Team')
+        CONTRIBUTING_TEAM = 'Contributing platform', _('Contributing platform')
+        COORDINATING_TEAM = 'Coordinating platform', _('Coordinating platform')
+        MEMBER_PLATFORM = 'Member platform', _('Member platform')
         NO_MEMBERSHIP = 'None', _('None')
 
     ifbMembership = models.CharField(
