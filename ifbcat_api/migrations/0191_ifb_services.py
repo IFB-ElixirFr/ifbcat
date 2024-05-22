@@ -6,13 +6,13 @@ import ifbcat_api.validators
 
 
 def migrate(apps, schema_editor):
-    ServiceCategory = apps.get_model("ifbcat_api", "ServiceCategory")
+    ServiceCategory = apps.get_model('ifbcat_api', 'ServiceCategory')
     for name in [
         'Software development',
         'Data analysis',
     ]:
         ServiceCategory.objects.get_or_create(name=name)
-    LifeScienceCommunity = apps.get_model("ifbcat_api", "LifeScienceCommunity")
+    LifeScienceCommunity = apps.get_model('ifbcat_api', 'LifeScienceCommunity')
     for name in [
         'Human',
         'Plants',
@@ -22,17 +22,17 @@ def migrate(apps, schema_editor):
         'Health',
     ]:
         LifeScienceCommunity.objects.get_or_create(name=name)
-    ServiceDomain = apps.get_model("ifbcat_api", "ServiceDomain")
+    ServiceDomain = apps.get_model('ifbcat_api', 'ServiceDomain')
     for name in [
         'Génomique',
         'Transcriptomique',
         'Métagenomique',
     ]:
         ServiceDomain.objects.get_or_create(name=name)
-    KindOfAnalysis = apps.get_model("ifbcat_api", "KindOfAnalysis")
+    KindOfAnalysis = apps.get_model('ifbcat_api', 'KindOfAnalysis')
     for name in [
-        "Correction et nettoyage des données",
-        "RNAseq",
+        'Correction et nettoyage des données',
+        'RNAseq',
         'Chip-seq',
         'ATAC-seq',
     ]:
