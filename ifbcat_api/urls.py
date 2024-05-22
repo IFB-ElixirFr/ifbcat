@@ -3,6 +3,7 @@
 # "DefaultRouter" is used to generate different routes (endpoints) for any ViewSets
 from django.urls import path, include, re_path
 from rest_framework.routers import DefaultRouter
+import rest_framework.authtoken.views
 
 from ifbcat_api import views
 
@@ -34,8 +35,11 @@ router.register('operating-system', views.OperatingSystemChoicesViewSet)
 router.register('organisation', views.OrganisationViewSet, basename='organisation')
 router.register('organisation-cnp', CachedNoPaginationFactory(views.OrganisationViewSet), basename='organisation-cnp')
 router.register('project', views.ProjectViewSet)
-router.register('servicesubmission', views.ServiceSubmissionViewSet)
 router.register('service', views.ServiceViewSet)
+router.register('servicecategory', views.ServiceCategoryViewSet)
+router.register('servicedomain', views.ServiceDomainViewSet)
+router.register('lifesciencecommunity', views.LifeScienceCommunityViewSet)
+router.register('kindofanalysis', views.KindOfAnalysisViewSet)
 router.register('source-info', views.SourceInfoViewSet, basename='source_info')
 router.register('team', views.TeamViewSet, basename='team')
 router.register('team-cnp', CachedNoPaginationFactory(views.TeamViewSet), basename='team-cnp')
@@ -71,4 +75,5 @@ urlpatterns = [
         views.update_from_biotools_view,
         name='update_from_biotools_view',
     ),
+    path('user_auth/', rest_framework.authtoken.views.obtain_auth_token),
 ]

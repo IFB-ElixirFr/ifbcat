@@ -35,7 +35,7 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.views import APIView
 
-from ifbcat_api import models, business_logic
+from ifbcat_api import models, business_logic, misc
 from ifbcat_api import serializers
 from ifbcat_api.admin import TrainingAdmin
 from ifbcat_api.filters import AutoSubsetFilterSet
@@ -730,6 +730,50 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
+class ServiceCategoryViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.ServiceCategory.objects.all()
+    serializer_class = misc.inline_serializer_factory(models.ServiceCategory, lookup_field='name')
+    lookup_field = 'name'
+
+
+class ServiceDomainViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.ServiceDomain.objects.all()
+    serializer_class = misc.inline_serializer_factory(models.ServiceDomain, lookup_field='name')
+    lookup_field = 'name'
+
+
+class KindOfAnalysisViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.KindOfAnalysis.objects.all()
+    serializer_class = misc.inline_serializer_factory(models.KindOfAnalysis, lookup_field='name')
+    lookup_field = 'name'
+
+
+class LifeScienceCommunityViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    queryset = models.LifeScienceCommunity.objects.all()
+    serializer_class = misc.inline_serializer_factory(models.LifeScienceCommunity, lookup_field='name')
+    lookup_field = 'name'
+
+
+# Model ViewSet for services
+class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
+    serializer_class = serializers.ServiceSerializer
+    queryset = models.Service.objects.all()
+    search_fields = (
+        'domain__name',
+        'category__name',
+        'team__name',
+        'analysis__name',
+        'communities__name',
+        'comments',
+    )
+    filterset_fields = (
+        'team',
+        'analysis',
+        'domain',
+        'category',
+    )
+
+
 # # Model ViewSet for teams
 # class BioinformaticsTeamViewSet(TeamViewSet):
 #     """Handles creating, reading and updating bioinformatics teams."""
@@ -746,55 +790,6 @@ class TeamViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
 #         'ifbMembership',
 #         'platforms',
 #     )
-
-
-# Model ViewSet for services
-class ServiceViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating services."""
-
-    serializer_class = serializers.ServiceSerializer
-    queryset = models.Service.objects.all()
-    lookup_field = 'name'
-    # TODO: : add to "search_fields" below:   'team', 'providedBy'
-    search_fields = (
-        'name',
-        'description',
-        'computingFacilities__name',
-        'teams__name',
-        'trainings__name',
-        'trainingMaterials__name',
-        'publications__doi',
-    )
-    filterset_fields = (
-        'teams',
-        'computingFacilities',
-    )
-
-
-# Model ViewSet for service submissions
-class ServiceSubmissionViewSet(PermissionInClassModelViewSet, viewsets.ModelViewSet):
-    """Handles creating, reading and updating service submissions."""
-
-    serializer_class = serializers.ServiceSubmissionSerializer
-    queryset = models.ServiceSubmission.objects.all()
-    search_fields = (
-        'service__name',
-        'authors__firstname',
-        'authors__lastname',
-        'submitters__firstname',
-        'submitters__lastname',
-        'year',
-        'motivation',
-        'scope',
-        'caseForSupport',
-        'qaqc',
-        'usage',
-        'sustainability',
-    )
-    filterset_fields = (
-        'service',
-        'year',
-    )
 
 
 # Model ViewSet for tools

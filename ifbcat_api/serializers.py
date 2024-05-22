@@ -889,6 +889,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
             'fields',
             'orgid',
             'tools',
+            'services',
             # fields below are legacy
             'leaders',
             'deputies',
@@ -944,69 +945,18 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
 
 # Model serializer for service
 class ServiceSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializes a service (Service object)."""
-
-    publications = serializers.SlugRelatedField(
-        many=True,
-        read_only=False,
-        slug_field="doi",
-        queryset=models.Doi.objects,
-        required=False,
-    )
-
     class Meta:
         model = models.Service
 
-        fields = (
-            'id',
-            'name',
-            'description',
-            'dateEstablished',
-            'teams',
-            'computingFacilities',
-            'trainings',
-            'trainingMaterials',
-            'publications',
-            'governanceSab',
-        )
+        fields = '__all__'
 
         extra_kwargs = {
-            'description': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'teams': {'lookup_field': 'name'},
-            'computingFacilities': {'lookup_field': 'name'},
-            'trainingMaterials': {'lookup_field': 'name'},
-        }
-
-
-# Model serializer for service submission
-class ServiceSubmissionSerializer(serializers.HyperlinkedModelSerializer):
-    """Serializes a service submission (ServiceSubmission object)."""
-
-    class Meta:
-        model = models.ServiceSubmission
-
-        fields = (
-            'id',
-            'service',
-            'authors',
-            'submitters',
-            'year',
-            'motivation',
-            'scope',
-            'caseForSupport',
-            'qaqc',
-            'usage',
-            'sustainability',
-        )
-
-        extra_kwargs = {
-            'service': {'lookup_field': 'name'},
-            'motivation': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'scope': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'caseForSupport': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'qaqc': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'usage': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
-            'sustainability': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'comments': {'style': {'rows': 4, 'base_template': 'textarea.html'}},
+            'team': {'lookup_field': 'name'},
+            'domain': {'lookup_field': 'name'},
+            'category': {'lookup_field': 'name'},
+            'analysis': {'lookup_field': 'name'},
+            'communities': {'lookup_field': 'name'},
         }
 
 
