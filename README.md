@@ -111,6 +111,10 @@ To remove build and pulled images:
 docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --rmi all
 ```
 
+## How to do a dump
+docker exec -e PGPASSWORD=the_super_password $(docker ps -q) pg_dump --clean -h localhost  -U postgres --format plain | sed "s/pbkdf2_sha256[^\t]*/redacted/g" > my_dump.sql
+
+
 ## How to retore a db dump
 We consider here that no container are started. You have to get the dump, and uncompress it in the root directory of the project, and name it `data`
 ```sh
