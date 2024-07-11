@@ -22,7 +22,7 @@ def get_db_ip():
                 "docker",
                 "ps",
                 "-f",
-                "name=_db",
+                "name=db",
                 "-q",
             ],
             stdout=subprocess.PIPE,

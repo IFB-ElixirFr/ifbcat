@@ -37,11 +37,11 @@ pip install -r requirements.txt
 # Copy (and optionally tweak) ini 
 cp resources/default.ini local.ini
 cp ifbcat/settings.example.ini ifbcat/settings.ini
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml run db
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml run db
 ```
 Note that a volume is created. To remove it run:
 ```sh
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
 ```
 
 3. Retrieve import data (ask access to private repository if needed):
@@ -87,8 +87,8 @@ git clone git@github.com:IFB-ElixirFr/ifbcat-importdata.git ./import_data
 ```
 # Copy (and optionally tweak) ini 
 cp resources/default.ini local.ini
-docker-compose build
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+docker compose build
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
 ```
 
 The webserver is running at http://0.0.0.0:8080 (the instance on 8000 does not have css served)
@@ -96,19 +96,19 @@ The webserver is running at http://0.0.0.0:8080 (the instance on 8000 does not h
 3. Create a superuser, do some imports
 
 ```
-docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py createsuperuser
-docker-compose exec web python manage.py load_catalog
+docker compose exec web python manage.py migrate
+docker compose exec web python manage.py createsuperuser
+docker compose exec web python manage.py load_catalog
 ```
 
 4. Do some cleanup
 To remove db volumes run:
 ```sh
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down --volumes
 ```
 To remove build and pulled images:
 ```sh
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down --rmi all
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down --rmi all
 ```
 
 ## How to do a dump
@@ -121,7 +121,7 @@ docker exec -e PGPASSWORD=the_super_password $(docker ps -q) pg_dump --clean -h 
 We consider here that no container are started. You have to get the dump, and uncompress it in the root directory of the project, and name it `data`
 ```sh
 docker stop $(docker ps -q)
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml run -d db 
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml run -d db 
 docker exec -e PGPASSWORD=the_super_password $(docker ps -q) psql -h localhost -U postgres -f /code/data
 ```
 
@@ -149,7 +149,7 @@ cd /var/ifbcat-src/ && sudo git pull && sudo service ifbcat reload
 ## Create a superuser
 ```
 cd /var/ifbcat-src
-sudo docker-compose exec web python manage.py createsuperuser
+sudo docker compose exec web python manage.py createsuperuser
 ```
 
 ## Do some import
@@ -162,13 +162,13 @@ rsync -avz . catalogue-ifb:/var/ifbcat-importdata/ --exclude=".git"
 
 ```
 cd /var/ifbcat-src
-sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_users
-sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_biotools
+sudo docker compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_users
+sudo docker compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_biotools
 ```
 
 Or all imports :
 ```
-sudo docker-compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_catalog
+sudo docker compose -f docker-compose.yaml -f docker-compose.import.yaml run web python manage.py load_catalog
 ```
 
 # How to generate graph models
