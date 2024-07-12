@@ -397,7 +397,14 @@ class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModel
         homepage='url',
         maxParticipants='maximumAttendeeCapacity',
         organisedByOrganisations='organizer',
-        organisedByTeams='organizer',
+        organisedByTeams=dict(
+            schema_attr='organizer',
+            _type="Organization",
+            _fields=dict(
+                name='name',
+                homepage='url',
+            ),
+        ),
         sponsoredBy=dict(schema_attr='funder', schema_type='Organization'),
     )
     Event_rdf_mapping = dict(

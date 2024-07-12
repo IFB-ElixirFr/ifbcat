@@ -8,3 +8,4 @@ repos:
         args: ['.', '--check', '--diff', '--config', './pyproject.toml']
         language_version: python3
         exclude: 'migrations|manage\.py|wsgi\.py'
+        additional_dependencies: ["click==8.0.4"]
