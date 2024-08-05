@@ -23,4 +23,6 @@ django-extensions
 opencage
 markdown
 huey
+# needed by openapi
+inflection
 #end of file
