@@ -17,6 +17,6 @@ jobs:
     - name: Run the tests inside the docker-compose with third party api calls cached
       run: |
         cp resources/default.ini local.ini     
-        docker-compose build
-        docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
-        docker-compose exec -T -e CACHE_DIR=./import_data web python manage.py test --parallel
+        docker compose build
+        docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d
+        docker compose exec -T -e CACHE_DIR=./import_data web python manage.py test --parallel
