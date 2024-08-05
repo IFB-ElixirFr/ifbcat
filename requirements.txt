@@ -1,5 +1,5 @@
 biopython
-Django~=3.2.12
+Django~=4.2.14
 djangorestframework==3.15.2
 python-decouple
 psycopg2

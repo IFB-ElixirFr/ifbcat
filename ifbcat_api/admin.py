@@ -21,7 +21,7 @@ from django.urls import reverse, NoReverseMatch
 from django.utils import dateformat, timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext, ngettext
+from django.utils.translation import gettext, ngettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
@@ -571,7 +571,7 @@ class EventAdmin(
             return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
         return format_html('<center style="margin: -8px;">-<center>')
 
-    logo.short_description = format_html("<center>" + ugettext("Logo") + "<center>")
+    logo.short_description = format_html("<center>" + gettext("Logo") + "<center>")
 
     def get_queryset(self, request):
         return Event.annotate_is_tess_publishing(super().get_queryset(request)).annotate(
@@ -876,7 +876,7 @@ class TopicAdmin(
     def uri_browser(self, obj):
         return format_html(f'<center><a href="{obj.edam_browser_url}" target="_blank">{obj.uri}</a></center>')
 
-    uri_browser.short_description = format_html("<center>" + ugettext("URI") + "<center>")
+    uri_browser.short_description = format_html("<center>" + gettext("URI") + "<center>")
 
 
 @admin.register(models.EventCost)
@@ -1335,7 +1335,7 @@ class TeamAdmin(
             return format_html('<center style="margin: -8px;"><img height="32px" src="' + obj.logo_url + '"/><center>')
         return format_html('<center style="margin: -8px;">-<center>')
 
-    logo.short_description = format_html("<center>" + ugettext("Image") + "<center>")
+    logo.short_description = format_html("<center>" + gettext("Image") + "<center>")
 
 
 class AbstractControlledVocabularyAdmin(
@@ -1592,7 +1592,7 @@ class GroupAdmin(
 
 
 # Unregister the original Token admin.
-admin.site.unregister(Token)
+# admin.site.unregister(Token)
 
 
 @admin.register(Token)
