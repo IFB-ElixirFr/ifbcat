@@ -14,7 +14,7 @@ jobs:
         repository:  IFB-ElixirFr/ifbcat-importdata
         token: ${{ secrets.ACCESS_TOKEN }}
         path: 'import_data'
-    - name: Run the tests inside the docker-compose with third party api calls cached
+    - name: Run the tests inside the docker compose with third party api calls cached
       run: |
         cp resources/default.ini local.ini     
         docker compose build

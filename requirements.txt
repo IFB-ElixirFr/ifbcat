@@ -1,6 +1,6 @@
 biopython
-Django~=3.2.12
-djangorestframework==3.11.2
+Django~=4.2.14
+djangorestframework==3.15.2
 python-decouple
 psycopg2
 psycopg2-binary
@@ -23,4 +23,6 @@ django-extensions
 opencage
 markdown
 huey
+# needed by openapi
+inflection
 #end of file
