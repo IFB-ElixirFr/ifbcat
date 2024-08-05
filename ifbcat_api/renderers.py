@@ -12,7 +12,10 @@ from django.db.models import (
     ManyToManyRel,
     ForeignKey,
 )
-from django.db.models.fields.related_descriptors import ReverseManyToOneDescriptor
+from django.db.models.fields.related_descriptors import (
+    ReverseManyToOneDescriptor,
+    ManyToManyDescriptor,
+)
 from django.urls import reverse
 from rdflib import ConjunctiveGraph, URIRef, Namespace, Literal, BNode
 from rdflib.namespace import RDF, XSD
@@ -110,18 +113,28 @@ class JsonLDSchemaRenderer(renderers.BaseRenderer):
                 if attr_name[0] == '_':
                     continue
                 if type(mapping) == dict and (sub_fields := mapping.get('_fields', None)) is not None:
-                    sub_node = BNode()
-                    G.add((sub_node, RDF.type, getattr(SCHEMA, mapping["_type"])))
-                    for attr_name, schema_attr in sub_fields.items():
-                        G.add(
-                            (
-                                sub_node,
-                                getattr(SCHEMA, schema_attr),
-                                Literal(getattr(model.objects.get(id=item['id']), attr_name)),
+                    # by default, we use the object itself as source for the sub node
+                    sub_nodes_src = model.objects.filter(id=item['id'])
+                    try:
+                        if type(getattr(model, attr_name)) in (ManyToManyDescriptor,):
+                            # if the attr_name exists and is an M2M, we use them as sources of the sub nodes
+                            sub_nodes_src = getattr(model.objects.get(id=item['id']), attr_name).all()
+                    except AttributeError:
+                        pass
+                    for sub_node_src in sub_nodes_src:
+                        # for each source, create a new sub node, and get info from this source
+                        sub_node = BNode()
+                        G.add((sub_node, RDF.type, getattr(SCHEMA, mapping["_type"])))
+                        for sub_attr_name, schema_attr in sub_fields.items():
+                            G.add(
+                                (
+                                    sub_node,
+                                    getattr(SCHEMA, schema_attr),
+                                    Literal(getattr(sub_node_src, sub_attr_name)),
+                                )
                             )
-                        )
 
-                    G.add((object_uri, getattr(SCHEMA, mapping['schema_attr']), sub_node))
+                        G.add((object_uri, getattr(SCHEMA, mapping['schema_attr']), sub_node))
                     continue
                 try:
                     # get the value from the serialized object

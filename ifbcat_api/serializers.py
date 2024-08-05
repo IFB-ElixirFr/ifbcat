@@ -396,7 +396,14 @@ class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModel
         costs=dict(schema_attr='offers', _type='Demand'),
         homepage='url',
         maxParticipants='maximumAttendeeCapacity',
-        organisedByOrganisations='organizer',
+        organisedByOrganisations=dict(
+            schema_attr='organizer',
+            _type="Organization",
+            _fields=dict(
+                name='name',
+                homepage='url',
+            ),
+        ),
         organisedByTeams=dict(
             schema_attr='organizer',
             _type="Organization",
