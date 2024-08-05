@@ -254,10 +254,13 @@ html, body{
 .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
     border-color: #e9ecef #e9ecef #dee2e6;
 }
+.nav-tabs .nav-link:focus {
+    border-bottom-color: #fff;
+}
 .accent-primary .btn-link, .accent-primary .nav-tabs .nav-link, .accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn) {
     color: #007bff;
 }
-.accent-primary .btn-link:hover, .accent-primary .nav-tabs .nav-link:hover, .accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn):hover {
+.accent-primary .btn-link:hover, .accent-primary .nav-tabs .nav-link:focus, .accent-primary .nav-tabs .nav-link:hover, .accent-primary a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.btn):hover {
     color: #0056b3;
 }
 .timeline>div>.timeline-item.with-author>.timeline-header {
