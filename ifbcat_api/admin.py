@@ -1191,7 +1191,10 @@ class TeamAdmin(
         'logo',
         'updated_at',
     )
-    list_filter = (IsActiveListFilter,)
+    list_filter = (
+        IsActiveListFilter,
+        'ifbMembership',
+    )
     fieldsets = (
         (
             'Team info',
