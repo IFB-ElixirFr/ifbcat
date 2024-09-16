@@ -158,6 +158,7 @@ class UserProfileSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelS
 
     rdf_mapping = dict(
         _type='Person',
+        _conformsTo='https://bioschemas.org/profiles/Person/0.2-DRAFT-2019_07_19',
         firstname='givenName',
         lastname='familyName',
         expertise='expertise',
@@ -433,11 +434,13 @@ class EventSerializer(JsonLDDynamicSerializerMixin, serializers.HyperlinkedModel
         if self.Meta.model.objects.filter(id=instance_id, type='Training course').exists():
             return dict(
                 _type='CourseInstance',
+                _conformsTo='https://bioschemas.org/profiles/CourseInstance/0.8-DRAFT-2020_10_06',
                 **self.AbstractEvent_rdf_mapping,
                 **self.Event_rdf_mapping,
             )
         return dict(
             _type='Event',
+            _conformsTo='https://bioschemas.org/profiles/Event/0.2-DRAFT-2019_06_14',
             **self.AbstractEvent_rdf_mapping,
             **self.Event_rdf_mapping,
         )
@@ -490,6 +493,7 @@ class TrainingSerializer(EventSerializer):
 
     rdf_mapping = dict(
         _type='Course',
+        _conformsTo='https://bioschemas.org/profiles/Course/0.9-DRAFT-2020_12_08',
         event_set='hasCourseInstance',
         **EventSerializer.AbstractEvent_rdf_mapping,
     )
@@ -804,6 +808,7 @@ class TrainingMaterialSerializer(JsonLDSerializerMixin, ResourceSerializer):
 
     rdf_mapping = dict(
         _type='LearningResource',
+        _conformsTo='https://bioschemas.org/profiles/TrainingMaterial/1.0-RELEASE',
         # Minimum
         name='name',
         fileName='alternateName',
@@ -934,6 +939,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
 
     rdf_mapping = dict(
         _type='Organization',
+        _conformsTo='https://bioschemas.org/profiles/Organization/0.2-DRAFT-2019_07_19',
         _slug_name='name',
         name='name',
         description='description',
