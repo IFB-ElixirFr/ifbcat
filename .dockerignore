@@ -3,5 +3,6 @@
 local.ini
 source_info.json
 ./import_data/
+./dumps/
 
 #END OF FILE
