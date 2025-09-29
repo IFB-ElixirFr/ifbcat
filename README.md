@@ -113,7 +113,7 @@ docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down --rmi all
 
 ## How to do a dump
 ```sh
-docker exec -e PGPASSWORD=the_super_password $(docker ps -q) pg_dump --clean -h localhost  -U postgres --format plain | sed "s/pbkdf2_sha256[^\t]*/redacted/g" > my_dump.sql
+docker exec -e PGPASSWORD=the_super_password ifbcatsrc_db_1 pg_dump --clean -h localhost  -U postgres --format plain | sed "s/pbkdf2_sha256[^\t]*/redacted/g" > my_dump.sql
 ```
 
 
