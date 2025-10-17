@@ -17,11 +17,13 @@ from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
 from ifbcat_api.model.tool.tool import Tool
 from ifbcat_api.model.userProfile import UserProfile
-from ifbcat_api.validators import validate_can_be_looked_up
+from ifbcat_api.validators import validate_can_be_looked_up, validate_https, MaxFileSizeValidator
 
 
 class Team(WithGridIdOrRORId, models.Model):
     """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
+
+    MAX_KEYWORD_COUNT = 10
 
     # CertificationType: Controlled vocabulary of type of certification of bioinformatics teams.
     class CertificationType(models.TextChoices):
@@ -38,9 +40,21 @@ class Team(WithGridIdOrRORId, models.Model):
             validate_can_be_looked_up,
         ],
     )
-    description = models.TextField(help_text="Description of the team.")
+    description = models.TextField(
+        help_text="Description of the team.",
+        max_length=800,
+    )
     homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
-    logo_url = models.URLField(max_length=512, help_text="URL of logo of the team.", blank=True, null=True)
+    logo_url = models.URLField(
+        max_length=512,
+        help_text="URL of logo of the team.",
+        blank=True,
+        null=True,
+        validators=[
+            validate_https,
+            MaxFileSizeValidator(512),
+        ],
+    )
     fields = models.ManyToManyField(
         Field,
         blank=True,
@@ -51,7 +65,13 @@ class Team(WithGridIdOrRORId, models.Model):
         Keyword,
         blank=True,
         related_name='teamsKeywords',
-        help_text="A keyword (beyond EDAM ontology scope) describing the team.",
+        help_text=f"Keyword (from EDAM ontology) describing the team, limited to {MAX_KEYWORD_COUNT} keywords.",
+    )
+    keywords_old = models.ManyToManyField(
+        Keyword,
+        blank=True,
+        related_name='teamsKeywords_old',
+        help_text="Old keyword associated to your team, provided here as a reminder.",
     )
     expertise = models.ManyToManyField(
         Topic,
@@ -60,6 +80,11 @@ class Team(WithGridIdOrRORId, models.Model):
         help_text='Required for IFB platform and associated team. Please enter here one or several keywords '
         'describing the general and specific expertises of the team. Please note that individual '
         'expertises will also be documented in the "members" tab.',
+    )
+    expertise_description = models.TextField(
+        blank=True,
+        help_text="Short description of the team's expertise.",
+        max_length=400,
     )
     linkCovid19 = models.TextField(
         blank=True, help_text="Describe the ways your team contributes to resources related to Covid-19."

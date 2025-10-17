@@ -25,7 +25,7 @@ from django.utils.translation import gettext, ngettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
-from ifbcat_api import models, business_logic
+from ifbcat_api import models, business_logic, misc
 from ifbcat_api.misc import BibliographicalEntryNotFound, get_usage_in_related_field
 from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
@@ -1209,6 +1209,35 @@ class TeamForm(forms.ModelForm):
             initial["osm_link"] = instance.get_osm_link()
         super().__init__(*args, initial=initial, instance=instance, **kwargs)
         self.fields['osm_link'].widget.attrs["disabled"] = True
+        try:
+            for f in [
+                'logo_url',
+                'city',
+                'expertise_description',
+            ]:
+                self.fields[f].required = True
+        except KeyError as e:
+            pass
+
+    def clean_scientificLeaders(self):
+        if self.cleaned_data['scientificLeaders'].count() == 0:
+            raise ValidationError('You must add at least one scientific leader to a team.')
+        return self.cleaned_data['scientificLeaders']
+
+    def clean_technicalLeaders(self):
+        if self.cleaned_data['technicalLeaders'].count() == 0:
+            raise ValidationError('You must add at least one technical leader to a team.')
+        return self.cleaned_data['technicalLeaders']
+
+    def clean_keywords(self):
+        if (overhead := self.cleaned_data['keywords'].count() - models.Team.MAX_KEYWORD_COUNT) > 0:
+            raise ValidationError(
+                'You can only add up to %i keywords to a team. Please remove at least %i element(s) and try again.'
+                % (models.Team.MAX_KEYWORD_COUNT, overhead)
+            )
+        if self.cleaned_data['keywords'].count() == 0:
+            raise ValidationError('You must add at least one keyword to a team.')
+        return self.cleaned_data['keywords']
 
     def _save_m2m(self):
         super()._save_m2m()
@@ -1311,9 +1340,10 @@ class TeamAdmin(
                 'fields': (
                     'fields',
                     'keywords',
+                    'keywords_old',
+                    'expertise_description',
                     'expertise',
                     'certifications',
-                    'linkCovid19',
                 )
             },
         ),
@@ -1331,7 +1361,7 @@ class TeamAdmin(
             'Persons',
             {
                 'fields': (
-                    'leaders',
+                    # 'leaders',
                     'scientificLeaders',
                     'technicalLeaders',
                     'deputies',
@@ -1420,6 +1450,23 @@ class TeamAdmin(
         return format_html('<center style="margin: -8px;">-<center>')
 
     logo.short_description = format_html("<center>" + gettext("Image") + "<center>")
+
+    def change_view(self, request, object_id, *args, **kwargs):
+        r = super().change_view(request, object_id, *args, **kwargs)
+        url = models.Team.objects.filter(pk=object_id).values_list('logo_url', flat=True)[0]
+        if url:
+            try:
+                filesize = misc.get_file_size_from_url(url)
+                if filesize > 256:
+                    messages.warning(
+                        request,
+                        f'The filesize of the logo is {filesize}kb, '
+                        'please consider using a smaller one to spare network resources',
+                    )
+            except requests.RequestException as e:
+                messages.warning(request, f"Error while validating file length: {e}")
+
+        return r
 
 
 class AbstractControlledVocabularyAdmin(

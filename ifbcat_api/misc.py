@@ -95,6 +95,27 @@ def get_doi_info(doi: str) -> dict:
     return response
 
 
+def get_edam_info_from_ols(uri):
+    cache_dir = os.environ.get('CACHE_DIR', None)
+    key = None
+    if cache_dir is not None:
+        cache_dir = os.path.join(cache_dir, 'edam_from_ebi_ols')
+        os.makedirs(cache_dir, exist_ok=True)
+        key = f'{uri.replace("/", "-").replace(":", "-")}.json'
+        try:
+            with open(os.path.join(cache_dir, key)) as f:
+                response = json.load(f)
+            return response
+        except FileNotFoundError:
+            pass
+    url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={uri}'
+    response = requests.get(url).json()
+    if key is not None:
+        with open(os.path.join(cache_dir, key), 'w') as f:
+            json.dump(response, f)
+    return response
+
+
 def get_usage_in_related_field(queryset):
     attrs = []
     for model_field in queryset.model._meta.get_fields():
@@ -143,3 +164,13 @@ def guess_coordinate_from_address(address):
     result = min(results, key=lambda x: pylev.levenshtein(x['formatted'], address))
     print(result['annotations']['OSM']['url'])
     return result['geometry']
+
+
+def get_file_size_from_url(url) -> int:
+    """
+    Return the size of a file in KB.
+    """
+    response = requests.get(url)
+    response.raise_for_status()
+    current_size = len(response.content) // 1024
+    return current_size
