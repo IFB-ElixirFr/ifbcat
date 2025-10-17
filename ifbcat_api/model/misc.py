@@ -102,8 +102,7 @@ class Topic(models.Model):
         )
 
     def update_information_from_ebi_ols(self):
-        url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}'
-        response = requests.get(url).json()
+        response = misc.get_edam_info_from_ols(self.uri)
         try:
             term = response["_embedded"]["terms"][0]
             if term["iri"] != self.uri:
@@ -115,10 +114,16 @@ class Topic(models.Model):
             try:
                 self.save()
             except DataError as e:
-                logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
+                logger.error(
+                    f"Issue when saving topic {self.uri}, "
+                    f"please investigate with https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}"
+                )
                 raise
         except KeyError as e:
-            logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}\n{json.dumps(response)}")
+            logger.error(
+                f"Issue when saving topic {self.uri}, please investigate "
+                f"with https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}\n{json.dumps(response)}"
+            )
         # # code use to pre-load topics, and spare rest calls later, should remain commented on git
         # filepath = "./import_data/Topic.json"
         # try:
