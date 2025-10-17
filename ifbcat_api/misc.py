@@ -95,6 +95,27 @@ def get_doi_info(doi: str) -> dict:
     return response
 
 
+def get_edam_info_from_ols(uri):
+    cache_dir = os.environ.get('CACHE_DIR', None)
+    key = None
+    if cache_dir is not None:
+        cache_dir = os.path.join(cache_dir, 'edam_from_ebi_ols')
+        os.makedirs(cache_dir, exist_ok=True)
+        key = f'{uri.replace("/", "-").replace(":", "-")}.json'
+        try:
+            with open(os.path.join(cache_dir, key)) as f:
+                response = json.load(f)
+            return response
+        except FileNotFoundError:
+            pass
+    url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={uri}'
+    response = requests.get(url).json()
+    if key is not None:
+        with open(os.path.join(cache_dir, key), 'w') as f:
+            json.dump(response, f)
+    return response
+
+
 def get_usage_in_related_field(queryset):
     attrs = []
     for model_field in queryset.model._meta.get_fields():
