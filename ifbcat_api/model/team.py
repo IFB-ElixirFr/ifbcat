@@ -23,9 +23,7 @@ from ifbcat_api.validators import validate_can_be_looked_up, validate_https, Max
 class Team(WithGridIdOrRORId, models.Model):
     """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
 
-    @staticmethod
-    def get_max_keyword():
-        return 10
+    MAX_KEYWORD_COUNT = 10
 
     # CertificationType: Controlled vocabulary of type of certification of bioinformatics teams.
     class CertificationType(models.TextChoices):
@@ -67,7 +65,7 @@ class Team(WithGridIdOrRORId, models.Model):
         Keyword,
         blank=True,
         related_name='teamsKeywords',
-        help_text=f"Keyword (from EDAM ontology) describing the team, limited to {get_max_keyword()} keywords.",
+        help_text=f"Keyword (from EDAM ontology) describing the team, limited to {MAX_KEYWORD_COUNT} keywords.",
     )
     keywords_old = models.ManyToManyField(
         Keyword,

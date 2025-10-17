@@ -1146,10 +1146,10 @@ class TeamForm(forms.ModelForm):
         return self.cleaned_data['technicalLeaders']
 
     def clean_keywords(self):
-        if (overhead := self.cleaned_data['keywords'].count() - models.Team.get_max_keyword()) > 0:
+        if (overhead := self.cleaned_data['keywords'].count() - models.Team.MAX_KEYWORD_COUNT) > 0:
             raise ValidationError(
                 'You can only add up to %i keywords to a team. Please remove at least %i element(s) and try again.'
-                % (models.Team.get_max_keyword(), overhead)
+                % (models.Team.MAX_KEYWORD_COUNT, overhead)
             )
         if self.cleaned_data['keywords'].count() == 0:
             raise ValidationError('You must add at least one keyword to a team.')
