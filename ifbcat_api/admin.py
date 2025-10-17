@@ -1249,7 +1249,7 @@ class TeamAdmin(
             'Persons',
             {
                 'fields': (
-                    'leaders',
+                    # 'leaders',
                     'scientificLeaders',
                     'technicalLeaders',
                     'deputies',
