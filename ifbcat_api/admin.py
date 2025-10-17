@@ -1128,6 +1128,22 @@ class TeamForm(forms.ModelForm):
             initial["osm_link"] = instance.get_osm_link()
         super().__init__(*args, initial=initial, instance=instance, **kwargs)
         self.fields['osm_link'].widget.attrs["disabled"] = True
+        for f in [
+            'logo_url',
+            'city',
+            'expertise_description',
+        ]:
+            self.fields[f].required = True
+
+    def clean_scientificLeaders(self):
+        if self.cleaned_data['scientificLeaders'].count() == 0:
+            raise ValidationError('You must add at least one scientific leader to a team.')
+        return self.cleaned_data['scientificLeaders']
+
+    def clean_technicalLeaders(self):
+        if self.cleaned_data['technicalLeaders'].count() == 0:
+            raise ValidationError('You must add at least one technical leader to a team.')
+        return self.cleaned_data['technicalLeaders']
 
     def clean_keywords(self):
         if (overhead := self.cleaned_data['keywords'].count() - models.Team.get_max_keyword()) > 0:
