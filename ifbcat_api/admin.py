@@ -1054,8 +1054,6 @@ class OrganisationAdmin(
         'orgid',
         'fields__field',
         'city',
-        'funded_team',
-        'affiliated_team',
     )
     list_filter = (
         'fields',
