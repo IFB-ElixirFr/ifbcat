@@ -1369,15 +1369,19 @@ class TeamAdmin(
 
     def change_view(self, request, object_id, *args, **kwargs):
         r = super().change_view(request, object_id, *args, **kwargs)
-        filesize = misc.get_file_size_from_url(
-            models.Team.objects.filter(pk=object_id).values_list('logo_url', flat=True)[0]
-        )
-        if filesize > 256:
-            messages.warning(
-                request,
-                f'The filesize of the logo is {filesize}kb, '
-                'please consider using a smaller one to spare network resources',
-            )
+        url = models.Team.objects.filter(pk=object_id).values_list('logo_url', flat=True)[0]
+        if url:
+            try:
+                filesize = misc.get_file_size_from_url(url)
+                if filesize > 256:
+                    messages.warning(
+                        request,
+                        f'The filesize of the logo is {filesize}kb, '
+                        'please consider using a smaller one to spare network resources',
+                    )
+            except requests.RequestException as e:
+                messages.warning(request, f"Error while validating file length: {e}")
+
         return r
 
 
