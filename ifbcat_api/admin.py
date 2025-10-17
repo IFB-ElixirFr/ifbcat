@@ -1232,7 +1232,6 @@ class TeamAdmin(
                     'keywords',
                     'expertise',
                     'certifications',
-                    'linkCovid19',
                 )
             },
         ),
