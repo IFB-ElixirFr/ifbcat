@@ -11,6 +11,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name='team',
+            name='expertise_description',
+            field=models.TextField(blank=True, help_text="Short description of the team's expertise.", max_length=400),
+        ),
         migrations.AlterField(
             model_name='team',
             name='logo_url',

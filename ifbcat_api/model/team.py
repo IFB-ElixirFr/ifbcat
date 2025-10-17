@@ -73,6 +73,11 @@ class Team(WithGridIdOrRORId, models.Model):
         'describing the general and specific expertises of the team. Please note that individual '
         'expertises will also be documented in the "members" tab.',
     )
+    expertise_description = models.TextField(
+        blank=True,
+        help_text="Short description of the team's expertise.",
+        max_length=400,
+    )
     linkCovid19 = models.TextField(
         blank=True, help_text="Describe the ways your team contributes to resources related to Covid-19."
     )
