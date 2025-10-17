@@ -1129,6 +1129,16 @@ class TeamForm(forms.ModelForm):
         super().__init__(*args, initial=initial, instance=instance, **kwargs)
         self.fields['osm_link'].widget.attrs["disabled"] = True
 
+    def clean_keywords(self):
+        if (overhead := self.cleaned_data['keywords'].count() - models.Team.get_max_keyword()) > 0:
+            raise ValidationError(
+                'You can only add up to %i keywords to a team. Please remove at least %i element(s) and try again.'
+                % (models.Team.get_max_keyword(), overhead)
+            )
+        if self.cleaned_data['keywords'].count() == 0:
+            raise ValidationError('You must add at least one keyword to a team.')
+        return self.cleaned_data['keywords']
+
     def _save_m2m(self):
         super()._save_m2m()
         for doi_str in self.cleaned_data["publications_batch"].split('\n'):

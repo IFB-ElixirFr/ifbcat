@@ -23,6 +23,10 @@ from ifbcat_api.validators import validate_can_be_looked_up, validate_https, Max
 class Team(WithGridIdOrRORId, models.Model):
     """Team model: A group of people collaborating on a common project or goals, or organised (formally or informally) into some structure."""
 
+    @staticmethod
+    def get_max_keyword():
+        return 10
+
     # CertificationType: Controlled vocabulary of type of certification of bioinformatics teams.
     class CertificationType(models.TextChoices):
         """Controlled vocabulary of type of certification of teams."""
