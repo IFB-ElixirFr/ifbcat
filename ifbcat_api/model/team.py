@@ -38,7 +38,10 @@ class Team(WithGridIdOrRORId, models.Model):
             validate_can_be_looked_up,
         ],
     )
-    description = models.TextField(help_text="Description of the team.")
+    description = models.TextField(
+        help_text="Description of the team.",
+        max_length=800,
+    )
     homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
     logo_url = models.URLField(max_length=512, help_text="URL of logo of the team.", blank=True, null=True)
     fields = models.ManyToManyField(
