@@ -17,7 +17,7 @@ from ifbcat_api.model.organisation import Organisation
 from ifbcat_api.model.project import Project
 from ifbcat_api.model.tool.tool import Tool
 from ifbcat_api.model.userProfile import UserProfile
-from ifbcat_api.validators import validate_can_be_looked_up
+from ifbcat_api.validators import validate_can_be_looked_up, validate_https, MaxFileSizeValidator
 
 
 class Team(WithGridIdOrRORId, models.Model):
@@ -43,7 +43,16 @@ class Team(WithGridIdOrRORId, models.Model):
         max_length=800,
     )
     homepage = models.URLField(max_length=255, help_text="Homepage of the team.")
-    logo_url = models.URLField(max_length=512, help_text="URL of logo of the team.", blank=True, null=True)
+    logo_url = models.URLField(
+        max_length=512,
+        help_text="URL of logo of the team.",
+        blank=True,
+        null=True,
+        validators=[
+            validate_https,
+            MaxFileSizeValidator(250),
+        ],
+    )
     fields = models.ManyToManyField(
         Field,
         blank=True,

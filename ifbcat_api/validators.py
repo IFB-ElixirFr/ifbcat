@@ -1,6 +1,8 @@
 import re
 
+import requests
 from django.core.exceptions import ValidationError
+from django.utils.deconstruct import deconstructible
 
 __p_orcid_regexp = '^https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]$'
 __p_orcid = re.compile(__p_orcid_regexp, re.IGNORECASE | re.UNICODE)
@@ -74,3 +76,24 @@ def validate_email(value):
     if not value.islower():
         raise ValidationError("Only lowercase is allowed in email")
     return value
+
+
+def validate_https(value):
+    if not value.startswith("https://"):
+        raise ValidationError("Only HTTPS is allowed")
+
+
+@deconstructible
+class MaxFileSizeValidator:
+    def __init__(self, max_size_in_kb):
+        self._max_size = max_size_in_kb
+
+    def __call__(self, url):
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+        except Exception as e:
+            raise ValidationError(f"Error while validating file length: {e}") from e
+        current_size = len(response.content) // 1024
+        if current_size > self._max_size:
+            raise ValidationError(f"File size is too large ({current_size}kb). Max size is {self._max_size}KB")
