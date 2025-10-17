@@ -13,7 +13,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.lookups import Unaccent
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Q, When, Value, BooleanField, Case, CharField, F
+from django.db.models import Count, Q, When, Value, BooleanField, Case, CharField, F, Exists, OuterRef
 from django.db.models.functions import Upper, Length
 from django.forms import modelform_factory
 from django.http import HttpResponseRedirect
@@ -965,12 +965,88 @@ class ElixirPlatformAdmin(
     )
 
 
+class UsedAsTeamFunderListFilter(admin.SimpleListFilter):
+    title = 'Used as team funder'
+    parameter_name = 'as_team_funder'
+
+    def lookups(self, request, model_admin):
+        return (
+            ("True", "True"),
+            ("False", "False"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        # teamsFunders
+        return queryset.annotate(
+            as_team_funder=Exists(models.Team.objects.filter(fundedBy__pk=OuterRef('pk'))),
+        ).filter(as_team_funder=self.value() == "True")
+
+
+class UsedAsTeamAffiliationListFilter(admin.SimpleListFilter):
+    title = 'Used as team affiliation'
+    parameter_name = 'as_team_affiliation'
+
+    def lookups(self, request, model_admin):
+        return (
+            ("True", "True"),
+            ("False", "False"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        # teamsFunders
+        return queryset.annotate(
+            as_team_affiliation=Exists(models.Team.objects.filter(affiliatedWith__pk=OuterRef('pk'))),
+        ).filter(as_team_affiliation=self.value() == "True")
+
+
+class OrganisationAdminForm(forms.ModelForm):
+    """
+    https://stackoverflow.com/a/39648244/2144569
+    """
+
+    class Meta:
+        model = Group
+        exclude = []
+
+    # Add the users field.
+    funded_team = forms.ModelMultipleChoiceField(
+        queryset=models.Team.objects.all(),
+        required=False,
+        # Use the pretty 'filter_horizontal widget'.
+        widget=FilteredSelectMultiple('users', False),
+    )
+
+    # Add the users field.
+    affiliated_team = forms.ModelMultipleChoiceField(
+        queryset=models.Team.objects.all(),
+        required=False,
+        # Use the pretty 'filter_horizontal widget'.
+        widget=FilteredSelectMultiple('users', False),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields['funded_team'].initial = self.instance.teamsFunders.all()
+            self.fields['affiliated_team'].initial = self.instance.teamsAffiliatedWith.all()
+
+    def _save_m2m(self):
+        super()._save_m2m()
+        self.instance.teamsFunders.set(self.cleaned_data['funded_team'])
+        self.instance.teamsAffiliatedWith.set(self.cleaned_data['affiliated_team'])
+
+
 @admin.register(models.Organisation)
 class OrganisationAdmin(
     PermissionInClassModelAdmin,
     AllFieldInAutocompleteModelAdmin,
     ViewInApiModelByNameAdmin,
 ):
+    form = OrganisationAdminForm
     search_fields = (
         'name',
         'description',
@@ -978,8 +1054,15 @@ class OrganisationAdmin(
         'orgid',
         'fields__field',
         'city',
+        'funded_team',
+        'affiliated_team',
     )
-    list_filter = ('fields',)
+    list_filter = (
+        'fields',
+        UsedAsTeamFunderListFilter,
+        UsedAsTeamAffiliationListFilter,
+    )
+    readonly_fields = ('fields',)
 
 
 @admin.register(models.Field)
