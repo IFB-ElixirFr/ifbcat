@@ -1230,6 +1230,7 @@ class TeamAdmin(
                 'fields': (
                     'fields',
                     'keywords',
+                    'keywords_old',
                     'expertise_description',
                     'expertise',
                     'certifications',

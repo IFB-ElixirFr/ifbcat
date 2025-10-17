@@ -4,6 +4,20 @@ from django.db import migrations, models
 import ifbcat_api.validators
 
 
+def migrate(apps, schema_editor):
+    for team in apps.get_model("ifbcat_api", "Team").objects.all():
+        team.keywords_old.set(team.keywords.all())
+        team.keywords.clear()
+        team.save()
+
+
+def migrate_back(apps, schema_editor):
+    for team in apps.get_model("ifbcat_api", "Team").objects.all():
+        team.keywords.set(team.keywords_old.all())
+        team.keywords_old.clear()
+        team.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -27,4 +41,25 @@ class Migration(migrations.Migration):
                 validators=[ifbcat_api.validators.validate_https, ifbcat_api.validators.MaxFileSizeValidator(250)],
             ),
         ),
+        migrations.AddField(
+            model_name='team',
+            name='keywords_old',
+            field=models.ManyToManyField(
+                blank=True,
+                help_text='Old keyword associated to your team, provided here as a reminder.',
+                related_name='teamsKeywords_old',
+                to='ifbcat_api.keyword',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='team',
+            name='keywords',
+            field=models.ManyToManyField(
+                blank=True,
+                help_text='Keyword (from EDAM ontology) describing the team, limited to 10 keywords.',
+                related_name='teamsKeywords',
+                to='ifbcat_api.keyword',
+            ),
+        ),
+        migrations.RunPython(code=migrate, reverse_code=migrate_back),
     ]

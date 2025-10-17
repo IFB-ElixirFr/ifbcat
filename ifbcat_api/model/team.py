@@ -63,7 +63,13 @@ class Team(WithGridIdOrRORId, models.Model):
         Keyword,
         blank=True,
         related_name='teamsKeywords',
-        help_text="A keyword (beyond EDAM ontology scope) describing the team.",
+        help_text=f"Keyword (from EDAM ontology) describing the team, limited to {get_max_keyword()} keywords.",
+    )
+    keywords_old = models.ManyToManyField(
+        Keyword,
+        blank=True,
+        related_name='teamsKeywords_old',
+        help_text="Old keyword associated to your team, provided here as a reminder.",
     )
     expertise = models.ManyToManyField(
         Topic,
