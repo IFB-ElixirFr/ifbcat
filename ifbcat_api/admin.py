@@ -1128,12 +1128,15 @@ class TeamForm(forms.ModelForm):
             initial["osm_link"] = instance.get_osm_link()
         super().__init__(*args, initial=initial, instance=instance, **kwargs)
         self.fields['osm_link'].widget.attrs["disabled"] = True
-        for f in [
-            'logo_url',
-            'city',
-            'expertise_description',
-        ]:
-            self.fields[f].required = True
+        try:
+            for f in [
+                'logo_url',
+                'city',
+                'expertise_description',
+            ]:
+                self.fields[f].required = True
+        except KeyError as e:
+            pass
 
     def clean_scientificLeaders(self):
         if self.cleaned_data['scientificLeaders'].count() == 0:
