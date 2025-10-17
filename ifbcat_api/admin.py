@@ -25,7 +25,7 @@ from django.utils.translation import gettext, ngettext
 from django_better_admin_arrayfield.admin.mixins import DynamicArrayMixin
 from rest_framework.authtoken.models import Token
 
-from ifbcat_api import models, business_logic
+from ifbcat_api import models, business_logic, misc
 from ifbcat_api.misc import BibliographicalEntryNotFound, get_usage_in_related_field
 from ifbcat_api.model.event import Event
 from ifbcat_api.permissions import simple_override_method
@@ -1350,6 +1350,19 @@ class TeamAdmin(
         return format_html('<center style="margin: -8px;">-<center>')
 
     logo.short_description = format_html("<center>" + gettext("Image") + "<center>")
+
+    def change_view(self, request, object_id, *args, **kwargs):
+        r = super().change_view(request, object_id, *args, **kwargs)
+        filesize = misc.get_file_size_from_url(
+            models.Team.objects.filter(pk=object_id).values_list('logo_url', flat=True)[0]
+        )
+        if filesize > 256:
+            messages.warning(
+                request,
+                f'The filesize of the logo is {filesize}kb, '
+                'please consider using a smaller one to spare network resources',
+            )
+        return r
 
 
 class AbstractControlledVocabularyAdmin(

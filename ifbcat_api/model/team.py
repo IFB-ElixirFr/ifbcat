@@ -54,7 +54,7 @@ class Team(WithGridIdOrRORId, models.Model):
         null=True,
         validators=[
             validate_https,
-            MaxFileSizeValidator(250),
+            MaxFileSizeValidator(512),
         ],
     )
     fields = models.ManyToManyField(

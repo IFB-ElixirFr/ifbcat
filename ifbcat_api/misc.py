@@ -143,3 +143,13 @@ def guess_coordinate_from_address(address):
     result = min(results, key=lambda x: pylev.levenshtein(x['formatted'], address))
     print(result['annotations']['OSM']['url'])
     return result['geometry']
+
+
+def get_file_size_from_url(url) -> int:
+    """
+    Return the size of a file in KB.
+    """
+    response = requests.get(url)
+    response.raise_for_status()
+    current_size = len(response.content) // 1024
+    return current_size

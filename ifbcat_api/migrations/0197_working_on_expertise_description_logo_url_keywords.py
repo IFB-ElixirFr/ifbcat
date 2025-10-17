@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 help_text='URL of logo of the team.',
                 max_length=512,
                 null=True,
-                validators=[ifbcat_api.validators.validate_https, ifbcat_api.validators.MaxFileSizeValidator(250)],
+                validators=[ifbcat_api.validators.validate_https, ifbcat_api.validators.MaxFileSizeValidator(512)],
             ),
         ),
         migrations.AddField(
