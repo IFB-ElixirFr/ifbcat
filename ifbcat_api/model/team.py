@@ -152,7 +152,7 @@ class Team(WithGridIdOrRORId, models.Model):
     fundedBy = models.ManyToManyField(
         Organisation,
         related_name='teamsFunders',
-        help_text="Organisation(s) that funds the team.",
+        help_text="Organisation(s) that funds the team. i.e the \"tutelle\" in french",
     )
     publications = models.ManyToManyField(
         Doi,
@@ -170,13 +170,13 @@ class Team(WithGridIdOrRORId, models.Model):
         Organisation,
         blank=True,
         related_name='teamsAffiliatedWith',
-        help_text="Organisation(s) to which the team is affiliated.",
+        help_text="Organisation(s) to which the team is affiliated. i.e: \"Laboratoire\" or \"unité\" in french",
     )
     tools = models.ManyToManyField(
         Tool,
         blank=True,
         related_name='teams',
-        help_text="Tool(s) developped by the team.",
+        help_text="Tool(s) developped by the team. You just need to provide a BioTools id.",
     )
     closing_date = models.DateField(
         help_text="After this date the team is closed. Leave blank if the team is still open/active.",
