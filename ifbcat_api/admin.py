@@ -984,6 +984,24 @@ class UsedAsTeamFunderListFilter(admin.SimpleListFilter):
         ).filter(as_team_funder=self.value() == "True")
 
 
+class TrainingOrganiserListFilter(admin.SimpleListFilter):
+    title = 'Training organiser'
+    parameter_name = 'is_training_organiser'
+
+    def lookups(self, request, model_admin):
+        return (
+            ("True", "True"),
+            ("False", "False"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is None:
+            return queryset
+        return queryset.annotate(
+            is_training_organiser=Exists(models.Training.objects.filter(organisedByOrganisations__pk=OuterRef('pk'))),
+        ).filter(is_training_organiser=self.value() == "True")
+
+
 class UsedAsTeamAffiliationListFilter(admin.SimpleListFilter):
     title = 'Used as team affiliation'
     parameter_name = 'as_team_affiliation'
@@ -1022,17 +1040,24 @@ class OrganisationAdminForm(forms.ModelForm):
         required=False,
         widget=FilteredSelectMultiple('affiliated_team', False),
     )
+    organized_training = forms.ModelMultipleChoiceField(
+        queryset=models.Training.objects.all(),
+        required=False,
+        widget=FilteredSelectMultiple('organized_training', False),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance.pk:
             self.fields['funded_team'].initial = self.instance.teamsFunders.all()
             self.fields['affiliated_team'].initial = self.instance.teamsAffiliatedWith.all()
+            self.fields['organized_training'].initial = self.instance.training_set.all()
 
     def _save_m2m(self):
         super()._save_m2m()
         self.instance.teamsFunders.set(self.cleaned_data['funded_team'])
         self.instance.teamsAffiliatedWith.set(self.cleaned_data['affiliated_team'])
+        self.instance.training_set.set(self.cleaned_data['organized_training'])
 
 
 @admin.register(models.Organisation)
@@ -1054,6 +1079,7 @@ class OrganisationAdmin(
         'fields',
         UsedAsTeamFunderListFilter,
         UsedAsTeamAffiliationListFilter,
+        TrainingOrganiserListFilter,
     )
     readonly_fields = ('fields',)
 
