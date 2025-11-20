@@ -1012,20 +1012,15 @@ class OrganisationAdminForm(forms.ModelForm):
         model = Group
         exclude = []
 
-    # Add the users field.
     funded_team = forms.ModelMultipleChoiceField(
         queryset=models.Team.objects.all(),
         required=False,
-        # Use the pretty 'filter_horizontal widget'.
-        widget=FilteredSelectMultiple('users', False),
+        widget=FilteredSelectMultiple('funded_team', False),
     )
-
-    # Add the users field.
     affiliated_team = forms.ModelMultipleChoiceField(
         queryset=models.Team.objects.all(),
         required=False,
-        # Use the pretty 'filter_horizontal widget'.
-        widget=FilteredSelectMultiple('users', False),
+        widget=FilteredSelectMultiple('affiliated_team', False),
     )
 
     def __init__(self, *args, **kwargs):
