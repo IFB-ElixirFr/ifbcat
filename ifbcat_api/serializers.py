@@ -887,6 +887,7 @@ class TeamSerializer(JsonLDSerializerMixin, serializers.HyperlinkedModelSerializ
             'logo_url',
             'description',
             'expertise',
+            'expertise_description',
             'linkCovid19',
             'homepage',
             'unitId',
