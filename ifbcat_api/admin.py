@@ -1484,6 +1484,8 @@ class TeamAdmin(
                         f'The filesize of the logo is {filesize}kb, '
                         'please consider using a smaller one to spare network resources',
                     )
+            except requests.exceptions.SSLError as e:
+                messages.warning(request, f"SSLError while try to valide file length: {e}")
             except requests.RequestException as e:
                 messages.warning(request, f"Error while validating file length: {e}")
 

@@ -93,6 +93,8 @@ class MaxFileSizeValidator:
     def __call__(self, url):
         try:
             current_size = misc.get_file_size_from_url(url)
+        except requests.exceptions.SSLError:
+            current_size = -1
         except Exception as e:
             raise ValidationError(f"Error while validating file length: {e}") from e
         if current_size > self._max_size:
