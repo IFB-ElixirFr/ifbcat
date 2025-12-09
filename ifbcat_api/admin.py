@@ -1237,6 +1237,7 @@ class TeamForm(forms.ModelForm):
                 'logo_url',
                 'city',
                 'expertise_description',
+                'keywords',
             ]:
                 self.fields[f].required = True
         except KeyError as e:
