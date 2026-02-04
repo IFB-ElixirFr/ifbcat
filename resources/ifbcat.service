@@ -4,26 +4,14 @@ Requires=docker.service network-online.target
 After=docker.service network-online.target
 
 [Service]
-WorkingDirectory=/var/ifbcat-src/%i
+WorkingDirectory=/var/ifbcat-src
 Type=simple
 TimeoutStartSec=15min
 Restart=always
 
-ExecStartPre=/bin/bash -c "/bin/systemctl set-environment CI_COMMIT_SHA=$(cd /var/ifbcat-src && git rev-parse HEAD)"
-ExecStartPre=/bin/bash -c "/bin/systemctl set-environment CI_COMMIT_DATE=\"$(cd /var/ifbcat-src && git log -1 --format="%%ai")\""
-ExecStartPre=/usr/bin/docker image prune -a  --force --filter "until=672h"
-ExecStartPre=/usr/bin/docker compose pull --quiet --ignore-pull-failures
-ExecStartPre=/usr/bin/docker compose build --pull --build-arg CI_COMMIT_SHA=${CI_COMMIT_SHA} --build-arg CI_COMMIT_DATE="${CI_COMMIT_DATE}" web db adminer nginx nginx-https
+ExecStartPre=/bin/sh -c 'while ! /usr/bin/docker info >/dev/null 2>&1; do echo "Waiting for Docker..."; sleep 1; done'
 
-ExecReload=/bin/bash -c "/bin/systemctl set-environment CI_COMMIT_SHA=$(cd /var/ifbcat-src && git rev-parse HEAD)"
-ExecReload=/bin/bash -c "/bin/systemctl set-environment CI_COMMIT_DATE=\"$(cd /var/ifbcat-src && git log -1 --format="%%ai")\""
-#ExecReload=/usr/bin/docker image prune -a  --force --filter "until=24h"
-ExecReload=/usr/bin/docker compose pull --quiet --ignore-pull-failures
-ExecReload=/usr/bin/docker compose build --pull --build-arg CI_COMMIT_SHA=${CI_COMMIT_SHA} --build-arg CI_COMMIT_DATE="${CI_COMMIT_DATE}" web
-ExecReload=/usr/bin/docker compose down --remove-orphans
-ExecReload=/usr/bin/docker compose up -d
-
-ExecStart=/usr/bin/docker compose up --remove-orphans
+ExecStart=/usr/local/bin/start-ifbcat.sh
 
 ExecStop=/usr/bin/docker compose down --remove-orphans
 
