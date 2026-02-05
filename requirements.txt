@@ -2,8 +2,7 @@ biopython
 Django~=5.2.11
 djangorestframework~=3.16.1
 python-decouple
-psycopg2
-psycopg2-binary
+psycopg
 gunicorn
 pandas
 PyYAML

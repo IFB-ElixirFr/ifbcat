@@ -2,7 +2,7 @@ services:
   db:
     volumes:
       - .:/code # for dev purpose only !!!
-      - ifbcat-dev-db-data:/var/lib/postgresql/data
+      - ifbcat-dev-db-data:/var/lib/postgresql
 
   web:
     volumes:

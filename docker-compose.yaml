@@ -1,9 +1,9 @@
 services:
 
   db:
-    image: postgres:12
+    image: postgres:18
     volumes:
-      - /var/ifbcat/db_data:/var/lib/postgresql/data
+      - /var/ifbcat/db_data:/var/lib/postgresql
     restart: always
     ports:
       - "5433:5432"
