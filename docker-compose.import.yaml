@@ -1,4 +1,8 @@
 services:
+  db:
+    volumes:
+      - .:/code # for dev purpose only !!!
+
   web:
     restart:
       on-failure

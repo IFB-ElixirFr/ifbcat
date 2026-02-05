@@ -121,7 +121,7 @@ docker exec -e PGPASSWORD=the_super_password ifbcatsrc_db_1 pg_dump --clean -h l
 We consider here that no container are started. You have to get the dump, and uncompress it in the root directory of the project, and name it `data`
 ```sh
 docker stop $(docker ps -q)
-docker compose -f docker-compose.yaml -f docker-compose.dev.yaml run -d db 
+docker compose -f docker-compose.yaml -f docker-compose.import.yaml run -d db 
 docker exec $(docker ps -q) psql -h localhost -U postgres -f /code/dumps/latest.sql
 ```
 
