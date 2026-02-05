@@ -1,6 +1,6 @@
 biopython
-Django~=4.2.14
-djangorestframework==3.15.2
+Django~=5.2.11
+djangorestframework~=3.16.1
 python-decouple
 psycopg2
 psycopg2-binary
