@@ -10,7 +10,7 @@ RUN apt-get update && \
  && rm -rf /var/lib/apt/lists/* \
  && python -m pip install --upgrade pip
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 RUN mkdir /code
 WORKDIR /code
