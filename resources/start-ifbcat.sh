@@ -26,4 +26,4 @@ docker compose build \
     --build-arg CI_COMMIT_SHA="$CI_COMMIT_SHA" \
     --build-arg CI_COMMIT_DATE="$CI_COMMIT_DATE"
 
-exec docker compose up -d --remove-orphans
+exec docker compose up --remove-orphans
