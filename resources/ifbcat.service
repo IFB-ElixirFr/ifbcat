@@ -11,7 +11,7 @@ Restart=always
 
 ExecStartPre=/bin/sh -c 'while ! /usr/bin/docker info >/dev/null 2>&1; do echo "Waiting for Docker..."; sleep 1; done'
 
-ExecStart=/usr/local/bin/start-ifbcat.sh
+ExecStart=/usr/local/bin/start-ifbcat.sh --prune
 
 ExecStop=/usr/bin/docker compose down --remove-orphans
 
