@@ -17,7 +17,6 @@ services:
       dockerfile: django.dockerfile
     restart:
       always
-    entrypoint: /docker-entrypoint.sh
     environment:
       - CI_COMMIT_SHA=${CI_COMMIT_SHA:-xx}
       - CI_COMMIT_DATE=${CI_COMMIT_DATE:-xx}

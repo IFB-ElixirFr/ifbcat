@@ -22,6 +22,8 @@ RUN python -m pip install --upgrade pip && pip install -r requirements.txt
 COPY ./resources/*-entrypoint.sh /
 RUN chmod a+x /*-entrypoint.sh
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
 COPY . /code/
 
 ARG CI_COMMIT_SHA
