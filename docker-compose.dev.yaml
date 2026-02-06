@@ -5,6 +5,18 @@ services:
       - ifbcat-dev-db-data:/var/lib/postgresql
 
   web:
+    command:
+      - "gunicorn"
+      - "--reload"
+      - "--reload-engine"
+      - "inotify"
+      - "--chdir"
+      - "ifbcat"
+      - "--bind"
+      - ":8000"
+      - "ifbcat.asgi:application"
+      - "-k"
+      - "uvicorn.workers.UvicornWorker"
     volumes:
       - .:/code # for dev purpose only !!!
       - ./import_data:/code/import_data # for dev purpose only !!!

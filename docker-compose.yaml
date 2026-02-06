@@ -18,7 +18,6 @@ services:
     restart:
       always
     entrypoint: /docker-entrypoint.sh
-    command: gunicorn --reload ifbcat.wsgi -b 0.0.0.0:8000 --threads 2
     environment:
       - CI_COMMIT_SHA=${CI_COMMIT_SHA:-xx}
       - CI_COMMIT_DATE=${CI_COMMIT_DATE:-xx}
