@@ -28,6 +28,8 @@ SECRET_KEY = config('SECRET_KEY', '#1eg!-*r&1*y8*s9!g^!if!-(1&11k0%*7b$-jwgv!7u!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DJANGO_DEBUG', 'true').lower() == 'true'
 
+IS_DEV_INSTANCE = config('IS_DEV_INSTANCE', 'false').lower() == 'true'
+
 try:
     ALLOWED_HOSTS = [s.strip() for s in config('ALLOWED_HOSTS', '127.0.0.1').split(',')]
 except UndefinedValueError:
