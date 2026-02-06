@@ -4,6 +4,8 @@ djangorestframework~=3.16.1
 python-decouple
 psycopg
 gunicorn
+uvicorn
+inotify
 pandas
 PyYAML
 uritemplate
