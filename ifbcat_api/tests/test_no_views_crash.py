@@ -64,7 +64,7 @@ class TestNoViewsCrashWithoutData(TestCase):
         self.assertEqual(self.client.get('/admin/').status_code, 200)
 
 
-class TestNoViewsCrash(EnsureImportDataAreHere):
+class TestCaseWithData(EnsureImportDataAreHere):
     def setUp(self):
         super().setUp()
         # load the whole catalogue
@@ -79,6 +79,8 @@ class TestNoViewsCrash(EnsureImportDataAreHere):
         add_everywhere(f)
         logger.warning('Data loaded')
 
+
+class TestNoViewsCrash(TestCaseWithData):
     def test_all_at_once_to_spare_resource(self):
         #######################################################################
         # test_loadcatalog
