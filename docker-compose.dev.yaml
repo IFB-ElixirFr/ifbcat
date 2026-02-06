@@ -17,6 +17,11 @@ services:
       - "ifbcat.asgi:application"
       - "-k"
       - "uvicorn.workers.UvicornWorker"
+    environment:
+     - NGINX_FROWARD_PROTO=http
+     - POSTGRES_PASSWORD=the_super_password
+     - DJANGO_DEBUG=True
+     - IS_DEV_INSTANCE=True
     volumes:
       - .:/code # for dev purpose only !!!
       - ./import_data:/code/import_data # for dev purpose only !!!
