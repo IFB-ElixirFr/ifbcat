@@ -22,6 +22,12 @@ services:
       - ./import_data:/code/import_data # for dev purpose only !!!
 
 
+  nginx:
+    environment:
+     - NGINX_FROWARD_PROTO=http
+
+
+
   # The Database manager (adminer)
 #  adminer:
 #    image: adminer
