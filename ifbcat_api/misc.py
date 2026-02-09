@@ -7,6 +7,49 @@ from django.conf import settings
 from django.db.models import ManyToManyRel, ManyToOneRel
 from opencage.geocoder import OpenCageGeocode
 from rest_framework import serializers
+import os
+import json
+import functools
+from typing import Any, Callable
+
+
+def disk_cache(func: Callable) -> Callable:
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> Any:
+        cache_base = os.environ.get('CACHE_DIR')
+        if not cache_base:
+            return func(*args, **kwargs)
+        cache_dir = os.path.join(cache_base, func.__name__)
+        os.makedirs(cache_dir, exist_ok=True)
+
+        a_args = args[1:] if args and isinstance(args[0], type) else args
+        arg_str = "_".join(repr(arg) for arg in a_args)
+        kwarg_str = "_".join(f"{k}={repr(v)}" for k, v in sorted(kwargs.items()))
+        key = f"{arg_str}_{kwarg_str}"
+        key = "".join(c if c.isalnum() or (c in "-_.") else "_" for c in key)
+        key = key.strip("_")
+        file_path = os.path.join(cache_dir, f"{key}.json")
+
+        # Try loading from cache
+        try:
+            with open(file_path, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            pass
+
+        # Call the actual function
+        result = func(*args, **kwargs)
+
+        # Save result to cache
+        try:
+            with open(file_path, 'w') as f:
+                json.dump(result, f)
+        except Exception as e:
+            print(f"Failed to write cache {file_path}: {e}")
+
+        return result
+
+    return wrapper
 
 
 class BibliographicalEntryNotFound(Exception):

@@ -101,9 +101,17 @@ class Topic(models.Model):
             IsAuthenticatedOrReadOnly,
         )
 
+    @classmethod
+    def get_edam_info_ebi_ols_url(cls, uri):
+        return f'https://www.ebi.ac.uk/ols4/api/ontologies/edam/terms?iri={uri}'
+
+    @classmethod
+    @misc.disk_cache
+    def get_edam_from_ebi_ols(cls, uri):
+        return requests.get(cls.get_edam_info_ebi_ols_url(uri)).json()
+
     def update_information_from_ebi_ols(self):
-        url = f'https://www.ebi.ac.uk/ols/api/ontologies/edam/terms?iri={self.uri}'
-        response = requests.get(url).json()
+        response = self.get_edam_from_ebi_ols(self.uri)
         try:
             term = response["_embedded"]["terms"][0]
             if term["iri"] != self.uri:
@@ -115,27 +123,12 @@ class Topic(models.Model):
             try:
                 self.save()
             except DataError as e:
+                url = self.get_edam_info_ebi_ols_url(self.uri)
                 logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}")
                 raise
         except KeyError as e:
+            url = self.get_edam_info_ebi_ols_url(self.uri)
             logger.error(f"Issue when saving topic {self.uri}, please investigate with {url}\n{json.dumps(response)}")
-        # # code use to pre-load topics, and spare rest calls later, should remain commented on git
-        # filepath = "./import_data/Topic.json"
-        # try:
-        #     with open(filepath) as f:
-        #         topics = json.load(f)
-        # except FileNotFoundError:
-        #     topics = []
-        # topics.append(
-        #     dict(
-        #         label=self.label,
-        #         description=self.description,
-        #         synonyms=self.synonyms,
-        #         uri=self.uri,
-        #     )
-        # )
-        # with open(filepath, 'w') as f:
-        #     json.dump(topics, f)
 
 
 @receiver(post_save, sender=Topic)
@@ -301,6 +294,7 @@ class Doi(models.Model):
         )
 
     @classmethod
+    @misc.disk_cache
     def get_doi_from_pmid(cls, pmid):
         with Entrez.efetch(db="pubmed", id=str(pmid), rettype="xml", retmode="text") as handle:
             d = Entrez.read(handle)
