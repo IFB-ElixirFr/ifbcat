@@ -13,7 +13,7 @@ urllib3
 Unidecode
 tqdm
 django-better-admin-arrayfield
-django-jazzmin
+django-jazzmin==3.0.1
 django-filter
 django-cors-headers
 requests
