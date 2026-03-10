@@ -1,7 +1,7 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static jazzmin jazzmin_patch %}
 
-{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+{% block bodyclass %}{{ block.super }} dashboard {{ request|dev_instance_css_patch }}{% endblock %}
 
 {% block content_title %} {% trans 'Dashboard' %} {% endblock %}
 

@@ -56,7 +56,7 @@ urlpatterns = [
     # path('testapiview/', views.TestApiView.as_view()),
     path('tool/<int:pk>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
     path('tool/<biotoolsID>/', views.ToolViewSet.as_view({'get': 'retrieve'})),
-    re_path('topic/(?P<uri>topic_\d+)/', views.TopicViewSet.as_view({'get': 'retrieve'})),
+    re_path(r'topic/(?P<uri>topic_\d+)/', views.TopicViewSet.as_view({'get': 'retrieve'})),
     path('login/', views.UserLoginApiView.as_view()),
     path('', include(router.urls)),
     path(

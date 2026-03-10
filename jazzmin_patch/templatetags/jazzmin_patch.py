@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.template.defaultfilters import stringfilter
 
 register = template.Library()
@@ -18,3 +19,8 @@ def template_exists(value):
 @register.simple_tag
 def patch_for_get_jazzmin_settings(request):
     request.current_app = getattr(request, 'current_app', None)
+
+
+@register.filter
+def dev_instance_css_patch(request):
+    return "dev-instance" if settings.IS_DEV_INSTANCE else ""

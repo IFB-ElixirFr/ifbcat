@@ -306,7 +306,7 @@ class UserProfileAdmin(
                     messages.SUCCESS,
                 )
 
-        name = 'revoke_%s' % re.sub('[\W]+', '_', str(group))
+        name = 'revoke_%s' % re.sub(r'[\W]+', '_', str(group))
         return name, (_action, name, 'Revoke permissions "%s"' % group)
 
     @staticmethod
@@ -380,7 +380,7 @@ class UserProfileAdmin(
                     messages.SUCCESS,
                 )
 
-        name = 'grant_%s' % re.sub('[\W]+', '_', str(group))
+        name = 'grant_%s' % re.sub(r'[\W]+', '_', str(group))
         return name, (_action, name, 'Grant permissions "%s"' % group)
 
     @staticmethod

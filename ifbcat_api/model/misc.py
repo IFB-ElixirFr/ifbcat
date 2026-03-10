@@ -101,6 +101,15 @@ class Topic(models.Model):
             IsAuthenticatedOrReadOnly,
         )
 
+    @classmethod
+    def get_edam_info_ebi_ols_url(cls, uri):
+        return f'https://www.ebi.ac.uk/ols4/api/ontologies/edam/terms?iri={uri}'
+
+    @classmethod
+    @misc.disk_cache
+    def get_edam_from_ebi_ols(cls, uri):
+        return requests.get(cls.get_edam_info_ebi_ols_url(uri)).json()
+
     def update_information_from_ebi_ols(self):
         response = misc.get_edam_info_from_ols(self.uri)
         try:
@@ -306,6 +315,7 @@ class Doi(models.Model):
         )
 
     @classmethod
+    @misc.disk_cache
     def get_doi_from_pmid(cls, pmid):
         with Entrez.efetch(db="pubmed", id=str(pmid), rettype="xml", retmode="text") as handle:
             d = Entrez.read(handle)

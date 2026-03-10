@@ -1,11 +1,9 @@
-version: '3'
-
 services:
 
   db:
-    image: postgres:12
+    image: postgres:18
     volumes:
-      - /var/ifbcat/db_data:/var/lib/postgresql/data
+      - /var/ifbcat/db_data:/var/lib/postgresql
     restart: always
     ports:
       - "5433:5432"
@@ -19,11 +17,9 @@ services:
       dockerfile: django.dockerfile
     restart:
       always
-    entrypoint: /docker-entrypoint.sh
-    command: gunicorn --reload ifbcat.wsgi -b 0.0.0.0:8000 --threads 2
     environment:
-      - CI_COMMIT_SHA=$CI_COMMIT_SHA
-      - CI_COMMIT_DATE=$CI_COMMIT_DATE
+      - CI_COMMIT_SHA=${CI_COMMIT_SHA:-xx}
+      - CI_COMMIT_DATE=${CI_COMMIT_DATE:-xx}
     env_file:
       - ./resources/default.ini
       - ./local.ini
@@ -37,21 +33,11 @@ services:
   nginx:
     image: nginx:1.19-alpine
     volumes:
-      - ./resources/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./resources/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
       - /var/ifbcat/static:/static:ro
     ports:
       - "8080:8080"
-    depends_on:
-      - web
-
-  nginx-https:
-    image: nginx:1.19-alpine
-    volumes:
-      - ./resources/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
-      - /var/ifbcat/static:/static:ro
-      - /etc/ssl/certs/wildcard-chained-france-bioinformatique.crt:/wildcard-chained-france-bioinformatique.crt:ro
-      - /etc/ssl/private/wildcard-france-bioinformatique.key:/wildcard-france-bioinformatique.key:ro
-    ports:
-      - "443:8443"
+    environment:
+     - NGINX_FROWARD_PROTO=https
     depends_on:
       - web

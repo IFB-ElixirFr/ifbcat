@@ -285,4 +285,7 @@ html, body{
 #jazzy-tabs{
     margin-bottom: 0!important;
 }
+.dev-instance .content-wrapper{
+    background-color: orange !important;
+}
 /**/
