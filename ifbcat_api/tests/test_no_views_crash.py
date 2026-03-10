@@ -178,8 +178,8 @@ class TestNoViewsCrash(TestCaseWithData):
             )
             try:
                 response = self.client.get(url_list)
-            except FieldError:
-                self.assertTrue(False, msg)
+            except FieldError as e:
+                self.assertTrue(False, msg + f' with error {str(e)}')
             status_code = 200
             self.assertEqual(
                 response.status_code,
